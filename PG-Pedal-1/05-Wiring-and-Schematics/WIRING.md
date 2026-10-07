@@ -8,8 +8,43 @@ The Seed3 has internal pull-ups for the encoders and switches, its own power reg
 ## How the Seed3 sits: a plug-in cartridge in the left wall
 
 The Seed3 stands on its long edge in a 19 x 52 mm window in the **left side**, parts side facing out, and plugs into a
-**socket board** screwed inside the wall. From outside you can reach USB-C, BOOT and RESET, and swapping a Seed3 is
-pull out, push in: **no soldering on the Seed3, ever**. Drawings: `seed-socket-board.png` (the board, from the soldering side) and `interior-layout.svg`.
+**socket** inside the window. From outside you can reach USB-C, BOOT and RESET, and swapping a Seed3 is
+pull out, push in: **no soldering on the Seed3, ever**. `seed-socket-board.png` shows which socket position is which pin, seen from inside.
+
+### The socket, way 1 (build it like this now): a glued block of jumper ends, no soldering at the socket
+
+The female end of every jumper wire is a small plastic shell exactly 2.54 mm wide, the same as the Seed3's pin spacing.
+20 of them side by side make a socket row, so the jumper ends themselves are the socket.
+
+```
+ outside | wall |  inside the box
+ Seed3   |      |
+ ▓▓▓▓▓▓  |      |
+ ══════  |      |
+ ||||||  ┃[■■■■■]━━━━━━ wire to the part (soldered on the big lugs there, or plugged onto the screen)
+  pins   ┃[■■■■■]━━━━━━   ← 2 rows of 20 jumper ends, hot-glued into one block, sitting in the window
+         ┃      |
+```
+
+1. Snip pin 1 off the Seed3 (the key, see below).
+2. Lay the pedal on its right side. From outside, push the Seed3 halfway into the window (USB-C toward the footswitches) and hold it there with tape.
+3. From inside, push one jumper end onto **every** Seed3 pin, in pin order, using `seed-socket-board.png` for the positions.
+   All 40 places get a jumper, even unused pins (those jumpers are your spare / expansion wires: just coil them up, their ends are already insulated).
+   In place 1 (the snipped pin) push an empty jumper end and fill it with a dab of hot glue: that's the key.
+4. Slide the whole thing so the front faces of the jumper ends are level with the outside of the wall.
+5. Warm the wall around the window with a hair dryer (cold aluminium makes hot glue let go), then hot-glue: between the two rows, along all four sides of the block
+   where it touches the window edge, and a bead over the block's back edge onto the inside of the wall. Let it cool for 10 minutes before you touch it.
+6. Pull the Seed3 straight out: the block stays in the wall. Then each jumper's other end goes to its part (wire list below):
+   cut and soldered on the part's big lug, or plugged straight onto the screen's pins.
+7. Label each wire near the block (tape flag with the pin number) so you can always trace it.
+
+Swapping later: unplug 9 V and USB, pull straight out, push the new one in until it stops. If the block ever loosens, re-glue it the same way.
+The 4 screw holes around the window are for way 2. Until then, put the 4 M3 screws in with their nuts so the holes are closed.
+
+### The socket, way 2 (optional upgrade later): a soldered socket board
+
+Stronger, and it's what the 4 screw holes are for. Swap the glued block for this whenever you're happy soldering small joints.
+The jumpers move over: cut off their Seed3 ends and solder them to the long header legs instead.
 
 - **Socket board:** one whole A-1192 double-sided prototyping board (30 x 70 mm, a grid of 24 x 10 holes). **No cutting.**
   Every hole has its own tinned ring on both sides, and nothing joins the holes, so neighbouring pins can't short through the board.
@@ -30,17 +65,19 @@ pull out, push in: **no soldering on the Seed3, ever**. Drawings: `seed-socket-b
 - **Mounting** (x4): `M3x12 screw from outside → side wall → 5 mm nylon spacer → socket board → M3 nut`.
   The headers then poke ~1 mm out through the window, which guides the Seed3 in.
 - **Wires:** each wire is soldered to the end of its header leg on the back of the socket board (same pin number as the Seed3 pin).
-  Cut the A-3482 jumpers and use them as wire; the screen end still just plugs on. **The back is a mirror image**: use `seed-socket-board.png`, not the Seed3's own pinout.
+  The screen ends still just plug on. **The back is a mirror image**: use `seed-socket-board.png`, not the Seed3's own pinout.
+
+### Both ways
 - **Which way round:** USB-C points toward the footswitches, the parts side faces out, and pins 1-20 are the row nearer the face.
-- **Key it so it can't go in backwards:** snip pin 1 (D0, not used) off the Seed3 and glue a snipped resistor leg into socket 1.
+- **Key it so it can't go in backwards:** snip pin 1 (D0, not used) off the Seed3 and block socket place 1 (way 1: hot glue in that jumper end; way 2: glue a snipped resistor leg in).
   Every wrong way round is then blocked. (Backwards would put 9 V on the wrong pins.) Do the same to a spare Seed3.
 - **Swapping:** unplug the 9 V and USB first, pull it straight out (don't rock it hard), push the new one fully home,
   then flash the firmware onto it over USB (`06-Firmware-DaisySeed/README.md`). The saved settings are on the Seed3, so a new one starts at defaults.
 - It sticks out ~8.5 mm. Don't step on that side, and give it a little room on your desk or pedalboard.
 - **BOOT / RESET** are on the outside now, but you'll rarely need them: holding fs-1 + fs-2 for 2 s does the flash mode.
 - **Grounds** (the bottom of `wiring-diagram.png` shows both chains step by step): daisy-chain them, as **two separate chains** of black wire, part to part:
-  - **audio chain** (quiet): IN jack sleeve → OUT jack sleeve → one wire to socket **pin 20 (AGND)** (the exp jack sleeve joins it once the exp jack is used).
-  - **main chain** (everything else): 9V jack − lug → each encoder's C + 2nd push pin → each footswitch's 2nd lug → screen GND → one wire to socket **pin 40 (DGND)**.
+  - **audio chain** (quiet): IN jack sleeve → OUT jack sleeve → the jumper in socket place **20 (AGND)** (the exp jack sleeve joins it once the exp jack is used).
+  - **main chain** (everything else): 9V jack − lug → each encoder's C + 2nd push pin → each footswitch's 2nd lug → screen GND → the jumper in socket place **40 (DGND)**.
   - The Seed3 joins the two inside itself. Keeping them apart outside means the screen's and switches' ground current never flows
     through the audio sleeves (less hiss and whine).
   - Don't close a chain into a loop, and don't connect the two chains to each other anywhere else.
@@ -53,7 +90,7 @@ Screen: `M3×12 black screw → face → 5 mm spacer → screen → M3 nut` (×4
 
 Jumper wires come in mixed colours, so stick a small label or a dot of tape-flag on each one. The black AWG22 wire is only for the ground chain.
 
-| From | Soldered to socket pin |
+| From | Socket place (= Seed3 pin) |
 |---|---|
 | **IN jack** tip (left) | 16 (AUDIO IN L) |
 | IN jack ring (right) | 17 (AUDIO IN R) |
@@ -87,10 +124,10 @@ Seed3 pin numbers: right-side up with USB-C at the bottom, **pins 1-20 run up th
 See `07-Datasheets/Seed3-Pinout.pdf`.
 
 ## Expansion port (for later, no new holes needed)
-Free Seed3 pins for later: pin 34 (D27), 36 (D29), 37 (D30). (Pin 10 / D9 is fs-3, pin 35 / D28 is the exp jack.) Their header tails on the socket board are free, so nothing ever needs soldering on the Seed3. Anything you add later (LEDs, a sensor, MIDI, a 2nd screen) plugs in there.
+Free Seed3 pins for later: pin 34 (D27), 36 (D29), 37 (D30). (Pin 10 / D9 is fs-3, pin 35 / D28 is the exp jack.) Their jumpers (way 1) or header legs (way 2) are already there, so nothing ever needs soldering on the Seed3. Anything you add later (LEDs, a sensor, MIDI, a 2nd screen) plugs in there.
 
 **exp jack** (top edge, installed now but not wired): to use it later for an expression pedal, wire **sleeve → ground**, **ring → 3.3 V through a 1 kΩ resistor**, **tip → D28 (pin 35, an analog pin)**,
-then it's a wire to socket pin 35 plus a firmware change. Keep the 1 kΩ: a mono cable shorts ring to sleeve.
+then it's the pin 35 jumper plus a firmware change. Keep the 1 kΩ: a mono cable shorts ring to sleeve.
 
 - **Encoders**: 3 pins on one side are A, C, B (C in the middle). The 2 pins on the other side are the push switch.
 - **Footswitches (A-1091, soft-touch, normally open)**: 2 solder eyelets on the side. One goes to the Seed3 pin, the other to the ground chain. It's pressed = on, released = off; latching is done in firmware.

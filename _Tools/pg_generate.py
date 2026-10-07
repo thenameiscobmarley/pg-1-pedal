@@ -635,8 +635,8 @@ def write_wiring_diagram():
     T = lambda x, y, t, sz=3.2, a="middle", c="#111", w="normal": o.append(
         f'<text x="{x:.1f}" y="{y:.1f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
         f'fill="{c}" font-weight="{w}">{t}</text>')
-    T(205, 12, "PG-1 WIRING: every part goes to the Seed3 socket board (Seed3 pin numbers, seen from outside, USB-C at the bottom)", 5, w="bold")
-    T(205, 20, "Coloured line = one wire, soldered to that socket pin.   \u23da = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom", 3.4)
+    T(205, 12, "PG-1 WIRING: every part goes to a Seed3 socket place (Seed3 pin numbers, seen from outside, USB-C at the bottom)", 5, w="bold")
+    T(205, 20, "Coloured line = one jumper wire, its female end in that socket place.   \u23da = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom", 3.4)
     # Seed3
     o.append(f'<rect x="{sx0}" y="{top-8}" width="{sx1-sx0}" height="{20*P+12}" rx="3" fill="#1d1d1d"/>')
     T(205, top + 70, "Daisy", 7, c="#fff", w="bold"); T(205, top + 80, "Seed3", 7, c="#fff", w="bold")
@@ -691,8 +691,8 @@ def write_wiring_diagram():
         T(x + 15, ly0 + 1.1, lab, 3.2, "start")
     T(205, ly0 + 10, "Encoders: 3 pins = A, C, B (C is the middle one). The 2 pins on the other side are the push switch. "
       "Screen pin 9 (SDO) is not used. Free for later: pins 34, 36, 37 (35 = exp jack later).", 3.0)
-    T(205, ly0 + 15, "The Seed3 itself is never soldered: it plugs into 2 female headers on the socket board. Wires are soldered to the "
-      "long header legs on the board's back, under heat shrink (mirror image of this view!). Screen ends can be plug-on jumpers.", 3.0)
+    T(205, ly0 + 15, "The Seed3 is never soldered: the jumpers' female ends, glued into a block in the wall window, are its socket (WIRING.md). "
+      "Seen from inside it's a mirror image of this view: use seed-socket-board.png.", 3.0)
     # the two ground chains, step by step: solder a short black wire from each point to the next
     def chain_row(y, title, colour, steps):
         T(12, y + 1.2, title, 3.3, "start", colour, "bold")
@@ -709,9 +709,9 @@ def write_wiring_diagram():
             x += w + 5.2
     cy = ly0 + 26
     T(205, cy - 2, "GROUND CHAINS: one black wire from each point to the next, in this order. Don't join the two chains, and don't loop back.", 3.4, w="bold")
-    chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "socket|pin 20"])
+    chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "jumper in|socket 20"])
     chain_row(cy + 23, "main chain", "#111", ["9V jack|- (center)", "screen|2 GND *", "pg-4|C + push 2", "pg-3|C + push 2", "pg-2|C + push 2",
-                                              "pg-1|C + push 2", "fs-3|other lug", "fs-2|other lug", "fs-1|other lug", "socket|pin 40"])
+                                              "pg-1|C + push 2", "fs-3|other lug", "fs-2|other lug", "fs-1|other lug", "jumper in|socket 40"])
     T(205, cy + 34, "* the screen GND is a plug-on jumper at the screen end: cut its other end off and solder that end into the chain. "
       "(exp jack sleeve joins the audio chain only once the exp jack is used.)", 2.9)
     W, H = 410, cy + 40
@@ -730,7 +730,7 @@ def write_socket_board():
     T = lambda x, y, t, sz=3.2, a="middle", c="#111", w="normal": o.append(
         f'<text x="{x:.1f}" y="{y:.1f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
         f'fill="{c}" font-weight="{w}">{t}</text>')
-    T(cx, 12, "SEED3 SOCKET BOARD - the BACK (solder side), seen from INSIDE the box. Scale 4:1", 5, w="bold")
+    T(cx, 12, "SEED3 SOCKET PLACES, seen from INSIDE the box (way 1 jumper block: same places; drawn: way 2 board). 4:1", 4.6, w="bold")
     T(cx, 20, "Face (top of the pedal) is UP. USB-C end / footswitches on the LEFT. IN jack end on the RIGHT.", 3.4)
     bw, bh = SOCK_L * s_ / 1.0, SOCK_W * s_
     bw, bh = bw * 0.62, bh * 0.62                       # fit the page; positions below use the same factor
@@ -765,9 +765,9 @@ def write_socket_board():
         o.append(f'<text x="{x:.1f}" y="{ty:.1f}" font-family="DejaVu Sans, sans-serif" font-size="2.5" fill="#333" '
                  f'text-anchor="{"start" if pin <= 20 else "end"}" transform="rotate(-60 {x:.1f} {ty:.1f})">{short}</text>')
     T(cx + (-24.13) * k - 26, rowA + 1, "pin 1: KEY", 2.9, "end", "#a00", "bold")
-    T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and push a snipped resistor leg into socket 1 (glue it):", 3.1)
+    T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and block place 1 (hot glue in that jumper end, or a resistor leg):", 3.1)
     T(cx, cy + bh / 2 + 39, "now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!", 3.1, c="#a00", w="bold")
-    T(cx, cy + bh / 2 + 47, "Each wire is soldered to the end of the ~9 mm header leg with the SAME pin number shown here, under 6 mm of heat shrink.", 3.1)
+    T(cx, cy + bh / 2 + 47, "Way 1: the jumper for each pin goes in the place with that number. Way 2: its wire is soldered to that header leg, under heat shrink.", 3.1)
     T(cx, cy + bh / 2 + 52, "Red = widen that grid hole to 3.2 mm (outer grid columns, 1st and 9th row: 58.4 x 20.3 mm apart). 4 screws: M3x12 from outside | wall | 5 mm spacer | board | nut.", 3.1)
     T(cx, cy + bh / 2 + 57, "Sockets go in the 2nd and 8th row from the face-side edge, 2 empty columns at each end. They're soldered, so they stay when the Seed3 is pulled.", 3.1)
     open(os.path.join(d, "seed-socket-board.svg"), "w").write(

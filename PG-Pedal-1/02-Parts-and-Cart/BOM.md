@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **17 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a small socket board in the left wall, so it's swapped without soldering.
+You should end up with **17 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (way 1: a glued block of jumper ends; *(way 2, later)* items are for the soldered socket board upgrade, cheap enough to have on hand).
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -15,17 +15,17 @@ You should end up with **17 lines**, exact quantities. The Seed3 is a **cartridg
 | A-1091 | 3 | $1.97 | $5.91 | Soft-touch momentary footswitch SPST-NO (PBS24B4) | fs-1, fs-2, fs-3 (your pick) |
 | A-1121 | 3 | $0.45 | $1.35 | 6.35mm 1/4in stereo (TRS) enclosed jack | in, out, exp (spare) |
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
-| A-3482 | 1 | $2.30 | $2.30 | Jumper wires female/female 200mm, pack of 40 | the wires from each part to the socket board (screen end plugs on) |
-| A-1053 | 4 | $0.19 | $0.76 | Stackable header 10 pins 2.54 mm, gold, **11 mm legs** | the Seed3 socket: 2 end to end per pin row. The long legs leave ~9 mm to solder wires to |
-| A-4904 | 3 | $0.10 | $0.30 | Heat shrink tubing 1.5 mm black, 20 cm | a 6 mm sleeve over each wire-to-leg joint, so neighbours can't touch |
-| A-1192 | 1 | $0.35 | $0.35 | Double-side prototyping board 30x70 mm (every hole its own ring) | the Seed3 socket board, used whole (the sockets are soldered to it) |
+| A-3482 | 2 | $2.30 | $4.60 | Jumper wires female/female 200mm, pack of 40 | one pack = the 40 wires whose ends form the glued Seed3 socket (way 1), the other pack is spares |
+| A-1053 | 4 | $0.19 | $0.76 | *(way 2, later)* Stackable header 10 pins 2.54 mm, gold, **11 mm legs** | the Seed3 socket: 2 end to end per pin row. The long legs leave ~9 mm to solder wires to |
+| A-4904 | 3 | $0.10 | $0.30 | *(way 2, later)* Heat shrink tubing 1.5 mm black, 20 cm | a 6 mm sleeve over each wire-to-leg joint, so neighbours can't touch |
+| A-1192 | 1 | $0.35 | $0.35 | *(way 2, later)* Double-side prototyping board 30x70 mm (every hole its own ring) | the Seed3 socket board, used whole (the sockets are soldered to it) |
 | A-8500 | 8 | $0.02 | $0.16 | Nylon standoff M3 x 5mm | screen spacers (4) + socket board spacers (4) |
 | A-6395 | 8 | $0.11 | $0.88 | M3 x 12mm black socket screw | screen screws (4) + socket board screws through the left wall (4) |
 | A-1247 | 8 | $0.02 | $0.16 | M3 nut | screen nuts (4) + socket board nuts (4) |
 | A-8519 | 3 | $0.11 | $0.33 | AWG22 stranded wire BLACK 1ft | the ground chain between parts |
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
 | A-7776 | 1 | $59.00 | $59.00 | FNIRSI HS-02A soldering iron, 100 W, 100-450 °C, 6 tips, USB-C powered | soldering (needs a USB-C **PD** charger, 65 W or more, see below) |
-| | | | **$103.83** | **Tayda subtotal** | |
+| | | | **$106.13** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 
@@ -44,7 +44,7 @@ The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 | **Powered** desktop speakers with a 3.5 mm aux input (e.g. Creative Pebble, USB-powered) | ~$25 | cheap, safe first listening test; plain unpowered speakers won't work |
 | 1/4" TRS male → 3.5 mm TRS female adapter | ~$5 | pedal OUT → the speakers' aux cable |
 | (optional) 1/4" TRS → 2× 1/4" TS "insert" Y-cable | ~$8 | pedal OUT → a mixer's two line inputs (left + right) |
-| (optional) hot glue | — | a dab on the screen's jumper plugs so they can't wiggle loose |
+| **Hot glue gun + sticks** | ~$10 | glues the jumper-end socket block into the window (way 1), and a dab on the screen's plugs |
 
 ## Tools
 Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).
