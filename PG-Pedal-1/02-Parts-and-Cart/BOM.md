@@ -31,6 +31,8 @@ The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 
 ## Not sold by Tayda
 
+Shopping list with Amazon search words: `AMAZON-LIST.md`.
+
 | Item | ~Price | Notes |
 |---|---|---|
 | Daisy **Seed3** **with headers** (its male pins already soldered on: they plug into the sockets) | ~$30 | daisy.audio or a dealer. A spare one just plugs in. |

@@ -45,6 +45,10 @@ The female end of every jumper wire is a small plastic shell exactly 2.54 mm wid
 8. Then wire each jumper's other end to its part (wire list below): cut and soldered on the part's big lug, or plugged straight onto the screen's pins.
    Tip: fit the block before the screen and the pg-1 knob go in, for more elbow room.
 
+**Another way to fit it (glue on the outside):** wire everything first with the block loose, then push it into the window from inside until the jumper ends stick
+about halfway out of the wall, Seed3 plugged in so it stays square, and glue around it on the **outside** of the wall (plus a bead inside if you can reach).
+The Seed3 then sticks out ~14 mm instead of ~7 mm.
+
 Swapping later: unplug 9 V and USB, pull straight out, push the new one in until it stops. If the block ever loosens, re-glue it the same way.
 The 4 screw holes around the window are for way 2. Until then, put the 4 M3 screws in with their nuts so the holes are closed.
 
