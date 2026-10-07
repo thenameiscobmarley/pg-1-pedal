@@ -11,19 +11,21 @@ The Seed3 stands on its long edge in a 19 x 52 mm window in the **left side**, p
 **socket board** screwed inside the wall. From outside you can reach USB-C, BOOT and RESET, and swapping a Seed3 is
 pull out, push in: **no soldering on the Seed3, ever**. Drawings: `seed-socket-board.png` (the board, from the soldering side) and `interior-layout.svg`.
 
-- **Socket board:** cut the A-5465 prototyping board to 68 x 28 mm. Solder the two A-1310 20-pin female headers on it, 15.24 mm apart
+- **Socket board:** cut the A-5465 prototyping board to 68 x 28 mm. Solder the four A-1053 stackable headers on it (2 end to end per row = 20 sockets a row), rows 15.24 mm apart
   (6 holes between the rows), centred. The strips are soldered to the board, so they stay in it when you pull the Seed3 out.
   4 mount holes, 3.2 mm: 31 mm left and right of the middle, 10 mm above and below the centre line (62 x 20 mm apart).
   Tip: plug a Seed3 into both headers *before* soldering them, so the spacing is exact.
 - **First time with a prototyping board?** It's a sheet of holes, each with its own copper ring on ONE side (that's what "single side" means). The holes aren't connected to each other.
   1. Score it with a utility knife along a line of holes, on both faces, and snap it over a table edge. Do that 4 times to get 68 x 28 mm. Sand the edges.
-  2. Plug the 2 header strips into the Seed3, then push the header legs through the board from the **plain side** (no copper), centred. The copper rings face you.
-  3. Solder each leg to its copper ring (iron on the ring and leg for 2 s, feed solder, a small shiny cone). Do the 4 corner legs first, check it's straight, then the rest. Pull the Seed3 out.
+  2. Plug the 4 header pieces onto the Seed3 (2 per row, ends touching), then push the header legs through the board from the **plain side** (no copper), centred. The copper rings face you.
+  3. Solder each leg to its copper ring, right at the board (iron on the ring and leg for 2 s, feed solder, a small shiny cone). Do the 4 corner legs first, check it's straight, then the rest. Pull the Seed3 out.
   4. Mount holes: lay the board on the drill template's side C (or mark 62 x 20 mm), then twist a 3 mm drill bit by hand (or a craft knife) in the 4 holes. The board is soft, so each takes about a minute.
-  5. Each wire: strip 3 mm, tin it, hold it against its header leg on the copper side and touch the iron: done. One wire per leg, legs never touch each other.
+  5. Each wire: slide a 6 mm piece of heat shrink onto the wire first. Strip 3 mm, tin it, hold it along the **end half** of its leg (the legs stick out ~9 mm) and touch the iron.
+     Let it cool, slide the heat shrink down over the joint and shrink it by holding the iron's barrel (not the tip) near it. Now no joint can touch its neighbour.
+     Work along the row in order, and test each leg against its neighbours with the multimeter's beep mode when the row is done.
 - **Mounting** (x4): `M3x12 screw from outside → side wall → 5 mm nylon spacer → socket board → M3 nut`.
   The headers then poke ~1 mm out through the window, which guides the Seed3 in.
-- **Wires:** each wire is soldered to its header tail on the back of the socket board (same pin number as the Seed3 pin).
+- **Wires:** each wire is soldered to the end of its header leg on the back of the socket board (same pin number as the Seed3 pin).
   Cut the A-3482 jumpers and use them as wire; the screen end still just plugs on. **The back is a mirror image**: use `seed-socket-board.png`, not the Seed3's own pinout.
 - **Which way round:** USB-C points toward the footswitches, the parts side faces out, and pins 1-20 are the row nearer the face.
 - **Key it so it can't go in backwards:** snip pin 1 (D0, not used) off the Seed3 and glue a snipped resistor leg into socket 1.

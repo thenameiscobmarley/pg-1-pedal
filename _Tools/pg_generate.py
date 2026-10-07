@@ -68,7 +68,7 @@ SEED_SCREW_X = (-10.0, 10.0)           # ... one near the face and one near the 
 WALL = 2.3                             # 1590XX side wall
 INNER_X = -FACE_W / 2 + WALL           # inside of the left wall in face coordinates (-58.25)
 SOCK_GAP = 5.0                         # A-8500 5 mm nylon spacer between the wall and the socket board
-HDR_H = 8.5                            # A-1310 female header height
+HDR_H = 8.5                            # A-1053 stackable header body height (its legs are 11 mm)
 SOCK_L, SOCK_W = 68.0, 28.0            # socket board, cut from an A-5465 100 x 50 prototyping board
 
 
@@ -531,11 +531,11 @@ def write_interior():
         p.append(f'<rect x="{X(0)}" y="{-sy-2.75}" width="{WALL+SOCK_GAP}" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>')
         p.append(f'<rect x="{X(st["board_back"])}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
     p.append(f'<rect x="{X(st["hdr_top"]+2.5)}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
-    p.append(f'<rect x="{X(st["board_back"])}" y="{-(SEED_Y+25.4)}" width="7" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
+    p.append(f'<rect x="{X(st["board_back"])}" y="{-(SEED_Y+25.4)}" width="14" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
     for k_, (t_, c_) in enumerate([("Seed3", "#235"), ("cartridge", "#235"), ("stands on its", "#235"), ("edge in the", "#235"),
-                                   ("left wall", "#235"), ("", ""), ("green dash:", "#1f6d2a"), ("wires, soldered", "#1f6d2a"), ("to the socket", "#1f6d2a"), ("board's back", "#1f6d2a")]):
+                                   ("left wall", "#235"), ("", ""), ("green dash:", "#1f6d2a"), ("long header", "#1f6d2a"), ("legs + wires", "#1f6d2a")]):
         if t_:
-            p.append(text(-41.0, SEED_Y + 12 - k_ * 2.5, t_, 1.8, color=c_))
+            p.append(text(-44.6, SEED_Y + 12 - k_ * 2.5, t_, 1.8, color=c_))
     p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
     for x, y in SCREWS:
         p.append(f'<circle cx="{x}" cy="{-y}" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="{x}" cy="{-y}" r="1.5" fill="#000"/>')
@@ -688,7 +688,7 @@ def write_wiring_diagram():
     T(205, ly0 + 10, "Encoders: 3 pins = A, C, B (C is the middle one). The 2 pins on the other side are the push switch. "
       "Screen pin 9 (SDO) is not used. Free for later: pins 34, 36, 37 (35 = exp jack later).", 3.0)
     T(205, ly0 + 15, "The Seed3 itself is never soldered: it plugs into 2 female headers on the socket board. Wires are soldered to the "
-      "header tails on the board's back (mirror image of this view!). Screen ends can be plug-on jumpers.", 3.0)
+      "long header legs on the board's back, under heat shrink (mirror image of this view!). Screen ends can be plug-on jumpers.", 3.0)
     # the two ground chains, step by step: solder a short black wire from each point to the next
     def chain_row(y, title, colour, steps):
         T(12, y + 1.2, title, 3.3, "start", colour, "bold")
@@ -760,7 +760,7 @@ def write_socket_board():
     T(cx + (-24.13) * k - 26, rowA + 1, "pin 1: KEY", 2.9, "end", "#a00", "bold")
     T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and push a snipped resistor leg into socket 1 (glue it):", 3.1)
     T(cx, cy + bh / 2 + 39, "now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!", 3.1, c="#a00", w="bold")
-    T(cx, cy + bh / 2 + 47, "Each wire from wiring-diagram.svg is soldered to the header tail with the SAME pin number shown here.", 3.1)
+    T(cx, cy + bh / 2 + 47, "Each wire is soldered to the end of the ~9 mm header leg with the SAME pin number shown here, under 6 mm of heat shrink.", 3.1)
     T(cx, cy + bh / 2 + 52, "4 screws, each: M3x12 from outside | side wall | 5 mm nylon spacer | this board | M3 nut. Holes 62 x 20 mm apart.", 3.1)
     T(cx, cy + bh / 2 + 57, "The 2 socket strips are soldered to this board, so they stay put when you pull the Seed3 out.", 3.1)
     open(os.path.join(d, "seed-socket-board.svg"), "w").write(

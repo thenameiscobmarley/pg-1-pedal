@@ -23,16 +23,15 @@
 <rect x="-60.55" y="-49.25" width="7.3" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>
 <rect x="-51.65" y="-49.25" width="2.4" height="5.5" fill="#999"/>
 <rect x="-64.25" y="-41.0" width="2.5" height="51" fill="#555"/>
-<rect x="-51.65" y="-40.9" width="7" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>
-<text x="-41.00" y="-27.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">Seed3</text>
-<text x="-41.00" y="-25.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">cartridge</text>
-<text x="-41.00" y="-22.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">stands on its</text>
-<text x="-41.00" y="-20.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">edge in the</text>
-<text x="-41.00" y="-17.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">left wall</text>
-<text x="-41.00" y="-12.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">green dash:</text>
-<text x="-41.00" y="-10.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">wires, soldered</text>
-<text x="-41.00" y="-7.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">to the socket</text>
-<text x="-41.00" y="-5.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">board's back</text>
+<rect x="-51.65" y="-40.9" width="14" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>
+<text x="-44.60" y="-27.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">Seed3</text>
+<text x="-44.60" y="-25.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">cartridge</text>
+<text x="-44.60" y="-22.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">stands on its</text>
+<text x="-44.60" y="-20.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">edge in the</text>
+<text x="-44.60" y="-17.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">left wall</text>
+<text x="-44.60" y="-12.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">green dash:</text>
+<text x="-44.60" y="-10.00" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">long header</text>
+<text x="-44.60" y="-7.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">legs + wires</text>
 <text x="-68.10" y="13.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#000" font-weight="normal">USB-C</text>
 <circle cx="-30.74" cy="-39.75" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="-30.74" cy="-39.75" r="1.5" fill="#000"/>
 <circle cx="36.52" cy="-39.75" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="36.52" cy="-39.75" r="1.5" fill="#000"/>
