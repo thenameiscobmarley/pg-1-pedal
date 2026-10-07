@@ -4,13 +4,13 @@
 
 ## Order it (3 steps)
 1. **Parts:** upload `02-Parts-and-Cart/tayda-cart-import.csv` on the Tayda cart page (Import → Add from file → Replace current cart).
-   Buy the Seed3, the SparkFun CAB-15455 USB-C panel cable, a 9V adapter, VHB foam tape and solder separately (`02-Parts-and-Cart/BOM.md`).
+   Buy the Seed3 (with headers), a 9V adapter and solder separately (`02-Parts-and-Cart/BOM.md`).
 2. **Drilled box + printed top:** run `python3 ../_Tools/tayda_upload.py`. It logs in to your drill.taydakits.com account and creates
-   the drill template (16 holes + screen window + USB-C slot) and the UV print template for you. Then check both previews on the dashboard and create the order there.
+   the drill template (17 holes + screen window + Seed3 window) and the UV print template for you. Then check both previews on the dashboard and create the order there.
    (By hand instead: `03-Drill-Template/DRILL-ORDER.md` + `04-Top-Artwork/UV-PRINT.md`.)
 
 ## Build it
-`05-Wiring-and-Schematics/WIRING.md` has one table: every wire from each part to its Seed3 pin. It also shows how the Seed3 is mounted and covers the first flash.
+`05-Wiring-and-Schematics/WIRING.md` has one table: every wire from each part to its Seed3 socket pin. It also shows the plug-in Seed3 cartridge in the left wall and covers the first flash.
 `06-Firmware-DaisySeed/pg1.bin` is ready to flash: a stereo delay with auto-leveling that uses every control.
 
 Using it with your Fifine SC3 (line out → pedal → headset): `USING-WITH-FIFINE-SC3.md`.

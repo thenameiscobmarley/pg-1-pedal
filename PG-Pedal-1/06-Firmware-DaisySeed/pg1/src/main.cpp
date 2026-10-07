@@ -160,7 +160,13 @@ bool TouchRead(int& x, int& y)
 
 int main(void)
 {
-    hw.Init();
+    hw.Init(true); // 480 MHz: more room for the DSP, and a 192 MHz PLL1Q for the screen link
+    {   // the screen's SPI from PLL1Q (192 MHz) instead of libDaisy's 25 MHz PLL2P, so it can run at 48 MHz
+        RCC_PeriphCLKInitTypeDef pc = {};
+        pc.PeriphClockSelection     = RCC_PERIPHCLK_SPI123;
+        pc.Spi123ClockSelection     = RCC_SPI123CLKSOURCE_PLL;
+        HAL_RCCEx_PeriphCLKConfig(&pc);
+    }
     hw.SetAudioBlockSize(48);
     hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
 
@@ -179,14 +185,14 @@ int main(void)
         core.LoadState(storage.GetSettings().data, pg::Core::kStateBytes);
 
     TouchInit();
-    lcd.Init({pins::kLcdCs, pins::kLcdDc, pins::kLcdRst, pins::kLcdLed, pins::kLcdSck, pins::kLcdMosi}, kFlipScreen);
+    lcd.Init({pins::kLcdCs, pins::kLcdDc, pins::kLcdRst, pins::kLcdLed, pins::kLcdSck, pins::kLcdMosi}, kFlipScreen, core.ScreenFast());
     lcd.Backlight(false); // dark until the first real frame is on the glass (no flash of garbage)
 
     hw.StartAudio(AudioCallback);
 
     const Ili9341::Pins lcd_pins = {pins::kLcdCs, pins::kLcdDc, pins::kLcdRst, pins::kLcdLed, pins::kLcdSck, pins::kLcdMosi};
     uint32_t            last_touch = 0, last_refresh = 0, last_repush = 0;
-    bool                backlight = true;
+    bool                backlight = true, screen_fast = core.ScreenFast();
     while(1)
     {
         if(core.WantsFlashMode())
@@ -204,9 +210,16 @@ int main(void)
         }
         const uint32_t now = System::GetNow();
         // ---- display safety
-        if(lcd.Faulted()) // SPI keeps failing: start the panel over and send the whole picture
+        if(lcd.Faulted() || core.ScreenFast() != screen_fast) // SPI failing, or fast / safe changed: start over
         {
-            lcd.Init(lcd_pins, kFlipScreen);
+            const bool fault = lcd.Faulted();
+            screen_fast      = core.ScreenFast();
+            lcd.Init(lcd_pins, kFlipScreen, screen_fast);
+            if(!fault)
+            {
+                core.RepushScreen();
+                continue;
+            }
             core.RepushScreen();
             core.ReportDisplayFault();
         }

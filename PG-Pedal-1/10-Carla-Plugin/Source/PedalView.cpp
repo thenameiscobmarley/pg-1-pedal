@@ -23,7 +23,9 @@ namespace dims
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
     constexpr float sideB[4][2] = { { -0.40f, 0 }, { -0.13f, 1 }, { 0.13f, 0 }, { 0.40f, 0 } };   // x, 1 = DC jack
-    constexpr float usbZ = 0.35f;
+    // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
+    // USB-C toward the footswitches; 4 socket board screws, 31 mm beyond the window centre each way, 10 mm above and below
+    constexpr float seedZ = -0.155f, seedScrewZ[2] = { 0.155f, -0.465f };
     constexpr float printX0 = -0.585f, printZ0 = -0.705f, printW = 1.17f, printH = 1.41f;
 }
 
@@ -152,8 +154,30 @@ void PedalView::newOpenGLContextCreated()
     meshJackNut.upload (geo::sweptPolygon (6, 0.07f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
     meshJackHole.upload (geo::lathe (0.034f, { { 0.0f, 0.0221f }, { 0.0f, 0.0224f } }, 32, true));
     meshDcNut.upload (geo::sweptPolygon (6, 0.075f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
-    meshUsbPlate.upload (geo::box ({ -0.004f, -0.068f, -0.04f }, { 0.0f, 0.068f, 0.04f }));
-    meshUsbSlot.upload (geo::box ({ -0.0045f, -0.06f, -0.035f }, { -0.001f, 0.06f, 0.035f }));
+    // Seed3 cartridge parts, in the wall's frame (x = 0 is the outside of the left wall, -x = further out).
+    // Stack: socket headers poke 1.2 mm out, the Seed3's pin spacer (2.5), its 1.6 mm PCB, then its parts.
+    meshSeedWin.upload (geo::box ({ -0.0045f, -0.097f, -0.262f }, { -0.001f, 0.097f, 0.262f }));
+    {
+        MeshData hdr;
+        for (float ry : { -0.0762f, 0.0762f })
+            hdr.append (geo::box ({ -0.037f, ry - 0.0125f, -0.254f }, { 0.0f, ry + 0.0125f, 0.254f }));
+        meshSeedHdr.upload (hdr);
+    }
+    meshSeedPcb.upload (geo::box ({ -0.053f, -0.09f, -0.255f }, { -0.037f, 0.09f, 0.255f }));
+    {
+        MeshData chips;   // MCU, SDRAM, flash and codec
+        chips.append (geo::box ({ -0.068f, -0.05f, -0.06f }, { -0.053f, 0.05f, 0.04f }));
+        chips.append (geo::box ({ -0.066f, -0.045f, -0.20f }, { -0.053f, 0.045f, -0.09f }));
+        chips.append (geo::box ({ -0.064f, -0.03f, -0.245f }, { -0.053f, 0.03f, -0.21f }));
+        meshSeedChips.upload (chips);
+    }
+    meshSeedUsb.upload (geo::box ({ -0.0855f, -0.0417f, 0.042f }, { -0.053f, 0.0417f, 0.1155f }));
+    {
+        MeshData btn;     // BOOT and RESET, beside the USB-C end
+        for (float by : { -0.065f, 0.065f })
+            btn.append (geo::box ({ -0.068f, by - 0.017f, 0.055f }, { -0.053f, by + 0.017f, 0.095f }));
+        meshSeedBtn.upload (btn);
+    }
     meshSideScrew.upload (geo::lathe (0.026f, { { 0.0f, 0.0f }, { 0.0f, 0.016f }, { -0.004f, 0.02f } }, 24, true));
 
     // the knob: HardwareKit's machined aluminium style, tinted like the white knurled A-2850
@@ -191,7 +215,8 @@ void PedalView::openGLContextClosing()
     for (auto* p : { progFace.get(), progPowder.get(), progChrome.get(), progPlastic.get(), progRecess.get(), progWood.get(), progShadow.get(), progLcd.get() })
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
-                     &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut, &meshUsbPlate, &meshUsbSlot, &meshSideScrew })
+                     &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut, &meshSideScrew,
+                     &meshSeedWin, &meshSeedHdr, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
         m->release();
     for (auto& k : knobParts)
         k->gpu.release();
@@ -308,11 +333,17 @@ void PedalView::renderOpenGL()
     use (*progPlastic);
     for (auto& s : screws)
         draw (*progPlastic, meshScrew, Mat4::translation ({ s[0], 0.0f, s[1] }), black);
-    for (int i = 0; i < 2; ++i)
-        draw (*progPlastic, meshSideScrew, Mat4::translation ({ -W * 0.5f, jackY + (i ? 0.09f : -0.09f), usbZ }) * sideCRot, black);
+    const Mat4 seedAt = Mat4::translation ({ -W * 0.5f, jackY, seedZ });
+    for (float z : seedScrewZ)
+        for (float dy : { -0.10f, 0.10f })
+            draw (*progPlastic, meshSideScrew, Mat4::translation ({ -W * 0.5f, jackY + dy, z }) * sideCRot, black);
+    draw (*progPlastic, meshSeedHdr, seedAt, black);
+    draw (*progPlastic, meshSeedPcb, seedAt, { 0.035f, 0.04f, 0.045f });
+    draw (*progPlastic, meshSeedChips, seedAt, { 0.06f, 0.06f, 0.065f });
+    draw (*progPlastic, meshSeedBtn, seedAt, { 0.75f, 0.75f, 0.74f });
     use (*progRecess);
     progRecess->set ("uParams", 0.02f, 0.0f, 0.0f, 0.0f);
-    draw (*progRecess, meshUsbSlot, Mat4::translation ({ -W * 0.5f, jackY, usbZ }), { 0.05f, 0.05f, 0.06f });
+    draw (*progRecess, meshSeedWin, seedAt, { 0.05f, 0.05f, 0.06f });
     for (auto& j : sideB)
         draw (*progRecess, meshJackHole, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, { 0.02f, 0.02f, 0.02f });
 
@@ -328,7 +359,7 @@ void PedalView::renderOpenGL()
     }
     for (auto& j : sideB)
         draw (*progChrome, j[1] > 0.5f ? meshDcNut : meshJackNut, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, steel);
-    draw (*progChrome, meshUsbPlate, Mat4::translation ({ -W * 0.5f, jackY, usbZ }), { 0.30f, 0.31f, 0.33f });
+    draw (*progChrome, meshSeedUsb, Mat4::translation ({ -W * 0.5f, jackY, seedZ }), { 0.80f, 0.81f, 0.83f });
 
     // the four knobs (white knurled aluminium), turned by their encoders
     use (*progPlastic);

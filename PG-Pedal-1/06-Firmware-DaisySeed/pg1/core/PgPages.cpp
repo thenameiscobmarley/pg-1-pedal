@@ -264,6 +264,7 @@ void Core::DrawGraph(uint32_t now)
         case T_MBAND: GraphMband(now); break;
         default: GraphVis(now); break;
     }
+    pad_dirty_ = true; // (the d-pad sits on top of the graph)
     if(tab_ != T_SAFETY && tab_ != T_VIS && tab_ != T_HEALTH && tab_ != T_CONFIG && !StageOn(tab_))
         TextFb(kGx + kGw - 6 * 13 - 4, kGy + kGh - 10, "off (hold fs-2)", Font_6x8, kYellow);
     Dirty(kGx, kGy, kGw, kGh);
@@ -441,7 +442,7 @@ void Core::DrawParamBox(int k, uint32_t now)
     FillRect(r.x, r.y, r.w, r.h, kBlue);
     FrameRect(r.x, r.y, r.w, r.h, kGrey);
     char lab[20], val[16];
-    const bool q_held = (tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0];
+    const bool q_held = ((tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0]) || (tab_ == T_CONFIG && k == 3 && knob_down_[3]);
     // knob number as a cream chip (matches pg-1..pg-4 under the knobs), then what it does
     FillRect(r.x + 3, r.y + 2, 9, 10, q_held ? kYellow : kCream);
     snprintf(lab, sizeof(lab), "%d", k + 1);
@@ -487,6 +488,13 @@ void Core::DrawParamBox(int k, uint32_t now)
     }
     else
     {
+        if(tab_ == T_CONFIG && k == 2) // the theme box also shows the screen speed (hold pg-3 + turn)
+            TextFb(bx, by - 13, ScreenFast() ? "screen fast" : "screen safe", Font_6x8, knob_down_[2] ? kYellow : kDimText);
+        if(tab_ == T_CONFIG && k == 3) // the knobs box also shows the d-pad switch (hold pg-4 + turn)
+        {
+            const bool on = params_[P_DPAD].value != 0;
+            TextFb(bx, by - 13, on ? "d-pad on" : "d-pad off", Font_6x8, q_held ? kYellow : kDimText);
+        }
         if(tab_ == T_CLARITY && k == 0) // the thump box also shows the mode (hold pg-1 + turn)
         {
             static const char* const shortm[3] = {"dyn", "add", "norm"};
@@ -506,6 +514,8 @@ void Core::DrawParamBox(int k, uint32_t now)
         FillRect(bx, by, bw, 2, kGrid);
         FillRect(bx, by, int(Clampf(f, 0.f, 1.f) * float(bw)), 2, kCyan);
     }
+    if(pad_shown_ && k == pad_sel_) // the box the touch d-pad is working on
+        FrameRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2, kYellow), FrameRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4, kYellow);
     Dirty(r.x, r.y, r.w, r.h);
 }
 
@@ -857,12 +867,13 @@ void Core::GraphVis(uint32_t)
         Spectrum(src == 0 ? ring_in_ : ring_out_, spec_a_, 20.f, 3.f, fall);
         if(first)
             FillRect(kGx, kGy, kGw, kGh, kBlueDeep);
-        for(int y = kGy + kGh - 1; y >= kGy + 2; y--)
-            memcpy(fb_ + y * Canvas::kW + kGx, fb_ + (y - 2) * Canvas::kW + kGx, size_t(kGw) * 2);
+        const int step = ScreenFast() ? 1 : 2; // ~60 rows a second either way
+        for(int y = kGy + kGh - 1; y >= kGy + step; y--)
+            memcpy(fb_ + y * Canvas::kW + kGx, fb_ + (y - step) * Canvas::kW + kGx, size_t(kGw) * 2);
         for(int x = kGx; x < kGx + kGw; x++)
         {
             const uint16_t c = Heat((spec_a_[x] + range) / range);
-            Px(x, kGy, c), Px(x, kGy + 1, c);
+            Px(x, kGy, c), Px(x, kGy + step - 1, c);
         }
         return;
     }
@@ -1104,6 +1115,16 @@ void Core::GraphConfig(uint32_t now)
         FillRect(tx + i * 10, kGy + 86, 9, 9, pearl[i]), FillRect(tx + 70 + i * 10, kGy + 86, 9, 9, bios[i]);
     TextFb(tx, kGy + 98, "pearl", Font_6x8, params_[P_CF_THEME].value ? kDimText : kYellow);
     TextFb(tx + 70, kGy + 98, "bios", Font_6x8, params_[P_CF_THEME].value ? kYellow : kDimText);
+    { // screen speed switch (left, under the configs)
+        const bool fast = ScreenFast();
+        FillRect(kGx + 2, kGy + 109, 150, 13, fast ? kCyan : kBlue);
+        TextFb(kGx + 6, kGy + 112, fast ? "screen: fast 60 fps" : "screen: safe 25 fps", Font_6x8, fast ? kBlue : kCream);
+    }
+    { // touch d-pad switch
+        const bool on = params_[P_DPAD].value != 0;
+        FillRect(tx, kGy + 109, 148, 13, on ? kCyan : kBlue);
+        TextFb(tx + 4, kGy + 112, on ? "d-pad on: tap the title" : "touch d-pad: off (tap)", Font_6x8, on ? kBlue : kCream);
+    }
     { // about this pedal
         char a[54];
         if(device_id_)

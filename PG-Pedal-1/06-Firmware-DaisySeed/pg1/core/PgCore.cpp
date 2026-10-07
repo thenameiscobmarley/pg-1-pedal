@@ -89,6 +89,8 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"low mids", "%", "pg-2 low mids: holds back muddy / boxy bursts", F_PCT, 30, 0, 100, 2, 1, 30},
         {"high mids", "%", "pg-3 high mids: holds back harsh, shouty hits", F_PCT, 30, 0, 100, 2, 1, 30},
         {"highs", "%", "pg-4 highs: holds back sharp s's and cymbals", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"d-pad", "", "hold pg-4 + turn: the touch d-pad on / off", F_ONOFF, 0, 0, 1, 1, 1, 0},
+        {"screen", "", "hold pg-3 + turn: screen fast (60 fps) or safe", F_ONOFF, 1, 0, 1, 1, 1, 1},
     };
     for(int i = 0; i < P_COUNT - P_EQ_END; i++)
         params_[P_EQ_END + i] = rest[i];
@@ -169,6 +171,10 @@ int Core::KnobParam(int k) const
     }
     if(tab_ == T_CLARITY && k == 0 && knob_down_[0])
         return P_CL_MODE; // hold pg-1 + turn: the mode
+    if(tab_ == T_CONFIG && k == 3 && knob_down_[3])
+        return P_DPAD; // hold pg-4 + turn: the touch d-pad
+    if(tab_ == T_CONFIG && k == 2 && knob_down_[2])
+        return P_SCR_FAST; // hold pg-3 + turn: screen fast / safe
     if(tab_ == T_HUM && k == 3 && params_[P_HUM_MAINS].value == 3)
         return P_LRN_MARGIN; // learned mode: pg-4 sets the gate's margin instead of the hiss threshold
     return kTabBase[tab_] + k;
@@ -241,15 +247,15 @@ void Core::KnobPress(int i, bool down, uint32_t now)
         knob_down_[i]         = true;
         turned_while_held_[i] = false;
         press_t0_[i]          = now;
-        if(screen_ == PAGE && (tab_ == T_EQ || tab_ == T_CLARITY) && i == 0)
-            param_changed_ |= 1u; // the box shows its held setting (q / mode) while held
+        if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2)))
+            param_changed_ |= 1u << i; // the box shows its held setting (q / mode / screen / d-pad) while held
         return;
     }
     if(!knob_down_[i])
         return;
     knob_down_[i] = false;
-    if(screen_ == PAGE && (tab_ == T_EQ || tab_ == T_CLARITY) && i == 0)
-        param_changed_ |= 1u;
+    if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2)))
+        param_changed_ |= 1u << i;
     if(turned_while_held_[i])
         return;
     if(now - press_t0_[i] >= 600) // long-press: back to the home screen
@@ -898,6 +904,97 @@ void Core::DrawRest(uint32_t now)
     Dirty(x, y, 72, 24);
 }
 
+// ------------------------------------------------------------------ touch d-pad
+// Big on-screen buttons for when the touch targets feel small and the knobs aren't wanted. On / off in
+// config (off by default); tap the page title to show it; it hides itself after 10 s unused.
+Core::Rect Core::PadRect(int b) const
+{
+    const int s = 30, cx = 247, cy = 85; // the middle button's corner (the cross sits right of centre)
+    static const int dx[5] = {0, -1, 0, 1, 0}, dy[5] = {-1, 0, 0, 0, 1};
+    return {cx + dx[b] * s, cy + dy[b] * s, s - 2, s - 2};
+}
+
+int Core::PadButtonAt(int x, int y) const
+{
+    for(int b = 0; b < 5; b++)
+    {
+        const Rect r = PadRect(b);
+        if(x >= r.x - 2 && x < r.x + r.w + 2 && y >= r.y - 2 && y < r.y + r.h + 2)
+            return b;
+    }
+    return -1;
+}
+
+void Core::PadAction(int b, bool down, uint32_t now)
+{
+    pad_use_t_ = now, pad_dirty_ = true;
+    if(screen_ == HOME) // arrows move around the tab grid, the middle opens
+    {
+        if(!down)
+        {
+            if(b == 2)
+                OpenTab(focus_, now);
+            return;
+        }
+        int f = focus_;
+        if(b == 1)
+            f = (f + kTabs - 1) % kTabs;
+        else if(b == 3)
+            f = (f + 1) % kTabs;
+        else if(b == 0 && (f % 8) >= 4)
+            f -= 4;
+        else if(b == 4 && (f % 8) < 4 && f + 4 < kTabs)
+            f += 4;
+        if(f != focus_)
+            focus_ = f, FlashTab(f, now);
+        return;
+    }
+    if(b == 1 || b == 3) // pick a value box
+    {
+        if(down)
+            pad_sel_ = (pad_sel_ + (b == 3 ? 1 : kKnobs - 1)) % kKnobs, redraw_panel_ = true;
+        return;
+    }
+    if(b == 0 || b == 4) // change it, like turning its knob (not affected by "knobs: reverse")
+    {
+        if(down)
+            KnobTurn(pad_sel_, (b == 0 ? 1 : -1) * (params_[P_CF_KNOBS].value ? -1 : 1), now);
+        return;
+    }
+    KnobPress(pad_sel_, down, now); // the middle = that knob's push (hold it: home)
+}
+
+void Core::DrawPad(uint32_t now)
+{
+    (void)now;
+    int x0 = Canvas::kW, y0 = Canvas::kH, x1 = 0, y1 = 0;
+    for(int b = 0; b < 5; b++)
+    {
+        const Rect r = PadRect(b);
+        const bool held = b == pad_btn_;
+        FillRect(r.x, r.y, r.w, r.h, held ? ui::kYellow : ui::kBlueDeep);
+        FrameRect(r.x, r.y, r.w, r.h, ui::kCream);
+        const uint16_t c = held ? ui::kBlue : ui::kCream;
+        const int      cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+        for(int i = 0; i < 6; i++) // a solid arrow (or a dot in the middle)
+        {
+            if(b == 0)
+                FillRect(cx - i, cy - 4 + i, 2 * i + 1, 1, c);
+            else if(b == 4)
+                FillRect(cx - i, cy + 4 - i, 2 * i + 1, 1, c);
+            else if(b == 1)
+                FillRect(cx - 4 + i, cy - i, 1, 2 * i + 1, c);
+            else if(b == 3)
+                FillRect(cx + 4 - i, cy - i, 1, 2 * i + 1, c);
+        }
+        if(b == 2)
+            FillRect(cx - 4, cy - 4, 9, 9, c);
+        x0 = r.x < x0 ? r.x : x0, y0 = r.y < y0 ? r.y : y0;
+        x1 = r.x + r.w > x1 ? r.x + r.w : x1, y1 = r.y + r.h > y1 ? r.y + r.h : y1;
+    }
+    Dirty(x0, y0, x1 - x0, y1 - y0);
+}
+
 // ------------------------------------------------------------------ first power-up tour
 void Core::DrawTour(uint32_t now)
 {
@@ -1120,6 +1217,7 @@ void Core::DrawTab(int i, uint32_t now)
     if(focus)
         PearlBorder(r, now);
     Dirty(r.x, r.y, r.w, r.h);
+    pad_dirty_ = true; // (the d-pad sits on top of the tabs)
 }
 
 void Core::DrawHome(uint32_t now)
@@ -1279,20 +1377,25 @@ int Core::DrawUi(Canvas& c, uint32_t now)
                 last_border_ = now;
                 const Rect r = TabRect(focus_);
                 PearlBorder(r, now);
+                pad_dirty_ = true;
                 Dirty(r.x, r.y, r.w, 2), Dirty(r.x, r.y + r.h - 2, r.w, 2), Dirty(r.x, r.y, 2, r.h), Dirty(r.x + r.w - 2, r.y, 2, r.h);
             }
         }
         else
         {
             const bool waterfall = tab_ == T_VIS && params_[P_V_MODE].value == 1;
-            if(now - last_graph_ >= (waterfall ? 40u : 50u)) // live graphs at 20-25 fps
+            if(now - last_graph_ >= (waterfall ? FrameMs() : FrameMs() + (ScreenFast() ? 0u : 10u))) // live graphs: ~60 fps fast
             {
                 last_graph_ = now;
                 DrawGraph(now);
-                if(tab_ != T_EQ)
-                    DrawStrip(now);
-                else
-                    DrawParamBox(2, now), DrawParamBox(3, now); // live level / movement in the boxes
+                if(now - last_strip_ >= 66) // live numbers at ~15 a second (the graph gets the link's speed)
+                {
+                    last_strip_ = now;
+                    if(tab_ != T_EQ)
+                        DrawStrip(now);
+                    else
+                        DrawParamBox(2, now), DrawParamBox(3, now); // live level / movement in the boxes
+                }
             }
             if(redraw_panel_ || drawn_band_ != band_)
             {
@@ -1311,7 +1414,11 @@ int Core::DrawUi(Canvas& c, uint32_t now)
             }
         }
     }
-    if(now - last_anim_ >= 30) // outline animations at ~33 fps
+    if(pad_shown_ && ((!params_[P_DPAD].value) || (pad_btn_ < 0 && now - pad_use_t_ > 10000))) // d-pad: hide after 10 s
+        pad_shown_ = false, redraw_all_ = true;
+    if(pad_shown_ && pad_dirty_)
+        pad_dirty_ = false, DrawPad(now);
+    if(now - last_anim_ >= FrameMs()) // outline animations at ~60 fps (fast) / 25 (safe)
         AnimFrame(now);
     if(repush_)
         repush_ = false, Dirty(0, 0, Canvas::kW, Canvas::kH);
@@ -1328,6 +1435,24 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
             ts_.down = true, ts_.moved = true; // swallow this touch
             return;
         }
+        if(params_[P_DPAD].value) // touch d-pad mode
+        {
+            const int b = pad_shown_ ? PadButtonAt(x, y) : -1;
+            if(b >= 0 || (y < 20 && x >= 70 && x < Canvas::kW - 90))
+            {
+                ts_      = TouchState();
+                ts_.down = true, ts_.moved = true, ts_.t0 = now; // (handled here, not as a normal tap)
+                if(b >= 0)
+                    pad_btn_ = b, pad_btn_t0_ = pad_rep_t_ = now, PadAction(b, true, now);
+                else // the page title shows / hides the d-pad
+                {
+                    pad_shown_ = !pad_shown_, pad_use_t_ = now, pad_dirty_ = true;
+                    if(!pad_shown_)
+                        redraw_all_ = true;
+                }
+                return;
+            }
+        }
         ts_      = TouchState();
         ts_.down = true;
         ts_.x0 = ts_.x = x;
@@ -1336,6 +1461,19 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
         ts_.node       = (screen_ == PAGE && tab_ == T_EQ) ? NodeAt(x, y) : -1;
         if(ts_.node >= 0 && ts_.node != band_)
             band_ = ts_.node, redraw_panel_ = true;
+        return;
+    }
+    if(touching && ts_.down && pad_btn_ >= 0) // holding a d-pad arrow: repeat
+    {
+        if(pad_btn_ != 2 && now - pad_btn_t0_ > 400 && now - pad_rep_t_ >= 120)
+            pad_rep_t_ = now, PadAction(pad_btn_, true, now);
+        return;
+    }
+    if(!touching && ts_.down && pad_btn_ >= 0) // let go of a d-pad button
+    {
+        ts_.down = false;
+        PadAction(pad_btn_, false, now);
+        pad_btn_ = -1, pad_dirty_ = true;
         return;
     }
     if(touching && ts_.down) // finger moving: drag a band node (x = frequency, y = gain)
@@ -1432,7 +1570,19 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
             param_changed_ |= 1u;
             return;
         }
-        if(tab_ == T_CONFIG && y >= ui::kGy && y < ui::kGy + 8 * 13 + 4) // tap a config row to pick it
+        if(tab_ == T_CONFIG && y >= ui::kGy + 108 && y < ui::kGy + 124 && x < ui::kGx + 156) // screen fast / safe
+        {
+            SetParam(P_SCR_FAST, params_[P_SCR_FAST].value ? 0 : 1);
+            redraw_all_ = true;
+            return;
+        }
+        if(tab_ == T_CONFIG && y >= ui::kGy + 108 && y < ui::kGy + 124 && x >= ui::kGx + 160) // touch d-pad on / off
+        {
+            SetParam(P_DPAD, params_[P_DPAD].value ? 0 : 1);
+            redraw_all_ = true;
+            return;
+        }
+        if(tab_ == T_CONFIG && y >= ui::kGy && y < ui::kGy + 8 * 13 + 4 && x < ui::kGx + 156) // tap a config row to pick it
         {
             const int row = (y - ui::kGy - 4) / 13;
             if(row >= 0 && row < kSlots)

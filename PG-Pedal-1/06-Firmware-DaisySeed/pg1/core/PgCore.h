@@ -112,7 +112,9 @@ enum
     P_CF_SLOT, P_CF_SAVE, P_CF_THEME, P_CF_KNOBS,
     P_TOUR_DONE, // (hidden) the first-power-up tour has been shown
     P_MB_LOW, P_MB_LMID, P_MB_HMID, P_MB_HIGH,
-    P_COUNT // (new parameters only ever go at the end: saved configs stay valid)
+    P_DPAD, // config: the touch d-pad mode (off by default)
+    P_SCR_FAST, // config: screen link fast (48 MHz, ~60 fps) or safe (24 MHz, ~25 fps)
+    P_COUNT // a new setting also needs a permanent name in PgState.cpp (kRestKeys); saves load by name, so order is free
 };
 
 class Core
@@ -137,6 +139,8 @@ class Core
     void ForceRedraw() { redraw_all_ = true; }
     void RepushScreen() { repush_ = true; } // send every pixel again (no redraw): heals a scrambled panel
     bool BacklightOn() const { return backlight_; } // off after 20 idle minutes (display rest)
+    bool ScreenFast() const { return params_[P_SCR_FAST].value != 0; } // the platform sets the link speed from this
+    uint32_t FrameMs() const { return ScreenFast() ? 16u : 40u; }       // ~60 fps fast, 25 fps safe
 
     // ---- flash mode request (fs-1 + fs-2 held 2 s)
     bool WantsFlashMode() const { return want_dfu_; }
@@ -168,7 +172,7 @@ class Core
     // ---- saving: the whole state (settings, 8 configs, learned noise) as one block of bytes. The pedal
     // keeps it in its flash; the plugin in the DAW session. WantsSave: something changed and then
     // nothing changed for 4 s (so a knob being turned isn't written over and over).
-    static constexpr int kStateBytes = 2048;
+    static constexpr int kStateBytes = 4096;
     int  SaveState(uint8_t* out, int max) const; // returns the bytes used (0 = didn't fit)
     bool LoadState(const uint8_t* in, int n);
     bool WantsSave(uint32_t now) const { return state_dirty_ && now - last_input_ > 4000; }
@@ -236,6 +240,11 @@ class Core
     void StartWipe(const Rect& from, const Rect& to, uint32_t now);
     void DrawRest(uint32_t now);
     void DrawTour(uint32_t now); // first power-up: 4 short cards over the home screen
+    // touch d-pad (config: d-pad on; tap the page title to show it)
+    Rect PadRect(int b) const; // 0 up, 1 left, 2 middle, 3 right, 4 down
+    int  PadButtonAt(int x, int y) const;
+    void PadAction(int b, bool down, uint32_t now);
+    void DrawPad(uint32_t now);
     bool DrawSplash(uint32_t now); // start-up logo, then fade into the main screen
     void PxAdd(int x, int y, float a, float r, float g, float b);
 
@@ -307,6 +316,9 @@ class Core
     uint32_t          tour_t0_ = 0;
     int               tour_drawn_ = -1;
     uint32_t          device_id_ = 0;
+    bool              pad_shown_ = false, pad_dirty_ = false;
+    int               pad_sel_ = 0, pad_btn_ = -1; // the value box it works on; the button held down
+    uint32_t          pad_use_t_ = 0, pad_btn_t0_ = 0, pad_rep_t_ = 0;
     volatile bool     redraw_all_ = true, redraw_title_ = true, redraw_panel_ = true;
     volatile uint32_t param_changed_ = 0; // bit per param box (0-3)
     uint32_t          both_held_since_ = 0, fs_t0_[3] = {};
@@ -411,7 +423,7 @@ class Core
     int       lv_pos_ = 0;
     int       gr_pos_ = 0;
     float     corr_ = 0.f;
-    uint32_t  last_graph_ = 0, last_border_ = 0, last_anim_ = 0;
+    uint32_t  last_graph_ = 0, last_border_ = 0, last_anim_ = 0, last_strip_ = 0;
     int       drawn_focus_ = -1, drawn_band_ = -1, vis_drawn_ = -1, drawn_page_ = 0;
     struct TouchState
     {

@@ -1,24 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="216.0mm" height="128mm" viewBox="0 -2 216.0 128">
-<rect x="0" y="-2" width="216.0" height="128" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="216.0mm" height="100mm" viewBox="0 -2 216.0 100">
+<rect x="0" y="-2" width="216.0" height="100" fill="#fff"/>
 <text x="4.00" y="8.00" font-family="DejaVu Sans, sans-serif" font-size="4.2" text-anchor="start" fill="#000" font-weight="normal">SIDE VIEW DEPTH CHECK (mm below the face surface)</text>
-<path d="M78.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="78.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">0</text>
-<path d="M94.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="94.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">5</text>
-<path d="M110.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="110.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">10</text>
-<path d="M126.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="126.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">15</text>
-<path d="M142.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="142.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">20</text>
-<path d="M158.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="158.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">25</text>
-<path d="M174.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="174.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">30</text>
-<path d="M190.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="190.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">35</text>
-<path d="M206.0,12 V110" stroke="#ddd" stroke-width="0.3"/>
-<text x="206.00" y="118.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">40</text>
+<path d="M78.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="78.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">0</text>
+<path d="M94.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="94.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">5</text>
+<path d="M110.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="110.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">10</text>
+<path d="M126.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="126.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">15</text>
+<path d="M142.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="142.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">20</text>
+<path d="M158.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="158.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">25</text>
+<path d="M174.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="174.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">30</text>
+<path d="M190.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="190.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">35</text>
+<path d="M206.0,12 V82" stroke="#ddd" stroke-width="0.3"/>
+<text x="206.00" y="90.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#000" font-weight="normal">40</text>
 <rect x="78.0" y="13" width="9.600000000000001" height="5" fill="#bbb" stroke="#555" stroke-width="0.3"/>
 <text x="75.00" y="16.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">face (aluminium)</text>
 <rect x="87.6" y="20" width="16.0" height="5" fill="#bcd3f5" stroke="#555" stroke-width="0.3"/>
@@ -31,22 +31,14 @@
 <text x="75.00" y="44.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">encoders + pins + solder</text>
 <rect x="110.64" y="48" width="50.56" height="5" fill="#ffe2a8" stroke="#555" stroke-width="0.3"/>
 <text x="75.00" y="51.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">TRS jacks (top wall zone only)</text>
-<rect x="116.4" y="55" width="38.400000000000006" height="5" fill="#ffe2a8" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="58.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">USB-C panel socket (left wall)</text>
-<rect x="103.6" y="62" width="16.0" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="65.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">jumper wires bending (left strip only)</text>
-<rect x="119.6" y="69" width="44.800000000000004" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="72.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">jumper plugs on the Seed3 pins</text>
-<rect x="164.4" y="76" width="13.120000000000005" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="79.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 header + board (on its back)</text>
-<rect x="177.52" y="83" width="10.559999999999992" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="86.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 parts + USB-C plug (face down)</text>
-<rect x="177.52" y="90" width="16.0" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="93.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">foam tape (~5 mm, 2-3 layers)</text>
-<rect x="87.6" y="97" width="96.0" height="5" fill="#ffe2a8" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="100.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">footswitch body + lugs (bottom zone only)</text>
-<rect x="193.52" y="104" width="10.239999999999988" height="5" fill="#bbb" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="107.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">lid</text>
-<path d="M193.52,8 V112" stroke="#c00" stroke-width="0.6" stroke-dasharray="2 1"/>
+<rect x="104.72" y="55" width="62.08" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
+<text x="75.00" y="58.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 window in the left wall</text>
+<rect x="90.96000000000001" y="62" width="89.6" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
+<text x="75.00" y="65.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 socket board (left wall)</text>
+<rect x="87.6" y="69" width="96.0" height="5" fill="#ffe2a8" stroke="#555" stroke-width="0.3"/>
+<text x="75.00" y="72.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">footswitch body + lugs (bottom zone only)</text>
+<rect x="193.52" y="76" width="10.239999999999988" height="5" fill="#bbb" stroke="#555" stroke-width="0.3"/>
+<text x="75.00" y="79.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">lid</text>
+<path d="M193.52,8 V84" stroke="#c00" stroke-width="0.6" stroke-dasharray="2 1"/>
 <text x="193.52" y="6.00" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="middle" fill="#c00" font-weight="normal">lid line 36.1</text>
 </svg>

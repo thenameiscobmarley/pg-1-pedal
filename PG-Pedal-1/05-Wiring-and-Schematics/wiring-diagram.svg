@@ -1,9 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="410mm" height="290.0mm" viewBox="0 0 410 290.0"><rect width="410" height="290.0" fill="#fff"/><text x="205.0" y="12.0" font-family="DejaVu Sans, sans-serif" font-size="5" text-anchor="middle" fill="#111" font-weight="bold">PG-1 WIRING: every part goes straight to the Daisy Seed3 (top view, USB-C at the bottom)</text>
-<text x="205.0" y="20.0" font-family="DejaVu Sans, sans-serif" font-size="3.4" text-anchor="middle" fill="#111" font-weight="normal">Coloured line = one plug-on jumper wire.   ⏚ = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="410mm" height="290.0mm" viewBox="0 0 410 290.0"><rect width="410" height="290.0" fill="#fff"/><text x="205.0" y="12.0" font-family="DejaVu Sans, sans-serif" font-size="5" text-anchor="middle" fill="#111" font-weight="bold">PG-1 WIRING: every part goes to the Seed3 socket board (Seed3 pin numbers, seen from outside, USB-C at the bottom)</text>
+<text x="205.0" y="20.0" font-family="DejaVu Sans, sans-serif" font-size="3.4" text-anchor="middle" fill="#111" font-weight="normal">Coloured line = one wire, soldered to that socket pin.   ⏚ = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom</text>
 <rect x="175.0" y="32.0" width="60.0" height="172.0" rx="3" fill="#1d1d1d"/>
 <text x="205.0" y="110.0" font-family="DejaVu Sans, sans-serif" font-size="7" text-anchor="middle" fill="#fff" font-weight="bold">Daisy</text>
 <text x="205.0" y="120.0" font-family="DejaVu Sans, sans-serif" font-size="7" text-anchor="middle" fill="#fff" font-weight="bold">Seed3</text>
-<text x="205.0" y="132.0" font-family="DejaVu Sans, sans-serif" font-size="3.2" text-anchor="middle" fill="#bbb" font-weight="normal">(top side up)</text>
+<text x="205.0" y="132.0" font-family="DejaVu Sans, sans-serif" font-size="3.2" text-anchor="middle" fill="#bbb" font-weight="normal">(parts side, as seen</text>
+<text x="205.0" y="137.0" font-family="DejaVu Sans, sans-serif" font-size="3.2" text-anchor="middle" fill="#bbb" font-weight="normal">from outside the box)</text>
 <rect x="199" y="198.0" width="12" height="7" rx="1.5" fill="#c9c9c9"/>
 <text x="205.0" y="214.0" font-family="DejaVu Sans, sans-serif" font-size="3.2" text-anchor="middle" fill="#111" font-weight="normal">USB-C end</text>
 <circle cx="231.0" cy="192.0" r="1.6" fill="#d4a017"/>
@@ -288,7 +289,7 @@
 <path d="M330,224.0 h12" stroke="#d11f1f" stroke-width="1.6"/>
 <text x="345.0" y="225.1" font-family="DejaVu Sans, sans-serif" font-size="3.2" text-anchor="start" fill="#111" font-weight="normal">power</text>
 <text x="205.0" y="234.0" font-family="DejaVu Sans, sans-serif" font-size="3.0" text-anchor="middle" fill="#111" font-weight="normal">Encoders: 3 pins = A, C, B (C is the middle one). The 2 pins on the other side are the push switch. Screen pin 9 (SDO) is not used. Free for later: pins 34, 36, 37 (35 = exp jack later).</text>
-<text x="205.0" y="239.0" font-family="DejaVu Sans, sans-serif" font-size="3.0" text-anchor="middle" fill="#111" font-weight="normal">Every coloured line is a female jumper wire pushed onto the Seed3 pin (no soldering on the Seed3). Screen ends plug on too; other ends are soldered to the part.</text>
+<text x="205.0" y="239.0" font-family="DejaVu Sans, sans-serif" font-size="3.0" text-anchor="middle" fill="#111" font-weight="normal">The Seed3 itself is never soldered: it plugs into 2 female headers on the socket board. Wires are soldered to the header tails on the board's back (mirror image of this view!). Screen ends can be plug-on jumpers.</text>
 <text x="205.0" y="248.0" font-family="DejaVu Sans, sans-serif" font-size="3.4" text-anchor="middle" fill="#111" font-weight="bold">GROUND CHAINS: one black wire from each point to the next, in this order. Don't join the two chains, and don't loop back.</text>
 <text x="12.0" y="260.2" font-family="DejaVu Sans, sans-serif" font-size="3.3" text-anchor="start" fill="#0a7f86" font-weight="bold">audio chain</text>
 <rect x="60.0" y="254.0" width="18.25" height="10" rx="1.5" fill="#f4f4f4" stroke="#0a7f86" stroke-width="0.6"/>
@@ -299,9 +300,9 @@
 <text x="93.5" y="258.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#111" font-weight="normal">OUT jack</text>
 <text x="93.5" y="262.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#111" font-weight="normal">sleeve</text>
 <path d="M104.25,259.0 h3.4 m-1.6,-1.4 l1.6,1.4 l-1.6,1.4" stroke="#0a7f86" stroke-width="0.7" fill="none"/>
-<rect x="108.65" y="254.0" width="27.0" height="10" rx="1.5" fill="#1d1d1d" stroke="#0a7f86" stroke-width="0.6"/>
-<text x="122.2" y="258.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">jumper to</text>
-<text x="122.2" y="262.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">Seed3 pin 20</text>
+<rect x="108.65" y="254.0" width="16.5" height="10" rx="1.5" fill="#1d1d1d" stroke="#0a7f86" stroke-width="0.6"/>
+<text x="116.9" y="258.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">socket</text>
+<text x="116.9" y="262.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">pin 20</text>
 <text x="12.0" y="274.2" font-family="DejaVu Sans, sans-serif" font-size="3.3" text-anchor="start" fill="#111" font-weight="bold">main chain</text>
 <rect x="60.0" y="268.0" width="23.5" height="10" rx="1.5" fill="#f4f4f4" stroke="#111" stroke-width="0.6"/>
 <text x="71.8" y="272.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#111" font-weight="normal">9V jack</text>
@@ -339,7 +340,7 @@
 <text x="291.7" y="272.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#111" font-weight="normal">fs-1</text>
 <text x="291.7" y="276.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#111" font-weight="normal">other lug</text>
 <path d="M303.4,273.0 h3.4 m-1.6,-1.4 l1.6,1.4 l-1.6,1.4" stroke="#111" stroke-width="0.7" fill="none"/>
-<rect x="307.79999999999995" y="268.0" width="27.0" height="10" rx="1.5" fill="#1d1d1d" stroke="#111" stroke-width="0.6"/>
-<text x="321.3" y="272.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">jumper to</text>
-<text x="321.3" y="276.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">Seed3 pin 40</text>
+<rect x="307.79999999999995" y="268.0" width="16.5" height="10" rx="1.5" fill="#1d1d1d" stroke="#111" stroke-width="0.6"/>
+<text x="316.0" y="272.6" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">socket</text>
+<text x="316.0" y="276.2" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="middle" fill="#fff" font-weight="normal">pin 40</text>
 <text x="205.0" y="284.0" font-family="DejaVu Sans, sans-serif" font-size="2.9" text-anchor="middle" fill="#111" font-weight="normal">* the screen GND is a plug-on jumper at the screen end: cut its other end off and solder that end into the chain. (exp jack sleeve joins the audio chain only once the exp jack is used.)</text></svg>

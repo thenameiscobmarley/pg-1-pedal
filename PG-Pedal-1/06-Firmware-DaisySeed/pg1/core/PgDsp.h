@@ -971,7 +971,7 @@ struct SafetyStage
     static constexpr int kHp = 4, kLp = 8;
     Svf   hp[kHp], lp[kLp];
     // detectors, steep so normal music never trips them: ultrasonic = 8th-order high-pass at 21 kHz,
-    // infrasonic = 6th-order low-pass at 10 Hz (input) / 8 Hz (output, after the 20 Hz high-pass)
+    // infrasonic = 6th-order low-pass at 10 Hz (input) / 5 Hz (output, after the 20 Hz high-pass)
     Svf   u_in[4], u_out[4], i_in[3], i_out[3];
     float p_u_in = 0.f, p_i_in = 0.f, p_u_out = 0.f, p_i_out = 0.f, c_det = 0.f;
     float ultra_in_db = -200.f, infra_in_db = -200.f, ultra_out_db = -200.f, infra_out_db = -200.f;
@@ -985,6 +985,7 @@ struct SafetyStage
     int   look = 48, pos = 0;
     float mute = 1.f, mute_target = 1.f;
     int   mute_hold = 0, glitches = 0, range_trips = 0;
+    float u_over_ms = 0.f, i_over_ms = 0.f;
     bool  want_reset = false; // tells the core to clear every stage's filters after a glitch
     float c_low = 0.f, c_high = 0.f, c_ear = 0.f, c_fast = 0.f, c_att = 0.f, c_rel = 0.f, c_dc = 0.f;
     float c_mute_dn = 0.f, c_mute_up = 0.f;
@@ -1005,7 +1006,8 @@ struct SafetyStage
         for(int i = 0; i < 4; i++)
             u_in[i].Set(Svf::HP, fs, 21000.f, q8[i]), u_out[i].Set(Svf::HP, fs, 21000.f, q8[i]), u_in[i].Reset(), u_out[i].Reset();
         for(int i = 0; i < 3; i++)
-            i_in[i].Set(Svf::LP, fs, 10.f, q6[i]), i_out[i].Set(Svf::LP, fs, 8.f, q6[i]), i_in[i].Reset(), i_out[i].Reset();
+            i_in[i].Set(Svf::LP, fs, 10.f, q6[i]), i_out[i].Set(Svf::LP, fs, 5.f, q6[i]), i_in[i].Reset(), i_out[i].Reset();
+        u_over_ms = i_over_ms = 0.f;
         p_u_in = p_i_in = p_u_out = p_i_out = 0.f;
         c_det = Coef(50.f, fs);
         d_low.Set(Svf::LP, fs, 150.f, 0.707f), d_low.Reset();
@@ -1031,10 +1033,13 @@ struct SafetyStage
         ultra_out_db  = ultra_possible ? PowToDb(p_u_out) + 3.f : -200.f;
         infra_in_db   = PowToDb(p_i_in) + 3.f;
         infra_out_db  = PowToDb(p_i_out) + 3.f;
-        // outside the hearing range got out (only a failed filter can do that: the limiter's clean peaks
-        // leave nothing near these levels): mute + reset now
-        if(ultra_out_db > -50.f || infra_out_db > -40.f)
-            range_trips++, MuteReset();
+        // outside the hearing range got out and STAYED out (only a failed filter does that; the steep 20 Hz
+        // filter rings for a moment after a loud, sudden bass hit, and that dies away well within these times)
+        const float block_ms = block_s * 1000.f;
+        u_over_ms            = ultra_out_db > -50.f ? u_over_ms + block_ms : 0.f;
+        i_over_ms            = infra_out_db > -40.f ? i_over_ms + block_ms : 0.f;
+        if(u_over_ms >= 100.f || i_over_ms >= 300.f)
+            range_trips++, u_over_ms = i_over_ms = 0.f, MuteReset();
         lvl_low       = PowToDb(p_low) + 3.f;
         lvl_high      = PowToDb(p_high) + 3.f;
         lvl_ear       = PowToDb(p_ear) + 3.f;

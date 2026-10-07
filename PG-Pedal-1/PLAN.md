@@ -33,4 +33,11 @@ Room + safety (2026-10-07)
 - [x] 26. Polish: face (9v polarity mark, fs jobs, brand + model), firmware 1.0 on the splash, about line, first-power-up tour, page titles
 - [x] 28. Wiring bench: 11-Wiring-Bench/wiring-bench.html (artifact https://claude.ai/artifact/67aSXRn4dnsirR5RoWpt1i), built from bench-template.html + the diagram
 - [x] 29. Multiband dynamics (LR4 split 120 / 1k / 6k, per-band adaptive compressors)
+- [x] 30. Public repo (made by _Tools/export_repo.py: scrubbed, brand 'pg audio', checks for personal info before finishing)
+- [x] 31. Version-proof saves (format 2): settings/tabs stored by permanent name (PgState.cpp kRestKeys/kTabKeys), per-setting versions + Migrate(), format 1 still loads; state block 4 KB
+- [x] 32. Touch d-pad mode (config, off by default; tap the title to show; no new parts - a physical d-pad didn't fit the 1590XX)
+- [x] 33. Screen link 6 MHz -> 48 MHz (PLL1Q 192 MHz / 4, pins high speed, 480 MHz boost), UI paced at 60 fps, live numbers 15/s, config screen fast/safe
+- [x] 35. Fixes: false 'infrasonic out' mute on loud sudden bass (output checks now need a sustained leak: 0.3 s / 0.1 s, detector 5 Hz); plugin keeps its state in ~/.config/PG-1 Pedal (configs survive reloading the plugin)
+- [x] 36. Seed3 cartridge: stands on its edge in a 19 x 52 window in the left wall, plugs into a socket board (2 female headers, 2 M3 screws), keyed by snipping pin 1; USB-C panel cable + foam tape removed; drill/print/drawings/BOM/3D model updated
+- [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda

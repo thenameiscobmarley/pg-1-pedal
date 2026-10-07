@@ -44,3 +44,8 @@ The safety stage's look-ahead limiter adds 1 ms; the plugin reports it to the ho
 
 ## Display rest
 Like the pedal: 5 idle minutes = near-black screen with a drifting mark, 20 = backlight off. Any control wakes it.
+
+## Your settings stay
+Like the pedal's flash, the plugin keeps everything (settings, the 8 configs, the learned hum / hiss) in
+`~/.config/PG-1 Pedal/pedal-state.bin`: written about 4 s after you change something and when it closes, loaded when a
+new PG-1 starts. A Carla project saved with its own PG-1 state still loads that state instead.

@@ -2,11 +2,15 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "PgCore.h"
 
-/** Runs the pedal's own core (the same code as the Seed3 firmware) on the host's audio. */
-class PG1Processor : public juce::AudioProcessor
+/** Runs the pedal's own core (the same code as the Seed3 firmware) on the host's audio.
+    Like the pedal's flash, everything (settings, the 8 configs, learned hum) is also kept in a file
+    (~/.config/PG-1 Pedal/pedal-state.bin), so a new instance starts where the last one left off.
+    A host session that has its own saved state still wins. */
+class PG1Processor : public juce::AudioProcessor, private juce::Timer
 {
 public:
     PG1Processor();
+    ~PG1Processor() override;
 
     void prepareToPlay (double sampleRate, int blockSize) override;
     void releaseResources() override {}
@@ -38,6 +42,10 @@ private:
     pg::Core& pedal = *pedalPtr;
     std::vector<uint16_t> framebuffer = std::vector<uint16_t> ((size_t) (pg::Canvas::kW * pg::Canvas::kH), 0); // the screen picture
     juce::AudioBuffer<float> scratch;
+
+    void timerCallback() override;      // the pedal's autosave: 4 s after the last change
+    void saveToDisk();
+    static juce::File stateFile();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (PG1Processor)
 };

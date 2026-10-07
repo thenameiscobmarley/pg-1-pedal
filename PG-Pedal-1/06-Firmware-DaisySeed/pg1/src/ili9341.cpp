@@ -2,7 +2,7 @@
 
 using namespace daisy;
 
-bool Ili9341::Init(const Pins& p, bool flip)
+bool Ili9341::Init(const Pins& p, bool flip, bool fast)
 {
     errors_ = 0;
     madctl_ = flip ? 0xE8 : 0x28;
@@ -21,13 +21,21 @@ bool Ili9341::Init(const Pins& p, bool flip)
     c.clock_polarity = SpiHandle::Config::ClockPolarity::LOW;
     c.clock_phase    = SpiHandle::Config::ClockPhase::ONE_EDGE;
     c.nss            = SpiHandle::Config::NSS::SOFT;
-    c.baud_prescaler = SpiHandle::Config::BaudPrescaler::PS_4; // ~25 MHz: the ILI9341 takes it fine for writes
+    c.baud_prescaler = fast ? SpiHandle::Config::BaudPrescaler::PS_4 : SpiHandle::Config::BaudPrescaler::PS_8;
     c.pin_config.sclk = p.sck;
     c.pin_config.mosi = p.mosi;
     c.pin_config.miso = Pin();
     c.pin_config.nss  = Pin();
     if(spi_.Init(c) != SpiHandle::Result::OK)
         return false;
+    // libDaisy leaves SPI pins on the slowest drive (clean only to ~12 MHz): give SCK and MOSI "high" speed
+    // so the edges keep up at 24-48 MHz (not "very high": gentler edges ring less on jumper wires)
+    for(const Pin& pin : {p.sck, p.mosi})
+    {
+        GPIO_TypeDef* port  = reinterpret_cast<GPIO_TypeDef*>(GPIOA_BASE + 0x400u * uint32_t(pin.port));
+        const uint32_t sh   = uint32_t(pin.pin) * 2u;
+        port->OSPEEDR       = (port->OSPEEDR & ~(3u << sh)) | (2u << sh);
+    }
 
     rst_.Write(true);
     System::Delay(5);

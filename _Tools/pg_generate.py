@@ -57,13 +57,28 @@ SIDE_B = [  # label, x, bare hole, part
     ("out", 40.0, 9.5, "6.35mm TRS jack A-1121 (3/8\"-32 thread)"),    # output on the RIGHT
 ]
 
-# Seed3 lies ON ITS BACK (pins up) on foam tape on the bottom plate, in the empty strip along the left side,
-# with female jumper wires pushed straight onto its pins (no board). Its USB-C end points toward the footswitches;
-# a short SparkFun CAB-15455 USB-C panel cable links it to a rectangular slot in side C (left).
-SEED = (-47.0, 16.5)                   # Seed3 centre; 18 wide (x) x 51 long (y), USB-C end at y = -9
-USB_C_Y = -35.0                        # panel socket position on side C
-USB_SLOT = (12.0, 7.0)                 # final opening: long side along the wall height (X), short along Y
-USB_SCREW_PITCH = 18.0                 # the panel socket's 2 M3 screws, along X
+# Seed3 CARTRIDGE: the Seed3 stands on its side in a window in side C (left wall), component side OUT, and plugs
+# into 2 x 20-pin female headers on a small socket board screwed inside the wall. USB-C points toward the
+# footswitches (-y), BOOT/RESET face outward, so it is plugged in, pressed and swapped from outside, no soldering.
+# Side C coordinates: X = across the wall height (0 = middle of the 36.1 wall), Y = same as the face.
+SEED_Y = 15.5                          # window centre along Y (clear of the pg-1 encoder and the IN jack)
+SEED_WIN = (19.0, 52.0)                # final opening (X across the wall, Y along it); Seed3 is 18 x 51, +PC added
+SEED_SCREWS = (-15.5, 46.5)            # socket board screws: 2 beyond each end of the window ...
+SEED_SCREW_X = (-10.0, 10.0)           # ... one near the face and one near the lid (4 in all)
+WALL = 2.3                             # 1590XX side wall
+INNER_X = -FACE_W / 2 + WALL           # inside of the left wall in face coordinates (-58.25)
+SOCK_GAP = 5.0                         # A-8500 5 mm nylon spacer between the wall and the socket board
+HDR_H = 8.5                            # A-1310 female header height
+SOCK_L, SOCK_W = 68.0, 28.0            # socket board, cut from an A-5465 100 x 50 prototyping board
+
+
+def seed_stack():
+    """Distances outward from the OUTSIDE face of the left wall (negative = inside the box)."""
+    board_front = -(WALL + SOCK_GAP)               # socket board's header side
+    hdr_top = board_front + HDR_H
+    pcb0 = hdr_top + 2.5                           # Seed3's pin spacer sits on the header
+    return dict(board_back=board_front - 1.6, board_front=board_front, hdr_top=hdr_top,
+                pcb0=pcb0, pcb1=pcb0 + 1.6, parts=pcb0 + 1.6 + 3.25)
 
 
 # ---------------------------------------------------------------- drawing model
@@ -273,11 +288,10 @@ def build_face_art():
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
         if name == "exp":
             A.fill(lab.outline("trs", x, 55.6, 2.5))
-    # USB-C socket in the left side, level with this label (clear of the inner hairline)
-    # (written up the left edge, level with the socket, so it clears fs-1)
-    uy = USB_C_Y
-    A.fill(rot90(lab.outline("usb-c", 0, 0, 3.2), -50.6, uy))
-    A.stroke(poly_path([(-51.4, uy - 6.0), (-52.8, uy - 7.0), (-51.4, uy - 8.0)]), 0.45)
+    # Seed3 cartridge in the left side: label written up the left edge, level with the window,
+    # no arrow (it would hit the pg-1 dots)
+    uy = SEED_Y
+    A.fill(rot90(lab.outline("usb-c \u00b7 seed3", 0, 0, 3.2), -50.6, uy))   # reads upward: "usb-c" at the USB end
 
     # logo + tagline, the logo's flat ends finished with small diamonds
     A.stroke([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(logo_points(0, 51.0))], 0.75)
@@ -391,10 +405,10 @@ def holes_table():
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
     for name, x, d, part in SIDE_B:
         rows.append(("B", "hole", name, x, 0.0, round(d + PC, 2), "", "", part))
-    rows.append(("C", "rectangle", "usb-c slot", 0.0, USB_C_Y, "", round(USB_SLOT[0] + PC, 2), round(USB_SLOT[1] + PC, 2),
-                 "SparkFun CAB-15455 USB-C panel socket"))
-    for k, sx in enumerate((-USB_SCREW_PITCH / 2, USB_SCREW_PITCH / 2), 1):
-        rows.append(("C", "hole", f"usb-c screw {k}", sx, USB_C_Y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for the USB-C panel socket"))
+    rows.append(("C", "rectangle", "seed3 window", 0.0, SEED_Y, "", round(SEED_WIN[0] + PC, 2), round(SEED_WIN[1] + PC, 2),
+                 "Daisy Seed3 cartridge (plugs into the socket board inside)"))
+    for k, (sy, sx) in enumerate(((a, b) for a in SEED_SCREWS for b in SEED_SCREW_X), 1):
+        rows.append(("C", "hole", f"socket {k}", sx, sy, round(SCREW_HOLE + PC, 2), "", "", "M3x12 screw for the Seed3 socket board"))
     return rows
 
 
@@ -458,7 +472,9 @@ def write_art(A):
     # jacks/USB poking from the top edge
     for name, x, dd, _ in SIDE_B:
         p.append(f'<rect x="{x-dd/2-1.5}" y="{-FACE_H/2-3.2}" width="{dd+3}" height="3.4" rx="0.8" fill="#8d8d8d"/>')
-    p.append(f'<rect x="{-FACE_W/2-1.4}" y="{-USB_C_Y-USB_SLOT[1]/2}" width="1.6" height="{USB_SLOT[1]}" rx="0.5" fill="#4a4a4a"/>')
+    st = seed_stack()   # the Seed3 cartridge standing out of the left wall (seen from above: its edge)
+    p.append(f'<rect x="{-FACE_W/2-st["parts"]}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" rx="0.6" fill="#2a2a2a"/>')
+    p.append(f'<rect x="{-FACE_W/2-st["parts"]+0.3}" y="{-(SEED_Y-25.5)}" width="3.0" height="1.6" fill="#b5b5b5"/>')
     p.append(art_svg_group(A, "#111"))
     # screen
     ww, wh = LCD_WIN[0] + PC, LCD_WIN[1] + PC
@@ -503,20 +519,24 @@ def write_interior():
     p.append(f'<rect x="{LCD_CX+lw/2-4.6}" y="{-(LCD_CY+lh/2-4.8)}" width="2.6" height="{33.02+2.5}" fill="#36c"/>')
     p.append(text(LCD_CX + lw / 2 - 8, LCD_CY + 15, "14-pin header", 1.9, "end", "#36c"))
     p.append(text(0, LCD_CY + 2, "2.4in screen module (top layer)", 2.3, color="#235"))
-    sx, sy = SEED
-    p.append(f'<rect x="{sx-9}" y="{-(sy+25.5)}" width="18" height="51" rx="1" fill="#333" stroke="#000" stroke-width="0.3"/>')
-    p.append(f'<rect x="{sx-4.5}" y="{-(sy-25.5)}" width="9" height="1.6" fill="#bbb"/>')
-    for k in range(20):
-        for col in (-7.62, 7.62):
-            p.append(f'<rect x="{sx+col-1.1}" y="{-(sy-24.13+k*2.54)-1.1}" width="2.2" height="2.2" fill="#c9a227"/>')
-    p.append(text(sx, sy + 3, "Seed3", 2.6, color="#fff"))
-    p.append(text(sx, sy - 0.5, "on its back", 1.8, color="#fff"))
-    p.append(text(sx, sy - 3.2, "jumpers plug", 1.8, color="#fff"))
-    p.append(text(sx, sy - 5.6, "onto the pins", 1.8, color="#fff"))
-    p.append(f'<rect x="{sx-6}" y="{-(sy-25.5)+1.6}" width="12" height="20" rx="2" fill="#999" fill-opacity="0.6"/>')
-    p.append(f'<rect x="{-FACE_W/2+2.5}" y="{-USB_C_Y-4}" width="32" height="8" rx="1" fill="#777" fill-opacity="0.7"/>')
-    p.append(text(-FACE_W / 2 + 18, USB_C_Y - 1, "USB-C panel socket", 2.0, color="#fff"))
-    p.append(f'<path d="M{sx},{-(sy-25.5)+21.6} C{sx+6},{-USB_C_Y-12} {-FACE_W/2+40},{-USB_C_Y+2} {-FACE_W/2+34.5},{-USB_C_Y}" fill="none" stroke="#777" stroke-width="1.4" stroke-dasharray="3 1.5"/>')
+    st = seed_stack()
+    ox = -FACE_W / 2                                    # outside of the left wall
+    X = lambda d: ox - d                                # distance outward from the wall -> face x
+    y0, y1 = SEED_Y - SOCK_L / 2, SEED_Y + SOCK_L / 2   # socket board
+    p.append(f'<rect x="{X(st["board_front"])}" y="{-y1}" width="1.6" height="{y1-y0}" fill="#4f8f3a" stroke="#000" stroke-width="0.2"/>')
+    p.append(f'<rect x="{X(st["hdr_top"])}" y="{-(SEED_Y+25.4)}" width="{HDR_H}" height="50.8" fill="#222"/>')
+    p.append(f'<rect x="{X(st["parts"])}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>')
+    p.append(f'<rect x="{X(st["parts"])-1.55}" y="{-(SEED_Y-25.5)}" width="3.25" height="1.6" fill="#bbb"/>')
+    for sy in SEED_SCREWS:
+        p.append(f'<rect x="{X(0)}" y="{-sy-2.75}" width="{WALL+SOCK_GAP}" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>')
+        p.append(f'<rect x="{X(st["board_back"])}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
+    p.append(f'<rect x="{X(st["hdr_top"]+2.5)}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
+    p.append(f'<rect x="{X(st["board_back"])}" y="{-(SEED_Y+25.4)}" width="7" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
+    for k_, (t_, c_) in enumerate([("Seed3", "#235"), ("cartridge", "#235"), ("stands on its", "#235"), ("edge in the", "#235"),
+                                   ("left wall", "#235"), ("", ""), ("green dash:", "#1f6d2a"), ("wires, soldered", "#1f6d2a"), ("to the socket", "#1f6d2a"), ("board's back", "#1f6d2a")]):
+        if t_:
+            p.append(text(-41.0, SEED_Y + 12 - k_ * 2.5, t_, 1.8, color=c_))
+    p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
     for x, y in SCREWS:
         p.append(f'<circle cx="{x}" cy="{-y}" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="{x}" cy="{-y}" r="1.5" fill="#000"/>')
     for name, x, kind, _ in KNOBS:
@@ -527,9 +547,9 @@ def write_interior():
         p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="6.6" fill="#ddd" stroke="#555" stroke-width="0.3"/>')
         p.append(text(x, FS_Y - 10, name, 2.4))
     p.append(text(0, -FACE_H / 2 - 5, "INTERIOR TOP VIEW (looking down through the face) - 1:1", 2.6))
-    p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3: on its back on foam tape on the bottom plate", 2.2))
-    p.append(text(0, -FACE_H / 2 - 13, "Nothing sits above the Seed3 strip, so the plug-on jumper wires have room: see depth-check.svg", 2.2, color="#a00"))
-    W, H = FACE_W + 20, FACE_H + 30
+    p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3: socket board: M3x12 | wall | 5mm spacer | board | nut", 2.2))
+    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone behind the socket board free for the wires", 2.2, color="#a00"))
+    W, H = FACE_W + 32, FACE_H + 30
     open(os.path.join(d, "interior-layout.svg"), "w").write(svg_doc(W, H, "\n".join(p), (-W / 2, -FACE_H / 2 - 8, W, H), "#fff"))
 
 
@@ -541,12 +561,8 @@ DEPTHS = [  # item, from mm, to mm  (0 = outside of the face, 36.1 = open edge w
     ("screen parts / M3 nut + screw tip", 9.6, 12.6),
     ("encoders + pins + solder", 3.0, 15.5),
     ("TRS jacks (top wall zone only)", 10.2, 26.0),
-    ("USB-C panel socket (left wall)", 12.0, 24.0),
-    ("jumper wires bending (left strip only)", 8.0, 13.0),
-    ("jumper plugs on the Seed3 pins", 13.0, 27.0),
-    ("Seed3 header + board (on its back)", 27.0, 31.1),
-    ("Seed3 parts + USB-C plug (face down)", 31.1, 34.4),
-    ("foam tape (~5 mm, 2-3 layers)", 31.1, 36.1),
+    ("Seed3 window in the left wall", 18.05 - (SEED_WIN[0] + PC) / 2, 18.05 + (SEED_WIN[0] + PC) / 2),
+    ("Seed3 socket board (left wall)", 18.05 - SOCK_W / 2, 18.05 + SOCK_W / 2),
     ("footswitch body + lugs (bottom zone only)", 3.0, 33.0),
     ("lid", 36.1, 39.3),
 ]
@@ -615,12 +631,12 @@ def write_wiring_diagram():
     T = lambda x, y, t, sz=3.2, a="middle", c="#111", w="normal": o.append(
         f'<text x="{x:.1f}" y="{y:.1f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
         f'fill="{c}" font-weight="{w}">{t}</text>')
-    T(205, 12, "PG-1 WIRING: every part goes straight to the Daisy Seed3 (top view, USB-C at the bottom)", 5, w="bold")
-    T(205, 20, "Coloured line = one plug-on jumper wire.   \u23da = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom", 3.4)
+    T(205, 12, "PG-1 WIRING: every part goes to the Seed3 socket board (Seed3 pin numbers, seen from outside, USB-C at the bottom)", 5, w="bold")
+    T(205, 20, "Coloured line = one wire, soldered to that socket pin.   \u23da = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom", 3.4)
     # Seed3
     o.append(f'<rect x="{sx0}" y="{top-8}" width="{sx1-sx0}" height="{20*P+12}" rx="3" fill="#1d1d1d"/>')
     T(205, top + 70, "Daisy", 7, c="#fff", w="bold"); T(205, top + 80, "Seed3", 7, c="#fff", w="bold")
-    T(205, top + 92, "(top side up)", 3.2, c="#bbb")
+    T(205, top + 92, "(parts side, as seen", 3.2, c="#bbb"); T(205, top + 97, "from outside the box)", 3.2, c="#bbb")
     o.append(f'<rect x="{205-6}" y="{top+20*P-2}" width="12" height="7" rx="1.5" fill="#c9c9c9"/>')
     T(205, top + 20 * P + 14, "USB-C end", 3.2)
     for pin, name in SEED_RIGHT.items():
@@ -671,8 +687,8 @@ def write_wiring_diagram():
         T(x + 15, ly0 + 1.1, lab, 3.2, "start")
     T(205, ly0 + 10, "Encoders: 3 pins = A, C, B (C is the middle one). The 2 pins on the other side are the push switch. "
       "Screen pin 9 (SDO) is not used. Free for later: pins 34, 36, 37 (35 = exp jack later).", 3.0)
-    T(205, ly0 + 15, "Every coloured line is a female jumper wire pushed onto the Seed3 pin (no soldering on the Seed3). "
-      "Screen ends plug on too; other ends are soldered to the part.", 3.0)
+    T(205, ly0 + 15, "The Seed3 itself is never soldered: it plugs into 2 female headers on the socket board. Wires are soldered to the "
+      "header tails on the board's back (mirror image of this view!). Screen ends can be plug-on jumpers.", 3.0)
     # the two ground chains, step by step: solder a short black wire from each point to the next
     def chain_row(y, title, colour, steps):
         T(12, y + 1.2, title, 3.3, "start", colour, "bold")
@@ -689,13 +705,65 @@ def write_wiring_diagram():
             x += w + 5.2
     cy = ly0 + 26
     T(205, cy - 2, "GROUND CHAINS: one black wire from each point to the next, in this order. Don't join the two chains, and don't loop back.", 3.4, w="bold")
-    chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "jumper to|Seed3 pin 20"])
+    chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "socket|pin 20"])
     chain_row(cy + 23, "main chain", "#111", ["9V jack|- (center)", "screen|2 GND *", "pg-4|C + push 2", "pg-3|C + push 2", "pg-2|C + push 2",
-                                              "pg-1|C + push 2", "fs-3|other lug", "fs-2|other lug", "fs-1|other lug", "jumper to|Seed3 pin 40"])
+                                              "pg-1|C + push 2", "fs-3|other lug", "fs-2|other lug", "fs-1|other lug", "socket|pin 40"])
     T(205, cy + 34, "* the screen GND is a plug-on jumper at the screen end: cut its other end off and solder that end into the chain. "
       "(exp jack sleeve joins the audio chain only once the exp jack is used.)", 2.9)
     W, H = 410, cy + 40
     open(os.path.join(d, "wiring-diagram.svg"), "w").write(
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">'
+        f'<rect width="{W}" height="{H}" fill="#fff"/>' + "\n".join(o) + "</svg>\n")
+
+
+def write_socket_board():
+    """The socket board's BACK (the side you solder), seen from inside the box. Mirror image of the Seed3 view."""
+    d = os.path.join(ROOT, "05-Wiring-and-Schematics")
+    s_ = 4.0                                          # drawing scale: px per mm
+    W, H = 330, 196
+    cx, cy = W / 2, 92
+    o = []
+    T = lambda x, y, t, sz=3.2, a="middle", c="#111", w="normal": o.append(
+        f'<text x="{x:.1f}" y="{y:.1f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
+        f'fill="{c}" font-weight="{w}">{t}</text>')
+    T(cx, 12, "SEED3 SOCKET BOARD - the BACK (solder side), seen from INSIDE the box. Scale 4:1", 5, w="bold")
+    T(cx, 20, "Face (top of the pedal) is UP. USB-C end / footswitches on the LEFT. IN jack end on the RIGHT.", 3.4)
+    bw, bh = SOCK_L * s_ / 1.0, SOCK_W * s_
+    bw, bh = bw * 0.62, bh * 0.62                       # fit the page; positions below use the same factor
+    k = s_ * 0.62
+    o.append(f'<rect x="{cx-bw/2}" y="{cy-bh/2}" width="{bw}" height="{bh}" rx="3" fill="#4f8f3a" stroke="#123" stroke-width="0.6"/>')
+    for i in range(int(SOCK_L / 2.54)):                 # perfboard dots
+        for j in range(int(SOCK_W / 2.54)):
+            x = cx - bw / 2 + (1.3 + i * 2.54) * k; y = cy - bh / 2 + (1.0 + j * 2.54) * k
+            o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="0.9" fill="#c8a35a" fill-opacity="0.45"/>')
+    for dy in (SEED_SCREWS[0] - SEED_Y, SEED_SCREWS[1] - SEED_Y):
+        for hx in SEED_SCREW_X:
+            x, y = cx + dy * k, cy + hx * k
+            o.append(f'<circle cx="{x}" cy="{y}" r="{2.75*k}" fill="#ddd" stroke="#333" stroke-width="0.5"/>')
+            o.append(f'<circle cx="{x}" cy="{y}" r="{1.6*k}" fill="#666"/>')
+        T(cx + dy * k, cy + 1, "M3 nuts", 2.6, c="#fff")
+    rowA, rowB = cy - 7.62 * k, cy + 7.62 * k           # pins 1-20 toward the face (top), 21-40 toward the lid
+    for pin in range(1, 41):
+        pos = pin - 1 if pin <= 20 else 40 - pin        # 0 = USB-C end
+        x = cx + (-24.13 + pos * 2.54) * k
+        y = rowA if pin <= 20 else rowB
+        name = SEED_RIGHT.get(pin) or SEED_LEFT.get(pin)
+        used = any(p_ == pin for _, _, ps, _ in WIRING for _, p_, _ in ps) or pin in (20, 40)
+        col = "#000" if pin == 1 else ("#d4a017" if used else "#8a7a50")
+        o.append(f'<rect x="{x-1.25*k}" y="{y-1.25*k}" width="{2.5*k}" height="{2.5*k}" fill="{col}" stroke="#222" stroke-width="0.3"/>')
+        ly = y - 2.6 * k if pin <= 20 else y + 3.6 * k
+        T(x, ly, str(pin), 2.6, c="#fff", w="bold")
+        short = name.replace("AUDIO ", "").replace(" (unused)", "")
+        ty = cy - bh / 2 - 6 if pin <= 20 else cy + bh / 2 + 9
+        o.append(f'<text x="{x:.1f}" y="{ty:.1f}" font-family="DejaVu Sans, sans-serif" font-size="2.5" fill="#333" '
+                 f'text-anchor="{"start" if pin <= 20 else "end"}" transform="rotate(-60 {x:.1f} {ty:.1f})">{short}</text>')
+    T(cx + (-24.13) * k - 26, rowA + 1, "pin 1: KEY", 2.9, "end", "#a00", "bold")
+    T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and push a snipped resistor leg into socket 1 (glue it):", 3.1)
+    T(cx, cy + bh / 2 + 39, "now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!", 3.1, c="#a00", w="bold")
+    T(cx, cy + bh / 2 + 47, "Each wire from wiring-diagram.svg is soldered to the header tail with the SAME pin number shown here.", 3.1)
+    T(cx, cy + bh / 2 + 52, "4 screws, each: M3x12 from outside | side wall | 5 mm nylon spacer | this board | M3 nut. Holes 62 x 20 mm apart.", 3.1)
+    T(cx, cy + bh / 2 + 57, "The 2 socket strips are soldered to this board, so they stay put when you pull the Seed3 out.", 3.1)
+    open(os.path.join(d, "seed-socket-board.svg"), "w").write(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">'
         f'<rect width="{W}" height="{H}" fill="#fff"/>' + "\n".join(o) + "</svg>\n")
 
@@ -752,6 +820,7 @@ if __name__ == "__main__":
     check_clearances()
     write_depth()
     write_wiring_diagram()
+    write_socket_board()
     write_logo_header()
     rows = holes_table()
     write_drill(rows)

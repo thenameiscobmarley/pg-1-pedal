@@ -7,6 +7,41 @@ PG1Processor::PG1Processor()
 {
     pedal.Init (48000.0f, framebuffer.data());
     setLatencySamples (pedal.LatencySamples());
+    juce::MemoryBlock mb;   // where the last instance left off (a host session loaded later overrides it)
+    if (stateFile().existsAsFile() && stateFile().loadFileAsData (mb))
+        pedal.LoadState ((const uint8_t*) mb.getData(), (int) mb.getSize());
+    startTimer (1000);
+}
+
+PG1Processor::~PG1Processor()
+{
+    stopTimer();
+    saveToDisk();
+}
+
+juce::File PG1Processor::stateFile()
+{
+    return juce::File::getSpecialLocation (juce::File::userApplicationDataDirectory)
+               .getChildFile ("PG-1 Pedal").getChildFile ("pedal-state.bin");
+}
+
+void PG1Processor::timerCallback()
+{
+    if (pedal.WantsSave (nowMs()))
+        saveToDisk();
+}
+
+void PG1Processor::saveToDisk()
+{
+    std::vector<uint8_t> st ((size_t) pg::Core::kStateBytes);
+    const int n = pedal.SaveState (st.data(), (int) st.size());
+    if (n <= 0)
+        return;
+    const auto f = stateFile();
+    f.getParentDirectory().createDirectory();
+    juce::TemporaryFile tmp (f);   // write next to it, then swap in: a crash mid-write can't leave half a file
+    if (tmp.getFile().replaceWithData (st.data(), (size_t) n) && tmp.overwriteTargetFileWithTemporary())
+        pedal.SaveDone();
 }
 
 bool PG1Processor::isBusesLayoutSupported (const BusesLayout& l) const

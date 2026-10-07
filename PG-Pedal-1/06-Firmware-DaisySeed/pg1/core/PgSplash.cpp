@@ -42,7 +42,7 @@ bool Core::DrawSplash(uint32_t now)
         t          = kUiIn0;
     }
     splash_skip_ = false;
-    if(now - last_anim_ < 33 && t < kUiIn1)
+    if(now - last_anim_ < FrameMs() && t < kUiIn1)
         return true;
     last_anim_ = now;
 

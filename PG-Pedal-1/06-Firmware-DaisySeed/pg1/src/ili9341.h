@@ -15,7 +15,8 @@ class Ili9341 : public pg::Canvas
     };
 
     // flip = true turns the picture 180 degrees (use it if the text is upside down).
-    bool Init(const Pins& p, bool flip);
+    // fast = 1/4 of the SPI clock (48 MHz from the 192 MHz PLL1Q set in main), else 1/8 (24 MHz)
+    bool Init(const Pins& p, bool flip, bool fast = false);
     void Fill(int x, int y, int w, int h, uint16_t color) override;
     // Draws text with a libDaisy OLED font, scaled up by an integer factor.
     // Returns the x position after the last character.

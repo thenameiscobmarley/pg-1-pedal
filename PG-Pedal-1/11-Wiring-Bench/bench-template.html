@@ -171,7 +171,7 @@ const PARTS = [
     {id:"7", label:"SCK", want:9, kind:"lcd"}, {id:"8", label:"LED", want:23, kind:"lcd"}, {id:"9", label:"SDO", want:null, kind:"lcd"},
     {id:"10", label:"T_CLK", want:29, kind:"lcd"}, {id:"11", label:"T_CS", want:30, kind:"lcd"}, {id:"12", label:"T_DIN", want:31, kind:"lcd"},
     {id:"13", label:"T_DO", want:32, kind:"lcd"}, {id:"14", label:"T_IRQ", want:33, kind:"lcd"}]},
-  {id:"chain", name:"ground chains", terms:[{id:"A", label:"audio chain jumper", want:20, kind:"gnd"}, {id:"M", label:"main chain jumper", want:40, kind:"gnd"}]},
+  {id:"chain", name:"ground chains", terms:[{id:"A", label:"audio chain wire", want:20, kind:"gnd"}, {id:"M", label:"main chain wire", want:40, kind:"gnd"}]},
 ];
 const TERMS = {}; // "part.term" -> {part, term, x, y, side}
 for (const p of PARTS) for (const t of p.terms) TERMS[p.id + "." + t.id] = {part:p, term:t};
@@ -358,11 +358,11 @@ function diagnose() {
   if (!("9v.plus" in wires)) add("warn", "9V jack", "9 V + isn't connected: the pedal has no power.", "Wire 9V + (sleeve lug) to pin 39 (VIN).");
   if (!("9v.minus" in wires)) add("warn", "9V jack", "9 V − isn't connected: no power return, nothing turns on.", "Wire 9V − (centre pin) to the main ground chain.");
   if (!("chain.M" in wires)) add("warn", "ground", "The main ground chain isn't connected to the Seed3: the knobs, footswitches, screen and power have no ground.", "Add its jumper to pin 40 (DGND).");
-  else if (wires["chain.M"] === 20) add("warn", "ground", "The main chain's jumper is on pin 20 (AGND). It works, but the screen's noise now shares the audio ground.", "Move it to pin 40 (DGND).");
-  else if (wires["chain.M"] !== 40) add("warn", "ground", `The main chain's jumper is on ${where(wires["chain.M"])}, not a ground pin: nothing on that chain is grounded.`, "Move it to pin 40 (DGND).");
+  else if (wires["chain.M"] === 20) add("warn", "ground", "The main chain's wire is on pin 20 (AGND). It works, but the screen's noise now shares the audio ground.", "Move it to pin 40 (DGND).");
+  else if (wires["chain.M"] !== 40) add("warn", "ground", `The main chain's wire is on ${where(wires["chain.M"])}, not a ground pin: nothing on that chain is grounded.`, "Move it to pin 40 (DGND).");
   if (!("chain.A" in wires)) add("warn", "ground", "The audio ground chain isn't connected to the Seed3: expect loud hum or no sound.", "Add its jumper to pin 20 (AGND).");
-  else if (wires["chain.A"] === 40) add("warn", "ground", "The audio chain's jumper is on pin 40 (DGND). It works, with a bit more risk of whine.", "Move it to pin 20 (AGND).");
-  else if (wires["chain.A"] !== 20) add("warn", "ground", `The audio chain's jumper is on ${where(wires["chain.A"])}, not a ground pin: the jacks have no ground (hum, or no sound).`, "Move it to pin 20 (AGND).");
+  else if (wires["chain.A"] === 40) add("warn", "ground", "The audio chain's wire is on pin 40 (DGND). It works, with a bit more risk of whine.", "Move it to pin 20 (AGND).");
+  else if (wires["chain.A"] !== 20) add("warn", "ground", `The audio chain's wire is on ${where(wires["chain.A"])}, not a ground pin: the jacks have no ground (hum, or no sound).`, "Move it to pin 20 (AGND).");
   // 3. two wires on one pin
   for (const d in onPin) {
     if (d === "A" || d === "M") continue;
@@ -381,7 +381,7 @@ function diagnose() {
         if (d === "A" || d === "M") {
           add("warn", p.name, t.want === "A" ? `${nice(k)} is on the main chain. It works, but screen and switch noise can get into the audio.` : `${nice(k)} is on the audio chain. It works, but its noise now shares the audio ground.`, `Move it to ${where(t.want)}.`);
         } else if (d === 20 || d === 40) {
-          add("warn", p.name, `${nice(k)} goes straight to ${where(d)}, but that pin already takes its chain's jumper.`, `Put it on ${where(t.want)} instead.`);
+          add("warn", p.name, `${nice(k)} goes straight to ${where(d)}, but that pin already takes its chain's wire.`, `Put it on ${where(t.want)} instead.`);
         } else if (d !== 38 && d !== 21 && d !== 39) {
           add("warn", p.name, `${nice(k)} is a ground, but it's on ${where(d)}. That holds the pin at ground, so ${OWNER[d] ? nice(OWNER[d]) + " would read stuck" : "nothing useful happens"}, and ${p.id} has no ground.`, `Move it to ${where(t.want)}.`);
         }

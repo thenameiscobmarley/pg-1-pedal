@@ -72,17 +72,25 @@
 <path d="M33.55,-90.8 h12.9 M40.0,-97.25 v12.9" stroke="#c00" stroke-width="0.15"/>
 <text x="40.00" y="-96.95" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">out  Ø9.9</text>
 <text x="40.00" y="-83.25" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(40, 0)</text>
-<rect x="-84.8" y="31.3" width="12.4" height="7.4" fill="none" stroke="#c00" stroke-width="0.3"/>
-<text x="-78.60" y="34.00" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#c00" font-weight="normal">usb-c slot 12.4 x 7.4</text>
-<text x="-78.60" y="37.60" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal">centre (0, -35)</text>
-<circle cx="-87.6" cy="35.0" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-90.89999999999999,35.0 h6.6 M-87.6,31.700000000000003 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-87.60" y="32.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">usb-c screw 1  Ø3.6</text>
-<text x="-87.60" y="39.40" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-9, -35)</text>
-<circle cx="-69.6" cy="35.0" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-72.89999999999999,35.0 h6.6 M-69.6,31.700000000000003 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-69.60" y="32.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">usb-c screw 2  Ø3.6</text>
-<text x="-69.60" y="39.40" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(9, -35)</text>
+<rect x="-88.3" y="-41.7" width="19.4" height="52.4" fill="none" stroke="#c00" stroke-width="0.3"/>
+<text x="-78.60" y="-16.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#c00" font-weight="normal">seed3 window 19.4 x 52.4</text>
+<text x="-78.60" y="-12.90" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal">centre (0, 15.5)</text>
+<circle cx="-88.6" cy="15.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-91.89999999999999,15.5 h6.6 M-88.6,12.2 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-88.60" y="12.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 1  Ø3.6</text>
+<text x="-88.60" y="19.90" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10, -15.5)</text>
+<circle cx="-68.6" cy="15.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-71.89999999999999,15.5 h6.6 M-68.6,12.2 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-68.60" y="12.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 2  Ø3.6</text>
+<text x="-68.60" y="19.90" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10, -15.5)</text>
+<circle cx="-88.6" cy="-46.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-91.89999999999999,-46.5 h6.6 M-88.6,-49.8 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-88.60" y="-49.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 3  Ø3.6</text>
+<text x="-88.60" y="-42.10" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10, 46.5)</text>
+<circle cx="-68.6" cy="-46.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-71.89999999999999,-46.5 h6.6 M-68.6,-49.8 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-68.60" y="-49.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 4  Ø3.6</text>
+<text x="-68.60" y="-42.10" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10, 46.5)</text>
 <path d="M-60.55,81.75 h50" stroke="#000" stroke-width="0.4"/>
 <text x="-35.55" y="85.55" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">this bar must measure exactly 50 mm</text>
 </svg>

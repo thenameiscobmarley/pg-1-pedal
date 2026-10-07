@@ -7,7 +7,7 @@
     python3 tayda_upload.py --drill-id 12345                 # update only the drill template
 
 It creates two templates (it does NOT order or pay for anything):
-  * drill template "pg-1"      - 16 holes + 2 rectangles (screen window, USB-C slot) (from tayda-drill-holes.csv)
+  * drill template "pg-1"      - 17 holes + 2 rectangles (screen window, Seed3 window) (from tayda-drill-holes.csv)
   * UV print template "pg-1 top" - side A, colour layer only (pg1-face-uv-print.pdf)
 Then you open the dashboard, check the previews, and create the job/order yourself.
 

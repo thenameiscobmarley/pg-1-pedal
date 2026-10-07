@@ -43,6 +43,7 @@ once at a loud-but-comfortable volume: lower **ears** until it just starts easin
 | hold fs-2 (0.6 s) | that tab's stage on / off | this page's stage on / off |
 | touch | tap a tab to open it; tap "on" for bypass | tap "< home"; tap the on/off chip; tap a box = what it does; dyn eq: drag nodes, tap band chips, double-tap a node = gain 0; visual: tap = next view |
 | fs-3 | fair A/B: hear your untouched input at the same loudness (a cyan "a/b dry" chip shows); tap again to come back | same |
+| touch d-pad (off by default) | turn it on in **config** (tap "touch d-pad", or hold pg-4 + turn), then **tap the title** to show it: arrows move between tabs, the middle opens | left / right pick a value box (yellow frame), up / down change it (hold to repeat), the middle = that knob's push (hold = home). Hides itself after 10 s |
 | fs-1 + fs-2 held 2 s | USB flash mode | same |
 
 ## First power-up
@@ -54,6 +55,10 @@ ever runs once (any control skips it). The config tab's bottom line shows the mo
 
 Everything (settings, the 8 configs, the learned hum / hiss) is saved to the Seed3's flash about 4 s after you stop changing
 things, and comes back at power-on. The plugin keeps the same block in the DAW session.
+
+Saves survive firmware and plugin updates: every setting is stored under a permanent name, so a new build that adds, removes
+or reorders settings still loads your configs (new settings start at their defaults). When a setting's meaning changes, the
+new build converts the old value. The pedal and the plugin use the same format.
 
 ## Start-up
 
@@ -74,6 +79,15 @@ a knob turning by itself (loose wire), a footswitch stuck, the touchscreen stuck
 
 It **can't** see: the OUT jack wiring after the converter, the 9 V supply level, or a wire touching the box. Those are the one-time
 multimeter checks in `USING-WITH-FIFINE-SC3.md`.
+
+## Screen speed
+
+The screen is driven over SPI at **48 MHz** ("fast", the default) with the Seed3 at 480 MHz: graphs and animations aim for
+**60 fps** (the busiest pages use ~92% of the link, so expect about 55-60 fps there; the home screen and small changes are
+a solid 60). A full-page change takes ~25 ms. If the picture ever shows wrong pixels or streaks (long or loose jumper
+wires can do that at 48 MHz), set **config -> screen: safe** (24 MHz, 25 fps): hold pg-3 and turn, or tap it on the config
+page. Keep the screen's SCK and SDI (MOSI) jumpers as short as you can. (48 MHz is above the ILI9341 datasheet's own
+figure; these modules are commonly run at 40-80 MHz, and the display self-repair below re-sends everything anyway.)
 
 ## Display safety
 
