@@ -77,7 +77,7 @@ private:
     hwk::gfx::GpuMesh meshFace, meshShell, meshLid, meshWell, meshLcd, meshDesk, meshShadow,
                       meshNutSmall, meshNutBig, meshThread, meshPlunger, meshScrew, meshJackNut, meshJackHole,
                       meshDcNut, meshSideScrew,
-                      meshSeedWin, meshSeedHdr, meshSeedPcb, meshSeedChips, meshSeedUsb, meshSeedBtn;
+                      meshSeedWin, meshSeedHdr, meshSeedGlue, meshSeedPcb, meshSeedChips, meshSeedUsb, meshSeedBtn;
     std::vector<std::unique_ptr<KnobPart>> knobParts;
     hwk::gfx::Texture2D texPrint, texLcd;
     std::vector<juce::uint8> lcdRgba;

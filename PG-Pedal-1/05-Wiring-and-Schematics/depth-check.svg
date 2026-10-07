@@ -33,8 +33,8 @@
 <text x="75.00" y="51.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">TRS jacks (top wall zone only)</text>
 <rect x="104.72" y="55" width="62.08" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
 <text x="75.00" y="58.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 window in the left wall</text>
-<rect x="91.824" y="62" width="96.0" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
-<text x="75.00" y="65.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 socket board (left wall)</text>
+<rect x="107.28" y="62" width="56.960000000000015" height="5" fill="#cfe9cf" stroke="#555" stroke-width="0.3"/>
+<text x="75.00" y="65.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">Seed3 jumper-end block (in the window)</text>
 <rect x="87.6" y="69" width="96.0" height="5" fill="#ffe2a8" stroke="#555" stroke-width="0.3"/>
 <text x="75.00" y="72.80" font-family="DejaVu Sans, sans-serif" font-size="3" text-anchor="end" fill="#000" font-weight="normal">footswitch body + lugs (bottom zone only)</text>
 <rect x="193.52" y="76" width="10.239999999999988" height="5" fill="#bbb" stroke="#555" stroke-width="0.3"/>

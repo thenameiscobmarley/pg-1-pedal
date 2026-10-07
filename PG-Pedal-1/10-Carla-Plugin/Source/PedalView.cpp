@@ -155,27 +155,32 @@ void PedalView::newOpenGLContextCreated()
     meshJackHole.upload (geo::lathe (0.034f, { { 0.0f, 0.0221f }, { 0.0f, 0.0224f } }, 32, true));
     meshDcNut.upload (geo::sweptPolygon (6, 0.075f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
     // Seed3 cartridge parts, in the wall's frame (x = 0 is the outside of the left wall, -x = further out).
-    // Stack: socket headers poke 1.2 mm out, the Seed3's pin spacer (2.5), its 1.6 mm PCB, then its parts.
+    // Socket = 2 rows of 20 jumper ends hot-glued into a block in the window, their faces level with the
+    // outside of the wall. Then the Seed3's own black pin spacer (2.5 mm), its 1.6 mm PCB and its parts.
     meshSeedWin.upload (geo::box ({ -0.0045f, -0.097f, -0.262f }, { -0.001f, 0.097f, 0.262f }));
     {
         MeshData hdr;
         for (float ry : { -0.0762f, 0.0762f })
-            hdr.append (geo::box ({ -0.037f, ry - 0.0125f, -0.254f }, { 0.0f, ry + 0.0125f, 0.254f }));
+        {
+            hdr.append (geo::box ({ -0.0015f, ry - 0.0127f, -0.254f }, { 0.0f, ry + 0.0127f, 0.254f }));    // jumper ends' faces
+            hdr.append (geo::box ({ -0.025f, ry - 0.0125f, -0.254f }, { -0.0015f, ry + 0.0125f, 0.254f }));  // Seed3 pin spacer
+        }
         meshSeedHdr.upload (hdr);
     }
-    meshSeedPcb.upload (geo::box ({ -0.053f, -0.09f, -0.255f }, { -0.037f, 0.09f, 0.255f }));
+    meshSeedGlue.upload (geo::box ({ -0.0012f, -0.0635f, -0.258f }, { 0.0f, 0.0635f, 0.258f }));
+    meshSeedPcb.upload (geo::box ({ -0.041f, -0.09f, -0.255f }, { -0.025f, 0.09f, 0.255f }));
     {
         MeshData chips;   // MCU, SDRAM, flash and codec
-        chips.append (geo::box ({ -0.068f, -0.05f, -0.06f }, { -0.053f, 0.05f, 0.04f }));
-        chips.append (geo::box ({ -0.066f, -0.045f, -0.20f }, { -0.053f, 0.045f, -0.09f }));
-        chips.append (geo::box ({ -0.064f, -0.03f, -0.245f }, { -0.053f, 0.03f, -0.21f }));
+        chips.append (geo::box ({ -0.056f, -0.05f, -0.06f }, { -0.041f, 0.05f, 0.04f }));
+        chips.append (geo::box ({ -0.054f, -0.045f, -0.20f }, { -0.041f, 0.045f, -0.09f }));
+        chips.append (geo::box ({ -0.052f, -0.03f, -0.245f }, { -0.041f, 0.03f, -0.21f }));
         meshSeedChips.upload (chips);
     }
-    meshSeedUsb.upload (geo::box ({ -0.0855f, -0.0417f, 0.042f }, { -0.053f, 0.0417f, 0.1155f }));
+    meshSeedUsb.upload (geo::box ({ -0.0735f, -0.0417f, 0.042f }, { -0.041f, 0.0417f, 0.1155f }));
     {
         MeshData btn;     // BOOT and RESET, beside the USB-C end
         for (float by : { -0.065f, 0.065f })
-            btn.append (geo::box ({ -0.068f, by - 0.017f, 0.055f }, { -0.053f, by + 0.017f, 0.095f }));
+            btn.append (geo::box ({ -0.056f, by - 0.017f, 0.055f }, { -0.041f, by + 0.017f, 0.095f }));
         meshSeedBtn.upload (btn);
     }
     meshSideScrew.upload (geo::lathe (0.026f, { { 0.0f, 0.0f }, { 0.0f, 0.016f }, { -0.004f, 0.02f } }, 24, true));
@@ -216,7 +221,7 @@ void PedalView::openGLContextClosing()
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
                      &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut, &meshSideScrew,
-                     &meshSeedWin, &meshSeedHdr, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
+                     &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
         m->release();
     for (auto& k : knobParts)
         k->gpu.release();
@@ -338,6 +343,7 @@ void PedalView::renderOpenGL()
         for (float dy : { -0.1016f, 0.1016f })
             draw (*progPlastic, meshSideScrew, Mat4::translation ({ -W * 0.5f, jackY + dy, z }) * sideCRot, black);
     draw (*progPlastic, meshSeedHdr, seedAt, black);
+    draw (*progPlastic, meshSeedGlue, seedAt, { 0.80f, 0.79f, 0.74f });   // the hot glue between the rows
     draw (*progPlastic, meshSeedPcb, seedAt, { 0.035f, 0.04f, 0.045f });
     draw (*progPlastic, meshSeedChips, seedAt, { 0.06f, 0.06f, 0.065f });
     draw (*progPlastic, meshSeedBtn, seedAt, { 0.75f, 0.75f, 0.74f });

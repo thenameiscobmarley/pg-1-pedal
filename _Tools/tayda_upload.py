@@ -7,7 +7,7 @@
     python3 tayda_upload.py --drill-id 12345                 # update only the drill template
 
 It creates two templates (it does NOT order or pay for anything):
-  * drill template "pg-1"      - 17 holes + 2 rectangles (screen window, Seed3 window) (from tayda-drill-holes.csv)
+  * drill template "pg-1"      - 19 holes + 2 rectangles (screen window, Seed3 window) (from tayda-drill-holes.csv)
   * UV print template "pg-1 top" - side A, colour layer only (pg1-face-uv-print.pdf)
 Then you open the dashboard, check the previews, and create the job/order yourself.
 
@@ -179,7 +179,7 @@ def main():
     uid = res["box_uv_design"]["id"]
     print(f"UV print template saved: https://drill.taydakits.com/box-uv-designs/edit?id={uid}")
     print("\nNext: open https://drill.taydakits.com/dashboard, check both previews "
-          "(the 'out' hole must be above the LEFT half of the face), then create the job/order.")
+          "(the 'in' hole must be above the LEFT half of the face), then create the job/order.")
 
 
 if __name__ == "__main__":

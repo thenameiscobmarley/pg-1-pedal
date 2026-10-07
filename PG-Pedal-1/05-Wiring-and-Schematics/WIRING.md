@@ -26,19 +26,24 @@ The female end of every jumper wire is a small plastic shell exactly 2.54 mm wid
          ┃      |
 ```
 
-1. Snip pin 1 off the Seed3 (the key, see below).
-2. Lay the pedal on its right side. From outside, push the Seed3 halfway into the window (USB-C toward the footswitches) and hold it there with tape.
-3. From inside, push one jumper end onto **every** Seed3 pin, in pin order, using `seed-socket-board.png` for the positions.
-   All 40 places get a jumper, even unused pins (those jumpers are your spare / expansion wires: just coil them up, their ends are already insulated).
-   In place 1 (the snipped pin) push an empty jumper end and fill it with a dab of hot glue: that's the key.
-4. Slide the whole thing so the front faces of the jumper ends are level with the outside of the wall.
-5. Warm the wall around the window with a hair dryer (cold aluminium makes hot glue let go), then hot-glue: between the two rows, along all four sides of the block
-   where it touches the window edge, and a bead over the block's back edge onto the inside of the wall. Let it cool for 10 minutes before you touch it.
-6. Pull the Seed3 straight out: the block stays in the wall. Then each jumper's other end goes to its part (wire list below):
-   cut and soldered on the part's big lug, or plugged straight onto the screen's pins.
-7. Label each wire near the block (tape flag with the pin number) so you can always trace it.
-   Doing it a few at a time works well: push 3 jumper ends on, tack them with a little glue, wire up their other ends, test, then the next 3.
-   Keep the Seed3 plugged in the whole time (it holds the spacing exact), keep glue on the backs and sides of the shells only, and finish with one full glue pass over the whole block.
+**Build the block on the table, not inside the box** (so the glue gun never has to reach into anything):
+
+1. (Optional key) snip pin 1 off the Seed3, see "Key it" below.
+2. Lay the Seed3 on a soft cloth, parts side down, pins up.
+3. Push a jumper end onto **every** pin, using `seed-socket-board.png` for the places. All 40 get one, even unused pins
+   (those are your spare / expansion wires: coil them up, their ends are already insulated). If you keyed it, fill the place-1 jumper end with a dab of glue.
+   A few at a time works well: push 3 on, label each wire with a tape flag (its pin number), tack them to their neighbours with a small dab of glue, then the next 3.
+   Keep glue on the **backs and sides** of the plastic ends only, never in the front where the pins go.
+4. When all 40 are on, do one full pass: a line of glue in the gap between the two rows and along the outside of each row, so it's one solid block. Let it cool 10 minutes.
+5. Pull the Seed3 off. You now have a 2 x 20 socket block with 40 labelled wires.
+6. Fit it: take the lid off the pedal and lay it face down: the inside is an open tray, so the left wall is right in front of you.
+   Push the block into the window **from inside** (wires trailing into the box) until its front is level with the outside of the wall.
+   Plug the Seed3 in from outside to check it lines up, and leave it in.
+7. Warm the wall around the window with a hair dryer (cold aluminium makes hot glue let go), then run one bead all the way around where the block meets the
+   **inside** of the wall. The nozzle only has to touch the wall from the open back: nothing to thread. That bead overlaps the wall like a lip, so pulling a Seed3 out can't pull the block with it.
+   Extra solid (optional): a thin bead around the outside edge of the window too, then the wall is clamped from both sides.
+8. Then wire each jumper's other end to its part (wire list below): cut and soldered on the part's big lug, or plugged straight onto the screen's pins.
+   Tip: fit the block before the screen and the pg-1 knob go in, for more elbow room.
 
 Swapping later: unplug 9 V and USB, pull straight out, push the new one in until it stops. If the block ever loosens, re-glue it the same way.
 The 4 screw holes around the window are for way 2. Until then, put the 4 M3 screws in with their nuts so the holes are closed.

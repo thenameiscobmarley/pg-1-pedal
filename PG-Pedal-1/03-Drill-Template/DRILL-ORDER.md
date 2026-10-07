@@ -1,6 +1,6 @@
 # Ordering the drilled enclosure (drill.taydakits.com)
 
-**Easiest:** `python3 _Tools/tayda_upload.py --drill-id 12345 --uv-id YOUR_UV_ID`
+**Easiest:** `python3 _Tools/tayda_upload.py --drill-id 12345 --uv-id 34248`
 updates your existing templates. By hand, type these in (mm from the **center of each side**, +X right, +Y up).
 Diameters **already include Tayda's +0.4 mm powder-coat allowance**.
 

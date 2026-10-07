@@ -76,13 +76,15 @@ SOCK_OFF = 1.27                        # its centre sits this much toward the li
 SOCK_COLS, SOCK_ROWS = 24, 10          # its hole grid
 
 
+JMP_L = 14.0                           # a jumper wire's female end (plastic shell), long
+
+
 def seed_stack():
-    """Distances outward from the OUTSIDE face of the left wall (negative = inside the box)."""
-    board_front = -(WALL + SOCK_GAP)               # socket board's header side
-    hdr_top = board_front + HDR_H
-    pcb0 = hdr_top + 2.5                           # Seed3's pin spacer sits on the header
-    return dict(board_back=board_front - 1.6, board_front=board_front, hdr_top=hdr_top,
-                pcb0=pcb0, pcb1=pcb0 + 1.6, parts=pcb0 + 1.6 + 3.25)
+    """Distances outward from the OUTSIDE face of the left wall (negative = inside the box).
+    Socket way 1 (built now): the jumper ends, glued into a block in the window, faces level with the outside."""
+    hdr_top = 0.0
+    pcb0 = hdr_top + 2.5                           # Seed3's own black pin spacer sits on the jumper ends
+    return dict(block_back=-JMP_L, hdr_top=hdr_top, pcb0=pcb0, pcb1=pcb0 + 1.6, parts=pcb0 + 1.6 + 3.25)
 
 
 # ---------------------------------------------------------------- drawing model
@@ -526,20 +528,17 @@ def write_interior():
     st = seed_stack()
     ox = -FACE_W / 2                                    # outside of the left wall
     X = lambda d: ox - d                                # distance outward from the wall -> face x
-    y0, y1 = SEED_Y - SOCK_L / 2, SEED_Y + SOCK_L / 2   # socket board
-    p.append(f'<rect x="{X(st["board_front"])}" y="{-y1}" width="1.6" height="{y1-y0}" fill="#4f8f3a" stroke="#000" stroke-width="0.2"/>')
-    p.append(f'<rect x="{X(st["hdr_top"])}" y="{-(SEED_Y+25.4)}" width="{HDR_H}" height="50.8" fill="#222"/>')
+    p.append(f'<rect x="{X(0)}" y="{-(SEED_Y+25.4)}" width="{JMP_L}" height="50.8" fill="#222"/>')    # the glued jumper-end block
     p.append(f'<rect x="{X(st["parts"])}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>')
     p.append(f'<rect x="{X(st["parts"])-1.55}" y="{-(SEED_Y-25.5)}" width="3.25" height="1.6" fill="#bbb"/>')
-    for sy in SEED_SCREWS:
-        p.append(f'<rect x="{X(0)}" y="{-sy-2.75}" width="{WALL+SOCK_GAP}" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>')
-        p.append(f'<rect x="{X(st["board_back"])}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
-    p.append(f'<rect x="{X(st["hdr_top"]+2.5)}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
-    p.append(f'<rect x="{X(st["board_back"])}" y="{-(SEED_Y+25.4)}" width="14" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
-    for k_, (t_, c_) in enumerate([("Seed3", "#235"), ("cartridge", "#235"), ("stands on its", "#235"), ("edge in the", "#235"),
-                                   ("left wall", "#235"), ("", ""), ("green dash:", "#1f6d2a"), ("long header", "#1f6d2a"), ("legs + wires", "#1f6d2a")]):
-        if t_:
-            p.append(text(-44.6, SEED_Y + 12 - k_ * 2.5, t_, 1.8, color=c_))
+    p.append(f'<rect x="{X(st["pcb0"])}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
+    for sy in SEED_SCREWS:                                                                               # screws + nuts closing the way-2 holes
+        p.append(f'<rect x="{X(0)}" y="{-sy-0.8}" width="{WALL+2.4}" height="1.6" fill="#888"/>')
+        p.append(f'<rect x="{X(-WALL)}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
+    p.append(f'<rect x="{X(-JMP_L)}" y="{-(SEED_Y+25.4)}" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
+    for k_, (t_, c_) in enumerate([("Seed3", "#fff"), ("plugs into", "#fff"), ("40 jumper", "#fff"), ("ends, hot-", "#fff"), ("glued into", "#fff"), ("a block", "#fff")]):
+        p.append(text(X(-JMP_L / 2), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
+    p.append(text(X(-JMP_L - 5), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
     p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
     for x, y in SCREWS:
         p.append(f'<circle cx="{x}" cy="{-y}" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="{x}" cy="{-y}" r="1.5" fill="#000"/>')
@@ -551,8 +550,8 @@ def write_interior():
         p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="6.6" fill="#ddd" stroke="#555" stroke-width="0.3"/>')
         p.append(text(x, FS_Y - 10, name, 2.4))
     p.append(text(0, -FACE_H / 2 - 5, "INTERIOR TOP VIEW (looking down through the face) - 1:1", 2.6))
-    p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3: socket board: M3x12 | wall | 5mm spacer | board | nut", 2.2))
-    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone behind the socket board free for the wires", 2.2, color="#a00"))
+    p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window", 2.2))
+    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires. 4 small screws only close the holes (later: way 2 board)", 2.2, color="#a00"))
     W, H = FACE_W + 32, FACE_H + 30
     open(os.path.join(d, "interior-layout.svg"), "w").write(svg_doc(W, H, "\n".join(p), (-W / 2, -FACE_H / 2 - 8, W, H), "#fff"))
 
@@ -566,7 +565,7 @@ DEPTHS = [  # item, from mm, to mm  (0 = outside of the face, 36.1 = open edge w
     ("encoders + pins + solder", 3.0, 15.5),
     ("TRS jacks (top wall zone only)", 10.2, 26.0),
     ("Seed3 window in the left wall", 18.05 - (SEED_WIN[0] + PC) / 2, 18.05 + (SEED_WIN[0] + PC) / 2),
-    ("Seed3 socket board (left wall)", 18.05 + SOCK_OFF - SOCK_W / 2, 18.05 + SOCK_OFF + SOCK_W / 2),
+    ("Seed3 jumper-end block (in the window)", 18.05 - 8.9, 18.05 + 8.9),
     ("footswitch body + lugs (bottom zone only)", 3.0, 33.0),
     ("lid", 36.1, 39.3),
 ]
