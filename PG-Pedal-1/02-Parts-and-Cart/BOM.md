@@ -18,14 +18,14 @@ You should end up with **17 lines**, exact quantities. The Seed3 is a **cartridg
 | A-3482 | 1 | $2.30 | $2.30 | Jumper wires female/female 200mm, pack of 40 | the wires from each part to the socket board (screen end plugs on) |
 | A-1053 | 4 | $0.19 | $0.76 | Stackable header 10 pins 2.54 mm, gold, **11 mm legs** | the Seed3 socket: 2 end to end per pin row. The long legs leave ~9 mm to solder wires to |
 | A-4904 | 3 | $0.10 | $0.30 | Heat shrink tubing 1.5 mm black, 20 cm | a 6 mm sleeve over each wire-to-leg joint, so neighbours can't touch |
-| A-5465 | 1 | $0.80 | $0.80 | Prototyping board 100x50 mm, single side | cut to 68 x 28 mm: the Seed3 socket board (the sockets are soldered to it) |
+| A-1192 | 1 | $0.35 | $0.35 | Double-side prototyping board 30x70 mm (every hole its own ring) | the Seed3 socket board, used whole (the sockets are soldered to it) |
 | A-8500 | 8 | $0.02 | $0.16 | Nylon standoff M3 x 5mm | screen spacers (4) + socket board spacers (4) |
 | A-6395 | 8 | $0.11 | $0.88 | M3 x 12mm black socket screw | screen screws (4) + socket board screws through the left wall (4) |
 | A-1247 | 8 | $0.02 | $0.16 | M3 nut | screen nuts (4) + socket board nuts (4) |
 | A-8519 | 3 | $0.11 | $0.33 | AWG22 stranded wire BLACK 1ft | the ground chain between parts |
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
 | A-7776 | 1 | $59.00 | $59.00 | FNIRSI HS-02A soldering iron, 100 W, 100-450 °C, 6 tips, USB-C powered | soldering (needs a USB-C **PD** charger, 65 W or more, see below) |
-| | | | **$104.28** | **Tayda subtotal** | |
+| | | | **$103.83** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 
@@ -47,4 +47,4 @@ The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 | (optional) hot glue | — | a dab on the screen's jumper plugs so they can't wiggle loose |
 
 ## Tools
-Wire strippers, flush cutters, multimeter, wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).
+Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).

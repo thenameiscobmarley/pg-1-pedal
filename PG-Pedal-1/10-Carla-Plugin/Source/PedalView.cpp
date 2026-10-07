@@ -24,8 +24,8 @@ namespace dims
     constexpr float jackY = -0.1805f;
     constexpr float sideB[4][2] = { { -0.40f, 0 }, { -0.13f, 1 }, { 0.13f, 0 }, { 0.40f, 0 } };   // x, 1 = DC jack
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
-    // USB-C toward the footswitches; 4 socket board screws, 31 mm beyond the window centre each way, 10 mm above and below
-    constexpr float seedZ = -0.155f, seedScrewZ[2] = { 0.155f, -0.465f };
+    // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
+    constexpr float seedZ = -0.155f, seedScrewZ[2] = { -0.155f + 0.2921f, -0.155f - 0.2921f };
     constexpr float printX0 = -0.585f, printZ0 = -0.705f, printW = 1.17f, printH = 1.41f;
 }
 
@@ -335,7 +335,7 @@ void PedalView::renderOpenGL()
         draw (*progPlastic, meshScrew, Mat4::translation ({ s[0], 0.0f, s[1] }), black);
     const Mat4 seedAt = Mat4::translation ({ -W * 0.5f, jackY, seedZ });
     for (float z : seedScrewZ)
-        for (float dy : { -0.10f, 0.10f })
+        for (float dy : { -0.1016f, 0.1016f })
             draw (*progPlastic, meshSideScrew, Mat4::translation ({ -W * 0.5f, jackY + dy, z }) * sideCRot, black);
     draw (*progPlastic, meshSeedHdr, seedAt, black);
     draw (*progPlastic, meshSeedPcb, seedAt, { 0.035f, 0.04f, 0.045f });

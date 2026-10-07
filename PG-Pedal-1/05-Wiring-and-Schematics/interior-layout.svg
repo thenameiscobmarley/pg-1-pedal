@@ -14,14 +14,14 @@
 <rect x="38.84" y="-37.95" width="2.6" height="35.52" fill="#36c"/>
 <text x="35.44" y="-36.39" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="end" fill="#36c" font-weight="normal">14-pin header</text>
 <text x="0.00" y="-23.39" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="middle" fill="#235" font-weight="normal">2.4in screen module (top layer)</text>
-<rect x="-53.25" y="-49.5" width="1.6" height="68.0" fill="#4f8f3a" stroke="#000" stroke-width="0.2"/>
+<rect x="-53.25" y="-50.5" width="1.6" height="70.0" fill="#4f8f3a" stroke="#000" stroke-width="0.2"/>
 <rect x="-61.75" y="-40.9" width="8.5" height="50.8" fill="#222"/>
 <rect x="-69.1" y="-41.0" width="4.8500000000000005" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>
 <rect x="-70.64999999999999" y="10.0" width="3.25" height="1.6" fill="#bbb"/>
-<rect x="-60.55" y="12.75" width="7.3" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>
-<rect x="-51.65" y="12.75" width="2.4" height="5.5" fill="#999"/>
-<rect x="-60.55" y="-49.25" width="7.3" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>
-<rect x="-51.65" y="-49.25" width="2.4" height="5.5" fill="#999"/>
+<rect x="-60.55" y="10.96" width="7.3" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>
+<rect x="-51.65" y="10.96" width="2.4" height="5.5" fill="#999"/>
+<rect x="-60.55" y="-47.46" width="7.3" height="5.5" fill="#eee" stroke="#000" stroke-width="0.2"/>
+<rect x="-51.65" y="-47.46" width="2.4" height="5.5" fill="#999"/>
 <rect x="-64.25" y="-41.0" width="2.5" height="51" fill="#555"/>
 <rect x="-51.65" y="-40.9" width="14" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>
 <text x="-44.60" y="-27.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#235" font-weight="normal">Seed3</text>

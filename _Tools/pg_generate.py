@@ -63,13 +63,17 @@ SIDE_B = [  # label, x, bare hole, part
 # Side C coordinates: X = across the wall height (0 = middle of the 36.1 wall), Y = same as the face.
 SEED_Y = 15.5                          # window centre along Y (clear of the pg-1 encoder and the IN jack)
 SEED_WIN = (19.0, 52.0)                # final opening (X across the wall, Y along it); Seed3 is 18 x 51, +PC added
-SEED_SCREWS = (-15.5, 46.5)            # socket board screws: 2 beyond each end of the window ...
-SEED_SCREW_X = (-10.0, 10.0)           # ... one near the face and one near the lid (4 in all)
+SEED_SCREWS = (15.5 - 29.21, 15.5 + 29.21)   # socket board screws: 2 beyond each end of the window ...
+SEED_SCREW_X = (-10.16, 10.16)         # ... one near the face and one near the lid (4 in all). Both on the
+                                       # board's 2.54 grid, so each is an existing hole widened to 3.2 mm
 WALL = 2.3                             # 1590XX side wall
 INNER_X = -FACE_W / 2 + WALL           # inside of the left wall in face coordinates (-58.25)
 SOCK_GAP = 5.0                         # A-8500 5 mm nylon spacer between the wall and the socket board
 HDR_H = 8.5                            # A-1053 stackable header body height (its legs are 11 mm)
-SOCK_L, SOCK_W = 68.0, 28.0            # socket board, cut from an A-5465 100 x 50 prototyping board
+SOCK_L, SOCK_W = 70.0, 30.0            # socket board: a whole A-1192 30 x 70 double-sided board, no cutting
+SOCK_OFF = 1.27                        # its centre sits this much toward the lid from the socket centre (10 rows:
+                                       # sockets in the 2nd and 8th row from the face-side edge)
+SOCK_COLS, SOCK_ROWS = 24, 10          # its hole grid
 
 
 def seed_stack():
@@ -562,7 +566,7 @@ DEPTHS = [  # item, from mm, to mm  (0 = outside of the face, 36.1 = open edge w
     ("encoders + pins + solder", 3.0, 15.5),
     ("TRS jacks (top wall zone only)", 10.2, 26.0),
     ("Seed3 window in the left wall", 18.05 - (SEED_WIN[0] + PC) / 2, 18.05 + (SEED_WIN[0] + PC) / 2),
-    ("Seed3 socket board (left wall)", 18.05 - SOCK_W / 2, 18.05 + SOCK_W / 2),
+    ("Seed3 socket board (left wall)", 18.05 + SOCK_OFF - SOCK_W / 2, 18.05 + SOCK_OFF + SOCK_W / 2),
     ("footswitch body + lugs (bottom zone only)", 3.0, 33.0),
     ("lid", 36.1, 39.3),
 ]
@@ -731,15 +735,18 @@ def write_socket_board():
     bw, bh = SOCK_L * s_ / 1.0, SOCK_W * s_
     bw, bh = bw * 0.62, bh * 0.62                       # fit the page; positions below use the same factor
     k = s_ * 0.62
-    o.append(f'<rect x="{cx-bw/2}" y="{cy-bh/2}" width="{bw}" height="{bh}" rx="3" fill="#4f8f3a" stroke="#123" stroke-width="0.6"/>')
-    for i in range(int(SOCK_L / 2.54)):                 # perfboard dots
-        for j in range(int(SOCK_W / 2.54)):
-            x = cx - bw / 2 + (1.3 + i * 2.54) * k; y = cy - bh / 2 + (1.0 + j * 2.54) * k
-            o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="0.9" fill="#c8a35a" fill-opacity="0.45"/>')
+    bcy = cy + SOCK_OFF * k                             # the board's centre (the sockets' centre is cy)
+    o.append(f'<rect x="{cx-bw/2}" y="{bcy-bh/2}" width="{bw}" height="{bh}" rx="2" fill="#1f8a4c" stroke="#123" stroke-width="0.6"/>')
+    for i in range(SOCK_COLS):                          # every hole has its own tinned ring, nothing joins them
+        for j in range(SOCK_ROWS):
+            x = cx + (i - (SOCK_COLS - 1) / 2) * 2.54 * k; y = bcy + (j - (SOCK_ROWS - 1) / 2) * 2.54 * k
+            o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.0" fill="none" stroke="#c9ccd0" stroke-width="1.1"/>')
+    T(cx - bw / 2 - 3, bcy - bh / 2 + 4, "face-side edge", 2.8, "end", "#333")
+    T(cx - bw / 2 - 3, bcy + bh / 2 - 1, "lid-side edge", 2.8, "end", "#333")
     for dy in (SEED_SCREWS[0] - SEED_Y, SEED_SCREWS[1] - SEED_Y):
         for hx in SEED_SCREW_X:
             x, y = cx + dy * k, cy + hx * k
-            o.append(f'<circle cx="{x}" cy="{y}" r="{2.75*k}" fill="#ddd" stroke="#333" stroke-width="0.5"/>')
+            o.append(f'<circle cx="{x}" cy="{y}" r="{2.75*k}" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>')
             o.append(f'<circle cx="{x}" cy="{y}" r="{1.6*k}" fill="#666"/>')
         T(cx + dy * k, cy + 1, "M3 nuts", 2.6, c="#fff")
     rowA, rowB = cy - 7.62 * k, cy + 7.62 * k           # pins 1-20 toward the face (top), 21-40 toward the lid
@@ -761,8 +768,8 @@ def write_socket_board():
     T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and push a snipped resistor leg into socket 1 (glue it):", 3.1)
     T(cx, cy + bh / 2 + 39, "now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!", 3.1, c="#a00", w="bold")
     T(cx, cy + bh / 2 + 47, "Each wire is soldered to the end of the ~9 mm header leg with the SAME pin number shown here, under 6 mm of heat shrink.", 3.1)
-    T(cx, cy + bh / 2 + 52, "4 screws, each: M3x12 from outside | side wall | 5 mm nylon spacer | this board | M3 nut. Holes 62 x 20 mm apart.", 3.1)
-    T(cx, cy + bh / 2 + 57, "The 2 socket strips are soldered to this board, so they stay put when you pull the Seed3 out.", 3.1)
+    T(cx, cy + bh / 2 + 52, "Red = widen that grid hole to 3.2 mm (outer grid columns, 1st and 9th row: 58.4 x 20.3 mm apart). 4 screws: M3x12 from outside | wall | 5 mm spacer | board | nut.", 3.1)
+    T(cx, cy + bh / 2 + 57, "Sockets go in the 2nd and 8th row from the face-side edge, 2 empty columns at each end. They're soldered, so they stay when the Seed3 is pulled.", 3.1)
     open(os.path.join(d, "seed-socket-board.svg"), "w").write(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">'
         f'<rect width="{W}" height="{H}" fill="#fff"/>' + "\n".join(o) + "</svg>\n")

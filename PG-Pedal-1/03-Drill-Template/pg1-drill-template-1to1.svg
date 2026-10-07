@@ -75,22 +75,22 @@
 <rect x="-88.3" y="-41.7" width="19.4" height="52.4" fill="none" stroke="#c00" stroke-width="0.3"/>
 <text x="-78.60" y="-16.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#c00" font-weight="normal">seed3 window 19.4 x 52.4</text>
 <text x="-78.60" y="-12.90" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal">centre (0, 15.5)</text>
-<circle cx="-88.6" cy="15.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-91.89999999999999,15.5 h6.6 M-88.6,12.2 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-88.60" y="12.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 1  Ø3.6</text>
-<text x="-88.60" y="19.90" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10, -15.5)</text>
-<circle cx="-68.6" cy="15.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-71.89999999999999,15.5 h6.6 M-68.6,12.2 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-68.60" y="12.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 2  Ø3.6</text>
-<text x="-68.60" y="19.90" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10, -15.5)</text>
-<circle cx="-88.6" cy="-46.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-91.89999999999999,-46.5 h6.6 M-88.6,-49.8 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-88.60" y="-49.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 3  Ø3.6</text>
-<text x="-88.60" y="-42.10" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10, 46.5)</text>
-<circle cx="-68.6" cy="-46.5" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-71.89999999999999,-46.5 h6.6 M-68.6,-49.8 v6.6" stroke="#c00" stroke-width="0.15"/>
-<text x="-68.60" y="-49.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 4  Ø3.6</text>
-<text x="-68.60" y="-42.10" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10, 46.5)</text>
+<circle cx="-88.75999999999999" cy="13.71" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-92.05999999999999,13.71 h6.6 M-88.75999999999999,10.41 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-88.76" y="10.71" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 1  Ø3.6</text>
+<text x="-88.76" y="18.11" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10.16, -13.71)</text>
+<circle cx="-68.44" cy="13.71" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-71.74,13.71 h6.6 M-68.44,10.41 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-68.44" y="10.71" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 2  Ø3.6</text>
+<text x="-68.44" y="18.11" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10.16, -13.71)</text>
+<circle cx="-88.75999999999999" cy="-44.71" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-92.05999999999999,-44.71 h6.6 M-88.75999999999999,-48.01 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-88.76" y="-47.71" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 3  Ø3.6</text>
+<text x="-88.76" y="-40.31" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-10.16, 44.71)</text>
+<circle cx="-68.44" cy="-44.71" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-71.74,-44.71 h6.6 M-68.44,-48.01 v6.6" stroke="#c00" stroke-width="0.15"/>
+<text x="-68.44" y="-47.71" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">socket 4  Ø3.6</text>
+<text x="-68.44" y="-40.31" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(10.16, 44.71)</text>
 <path d="M-60.55,81.75 h50" stroke="#000" stroke-width="0.4"/>
 <text x="-35.55" y="85.55" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">this bar must measure exactly 50 mm</text>
 </svg>

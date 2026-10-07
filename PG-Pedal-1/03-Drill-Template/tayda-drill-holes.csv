@@ -16,7 +16,7 @@ B,hole,9v,-13.00,0.00,12.4,,,DC jack A-2237 (12mm cut-out)
 B,hole,exp,13.00,0.00,9.9,,,spare 6.35mm TRS jack A-1121 (expression pedal / extra input later)
 B,hole,out,40.00,0.00,9.9,,,"6.35mm TRS jack A-1121 (3/8""-32 thread)"
 C,rectangle,seed3 window,0.00,15.50,,19.4,52.4,Daisy Seed3 cartridge (plugs into the socket board inside)
-C,hole,socket 1,-10.00,-15.50,3.6,,,M3x12 screw for the Seed3 socket board
-C,hole,socket 2,10.00,-15.50,3.6,,,M3x12 screw for the Seed3 socket board
-C,hole,socket 3,-10.00,46.50,3.6,,,M3x12 screw for the Seed3 socket board
-C,hole,socket 4,10.00,46.50,3.6,,,M3x12 screw for the Seed3 socket board
+C,hole,socket 1,-10.16,-13.71,3.6,,,M3x12 screw for the Seed3 socket board
+C,hole,socket 2,10.16,-13.71,3.6,,,M3x12 screw for the Seed3 socket board
+C,hole,socket 3,-10.16,44.71,3.6,,,M3x12 screw for the Seed3 socket board
+C,hole,socket 4,10.16,44.71,3.6,,,M3x12 screw for the Seed3 socket board
