@@ -44,7 +44,7 @@ The drilled box + UV print are ordered on drill.taydakits.com, not in this cart.
 | **Powered** desktop speakers with a 3.5 mm aux input (e.g. Creative Pebble, USB-powered) | ~$25 | cheap, safe first listening test; plain unpowered speakers won't work |
 | 1/4" TRS male → 3.5 mm TRS female adapter | ~$5 | pedal OUT → the speakers' aux cable |
 | (optional) 1/4" TRS → 2× 1/4" TS "insert" Y-cable | ~$8 | pedal OUT → a mixer's two line inputs (left + right) |
-| **Hot glue gun + sticks** | ~$10 | glues the jumper-end socket block into the window (way 1), and a dab on the screen's plugs |
+| **Hot glue gun, high-temp, with a narrow nozzle + sticks** (e.g. a dual-temp mini gun) | ~$10-20 | glues the jumper-end socket block into the window (way 1), and a dab on the screen's plugs |
 
 ## Tools
 Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).

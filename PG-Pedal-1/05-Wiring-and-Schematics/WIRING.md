@@ -37,6 +37,8 @@ The female end of every jumper wire is a small plastic shell exactly 2.54 mm wid
 6. Pull the Seed3 straight out: the block stays in the wall. Then each jumper's other end goes to its part (wire list below):
    cut and soldered on the part's big lug, or plugged straight onto the screen's pins.
 7. Label each wire near the block (tape flag with the pin number) so you can always trace it.
+   Doing it a few at a time works well: push 3 jumper ends on, tack them with a little glue, wire up their other ends, test, then the next 3.
+   Keep the Seed3 plugged in the whole time (it holds the spacing exact), keep glue on the backs and sides of the shells only, and finish with one full glue pass over the whole block.
 
 Swapping later: unplug 9 V and USB, pull straight out, push the new one in until it stops. If the block ever loosens, re-glue it the same way.
 The 4 screw holes around the window are for way 2. Until then, put the 4 M3 screws in with their nuts so the holes are closed.
