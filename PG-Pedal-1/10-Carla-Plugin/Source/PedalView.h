@@ -76,7 +76,7 @@ private:
     std::unique_ptr<hwk::gfx::ShaderProgram> progFace, progPowder, progChrome, progPlastic, progRecess, progWood, progShadow, progLcd;
     hwk::gfx::GpuMesh meshFace, meshShell, meshLid, meshWell, meshLcd, meshDesk, meshShadow,
                       meshNutSmall, meshNutBig, meshThread, meshPlunger, meshScrew, meshJackNut, meshJackHole,
-                      meshDcNut, meshSideScrew,
+                      meshDcNut,
                       meshSeedWin, meshSeedHdr, meshSeedGlue, meshSeedPcb, meshSeedChips, meshSeedUsb, meshSeedBtn;
     std::vector<std::unique_ptr<KnobPart>> knobParts;
     hwk::gfx::Texture2D texPrint, texLcd;

@@ -17,11 +17,11 @@ You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridg
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
 | A-3482 | 1 | $2.30 | $2.30 | Jumper wires female/female 200mm, pack of 40 | 34 for the Seed3 pins (their ends form the glued socket) + screen GND + 5 spare |
 | A-8500 | 4 | $0.02 | $0.08 | Nylon standoff M3 x 5mm | screen spacers |
-| A-6395 | 8 | $0.11 | $0.88 | M3 x 12mm black socket screw | screen screws (4) + 4 to close the spare holes beside the Seed3 window |
-| A-1247 | 8 | $0.02 | $0.16 | M3 nut | screen nuts (4) + 4 for those spare-hole screws |
+| A-6395 | 4 | $0.11 | $0.44 | M3 x 12mm black socket screw | screen screws through the face |
+| A-1247 | 4 | $0.02 | $0.08 | M3 nut | screen nuts |
 | A-8519 | 3 | $0.11 | $0.33 | AWG22 stranded wire BLACK 1ft | the ground chain between parts |
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
-| | | | **$43.34** | **Tayda subtotal** | |
+| | | | **$42.82** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 

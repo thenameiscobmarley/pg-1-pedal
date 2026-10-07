@@ -25,7 +25,7 @@ namespace dims
     constexpr float sideB[4][2] = { { -0.40f, 0 }, { -0.13f, 1 }, { 0.13f, 0 }, { 0.40f, 0 } };   // x, 1 = DC jack
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
-    constexpr float seedZ = -0.155f, seedScrewZ[2] = { -0.155f + 0.2921f, -0.155f - 0.2921f };
+    constexpr float seedZ = -0.155f;
     constexpr float printX0 = -0.585f, printZ0 = -0.705f, printW = 1.17f, printH = 1.41f;
 }
 
@@ -155,35 +155,50 @@ void PedalView::newOpenGLContextCreated()
     meshJackHole.upload (geo::lathe (0.034f, { { 0.0f, 0.0221f }, { 0.0f, 0.0224f } }, 32, true));
     meshDcNut.upload (geo::sweptPolygon (6, 0.075f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
     // Seed3 cartridge parts, in the wall's frame (x = 0 is the outside of the left wall, -x = further out).
-    // Socket = 2 rows of 20 jumper ends hot-glued into a block in the window, their faces level with the
-    // outside of the wall. Then the Seed3's own black pin spacer (2.5 mm), its 1.6 mm PCB and its parts.
+    // Socket = the female ends of the jumper wires, one per used Seed3 pin, in 2 rows. They stick halfway (7 mm)
+    // out of the window and are hot-glued around the outside. The Seed3 plugs onto their outer ends:
+    // its own black pin spacer (2.5 mm), its 1.6 mm PCB, then its parts.
+    constexpr float out = 0.07f;                       // how far the jumper ends stick out of the wall
     meshSeedWin.upload (geo::box ({ -0.0045f, -0.097f, -0.262f }, { -0.001f, 0.097f, 0.262f }));
     {
         MeshData hdr;
-        for (float ry : { -0.0762f, 0.0762f })
+        for (int pin = 1; pin <= 40; ++pin)
         {
-            hdr.append (geo::box ({ -0.0015f, ry - 0.0127f, -0.254f }, { 0.0f, ry + 0.0127f, 0.254f }));    // jumper ends' faces
-            hdr.append (geo::box ({ -0.025f, ry - 0.0125f, -0.254f }, { -0.0015f, ry + 0.0125f, 0.254f }));  // Seed3 pin spacer
+            if (pin == 21 || (pin >= 34 && pin <= 37))
+                continue;                              // unused places stay empty
+            const float ry = pin <= 20 ? 0.0762f : -0.0762f;               // pins 1-20 = the row nearer the face
+            const int pos = pin <= 20 ? pin - 1 : 40 - pin;                // 0 = the USB-C end
+            const float z = 0.2413f - 0.0254f * (float) pos;
+            hdr.append (geo::box ({ -out, ry - 0.0115f, z - 0.0115f }, { 0.0f, ry + 0.0115f, z + 0.0115f }));
         }
+        for (float ry : { -0.0762f, 0.0762f })        // the Seed3's own pin spacer strips
+            hdr.append (geo::box ({ -out - 0.025f, ry - 0.0125f, -0.254f }, { -out, ry + 0.0125f, 0.254f }));
         meshSeedHdr.upload (hdr);
     }
-    meshSeedGlue.upload (geo::box ({ -0.0012f, -0.0635f, -0.258f }, { 0.0f, 0.0635f, 0.258f }));
-    meshSeedPcb.upload (geo::box ({ -0.041f, -0.09f, -0.255f }, { -0.025f, 0.09f, 0.255f }));
+    {
+        MeshData glue;    // between the rows, and a bead all round where the block leaves the wall
+        glue.append (geo::box ({ -out * 0.8f, -0.064f, -0.256f }, { 0.0f, 0.064f, 0.256f }));
+        glue.append (geo::box ({ -0.008f, 0.0889f, -0.258f }, { 0.0f, 0.095f, 0.258f }));
+        glue.append (geo::box ({ -0.008f, -0.095f, -0.258f }, { 0.0f, -0.0889f, 0.258f }));
+        glue.append (geo::box ({ -0.008f, -0.095f, 0.254f }, { 0.0f, 0.095f, 0.260f }));
+        glue.append (geo::box ({ -0.008f, -0.095f, -0.260f }, { 0.0f, 0.095f, -0.254f }));
+        meshSeedGlue.upload (glue);
+    }
+    meshSeedPcb.upload (geo::box ({ -out - 0.041f, -0.09f, -0.255f }, { -out - 0.025f, 0.09f, 0.255f }));
     {
         MeshData chips;   // MCU, SDRAM, flash and codec
-        chips.append (geo::box ({ -0.056f, -0.05f, -0.06f }, { -0.041f, 0.05f, 0.04f }));
-        chips.append (geo::box ({ -0.054f, -0.045f, -0.20f }, { -0.041f, 0.045f, -0.09f }));
-        chips.append (geo::box ({ -0.052f, -0.03f, -0.245f }, { -0.041f, 0.03f, -0.21f }));
+        chips.append (geo::box ({ -out - 0.056f, -0.05f, -0.06f }, { -out - 0.041f, 0.05f, 0.04f }));
+        chips.append (geo::box ({ -out - 0.054f, -0.045f, -0.20f }, { -out - 0.041f, 0.045f, -0.09f }));
+        chips.append (geo::box ({ -out - 0.052f, -0.03f, -0.245f }, { -out - 0.041f, 0.03f, -0.21f }));
         meshSeedChips.upload (chips);
     }
-    meshSeedUsb.upload (geo::box ({ -0.0735f, -0.0417f, 0.042f }, { -0.041f, 0.0417f, 0.1155f }));
+    meshSeedUsb.upload (geo::box ({ -out - 0.0735f, -0.0417f, 0.042f }, { -out - 0.041f, 0.0417f, 0.1155f }));
     {
         MeshData btn;     // BOOT and RESET, beside the USB-C end
         for (float by : { -0.065f, 0.065f })
-            btn.append (geo::box ({ -0.056f, by - 0.017f, 0.055f }, { -0.041f, by + 0.017f, 0.095f }));
+            btn.append (geo::box ({ -out - 0.056f, by - 0.017f, 0.055f }, { -out - 0.041f, by + 0.017f, 0.095f }));
         meshSeedBtn.upload (btn);
     }
-    meshSideScrew.upload (geo::lathe (0.026f, { { 0.0f, 0.0f }, { 0.0f, 0.016f }, { -0.004f, 0.02f } }, 24, true));
 
     // the knob: HardwareKit's machined aluminium style, tinted like the white knurled A-2850
     knobParts.clear();
@@ -220,7 +235,7 @@ void PedalView::openGLContextClosing()
     for (auto* p : { progFace.get(), progPowder.get(), progChrome.get(), progPlastic.get(), progRecess.get(), progWood.get(), progShadow.get(), progLcd.get() })
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
-                     &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut, &meshSideScrew,
+                     &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
                      &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
         m->release();
     for (auto& k : knobParts)
@@ -339,11 +354,8 @@ void PedalView::renderOpenGL()
     for (auto& s : screws)
         draw (*progPlastic, meshScrew, Mat4::translation ({ s[0], 0.0f, s[1] }), black);
     const Mat4 seedAt = Mat4::translation ({ -W * 0.5f, jackY, seedZ });
-    for (float z : seedScrewZ)
-        for (float dy : { -0.1016f, 0.1016f })
-            draw (*progPlastic, meshSideScrew, Mat4::translation ({ -W * 0.5f, jackY + dy, z }) * sideCRot, black);
     draw (*progPlastic, meshSeedHdr, seedAt, black);
-    draw (*progPlastic, meshSeedGlue, seedAt, { 0.80f, 0.79f, 0.74f });   // the hot glue between the rows
+    draw (*progPlastic, meshSeedGlue, seedAt, { 0.62f, 0.60f, 0.52f });   // the hot glue
     draw (*progPlastic, meshSeedPcb, seedAt, { 0.035f, 0.04f, 0.045f });
     draw (*progPlastic, meshSeedChips, seedAt, { 0.06f, 0.06f, 0.065f });
     draw (*progPlastic, meshSeedBtn, seedAt, { 0.75f, 0.75f, 0.74f });

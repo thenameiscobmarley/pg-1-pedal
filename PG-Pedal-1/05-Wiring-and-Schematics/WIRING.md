@@ -50,11 +50,10 @@ about halfway out of the wall, Seed3 plugged in so it stays square, and glue aro
 The Seed3 then sticks out ~14 mm instead of ~7 mm.
 
 Swapping later: unplug 9 V and USB, pull straight out, push the new one in until it stops. If the block ever loosens, re-glue it the same way.
-The 4 screw holes around the window are for way 2. Until then, put the 4 M3 screws in with their nuts so the holes are closed.
 
 ### The socket, way 2 (optional upgrade later): a soldered socket board
 
-Stronger, and it's what the 4 screw holes are for. Swap the glued block for this whenever you're happy soldering small joints.
+Stronger, but it needs its own mounting (the box has no screw holes for it now, so you'd drill 4 by hand). Swap the glued block for this whenever you're happy soldering small joints.
 The jumpers move over: cut off their Seed3 ends and solder them to the long header legs instead.
 
 - **Socket board:** one whole A-1192 double-sided prototyping board (30 x 70 mm, a grid of 24 x 10 holes). **No cutting.**
@@ -62,19 +61,14 @@ The jumpers move over: cut off their Seed3 ends and solder them to the long head
   (Don't use a board with copper strips or joined pads: those would short Seed3 pins together.)
 - **Where things go** (count from the long edge that will face the pedal's face, see `seed-socket-board.png`):
   - socket rows in the **2nd and 8th row** of holes, leaving 2 empty columns at each end;
-  - mount holes: the **4 outermost-column holes in the 1st and 9th row**, widened to 3.2 mm (58.4 x 20.3 mm apart).
 - **Building it:**
-  1. Widen the 4 mount holes first: a 3 mm drill bit in a cheap hand drill or pin vise, starting in the existing 1 mm hole so it can't wander.
-     This board is fibreglass, so it's slower than wood. Do it before anything is soldered on.
-  2. Plug the 4 header pieces onto the Seed3 (2 per row, ends touching), then push their legs through the board from the side **without** the printed letters,
+  1. Plug the 4 header pieces onto the Seed3 (2 per row, ends touching), then push their legs through the board from the side **without** the printed letters,
      into the rows above. Turn it over: the long legs stick out ~9 mm.
-  3. Solder each leg to its ring, right at the board (iron on the ring and leg for 2 s, feed solder, a small shiny cone). Corner legs first, check it's straight, then the rest. Pull the Seed3 out.
+  2. Solder each leg to its ring, right at the board (iron on the ring and leg for 2 s, feed solder, a small shiny cone). Corner legs first, check it's straight, then the rest. Pull the Seed3 out.
      The sockets are now held by the board, so they stay put when a Seed3 is pulled out.
-  4. Each wire: slide a 6 mm piece of heat shrink onto the wire first. Strip 3 mm, tin it, hold it along the **end half** of its leg and touch the iron.
+  3. Each wire: slide a 6 mm piece of heat shrink onto the wire first. Strip 3 mm, tin it, hold it along the **end half** of its leg and touch the iron.
      Let it cool, slide the heat shrink down over the joint and shrink it by holding the iron's barrel (not the tip) near it. Now no joint can touch its neighbour.
      Work along the row in order, and test each leg against its neighbours with the multimeter's beep mode when the row is done.
-- **Mounting** (x4): `M3x12 screw from outside → side wall → 5 mm nylon spacer → socket board → M3 nut`.
-  The headers then poke ~1 mm out through the window, which guides the Seed3 in.
 - **Wires:** each wire is soldered to the end of its header leg on the back of the socket board (same pin number as the Seed3 pin).
   The screen ends still just plug on. **The back is a mirror image**: use `seed-socket-board.png`, not the Seed3's own pinout.
 

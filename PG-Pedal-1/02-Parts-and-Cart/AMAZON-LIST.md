@@ -4,7 +4,7 @@
 
 | What | Where | ~$ |
 |---|---|---:|
-| Parts cart (`tayda-cart-import.csv`, 13 lines) | Tayda | 43.34 |
+| Parts cart (`tayda-cart-import.csv`, 13 lines) | Tayda | 42.82 |
 | Drilling ($4.50) + face UV print ($3.50) | drill.taydakits.com | 8.00 |
 | Tayda shipping (shown at checkout, depends on speed) | Tayda | ~8 |
 | Daisy **Seed3** with headers + shipping | electro-smith.com | ~36 |
@@ -14,7 +14,7 @@
 | 3.5 mm → 1/4" TRS stereo cable | Amazon | ~8 |
 | 1/4" → 3.5 mm stereo adapter | Amazon | ~5 |
 | Mini glue gun + sticks | dollar store / Walmart | ~3 |
-| **Total** | | **~$139** |
+| **Total** | | **~$138** |
 | *Later: a good soldering iron + multimeter (your pick)* | | *(not in the total)* |
 
 To save more:

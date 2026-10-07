@@ -63,9 +63,6 @@ SIDE_B = [  # label, x, bare hole, part
 # Side C coordinates: X = across the wall height (0 = middle of the 36.1 wall), Y = same as the face.
 SEED_Y = 15.5                          # window centre along Y (clear of the pg-1 encoder and the IN jack)
 SEED_WIN = (19.0, 52.0)                # final opening (X across the wall, Y along it); Seed3 is 18 x 51, +PC added
-SEED_SCREWS = (15.5 - 29.21, 15.5 + 29.21)   # socket board screws: 2 beyond each end of the window ...
-SEED_SCREW_X = (-10.16, 10.16)         # ... one near the face and one near the lid (4 in all). Both on the
-                                       # board's 2.54 grid, so each is an existing hole widened to 3.2 mm
 WALL = 2.3                             # 1590XX side wall
 INNER_X = -FACE_W / 2 + WALL           # inside of the left wall in face coordinates (-58.25)
 SOCK_GAP = 5.0                         # A-8500 5 mm nylon spacer between the wall and the socket board
@@ -77,12 +74,13 @@ SOCK_COLS, SOCK_ROWS = 24, 10          # its hole grid
 
 
 JMP_L = 14.0                           # a jumper wire's female end (plastic shell), long
+JMP_OUT = 7.0                          # how far the glued jumper ends stick out of the wall (glued on the outside)
 
 
 def seed_stack():
     """Distances outward from the OUTSIDE face of the left wall (negative = inside the box).
-    Socket way 1 (built now): the jumper ends, glued into a block in the window, faces level with the outside."""
-    hdr_top = 0.0
+    Socket way 1 (built now): the jumper ends, glued in the window, sticking out JMP_OUT."""
+    hdr_top = JMP_OUT
     pcb0 = hdr_top + 2.5                           # Seed3's own black pin spacer sits on the jumper ends
     return dict(block_back=-JMP_L, hdr_top=hdr_top, pcb0=pcb0, pcb1=pcb0 + 1.6, parts=pcb0 + 1.6 + 3.25)
 
@@ -412,9 +410,7 @@ def holes_table():
     for name, x, d, part in SIDE_B:
         rows.append(("B", "hole", name, x, 0.0, round(d + PC, 2), "", "", part))
     rows.append(("C", "rectangle", "seed3 window", 0.0, SEED_Y, "", round(SEED_WIN[0] + PC, 2), round(SEED_WIN[1] + PC, 2),
-                 "Daisy Seed3 cartridge (plugs into the socket board inside)"))
-    for k, (sy, sx) in enumerate(((a, b) for a in SEED_SCREWS for b in SEED_SCREW_X), 1):
-        rows.append(("C", "hole", f"socket {k}", sx, sy, round(SCREW_HOLE + PC, 2), "", "", "M3x12 screw for the Seed3 socket board"))
+                 "Daisy Seed3 cartridge (glued jumper-end socket)"))
     return rows
 
 
@@ -528,17 +524,14 @@ def write_interior():
     st = seed_stack()
     ox = -FACE_W / 2                                    # outside of the left wall
     X = lambda d: ox - d                                # distance outward from the wall -> face x
-    p.append(f'<rect x="{X(0)}" y="{-(SEED_Y+25.4)}" width="{JMP_L}" height="50.8" fill="#222"/>')    # the glued jumper-end block
+    p.append(f'<rect x="{X(JMP_OUT)}" y="{-(SEED_Y+25.4)}" width="{JMP_L}" height="50.8" fill="#222"/>')    # the glued jumper-end block
     p.append(f'<rect x="{X(st["parts"])}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>')
     p.append(f'<rect x="{X(st["parts"])-1.55}" y="{-(SEED_Y-25.5)}" width="3.25" height="1.6" fill="#bbb"/>')
     p.append(f'<rect x="{X(st["pcb0"])}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
-    for sy in SEED_SCREWS:                                                                               # screws + nuts closing the way-2 holes
-        p.append(f'<rect x="{X(0)}" y="{-sy-0.8}" width="{WALL+2.4}" height="1.6" fill="#888"/>')
-        p.append(f'<rect x="{X(-WALL)}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
-    p.append(f'<rect x="{X(-JMP_L)}" y="{-(SEED_Y+25.4)}" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
+    p.append(f'<rect x="{X(JMP_OUT-JMP_L)}" y="{-(SEED_Y+25.4)}" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
     for k_, (t_, c_) in enumerate([("Seed3", "#fff"), ("plugs into", "#fff"), ("its jumper", "#fff"), ("ends, hot-", "#fff"), ("glued into", "#fff"), ("a block", "#fff")]):
-        p.append(text(X(-JMP_L / 2), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
-    p.append(text(X(-JMP_L - 5), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
+        p.append(text(X(JMP_OUT - JMP_L / 2), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
+    p.append(text(X(JMP_OUT - JMP_L - 5), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
     p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
     for x, y in SCREWS:
         p.append(f'<circle cx="{x}" cy="{-y}" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="{x}" cy="{-y}" r="1.5" fill="#000"/>')
@@ -551,7 +544,7 @@ def write_interior():
         p.append(text(x, FS_Y - 10, name, 2.4))
     p.append(text(0, -FACE_H / 2 - 5, "INTERIOR TOP VIEW (looking down through the face) - 1:1", 2.6))
     p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window", 2.2))
-    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires. 4 small screws only close the holes (later: way 2 board)", 2.2, color="#a00"))
+    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires", 2.2, color="#a00"))
     W, H = FACE_W + 32, FACE_H + 30
     open(os.path.join(d, "interior-layout.svg"), "w").write(svg_doc(W, H, "\n".join(p), (-W / 2, -FACE_H / 2 - 8, W, H), "#fff"))
 
@@ -742,12 +735,6 @@ def write_socket_board():
             o.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.0" fill="none" stroke="#c9ccd0" stroke-width="1.1"/>')
     T(cx - bw / 2 - 3, bcy - bh / 2 + 4, "face-side edge", 2.8, "end", "#333")
     T(cx - bw / 2 - 3, bcy + bh / 2 - 1, "lid-side edge", 2.8, "end", "#333")
-    for dy in (SEED_SCREWS[0] - SEED_Y, SEED_SCREWS[1] - SEED_Y):
-        for hx in SEED_SCREW_X:
-            x, y = cx + dy * k, cy + hx * k
-            o.append(f'<circle cx="{x}" cy="{y}" r="{2.75*k}" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>')
-            o.append(f'<circle cx="{x}" cy="{y}" r="{1.6*k}" fill="#666"/>')
-        T(cx + dy * k, cy + 1, "M3 nuts", 2.6, c="#fff")
     rowA, rowB = cy - 7.62 * k, cy + 7.62 * k           # pins 1-20 toward the face (top), 21-40 toward the lid
     for pin in range(1, 41):
         pos = pin - 1 if pin <= 20 else 40 - pin        # 0 = USB-C end
@@ -767,8 +754,7 @@ def write_socket_board():
     T(cx, cy + bh / 2 + 34, "Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and block place 1 (hot glue in that jumper end, or a resistor leg):", 3.1)
     T(cx, cy + bh / 2 + 39, "now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!", 3.1, c="#a00", w="bold")
     T(cx, cy + bh / 2 + 47, "Way 1: the jumper for each pin goes in the place with that number. Way 2: its wire is soldered to that header leg, under heat shrink.", 3.1)
-    T(cx, cy + bh / 2 + 52, "Red = widen that grid hole to 3.2 mm (outer grid columns, 1st and 9th row: 58.4 x 20.3 mm apart). 4 screws: M3x12 from outside | wall | 5 mm spacer | board | nut.", 3.1)
-    T(cx, cy + bh / 2 + 57, "Sockets go in the 2nd and 8th row from the face-side edge, 2 empty columns at each end. They're soldered, so they stay when the Seed3 is pulled.", 3.1)
+    T(cx, cy + bh / 2 + 57, "Way 2 (later): sockets in the 2nd and 8th row from the face-side edge, 2 empty columns at each end; mount it however suits you then.", 3.1)
     open(os.path.join(d, "seed-socket-board.svg"), "w").write(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">'
         f'<rect width="{W}" height="{H}" fill="#fff"/>' + "\n".join(o) + "</svg>\n")

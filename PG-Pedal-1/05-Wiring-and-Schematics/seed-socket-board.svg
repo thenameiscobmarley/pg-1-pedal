@@ -243,16 +243,6 @@
 <circle cx="237.4" cy="123.5" r="2.0" fill="none" stroke="#c9ccd0" stroke-width="1.1"/>
 <text x="75.2" y="61.9" font-family="DejaVu Sans, sans-serif" font-size="2.8" text-anchor="end" fill="#333" font-weight="normal">face-side edge</text>
 <text x="75.2" y="131.3" font-family="DejaVu Sans, sans-serif" font-size="2.8" text-anchor="end" fill="#333" font-weight="normal">lid-side edge</text>
-<circle cx="92.5592" cy="66.8032" r="6.82" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>
-<circle cx="92.5592" cy="66.8032" r="3.968" fill="#666"/>
-<circle cx="92.5592" cy="117.1968" r="6.82" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>
-<circle cx="92.5592" cy="117.1968" r="3.968" fill="#666"/>
-<text x="92.6" y="93.0" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#fff" font-weight="normal">M3 nuts</text>
-<circle cx="237.4408" cy="66.8032" r="6.82" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>
-<circle cx="237.4408" cy="66.8032" r="3.968" fill="#666"/>
-<circle cx="237.4408" cy="117.1968" r="6.82" fill="#ddd" fill-opacity="0.85" stroke="#c00" stroke-width="0.7"/>
-<circle cx="237.4408" cy="117.1968" r="3.968" fill="#666"/>
-<text x="237.4" y="93.0" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#fff" font-weight="normal">M3 nuts</text>
 <rect x="102.05760000000001" y="70.00240000000001" width="6.2" height="6.2" fill="#000" stroke="#222" stroke-width="0.3"/>
 <text x="105.2" y="66.7" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#fff" font-weight="bold">1</text>
 <text x="105.2" y="48.8" font-family="DejaVu Sans, sans-serif" font-size="2.5" fill="#333" text-anchor="start" transform="rotate(-60 105.2 48.8)">D0</text>
@@ -377,5 +367,4 @@
 <text x="165.0" y="163.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#111" font-weight="normal">Pin 1 = D0 (not used). Snip pin 1 off the Seed3 and block place 1 (hot glue in that jumper end, or a resistor leg):</text>
 <text x="165.0" y="168.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#a00" font-weight="bold">now the Seed3 only goes in the right way round. Backwards would put 9 V on the wrong pins!</text>
 <text x="165.0" y="176.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#111" font-weight="normal">Way 1: the jumper for each pin goes in the place with that number. Way 2: its wire is soldered to that header leg, under heat shrink.</text>
-<text x="165.0" y="181.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#111" font-weight="normal">Red = widen that grid hole to 3.2 mm (outer grid columns, 1st and 9th row: 58.4 x 20.3 mm apart). 4 screws: M3x12 from outside | wall | 5 mm spacer | board | nut.</text>
-<text x="165.0" y="186.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#111" font-weight="normal">Sockets go in the 2nd and 8th row from the face-side edge, 2 empty columns at each end. They're soldered, so they stay when the Seed3 is pulled.</text></svg>
+<text x="165.0" y="186.2" font-family="DejaVu Sans, sans-serif" font-size="3.1" text-anchor="middle" fill="#111" font-weight="normal">Way 2 (later): sockets in the 2nd and 8th row from the face-side edge, 2 empty columns at each end; mount it however suits you then.</text></svg>

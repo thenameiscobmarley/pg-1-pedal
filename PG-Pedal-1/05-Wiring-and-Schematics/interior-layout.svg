@@ -14,23 +14,19 @@
 <rect x="38.84" y="-37.95" width="2.6" height="35.52" fill="#36c"/>
 <text x="35.44" y="-36.39" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="end" fill="#36c" font-weight="normal">14-pin header</text>
 <text x="0.00" y="-23.39" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="middle" fill="#235" font-weight="normal">2.4in screen module (top layer)</text>
-<rect x="-60.55" y="-40.9" width="14.0" height="50.8" fill="#222"/>
-<rect x="-67.89999999999999" y="-41.0" width="4.85" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>
-<rect x="-69.44999999999999" y="10.0" width="3.25" height="1.6" fill="#bbb"/>
-<rect x="-63.05" y="-41.0" width="2.5" height="51" fill="#555"/>
-<rect x="-60.55" y="12.91" width="4.699999999999999" height="1.6" fill="#888"/>
-<rect x="-58.25" y="10.96" width="2.4" height="5.5" fill="#999"/>
-<rect x="-60.55" y="-45.51" width="4.699999999999999" height="1.6" fill="#888"/>
-<rect x="-58.25" y="-47.46" width="2.4" height="5.5" fill="#999"/>
-<rect x="-46.55" y="-40.9" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>
-<text x="-53.55" y="-23.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">Seed3</text>
-<text x="-53.55" y="-21.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">plugs into</text>
-<text x="-53.55" y="-18.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">its jumper</text>
-<text x="-53.55" y="-16.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">ends, hot-</text>
-<text x="-53.55" y="-13.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">glued into</text>
-<text x="-53.55" y="-11.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">a block</text>
-<text x="-41.55" y="-18.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">wires</text>
-<text x="-66.90" y="13.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#000" font-weight="normal">USB-C</text>
+<rect x="-67.55" y="-40.9" width="14.0" height="50.8" fill="#222"/>
+<rect x="-74.89999999999999" y="-41.0" width="4.85" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>
+<rect x="-76.44999999999999" y="10.0" width="3.25" height="1.6" fill="#bbb"/>
+<rect x="-70.05" y="-41.0" width="2.5" height="51" fill="#555"/>
+<rect x="-53.55" y="-40.9" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>
+<text x="-60.55" y="-23.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">Seed3</text>
+<text x="-60.55" y="-21.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">plugs into</text>
+<text x="-60.55" y="-18.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">its jumper</text>
+<text x="-60.55" y="-16.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">ends, hot-</text>
+<text x="-60.55" y="-13.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">glued into</text>
+<text x="-60.55" y="-11.00" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="normal">a block</text>
+<text x="-48.55" y="-18.50" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#1f6d2a" font-weight="normal">wires</text>
+<text x="-73.90" y="13.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#000" font-weight="normal">USB-C</text>
 <circle cx="-30.74" cy="-39.75" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="-30.74" cy="-39.75" r="1.5" fill="#000"/>
 <circle cx="36.52" cy="-39.75" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="36.52" cy="-39.75" r="1.5" fill="#000"/>
 <circle cx="-30.74" cy="-3.03" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="-30.74" cy="-3.03" r="1.5" fill="#000"/>
@@ -51,5 +47,5 @@
 <text x="36.00" y="60.00" font-family="DejaVu Sans, sans-serif" font-size="2.4" text-anchor="middle" fill="#000" font-weight="normal">fs-3</text>
 <text x="0.00" y="77.75" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="normal">INTERIOR TOP VIEW (looking down through the face) - 1:1</text>
 <text x="0.00" y="81.75" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window</text>
-<text x="0.00" y="85.75" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#a00" font-weight="normal">Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires. 4 small screws only close the holes (later: way 2 board)</text>
+<text x="0.00" y="85.75" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#a00" font-weight="normal">Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires</text>
 </svg>
