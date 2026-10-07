@@ -8,18 +8,18 @@
 | Drilling ($4.50) + face UV print ($3.50) | drill.taydakits.com | 8.00 |
 | Tayda shipping (shown at checkout, depends on speed) | Tayda | ~8 |
 | Daisy **Seed3** with headers + shipping | electro-smith.com | ~36 |
-| Soldering kit **with multimeter** | Amazon | ~25 |
+| Breadboard test parts (`tayda-cart-benchtest.csv`, same Tayda order) | Tayda | 7.50 |
 | 9V pedal power supply | Amazon | ~10 |
 | Ground loop isolator | Amazon | ~10 |
 | 3.5 mm → 1/4" TRS stereo cable | Amazon | ~8 |
 | 1/4" → 3.5 mm stereo adapter | Amazon | ~5 |
 | Mini glue gun + sticks | dollar store / Walmart | ~3 |
-| **Total** | | **~$156** |
+| **Total** | | **~$139** |
+| *Later: a good soldering iron + multimeter (your pick)* | | *(not in the total)* |
 
-That's a few dollars over, so pick from these:
+To save more:
 - **Skip the flux pen** (not in the total above). The solder already has flux inside its core; the pen only makes it a bit easier.
 - **Already have a 9V center-negative pedal supply?** Then skip it (-$10).
-- **Already have a multimeter?** Then get the kit without one (about -$8).
 - **Shipping:** choose the slowest, cheapest option at Tayda and Electrosmith.
 
 ## 1. The brain (not from Amazon)
@@ -27,9 +27,6 @@ That's a few dollars over, so pick from these:
   On Amazon it's often an old version (Seed rev 4/5/7) or resold. Make sure it says **Seed3** and **with headers**.
 
 ## 2. Amazon: type the search words, pick one with good reviews
-- [ ] **Soldering kit**: search `soldering iron kit 60W adjustable temperature with multimeter` (~$25).
-  It plugs straight into a normal 120 V outlet. Make sure the kit has: a **temperature dial**, a **stand**, a **tip cleaner** (sponge or brass),
-  **solder**, **wire strippers** and the **multimeter**. Set the dial with the temperature table in `WIRING.md`.
 - [ ] **9V power supply**: search `9V DC pedal power supply center negative` (~$10). Must say **center negative**, 2.1 mm plug, 300 mA or more.
 - [ ] **Ground loop isolator** (keeps the pedal electrically apart from the SC3 / PC): search `3.5mm ground loop noise isolator` (~$10).
 - [ ] **3.5 mm to 1/4" stereo cable**: search `3.5mm to 1/4 TRS stereo cable male to male` (~$8). Must say **TRS / stereo**.
@@ -41,8 +38,8 @@ That's a few dollars over, so pick from these:
 
 ## 4. Nice to have, if money is left
 - [ ] **Flux pen**: search `MG Chemicals 8341 no clean flux pen` (~$10).
-- [ ] **Better solder** than the kit's: search `Kester 44 63/37 rosin core solder 0.8mm` (~$12). The kit's solder works for this build.
+- [ ] **Solder** (when you get the iron): search `Kester 44 63/37 rosin core solder 0.8mm` (~$12).
 - [ ] Powered speakers for a first test, e.g. Creative Pebble (~$25).
 
 Tools you probably have at home: a small adjustable wrench (jack and footswitch nuts), a hair dryer.
-The knob set screws need a 1.5 mm hex key and the M3 screws a 2.5 mm one: check that the kit or a drawer has them.
+The knob set screws need a 1.5 mm hex key and the M3 screws a 2.5 mm one: check a drawer, or buy a cheap metric hex key set later.

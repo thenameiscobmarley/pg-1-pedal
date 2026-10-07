@@ -27,6 +27,18 @@ The drilled box + UV print are ordered on drill.taydakits.com, not in this cart:
 
 **Budget ($150 total):** see the table at the top of `AMAZON-LIST.md`.
 
+## Breadboard test first (no soldering): `tayda-cart-benchtest.csv`
+Add these to the same Tayda order (one shipping fee). With them the Seed3, screen, knobs, footswitches and jacks all run on the desk
+before anything is drilled or soldered: see `05-Wiring-and-Schematics/BENCH-TEST.md`.
+
+| SKU | Qty | Each | Line | Part | Used for |
+|---|---:|---:|---:|---|---|
+| A-2372 | 1 | $2.49 | $2.49 | 830-point solderless breadboard | the Seed3 + encoders plug into it |
+| A-3478 | 1 | $0.90 | $0.90 | Jumper wires female/male 200mm, pack of 40 | screen pins → breadboard |
+| A-3480 | 1 | $1.11 | $1.11 | Jumper wires male/male 200mm, pack of 40 | breadboard row to row |
+| A-5498 | 2 | $1.50 | $3.00 | Alligator clip to male jumper, 10 lines | clip onto jack and footswitch lugs |
+| | | | **$7.50** | | |
+
 ## Not sold by Tayda
 
 Shopping list with Amazon search words: `AMAZON-LIST.md`.
@@ -34,7 +46,6 @@ Shopping list with Amazon search words: `AMAZON-LIST.md`.
 | Item | ~Price | Notes |
 |---|---|---|
 | Daisy **Seed3** **with headers** (its male pins already soldered on: they plug into the sockets) | ~$30 | daisy.audio or a dealer. A spare one just plugs in. |
-| **Soldering kit with multimeter** (60 W, temperature dial, stand, solder, strippers; plugs into a 120 V outlet) | ~$25 | Amazon, see AMAZON-LIST.md |
 | 9V **center-negative** pedal adapter, ≥300 mA | $10-20 | Boss PSA-style or a pedal power supply |
 | 3.5 mm → 1/4" **TRS** stereo cable (male-male) | ~$8 | SC3 line out → pedal IN |
 | **3.5 mm ground loop isolator** (audio transformer type) | ~$10 | between the SC3 and pedal IN: no wire connection, so nothing from the pedal can reach the SC3 / PC |
