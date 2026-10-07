@@ -1,0 +1,20 @@
+side,type,label,x_mm,y_mm,diameter_mm,width_mm,height_mm,part
+A,hole,pg-1,-40.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
+A,hole,pg-2,-13.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
+A,hole,pg-3,13.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
+A,hole,pg-4,40.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
+A,hole,fs-1,-36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
+A,hole,fs-2,0.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
+A,hole,fs-3,36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
+A,hole,screen screw 1,-30.74,39.75,3.6,,,M3 screw for 2.4in screen + board
+A,hole,screen screw 2,36.52,39.75,3.6,,,M3 screw for 2.4in screen + board
+A,hole,screen screw 3,-30.74,3.03,3.6,,,M3 screw for 2.4in screen + board
+A,hole,screen screw 4,36.52,3.03,3.6,,,M3 screw for 2.4in screen + board
+A,rectangle,screen window,0.00,21.39,,47.8,35.5,2.4in ILI9341 A-8180 visible area
+B,hole,in,-40.00,0.00,9.9,,,"6.35mm TRS jack A-1121 (3/8""-32 thread)"
+B,hole,9v,-13.00,0.00,12.4,,,DC jack A-2237 (12mm cut-out)
+B,hole,exp,13.00,0.00,9.9,,,spare 6.35mm TRS jack A-1121 (expression pedal / extra input later)
+B,hole,out,40.00,0.00,9.9,,,"6.35mm TRS jack A-1121 (3/8""-32 thread)"
+C,rectangle,usb-c slot,0.00,-35.00,,12.4,7.4,SparkFun CAB-15455 USB-C panel socket
+C,hole,usb-c screw 1,-9.00,-35.00,3.6,,,M3 screw for the USB-C panel socket
+C,hole,usb-c screw 2,9.00,-35.00,3.6,,,M3 screw for the USB-C panel socket

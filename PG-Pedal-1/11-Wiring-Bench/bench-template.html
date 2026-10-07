@@ -1,0 +1,521 @@
+<title>PG-1 Wiring Bench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: a workbench. The wiring board takes the width; the virtual pedal sits beside it (below on phones). */
+:root {
+  --bg: #e7edf8;        /* pearl, like the pedal's screen chrome */
+  --panel: #f8faff;
+  --ink: #0f1a48;       /* navy */
+  --muted: #56628c;
+  --royal: #2240b2;     /* the pedal's box blue */
+  --line: #c6d0e8;
+  --ok: #16834f;
+  --warn: #a86a00;
+  --fault: #c8304f;
+  --gnd: #141414;       /* black ground wire */
+  --board: #1b1d22;
+  --pin: #d4a017;
+  --card: #ffffff;
+  --sel: #ffcf3a;
+  --f-ui: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "Cascadia Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0b1233; --panel: #111b45; --ink: #e8edff; --muted: #9ba9d8; --royal: #7d97ff; --line: #26346c;
+  --ok: #4fd08f; --warn: #ffc44d; --fault: #ff6f8c; --gnd: #e8edff; --board: #05070c; --card: #16214f; --sel: #ffd84d;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0b1233; --panel: #111b45; --ink: #e8edff; --muted: #9ba9d8; --royal: #7d97ff; --line: #26346c;
+  --ok: #4fd08f; --warn: #ffc44d; --fault: #ff6f8c; --gnd: #e8edff; --board: #05070c; --card: #16214f; --sel: #ffd84d;
+  color-scheme: dark }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-ui); font-size: 15px; }
+.wrap { padding-inline: 16px; padding-block: 18px 40px; max-width: 1500px; margin: 0 auto; display: grid; gap: 16px; }
+header { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: end; justify-content: space-between; }
+h1 { font-weight: 800; font-size: 1.7rem; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h1 small { display: block; font-weight: 600; font-size: 0.95rem; color: var(--muted); letter-spacing: 0; margin-top: 4px; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 700 0.92rem var(--f-ui); color: var(--ink); background: var(--panel); border: 1.5px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+button:hover { border-color: var(--royal); }
+button:focus-visible, .term:focus-visible, .pin:focus-visible, .bus:focus-visible { outline: 3px solid var(--sel); outline-offset: 2px; }
+button.primary { background: var(--royal); color: #fff; border-color: var(--royal); }
+button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.progress { font: 600 0.88rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.bench { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+@media (max-width: 1100px) { .bench { grid-template-columns: minmax(0, 1fr); } }
+.board-box { background: var(--panel); border: 1.5px solid var(--line); border-radius: 12px; overflow-x: auto; min-width: 0; }
+.board-box svg { display: block; width: 100%; min-width: 860px; height: auto; touch-action: manipulation; }
+.hint-line { font-size: 0.9rem; color: var(--muted); padding: 10px 14px 0; }
+svg text { font-family: var(--f-ui); fill: var(--ink); }
+svg .mono { font-family: var(--f-mono); }
+.cardrect { fill: var(--card); stroke: var(--line); stroke-width: 1.5; }
+.cardtitle { font-weight: 800; font-size: 15px; }
+.termlab { font-size: 12.5px; fill: var(--muted); }
+.term circle { fill: var(--card); stroke: var(--ink); stroke-width: 2; cursor: pointer; }
+.term.wired circle { fill: var(--ink); }
+.term.sel circle { fill: var(--sel); stroke: var(--sel); }
+.term.ok circle { stroke: var(--ok); fill: var(--ok); }
+.term.bad circle { stroke: var(--fault); fill: var(--fault); }
+.term.unused circle { stroke-dasharray: 2 2; opacity: 0.5; cursor: default; }
+.pin circle { fill: var(--pin); stroke: #000; stroke-width: 1; cursor: pointer; }
+.pin.hint circle, .bus.hint rect { stroke: var(--sel); stroke-width: 4; }
+.pin text { fill: #fff; font-size: 11px; }
+.pinname { font-size: 10.5px; fill: var(--muted); }
+.bus rect { cursor: pointer; }
+.wire { fill: none; stroke-width: 3.2; stroke-linecap: round; cursor: pointer; }
+.wire:hover { stroke-width: 5; }
+.wire.bad { stroke-dasharray: 7 5; }
+/* the virtual pedal */
+.pedal { background: var(--panel); border: 1.5px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 12px; }
+.pedal h2 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.screen { aspect-ratio: 4 / 3; max-width: 100%; border-radius: 6px; overflow: hidden; border: 6px solid #111;
+  background: #0c1650; color: #fff; font: 600 12px/1.35 var(--f-mono); display: grid; grid-template-rows: auto 1fr; }
+.screen .bar { background: #dee6f6; color: #2240b2; display: flex; justify-content: space-between; padding: 3px 8px; font-weight: 700; }
+.screen .bar .chip { background: #2240b2; color: #ffe26e; padding: 0 6px; }
+.screen .bar .chip.warn { background: #ffe26e; color: #2240b2; }
+.screen .bar .chip.fault { background: #ff96dc; color: #2240b2; }
+.screen .body { padding: 8px; overflow: auto; display: grid; gap: 6px; align-content: start; }
+.screen.off { background: #050505; }
+.screen.white { background: #f4f4f4; color: #333; }
+.screen .big { font: 800 15px var(--f-ui); }
+.msg { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 6px; }
+.dot { width: 9px; height: 9px; margin-top: 4px; border-radius: 2px; }
+.dot.ok { background: #78e2ff; } .dot.warn { background: #ffe26e; } .dot.fault { background: #ff96dc; } .dot.note { background: #7896ff; }
+.try { display: grid; gap: 8px; }
+.try h3 { margin: 0; font-size: 0.95rem; }
+.try .row { display: flex; flex-wrap: wrap; gap: 6px; }
+.try button { padding: 6px 9px; font-size: 0.85rem; }
+.log { font: 500 12.5px/1.4 var(--f-mono); color: var(--muted); min-height: 3em; }
+.list { display: grid; gap: 8px; max-height: 340px; overflow: auto; padding-right: 4px; }
+.item { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 8px; font-size: 0.9rem; align-items: start; }
+.sev { font: 700 0.72rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 6px; border-radius: 5px; text-align: center; }
+.sev.fault { background: var(--fault); color: #fff; } .sev.warn { background: var(--warn); color: #fff; } .sev.ok { background: var(--ok); color: #fff; }
+.item b { font-weight: 800; }
+.item .fix { color: var(--muted); display: block; margin-top: 2px; }
+details.ref { background: var(--panel); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+details.ref summary { cursor: pointer; font-weight: 800; }
+details.ref .imgbox { overflow-x: auto; margin-top: 10px; }
+details.ref img { width: 100%; min-width: 900px; background: #fff; border-radius: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; color: var(--muted); padding: 0 14px 12px; }
+.legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+@media (prefers-reduced-motion: no-preference) { .term.sel circle { animation: pulse 1s infinite alternate; } }
+@keyframes pulse { from { r: 7; } to { r: 9; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>PG-1 Wiring Bench <small>Wire the pedal here first. Tap a terminal on a part, then the Seed3 pin or ground chain it goes to. Tap a wire to remove it.</small></h1>
+    <div class="tools">
+      <span class="progress" id="progress">0 of 49 wired</span>
+      <button id="hintBtn" aria-pressed="false">Show where it goes</button>
+      <button id="checkBtn" aria-pressed="false">Check as I go</button>
+      <button id="answerBtn">Wire it for me</button>
+      <button id="clearBtn">Clear</button>
+      <button id="powerBtn" class="primary">Power up</button>
+    </div>
+  </header>
+
+  <div class="bench">
+    <div class="board-box">
+      <div class="hint-line" id="hintLine">Pick a terminal on any part to start (the dots on the cards).</div>
+      <svg id="svg" viewBox="0 0 1180 820" role="img" aria-label="Wiring board: parts around the Daisy Seed3"></svg>
+      <div class="legend">
+        <span><i style="background:#8c8c8c"></i>left audio</span><span><i style="background:#d9a400"></i>right audio</span>
+        <span><i style="background:#1f9d3a"></i>encoders</span><span><i style="background:#1f5fd1"></i>screen</span>
+        <span><i style="background:#8b4513"></i>footswitches</span><span><i style="background:#d11f1f"></i>power</span>
+        <span><i style="background:var(--gnd)"></i>ground chain</span>
+      </div>
+    </div>
+
+    <aside class="pedal" aria-live="polite">
+      <h2>Your PG-1</h2>
+      <div class="screen off" id="screen"><div class="bar"><span>pg audio pg-1</span><span class="chip">off</span></div><div class="body"><div class="big" style="color:#555">Not powered yet.</div><div style="color:#777">Wire it, then press Power up.</div></div></div>
+      <div class="list" id="list"></div>
+      <div class="try" id="try" hidden>
+        <h3>Try the controls</h3>
+        <div class="row" id="tryKnobs"></div>
+        <div class="row" id="tryOther"></div>
+        <div class="log" id="log">The pedal reports what it notices here.</div>
+      </div>
+    </aside>
+  </div>
+
+  <details class="ref"><summary>Reference: the wiring diagram</summary>
+    <div class="imgbox"><img src="__REF__" alt="PG-1 wiring diagram: every part's wires to the Seed3 pins, and the two ground chains"></div>
+  </details>
+</div>
+
+<script>
+// ---------------------------------------------------------------- the pedal's real wiring (from wiring-diagram.png)
+const SEED = {1:"D0",2:"D1",3:"D2",4:"D3",5:"D4",6:"D5",7:"D6",8:"D7",9:"D8",10:"D9",11:"D10",12:"D11",13:"D12",14:"D13",15:"D14",
+  16:"AUDIO IN L",17:"AUDIO IN R",18:"AUDIO OUT L",19:"AUDIO OUT R",20:"AGND",21:"3V3 A",22:"D15",23:"D16",24:"D17",25:"D18",26:"D19",
+  27:"D20",28:"D21",29:"D22",30:"D23",31:"D24",32:"D25",33:"D26",34:"D27",35:"D28",36:"D29",37:"D30",38:"3V3 D",39:"VIN",40:"DGND"};
+const COL = {audio_l:"#8c8c8c", audio_r:"#d9a400", enc:"#1f9d3a", lcd:"#1f5fd1", fs:"#8b4513", pwr:"#d11f1f", gnd:"var(--gnd)"};
+// want: a Seed3 pin number, "A" (audio ground chain) or "M" (main ground chain)
+const enc = (n, a, b, p) => ({id:n, name:n+" encoder", terms:[
+  {id:"A", label:"A", want:a, kind:"enc"}, {id:"B", label:"B", want:b, kind:"enc"}, {id:"push", label:"push", want:p, kind:"enc"},
+  {id:"C", label:"C (middle)", want:"M", kind:"gnd"}, {id:"push2", label:"push 2nd pin", want:"M", kind:"gnd"}]});
+const fsw = (n, p) => ({id:n, name:n+" footswitch", terms:[{id:"lug", label:"lug", want:p, kind:"fs"}, {id:"other", label:"other lug", want:"M", kind:"gnd"}]});
+const PARTS = [
+  {id:"out", name:"OUT jack (TRS)", terms:[{id:"tip", label:"tip (left)", want:18, kind:"audio_l"}, {id:"ring", label:"ring (right)", want:19, kind:"audio_r"}, {id:"sleeve", label:"sleeve", want:"A", kind:"gnd"}]},
+  {id:"in", name:"IN jack (TRS)", terms:[{id:"tip", label:"tip (left)", want:16, kind:"audio_l"}, {id:"ring", label:"ring (right)", want:17, kind:"audio_r"}, {id:"sleeve", label:"sleeve", want:"A", kind:"gnd"}]},
+  enc("pg-1", 2, 3, 4), enc("pg-2", 5, 6, 7), enc("pg-3", 14, 15, 22), enc("pg-4", 26, 27, 28),
+  fsw("fs-1", 24), fsw("fs-2", 25), fsw("fs-3", 10),
+  {id:"9v", name:"9V DC jack", terms:[{id:"plus", label:"+ (sleeve lug)", want:39, kind:"pwr"}, {id:"minus", label:"− (centre pin)", want:"M", kind:"gnd"}]},
+  {id:"scr", name:"screen (A-8180) header", terms:[
+    {id:"1", label:"VCC", want:38, kind:"pwr"}, {id:"2", label:"GND", want:"M", kind:"gnd"}, {id:"3", label:"CS", want:8, kind:"lcd"},
+    {id:"4", label:"RESET", want:13, kind:"lcd"}, {id:"5", label:"DC", want:12, kind:"lcd"}, {id:"6", label:"SDI", want:11, kind:"lcd"},
+    {id:"7", label:"SCK", want:9, kind:"lcd"}, {id:"8", label:"LED", want:23, kind:"lcd"}, {id:"9", label:"SDO", want:null, kind:"lcd"},
+    {id:"10", label:"T_CLK", want:29, kind:"lcd"}, {id:"11", label:"T_CS", want:30, kind:"lcd"}, {id:"12", label:"T_DIN", want:31, kind:"lcd"},
+    {id:"13", label:"T_DO", want:32, kind:"lcd"}, {id:"14", label:"T_IRQ", want:33, kind:"lcd"}]},
+  {id:"chain", name:"ground chains", terms:[{id:"A", label:"audio chain jumper", want:20, kind:"gnd"}, {id:"M", label:"main chain jumper", want:40, kind:"gnd"}]},
+];
+const TERMS = {}; // "part.term" -> {part, term, x, y, side}
+for (const p of PARTS) for (const t of p.terms) TERMS[p.id + "." + t.id] = {part:p, term:t};
+const KEYS = Object.keys(TERMS).filter(k => TERMS[k].term.want !== null);
+const OWNER = {}; // pin -> terminal key that belongs there
+for (const k of KEYS) { const w = TERMS[k].term.want; if (typeof w === "number") OWNER[w] = k; }
+const nice = k => { const {part, term} = TERMS[k];
+  if (part.id === "chain") return "the " + term.label;
+  if (part.id === "scr") return `screen pin ${term.id} (${term.label})`;
+  if (part.id === "9v") return "9V " + term.label;
+  return part.id + " " + term.label; };
+const where = w => w === "A" ? "the audio ground chain" : w === "M" ? "the main ground chain" : "pin " + w + " (" + SEED[w] + ")";
+
+// ---------------------------------------------------------------- layout
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const a in attrs) e.setAttribute(a, attrs[a]); (parent || svg).appendChild(e); return e; };
+const pinXY = n => n >= 21 ? {x: 525, y: 75 + (n - 21) * 29} : {x: 655, y: 75 + (20 - n) * 29};
+const BUS = {M: {x0: 28, x1: 286, y: 648, label: "MAIN ground chain", jump: "chain.M"}, A: {x0: 894, x1: 1152, y: 686, label: "AUDIO ground chain", jump: "chain.A"}};
+const LAYOUT = { // card x, y, and which edge the terminals sit on
+  "pg-3": {x: 28, y: 20, side: "R"}, "pg-4": {x: 28, y: 180, side: "R"}, "fs-1": {x: 28, y: 340, side: "R"}, "fs-2": {x: 28, y: 430, side: "R"},
+  "9v": {x: 28, y: 520, side: "R"},
+  "out": {x: 880, y: 20, side: "L"}, "in": {x: 880, y: 136, side: "L"}, "pg-2": {x: 880, y: 252, side: "L"}, "pg-1": {x: 880, y: 412, side: "L"},
+  "fs-3": {x: 880, y: 572, side: "L"}, "scr": {x: 330, y: 708, side: "T"},
+};
+const wiresG = el("g", {});
+const layer = el("g", {});
+let wires = {};      // terminal key -> pin number | "A" | "M"
+let selected = null, hints = false, instant = false, powered = false;
+
+function draw() {
+  // the Seed3
+  el("rect", {x: 495, y: 40, width: 190, height: 618, rx: 12, style: "fill:var(--board)"}, layer);
+  el("text", {x: 590, y: 330, "text-anchor": "middle", "font-size": 18, "font-weight": 800, style: "fill:#fff"}, layer).textContent = "Daisy";
+  el("text", {x: 590, y: 352, "text-anchor": "middle", "font-size": 18, "font-weight": 800, style: "fill:#fff"}, layer).textContent = "Seed3";
+  el("text", {x: 590, y: 372, "text-anchor": "middle", "font-size": 11, style: "fill:#aaa"}, layer).textContent = "(top side up)";
+  el("rect", {x: 575, y: 646, width: 30, height: 18, rx: 4, fill: "#c9c9c9"}, layer);
+  el("text", {x: 590, y: 682, "text-anchor": "middle", "font-size": 11, class: "pinname"}, layer).textContent = "USB-C end";
+  for (let n = 1; n <= 40; n++) {
+    const {x, y} = pinXY(n), g = el("g", {class: "pin", tabindex: 0, role: "button", "aria-label": "Seed3 pin " + n + " " + SEED[n], "data-pin": n}, layer);
+    el("circle", {cx: x, cy: y, r: 8}, g);
+    el("text", {x: n >= 21 ? x + 14 : x - 14, y: y + 4, "text-anchor": n >= 21 ? "start" : "end", class: "mono", style: "fill:#fff;font-size:11px"}, g).textContent = n;
+    el("text", {x: n >= 21 ? x - 14 : x + 14, y: y + 4, "text-anchor": n >= 21 ? "end" : "start", class: "pinname mono"}, layer).textContent = SEED[n];
+    g.addEventListener("click", () => target(n));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); target(n); } });
+  }
+  // ground chains (bars)
+  for (const b in BUS) {
+    const B = BUS[b], g = el("g", {class: "bus", tabindex: 0, role: "button", "aria-label": B.label, "data-bus": b}, layer);
+    el("rect", {x: B.x0, y: B.y - 7, width: B.x1 - B.x0, height: 14, rx: 7, style: "fill:var(--gnd)"}, g);
+    el("text", {x: (B.x0 + B.x1) / 2, y: B.y + 26, "text-anchor": "middle", "font-size": 12.5, "font-weight": 800}, layer).textContent = B.label;
+    g.addEventListener("click", () => target(b));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); target(b); } });
+    const jk = B.jump, jx = b === "M" ? B.x1 + 14 : B.x0 - 14;
+    TERMS[jk].x = jx, TERMS[jk].y = B.y, TERMS[jk].side = b === "M" ? "R" : "L";
+    termEl(jk, jx, B.y, b === "M" ? "jumper →" : "← jumper", b === "M" ? "start" : "end", b === "M" ? 12 : -12);
+  }
+  // parts
+  for (const p of PARTS) {
+    const L = LAYOUT[p.id];
+    if (!L) continue;
+    if (L.side === "T") {
+      const w = 520, h = 96;
+      el("rect", {x: L.x, y: L.y, width: w, height: h, rx: 10, class: "cardrect"}, layer);
+      el("text", {x: L.x + 12, y: L.y + h - 12, class: "cardtitle"}, layer).textContent = p.name + " (pin 1 = VCC)";
+      p.terms.forEach((t, i) => {
+        const x = L.x + 20 + i * 37, y = L.y, k = p.id + "." + t.id;
+        Object.assign(TERMS[k], {x, y, side: "T"});
+        el("text", {x, y: y + 24, "text-anchor": "middle", class: "termlab mono", style: "font-size:11px"}, layer).textContent = t.id;
+        const lab = el("text", {x: x + 3, y: y + 34, class: "termlab", style: "font-size:10px", transform: `rotate(60 ${x + 3} ${y + 34})`}, layer);
+        lab.textContent = t.label;
+        termEl(k, x, y, null);
+      });
+      continue;
+    }
+    const w = 272, h = 34 + p.terms.length * 24;
+    el("rect", {x: L.x, y: L.y, width: w, height: h, rx: 10, class: "cardrect"}, layer);
+    el("text", {x: L.x + 12, y: L.y + 22, class: "cardtitle"}, layer).textContent = p.name;
+    p.terms.forEach((t, i) => {
+      const y = L.y + 44 + i * 24, x = L.side === "R" ? L.x + w : L.x, k = p.id + "." + t.id;
+      Object.assign(TERMS[k], {x, y, side: L.side});
+      const tx = L.side === "R" ? x - 14 : x + 14;
+      el("text", {x: tx, y: y + 4, "text-anchor": L.side === "R" ? "end" : "start", class: "termlab"}, layer).textContent = t.label + (t.kind === "gnd" ? "  ⏚" : "");
+      termEl(k, x, y, null);
+    });
+  }
+}
+function termEl(k, x, y, label, anchor, dx) {
+  const T = TERMS[k], unused = T.term.want === null;
+  const g = el("g", {class: "term" + (unused ? " unused" : ""), tabindex: unused ? -1 : 0, role: "button", "aria-label": nice(k), "data-key": k}, layer);
+  el("circle", {cx: x, cy: y, r: 7}, g);
+  if (label) el("text", {x: x + dx, y: y + 4, "text-anchor": anchor, class: "termlab", style: "font-weight:700"}, layer).textContent = label;
+  if (unused) { el("title", {}, g).textContent = "screen pin 9 (SDO) stays empty"; return; }
+  g.addEventListener("click", () => pick(k));
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(k); } });
+  T.g = g;
+}
+
+// ---------------------------------------------------------------- wiring
+function pick(k) {
+  selected = selected === k ? null : k;
+  refresh();
+  const T = TERMS[k];
+  document.getElementById("hintLine").textContent = selected
+    ? `${nice(k)}: now tap where it goes on the Seed3${T.term.kind === "gnd" ? ", or a ground chain bar" : ""}.` + (hints ? `  It goes to ${where(T.term.want)}.` : "")
+    : "Pick a terminal on any part.";
+}
+function target(dst) {
+  if (!selected) { document.getElementById("hintLine").textContent = "Pick a part's terminal first, then tap here."; return; }
+  wires[selected] = dst;
+  const done = selected;
+  selected = null;
+  save(); refresh();
+  const ok = TERMS[done].term.want === dst;
+  document.getElementById("hintLine").textContent = `Wired ${nice(done)} → ${where(dst)}.` + (instant ? (ok ? "  Correct." : "  That's not where it goes.") : "");
+  if (powered) power(); // keep the pedal's report live while it's on
+}
+function unwire(k) { delete wires[k]; save(); refresh(); if (powered) power(); }
+
+function endPoint(dst, from) {
+  if (dst === "A" || dst === "M") { const B = BUS[dst]; return {x: Math.min(B.x1 - 10, Math.max(B.x0 + 10, from.x)), y: B.y}; }
+  return pinXY(dst);
+}
+function refresh() {
+  wiresG.replaceChildren();
+  svg.appendChild(wiresG); // wires on top of the board
+  let n = 0;
+  for (const k in wires) {
+    const T = TERMS[k], dst = wires[k], e = endPoint(dst, T);
+    const dx = T.side === "R" ? 1 : T.side === "L" ? -1 : 0, c = 120;
+    const p1 = T.side === "T" ? `${T.x},${T.y - c}` : `${T.x + dx * c},${T.y}`;
+    const p2 = (dst === "A" || dst === "M") ? `${e.x},${e.y - 60}` : `${e.x + (dst >= 21 ? -c : c)},${e.y}`;
+    const ok = T.term.want === dst;
+    const path = el("path", {d: `M${T.x},${T.y} C${p1} ${p2} ${e.x},${e.y}`, class: "wire" + (instant && !ok ? " bad" : ""),
+      style: "stroke:" + COL[T.term.kind], "aria-label": "wire " + nice(k)}, wiresG);
+    el("title", {}, path).textContent = `${nice(k)} → ${where(dst)} (tap to remove)`;
+    path.addEventListener("click", () => unwire(k));
+    n++;
+  }
+  for (const k of KEYS) {
+    const g = TERMS[k].g; if (!g) continue;
+    g.classList.toggle("wired", k in wires);
+    g.classList.toggle("sel", k === selected);
+    g.classList.toggle("ok", instant && k in wires && wires[k] === TERMS[k].term.want);
+    g.classList.toggle("bad", instant && k in wires && wires[k] !== TERMS[k].term.want);
+  }
+  document.querySelectorAll(".pin, .bus").forEach(g => g.classList.remove("hint"));
+  if (hints && selected) {
+    const w = TERMS[selected].term.want;
+    const q = typeof w === "number" ? `.pin[data-pin="${w}"]` : `.bus[data-bus="${w}"]`;
+    document.querySelector(q)?.classList.add("hint");
+  }
+  const right = KEYS.filter(k => wires[k] === TERMS[k].term.want).length;
+  document.getElementById("progress").textContent = `${n} of ${KEYS.length} wired` + (instant ? ` · ${right} right` : "");
+}
+
+// ---------------------------------------------------------------- what the pedal would notice
+const ROLE = { // what a wrong wire on a pin would do, by what belongs there
+  power: [39, 38, 21], gndPins: [20, 40],
+};
+function diagnose() {
+  const out = [];
+  const add = (sev, part, text, fix) => out.push({sev, part, text, fix});
+  const onPin = {};
+  for (const k in wires) { const d = wires[k]; (onPin[d] = onPin[d] || []).push(k); }
+  // 1. anything that would damage parts
+  for (const k in wires) {
+    const t = TERMS[k].term, d = wires[k];
+    if (k === "9v.plus" && d !== 39) {
+      if (d === "A" || d === "M" || d === 20 || d === 40) add("fault", "9V jack", "9 V + is wired to ground: the adapter is shorted, and nothing gets power.", "Move 9V + (sleeve lug) to pin 39 (VIN).");
+      else add("fault", "9V jack", `9 V + is on ${where(d)}. 9 volts there would destroy the Seed3.`, "Move it to pin 39 (VIN), the only pin that takes 9 V.");
+    }
+    if (k !== "9v.plus" && d === 39) add("fault", TERMS[k].part.name, `${nice(k)} is on pin 39, which carries the full 9 V. That part would get 9 V and be damaged.`, `Move it to ${where(t.want)}.`);
+    if (k === "scr.1" && d !== 38) {
+      if (d === 21) add("warn", "screen", "Screen VCC is on pin 21 (3V3 A). It would work, but screen noise would get into the audio supply.", "Move it to pin 38 (3V3 D).");
+      else if (d === "A" || d === "M" || d === 20 || d === 40) add("fault", "screen", "Screen VCC is wired to ground: a short on the 3.3 V supply.", "Move it to pin 38 (3V3 D).");
+      else if (d !== 39) add("warn", "screen", `Screen VCC is on ${where(d)}, which isn't a supply: the screen stays dark.`, "Move it to pin 38 (3V3 D).");
+    }
+    if (t.kind === "gnd" && (d === 38 || d === 21)) add("fault", TERMS[k].part.name, `${nice(k)} is a ground, but it's on ${where(d)}: that shorts the 3.3 V supply to ground.`, `Move it to ${where(t.want)}.`);
+    if (k === "9v.minus" && typeof d === "number" && d !== 40) add("fault", "9V jack", `9 V − is on ${where(d)} instead of the ground chain: the pedal gets no proper power return.`, "Put it on the main ground chain.");
+  }
+  // 2. power and ground basics
+  const powerOk = wires["9v.plus"] === 39 && (wires["9v.minus"] === "M" || wires["9v.minus"] === "A") && (wires["chain.M"] === 40 || wires["chain.M"] === 20);
+  if (!("9v.plus" in wires)) add("warn", "9V jack", "9 V + isn't connected: the pedal has no power.", "Wire 9V + (sleeve lug) to pin 39 (VIN).");
+  if (!("9v.minus" in wires)) add("warn", "9V jack", "9 V − isn't connected: no power return, nothing turns on.", "Wire 9V − (centre pin) to the main ground chain.");
+  if (!("chain.M" in wires)) add("warn", "ground", "The main ground chain isn't connected to the Seed3: the knobs, footswitches, screen and power have no ground.", "Add its jumper to pin 40 (DGND).");
+  else if (wires["chain.M"] === 20) add("warn", "ground", "The main chain's jumper is on pin 20 (AGND). It works, but the screen's noise now shares the audio ground.", "Move it to pin 40 (DGND).");
+  else if (wires["chain.M"] !== 40) add("warn", "ground", `The main chain's jumper is on ${where(wires["chain.M"])}, not a ground pin: nothing on that chain is grounded.`, "Move it to pin 40 (DGND).");
+  if (!("chain.A" in wires)) add("warn", "ground", "The audio ground chain isn't connected to the Seed3: expect loud hum or no sound.", "Add its jumper to pin 20 (AGND).");
+  else if (wires["chain.A"] === 40) add("warn", "ground", "The audio chain's jumper is on pin 40 (DGND). It works, with a bit more risk of whine.", "Move it to pin 20 (AGND).");
+  else if (wires["chain.A"] !== 20) add("warn", "ground", `The audio chain's jumper is on ${where(wires["chain.A"])}, not a ground pin: the jacks have no ground (hum, or no sound).`, "Move it to pin 20 (AGND).");
+  // 3. two wires on one pin
+  for (const d in onPin) {
+    if (d === "A" || d === "M") continue;
+    if (onPin[d].length > 1) add("warn", "Seed3", `Pin ${d} (${SEED[d]}) has ${onPin[d].length} wires: ${onPin[d].map(nice).join(" and ")}. Only one can go there.`, `It belongs to ${OWNER[d] ? nice(OWNER[d]) : "nothing (a spare pin)"}.`);
+  }
+  // 4. every part: right, missing, swapped or misplaced
+  for (const p of PARTS) {
+    if (p.id === "chain" || p.id === "9v") continue;
+    for (const t of p.terms) {
+      if (t.want === null) continue;
+      const k = p.id + "." + t.id, d = wires[k];
+      if (d === undefined) { add("warn", p.name, `${nice(k)} isn't connected yet.`, `It goes to ${where(t.want)}.`); continue; }
+      if (d === t.want) continue;
+      if (k === "scr.1") continue; // handled above
+      if (t.kind === "gnd") {
+        if (d === "A" || d === "M") {
+          add("warn", p.name, t.want === "A" ? `${nice(k)} is on the main chain. It works, but screen and switch noise can get into the audio.` : `${nice(k)} is on the audio chain. It works, but its noise now shares the audio ground.`, `Move it to ${where(t.want)}.`);
+        } else if (d === 20 || d === 40) {
+          add("warn", p.name, `${nice(k)} goes straight to ${where(d)}, but that pin already takes its chain's jumper.`, `Put it on ${where(t.want)} instead.`);
+        } else if (d !== 38 && d !== 21 && d !== 39) {
+          add("warn", p.name, `${nice(k)} is a ground, but it's on ${where(d)}. That holds the pin at ground, so ${OWNER[d] ? nice(OWNER[d]) + " would read stuck" : "nothing useful happens"}, and ${p.id} has no ground.`, `Move it to ${where(t.want)}.`);
+        }
+        continue;
+      }
+      if (d === "A" || d === "M" || d === 20 || d === 40) { add("warn", p.name, `${nice(k)} is wired to ground, so it reads as permanently pressed / dead.`, `Move it to ${where(t.want)}.`); continue; }
+      if (d === 39 || d === 38 || d === 21) continue; // covered above (power)
+      // swapped pairs
+      const twin = {A: "B", B: "A", tip: "ring", ring: "tip"}[t.id];
+      if (twin && wires[p.id + "." + twin] === t.want && d === p.terms.find(x => x.id === twin).want) {
+        if (t.id === "A") add("warn", p.name, `${p.id}'s A and B are swapped: the knob turns the wrong way.`, "Swap the two wires, or set config → knobs: reverse.");
+        if (t.id === "tip") add("warn", p.name, "Tip and ring are swapped, so left and right are swapped.", "Swap the tip and ring wires.");
+        continue;
+      }
+      const owner = OWNER[d];
+      if (p.id === "in" && TERMS[owner]?.part.id === "out" || p.id === "out" && TERMS[owner]?.part.id === "in") {
+        add("warn", p.name, `${nice(k)} is on ${where(d)}: the IN and OUT jacks are swapped, so no sound comes through.`, `Move it to ${where(t.want)}.`);
+        continue;
+      }
+      add("warn", p.name, `${nice(k)} is on ${where(d)}` + (owner ? `, where ${nice(owner)} belongs. ${p.id} won't work right, and the pedal would read it as ${nice(owner)}.` : `, a pin the firmware doesn't use, so ${p.id} won't respond.`), `Move it to ${where(t.want)}.`);
+    }
+  }
+  return {out, powerOk};
+}
+
+// ---------------------------------------------------------------- power up: the virtual pedal
+const SEVORD = {fault: 0, warn: 1, ok: 2};
+function power() {
+  powered = true;
+  const {out, powerOk} = diagnose();
+  const faults = out.filter(m => m.sev === "fault"), warns = out.filter(m => m.sev === "warn");
+  const scr = document.getElementById("screen"), list = document.getElementById("list");
+  const screenOk = ["scr.1", "scr.2", "scr.3", "scr.4", "scr.5", "scr.6", "scr.7"].every(k => wires[k] === TERMS[k].term.want || (k === "scr.1" && wires[k] === 21));
+  const lightOk = wires["scr.8"] === 23;
+  let body = "", cls = "", chip = "on", chipCls = "";
+  if (faults.length) {
+    cls = "off";
+    body = `<div class="big" style="color:#ff96dc">I didn't power it on.</div><div style="color:#ccc">${faults.length} wire${faults.length > 1 ? "s" : ""} would damage parts. Fix the red ones first.</div>`;
+    chip = "off";
+  } else if (!powerOk) {
+    cls = "off"; chip = "off";
+    body = `<div class="big" style="color:#888">Nothing happens.</div><div style="color:#777">No power reaches the Seed3. See the list.</div>`;
+  } else if (!screenOk) {
+    cls = "white"; chip = "?";
+    body = `<div class="big">The screen stays white.</div><div>The Seed3 is running, but the screen's wiring is off, so it can't show anything. The list says what.</div>`;
+  } else if (!lightOk) {
+    cls = "off"; chip = "?";
+    body = `<div class="big" style="color:#888">The screen looks dark.</div><div style="color:#777">It's drawing, but its LED (backlight) wire is off.</div>`;
+  } else {
+    cls = "";
+    const n = warns.length;
+    chip = n ? "! " + n : "on"; chipCls = n ? "warn" : "";
+    body = n ? `<div class="big">Wiring check: ${n} thing${n > 1 ? "s" : ""} to fix</div>` + warns.slice(0, 6).map(m => `<div class="msg"><span class="dot warn"></span><span>${m.text}</span></div>`).join("") + (n > 6 ? `<div>…and ${n - 6} more in the list</div>` : "")
+             : `<div class="big">Wiring check: all good.</div><div class="msg"><span class="dot ok"></span><span>Every wire is where it belongs. Try the controls below.</span></div>`;
+  }
+  scr.className = "screen " + cls;
+  scr.innerHTML = `<div class="bar"><span>pg audio pg-1</span><span class="chip ${chipCls}">${chip}</span></div><div class="body">${body}</div>`;
+  out.sort((a, b) => SEVORD[a.sev] - SEVORD[b.sev]);
+  list.innerHTML = out.length
+    ? out.map(m => `<div class="item"><span class="sev ${m.sev}">${m.sev === "fault" ? "danger" : "fix"}</span><span><b>${m.part}:</b> ${m.text}<span class="fix">${m.fix}</span></span></div>`).join("")
+    : `<div class="item"><span class="sev ok">ok</span><span>All ${KEYS.length} wires are right. That's the real pedal wired.</span></div>`;
+  document.getElementById("try").hidden = !(powerOk && !faults.length);
+}
+
+// ---------------------------------------------------------------- try the controls
+const W = k => wires[k], R = k => wires[k] === TERMS[k].term.want;
+function say(t) { document.getElementById("log").textContent = t; }
+function tryKnob(n) {
+  const id = "pg-" + n, a = id + ".A", b = id + ".B", c = id + ".C";
+  if (!R(c)) return say(`${id}: nothing happens. Its C (middle) pin needs the main ground chain.`);
+  if (R(a) && R(b)) return say(`${id} turned: the value moves the right way. Works.`);
+  if (W(a) === TERMS[b].term.want && W(b) === TERMS[a].term.want) return say(`${id} turned right, but the value went down: A and B are swapped.`);
+  if (!(a in wires) || !(b in wires)) return say(`${id}: nothing happens, or it jumps randomly. One of A / B isn't connected.`);
+  const own = OWNER[W(a)] || OWNER[W(b)];
+  say(`${id}: it doesn't move its own value${own ? `; something else reacts (${nice(own)})` : ""}. A or B is on the wrong pin.`);
+}
+function tryPush(n) {
+  const id = "pg-" + n, p = id + ".push", p2 = id + ".push2";
+  if (!R(p2)) return say(`${id} pushed: nothing. Its 2nd push pin needs the main ground chain.`);
+  if (R(p)) return say(`${id} pushed: the box flashes. Works.`);
+  if (!(p in wires)) return say(`${id} pushed: nothing. Its push wire isn't connected.`);
+  const own = OWNER[W(p)];
+  say(`${id} pushed: ${own ? `the pedal thinks ${nice(own)} moved instead` : "nothing (spare pin)"}. The push wire is on pin ${W(p)}.`);
+}
+function tryFs(n) {
+  const id = "fs-" + n, l = id + ".lug", o = id + ".other";
+  const job = ["", "bypass toggles", "the next page opens", "the a/b compare switches"][n];
+  if (!R(o)) return say(`${id} pressed: nothing. Its other lug needs the main ground chain.`);
+  if (R(l)) return say(`${id} pressed: ${job}. Works.`);
+  if (!(l in wires)) return say(`${id} pressed: nothing. Its lug isn't connected.`);
+  const own = OWNER[W(l)];
+  say(`${id} pressed: ${own ? `the pedal reacts as if ${nice(own)} changed` : "nothing (spare pin)"}. Its lug is on pin ${W(l)}.`);
+}
+function tryTouch() {
+  const ks = ["scr.10", "scr.11", "scr.12", "scr.13", "scr.14"], bad = ks.filter(k => !R(k));
+  say(bad.length ? `Touched the screen: nothing, or the wrong spot. Check ${bad.map(nice).join(", ")}.` : "Touched the screen: the tab under your finger opens. Works.");
+}
+function tryTone() {
+  const ins = R("in.tip") && R("in.ring"), outs = R("out.tip") && R("out.ring");
+  const gnd = R("in.sleeve") && R("out.sleeve") && wires["chain.A"] === 20;
+  if (W("in.tip") === 18 || W("out.tip") === 16) return say("Played a tone: silence. IN and OUT are swapped.");
+  if (!ins || !outs) {
+    const sw = (W("in.tip") === 17 && W("in.ring") === 16) || (W("out.tip") === 19 && W("out.ring") === 18);
+    return say(sw ? "Played a tone: it comes out, but left and right are swapped." : "Played a tone: one or both sides are missing. Check the tip / ring wires.");
+  }
+  say(gnd ? "Played a tone: clean, both sides, no hum. Works." : "Played a tone: it comes through, but with hum. A jack sleeve or the audio chain jumper is off.");
+}
+function buildTry() {
+  const kn = document.getElementById("tryKnobs"), ot = document.getElementById("tryOther");
+  for (let n = 1; n <= 4; n++) {
+    const b1 = document.createElement("button"); b1.textContent = `turn pg-${n}`; b1.onclick = () => tryKnob(n); kn.appendChild(b1);
+    const b2 = document.createElement("button"); b2.textContent = `push pg-${n}`; b2.onclick = () => tryPush(n); kn.appendChild(b2);
+  }
+  for (let n = 1; n <= 3; n++) { const b = document.createElement("button"); b.textContent = `press fs-${n}`; b.onclick = () => tryFs(n); ot.appendChild(b); }
+  const t = document.createElement("button"); t.textContent = "touch screen"; t.onclick = tryTouch; ot.appendChild(t);
+  const a = document.createElement("button"); a.textContent = "play a tone"; a.onclick = tryTone; ot.appendChild(a);
+}
+
+// ---------------------------------------------------------------- saving your bench (this browser only)
+function save() { try { localStorage.setItem("pg1-bench", JSON.stringify(wires)); } catch (e) {} }
+function load() { try { const s = JSON.parse(localStorage.getItem("pg1-bench") || "{}"); for (const k in s) if (TERMS[k]) wires[k] = s[k]; } catch (e) {} }
+
+document.getElementById("hintBtn").onclick = e => { hints = !hints; e.currentTarget.setAttribute("aria-pressed", hints); refresh(); if (selected) pick(selected), pick(selected); };
+document.getElementById("checkBtn").onclick = e => { instant = !instant; e.currentTarget.setAttribute("aria-pressed", instant); refresh(); };
+document.getElementById("powerBtn").onclick = power;
+document.getElementById("clearBtn").onclick = () => { wires = {}; selected = null; powered = false; save(); refresh(); document.getElementById("list").innerHTML = ""; document.getElementById("try").hidden = true;
+  document.getElementById("screen").className = "screen off"; document.getElementById("screen").innerHTML = '<div class="bar"><span>pg audio pg-1</span><span class="chip">off</span></div><div class="body"><div class="big" style="color:#555">Not powered yet.</div></div>'; };
+document.getElementById("answerBtn").onclick = () => { for (const k of KEYS) wires[k] = TERMS[k].term.want; save(); refresh(); power(); };
+
+draw(); buildTry(); load();
+// a first look with something to see: if the bench is empty, start with the jacks and 9V wired (as an example)
+if (!Object.keys(wires).length) {
+  wires = {"in.tip": 16, "in.ring": 17, "in.sleeve": "A", "out.tip": 19, "out.ring": 18, "9v.plus": 39};
+  document.getElementById("hintLine").textContent = "Example start: the jacks and 9V + are wired, with one mistake on purpose. Press Clear to wire from scratch.";
+}
+refresh(); power();
+</script>

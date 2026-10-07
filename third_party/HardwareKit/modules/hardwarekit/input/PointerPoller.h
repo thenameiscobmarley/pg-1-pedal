@@ -1,0 +1,36 @@
+#pragma once
+
+#include <memory>
+
+namespace hwk::input
+{
+    /** Reads the pointer position straight from the X server, on whichever thread calls it.
+
+        Plugin hosts (e.g. Carla's VST3 bridge) pump the plugin's UI event queue at their own,
+        often uneven, rate. Polling the pointer once per rendered frame on the render thread
+        keeps parallax motion smooth regardless of how late mouse events are delivered.
+        Uses a private X connection, so it never contends with JUCE's own.
+    */
+    class PointerPoller
+    {
+    public:
+        PointerPoller();
+        ~PointerPoller();
+
+        /** window = native X11 window of the editor's peer.
+            Returns false if unavailable (no X server, window gone, pointer on another screen). */
+        bool query (unsigned long window, int& windowX, int& windowY) noexcept;
+
+        /** Same, also reporting the left button and Shift/Ctrl state. */
+        bool query (unsigned long window, int& windowX, int& windowY, bool& leftDown, bool& fineModifier) noexcept;
+
+        /** True when `window` (or one of its children) is the topmost window under the pointer.
+            The X server reports button state globally, so check this before acting on a press:
+            clicks in another application that happens to cover the plugin must not turn its knobs. */
+        bool isTopmostUnderPointer (unsigned long window) noexcept;
+
+    private:
+        struct Impl;
+        std::unique_ptr<Impl> impl;
+    };
+}

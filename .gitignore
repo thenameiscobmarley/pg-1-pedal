@@ -1,0 +1,7 @@
+build/
+*.log
+__pycache__/
+venv/
+*.ppm
+PG-Pedal-1/06-Firmware-DaisySeed/pg1/build/
+PG-Pedal-1/10-Carla-Plugin/build/

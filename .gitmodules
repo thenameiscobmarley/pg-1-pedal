@@ -1,0 +1,6 @@
+[submodule "PG-Pedal-1/06-Firmware-DaisySeed/libDaisy"]
+	path = PG-Pedal-1/06-Firmware-DaisySeed/libDaisy
+	url = https://github.com/daisyaudio/libDaisy.git
+[submodule "PG-Pedal-1/06-Firmware-DaisySeed/DaisySP"]
+	path = PG-Pedal-1/06-Firmware-DaisySeed/DaisySP
+	url = https://github.com/electro-smith/DaisySP.git
