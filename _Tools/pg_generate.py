@@ -536,7 +536,7 @@ def write_interior():
         p.append(f'<rect x="{X(0)}" y="{-sy-0.8}" width="{WALL+2.4}" height="1.6" fill="#888"/>')
         p.append(f'<rect x="{X(-WALL)}" y="{-sy-2.75}" width="2.4" height="5.5" fill="#999"/>')
     p.append(f'<rect x="{X(-JMP_L)}" y="{-(SEED_Y+25.4)}" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
-    for k_, (t_, c_) in enumerate([("Seed3", "#fff"), ("plugs into", "#fff"), ("40 jumper", "#fff"), ("ends, hot-", "#fff"), ("glued into", "#fff"), ("a block", "#fff")]):
+    for k_, (t_, c_) in enumerate([("Seed3", "#fff"), ("plugs into", "#fff"), ("its jumper", "#fff"), ("ends, hot-", "#fff"), ("glued into", "#fff"), ("a block", "#fff")]):
         p.append(text(X(-JMP_L / 2), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
     p.append(text(X(-JMP_L - 5), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
     p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))

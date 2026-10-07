@@ -30,11 +30,11 @@ The female end of every jumper wire is a small plastic shell exactly 2.54 mm wid
 
 1. (Optional key) snip pin 1 off the Seed3, see "Key it" below.
 2. Lay the Seed3 on a soft cloth, parts side down, pins up.
-3. Push a jumper end onto **every** pin, using `seed-socket-board.png` for the places. All 40 get one, even unused pins
-   (those are your spare / expansion wires: coil them up, their ends are already insulated). If you keyed it, fill the place-1 jumper end with a dab of glue.
+3. Push a jumper end onto every **used** pin, using `seed-socket-board.png` for the places (34 of them). The unused places (1, 21, 34, 35, 36, 37)
+   can stay empty: the glue bridges the gaps. If you keyed it, put a spare jumper end on place 1 and fill it with a dab of glue.
    A few at a time works well: push 3 on, label each wire with a tape flag (its pin number), tack them to their neighbours with a small dab of glue, then the next 3.
    Keep glue on the **backs and sides** of the plastic ends only, never in the front where the pins go.
-4. When all 40 are on, do one full pass: a line of glue in the gap between the two rows and along the outside of each row, so it's one solid block. Let it cool 10 minutes.
+4. When they're all on, do one full pass: a line of glue in the gap between the two rows and along the outside of each row, so it's one solid block. Let it cool 10 minutes.
 5. Pull the Seed3 off. You now have a 2 x 20 socket block with 40 labelled wires.
 6. Fit it: take the lid off the pedal and lay it face down: the inside is an open tray, so the left wall is right in front of you.
    Push the block into the window **from inside** (wires trailing into the box) until its front is level with the outside of the wall.

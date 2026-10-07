@@ -1,37 +1,48 @@
-# PG-1 Amazon shopping list (everything Tayda doesn't sell)
+# PG-1 shopping list for a $150 budget
 
-Type the **search words** into Amazon and pick one with good reviews. Prices are rough.
-The Tayda cart (`tayda-cart-import.csv`) already has the box, screen, knobs, switches, jacks, wires, screws and the soldering iron.
+## The whole budget
+
+| What | Where | ~$ |
+|---|---|---:|
+| Parts cart (`tayda-cart-import.csv`, 13 lines) | Tayda | 43.34 |
+| Drilling ($4.50) + face UV print ($3.50) | drill.taydakits.com | 8.00 |
+| Tayda shipping (shown at checkout, depends on speed) | Tayda | ~8 |
+| Daisy **Seed3** with headers + shipping | electro-smith.com | ~36 |
+| Soldering kit **with multimeter** | Amazon | ~25 |
+| 9V pedal power supply | Amazon | ~10 |
+| Ground loop isolator | Amazon | ~10 |
+| 3.5 mm → 1/4" TRS stereo cable | Amazon | ~8 |
+| 1/4" → 3.5 mm stereo adapter | Amazon | ~5 |
+| Mini glue gun + sticks | dollar store / Walmart | ~3 |
+| **Total** | | **~$156** |
+
+That's a few dollars over, so pick from these:
+- **Skip the flux pen** (not in the total above). The solder already has flux inside its core; the pen only makes it a bit easier.
+- **Already have a 9V center-negative pedal supply?** Then skip it (-$10).
+- **Already have a multimeter?** Then get the kit without one (about -$8).
+- **Shipping:** choose the slowest, cheapest option at Tayda and Electrosmith.
 
 ## 1. The brain (not from Amazon)
-- [ ] **Daisy Seed3, with headers** (~$30): buy from **electro-smith.com** (Electrosmith, the maker) or one of their dealers.
+- [ ] **Daisy Seed3, with headers** (~$30 + shipping): buy from **electro-smith.com** (Electrosmith, the maker).
   On Amazon it's often an old version (Seed rev 4/5/7) or resold. Make sure it says **Seed3** and **with headers**.
 
-## 2. Must buy
-- [ ] **9V power supply**: search `9V DC pedal power supply center negative 1A` (~$10-15). Must say **center negative**, 2.1 mm plug, 300 mA or more.
-- [ ] **Solder**: search `Kester 44 63/37 rosin core solder 0.8mm` (or MG Chemicals 4895) (~$12-20).
-- [ ] **Flux pen**: search `MG Chemicals 8341 no clean flux pen` (or Kester 951 flux pen) (~$10).
-- [ ] **Tip cleaner**: search `brass wool soldering tip cleaner` (~$8).
-- [ ] **Hot glue gun**: search `high temp mini hot glue gun dual temp` + `mini hot glue sticks` (~$10-20). Get the stick size the gun says (mini = 7 mm).
-- [ ] **Safety glasses**: search `safety glasses clear` (~$8). Flux can spit.
-
-## 3. Only if you don't have one
-- [ ] **USB-C PD charger, 65 W or more** for the soldering iron: search `65W USB C PD charger` (~$20). A USB-C laptop charger usually works already. A phone charger is too weak.
-- [ ] **Multimeter** (beep mode to test every wire): search `AstroAI multimeter` (~$15-25).
-- [ ] **Wire strippers + flush cutters**: search `wire stripper 20-30 AWG` and `flush cutter` (~$10 each).
-- [ ] **Hex keys** 1.5 mm (knob set screws) + 2.5 mm (M3 screws): search `metric hex key set` (~$8).
-- [ ] **Small wrench set** 10-14 mm, or one adjustable wrench (jack and footswitch nuts) (~$10).
-- [ ] **Helping hands** (holds parts while you solder, optional): search `helping hands soldering` (~$12).
-
-## 4. Hooking it up to your Fifine SC3
+## 2. Amazon: type the search words, pick one with good reviews
+- [ ] **Soldering kit**: search `soldering iron kit 60W adjustable temperature with multimeter` (~$25).
+  It plugs straight into a normal 120 V outlet. Make sure the kit has: a **temperature dial**, a **stand**, a **tip cleaner** (sponge or brass),
+  **solder**, **wire strippers** and the **multimeter**. Set the dial with the temperature table in `WIRING.md`.
+- [ ] **9V power supply**: search `9V DC pedal power supply center negative` (~$10). Must say **center negative**, 2.1 mm plug, 300 mA or more.
 - [ ] **Ground loop isolator** (keeps the pedal electrically apart from the SC3 / PC): search `3.5mm ground loop noise isolator` (~$10).
 - [ ] **3.5 mm to 1/4" stereo cable**: search `3.5mm to 1/4 TRS stereo cable male to male` (~$8). Must say **TRS / stereo**.
 - [ ] **1/4" to 3.5 mm adapter** (pedal OUT → headset): search `1/4 male to 3.5mm female stereo adapter` (~$5).
 
-## 5. Optional
-- [ ] **Powered speakers** for a safe first test: search `Creative Pebble speakers` (~$25).
-- [ ] **Insert Y-cable** (pedal OUT → a mixer's 2 inputs): search `1/4 TRS to dual 1/4 TS insert cable` (~$8).
+## 3. Dollar store / Walmart (cheaper than Amazon for these)
+- [ ] **Mini hot glue gun + mini glue sticks** (~$3).
+- [ ] Any clear glasses to wear while soldering (your own glasses count).
 
-**Later, only for the soldered socket upgrade (way 2):** a pin vise or cheap hand drill + a 3 mm drill bit (~$10).
+## 4. Nice to have, if money is left
+- [ ] **Flux pen**: search `MG Chemicals 8341 no clean flux pen` (~$10).
+- [ ] **Better solder** than the kit's: search `Kester 44 63/37 rosin core solder 0.8mm` (~$12). The kit's solder works for this build.
+- [ ] Powered speakers for a first test, e.g. Creative Pebble (~$25).
 
-Rough total for sections 2 + 4: about $80-100, plus the Seed3.
+Tools you probably have at home: a small adjustable wrench (jack and footswitch nuts), a hair dryer.
+The knob set screws need a 1.5 mm hex key and the M3 screws a 2.5 mm one: check that the kit or a drawer has them.
