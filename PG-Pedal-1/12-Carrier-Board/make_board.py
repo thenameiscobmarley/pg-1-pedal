@@ -35,7 +35,7 @@ OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (28.0, 43.0), (28.0, 28.0), 
 FLANGE = 1.4                           # jack front flange: its front sits on the wall, the footprint origin is its back
 JACKS = {"J1": -42.0, "J2": 0.0, "J3": 21.0, "J4": 42.0}
 # headers: (first pin x, row y, side). Right-angle ones on the bottom point off the lower edge (jumpers lie flat).
-HEADERS = {"J19": (-14.5, 30.0, "B"), "J20": (-32.6, 30.0, "B"), "J10": (8.0, 30.0, "B"), "J9": (-22.27, 47.0, "F")}
+HEADERS = {"J19": (-14.5, 30.0, "B"), "J20": (-32.6, 30.0, "B"), "J10": (8.6, 30.0, "B"), "J9": (2.2, 30.0, "B")}
 HEADER_PINS = {   # printed beside each pin
     "J10": ["in l", "in r", "out l", "out r", "agnd", "9v", "dgnd"],
     "J19": ["bus l", "hp l", "gnd", "bus r", "hp r", "gnd"],
@@ -302,6 +302,12 @@ class Placer:
 
 
 # ---------------------------------------------------------------- silk
+def fbox(bb):
+    """a KiCad box -> (x0, y0, x1, y1) in face coordinates"""
+    (ax, ay), (bx, by) = face(bb.GetOrigin()), face(bb.GetEnd())
+    return min(ax, bx), min(ay, by), max(ax, bx), max(ay, by)
+
+
 def text(b, s, x, y, size=1.0, layer=K.B_SilkS, rot=0, just=0):
     t = K.PCB_TEXT(b)
     t.SetText(s), t.SetLayer(layer), t.SetPosition(kpt(x, y))
@@ -312,6 +318,7 @@ def text(b, s, x, y, size=1.0, layer=K.B_SilkS, rot=0, just=0):
     if layer == K.B_SilkS:
         t.SetMirrored(True)
     b.Add(t)
+    return t
 
 
 def edge_keepout(b, width=0.5):
@@ -344,7 +351,7 @@ def zone(b, net, layer):
         ol.Append(kpt(x, y))
     z.SetLocalClearance(K.FromMM(0.3)), z.SetMinThickness(K.FromMM(0.25))
     z.SetThermalReliefGap(K.FromMM(0.3)), z.SetThermalReliefSpokeWidth(K.FromMM(0.45))
-    z.SetPadConnection(K.ZONE_CONNECTION_THERMAL)
+    z.SetPadConnection(K.ZONE_CONNECTION_THT_THERMAL)   # solid to SMD pads (a fine-pitch pad only fits one spoke)
     b.Add(z)
     return z
 
@@ -380,22 +387,20 @@ def main():
         put(fps[ref], x, WALL_IN - FLANGE, 0, "F")
     for ref, (x, y, side) in HEADERS.items():
         fp = fps[ref]
-        put(fp, x, y, fixed_rot(fp, side, "down" if side == "B" else "up"), side)
-        if side == "B":   # its body and the pin labels beside it
-            x0, y0, x1, y1 = (lambda bb: (*face(bb.GetOrigin()), *face(bb.GetEnd())))(fp.GetBoundingBox(False))
-            obstacles.append((min(x0, x1) - 0.3, min(y0, y1), max(x0, x1) + 0.3, y + 3.6))
-        n = len(HEADER_PINS[ref])
-        for k, lab in enumerate(HEADER_PINS[ref]):
-            px = x + 2.54 * k
-            if side == "B":
-                text(b, lab, px, y + 1.6, 0.8, K.B_SilkS, 90, -1)
-            else:
-                text(b, lab, px, y - 1.8, 0.8, K.F_SilkS)
-        title_y = y + 3.6 if side == "B" else y + 1.8
-        text(b, HEADER_TITLE[ref], x + 2.54 * (n - 1) / 2, title_y + 1.0 if side == "B" else title_y + 0.8, 0.9,
-             K.B_SilkS if side == "B" else K.F_SilkS)
-        if side == "B":
-            obstacles[-1] = (obstacles[-1][0], obstacles[-1][1], obstacles[-1][2], title_y + 1.7)
+        put(fp, x, y, fixed_rot(fp, side, "down"), side)
+        fp.BuildCourtyardCaches()
+        x0, y0, x1, y1 = fbox(fp.GetCourtyard(K.B_CrtYd).BBox())
+        for g in fp.GraphicalItems():   # its own outline crosses the edge and the labels: the square pad marks pin 1
+            if g.GetLayer() in (K.F_SilkS, K.B_SilkS):
+                g.SetLayer(K.B_Fab)
+        top = y + 0.85 + 0.45   # just past the pads
+        for k, lab in enumerate(HEADER_PINS[ref]):   # the pin names, reading up from each pin
+            t = text(b, lab, x + 2.54 * k, top + 2, 0.8, K.B_SilkS, 90)
+            t.Move(K.VECTOR2I(0, -K.FromMM(top - fbox(t.GetBoundingBox())[1])))
+            top_k = fbox(t.GetBoundingBox())[3]
+            y1 = max(y1, top_k)
+        t = text(b, HEADER_TITLE[ref], x + 2.54 * (len(HEADER_PINS[ref]) - 1) / 2, y1 + 1.2, 0.9)
+        obstacles.append((x0 - 0.3, y0, x1 + 0.3, fbox(t.GetBoundingBox())[3] + 0.3))
     for ref, fp in fps.items():
         if ref in JACKS or ref in HEADERS:
             for p in fp.Pads():
@@ -403,9 +408,9 @@ def main():
                 fixed_pads[(ref, p.GetNumber())] = (px, py)
                 sz = K.ToMM(p.GetSize(K.F_Cu).x) / 2 + 0.35 if hasattr(p, "GetSize") else 1.5
                 obstacles.append((px - sz, py - sz, px + sz, py + sz))
-    for ref, x in JACKS.items():
-        text(b, JACK_NAME[ref], x, 49.0, 1.0)
-    text(b, "pg-1 carrier v2", 44.0, 44.8, 1.0)
+    for t in [text(b, JACK_NAME[ref], x, 49.0, 1.0) for ref, x in JACKS.items()] + [text(b, "pg-1 carrier v2", 44.0, 44.8, 1.0)]:
+        bx = fbox(t.GetBoundingBox())   # the parts keep off the printing
+        obstacles.append((bx[0] - 0.3, bx[1] - 0.3, bx[2] + 0.3, bx[3] + 0.3))
 
     # 2. everything else on the bottom
     movable = [r for r in fps if r not in JACKS and r not in HEADERS]

@@ -1,5 +1,5 @@
 Item #,Designator,Qty,Manufacturer,Mfg Part #,Description / Value,Package/Footprint,Type,Your Instructions / Notes
-1,J9,1,any,,9V in,PinHeader_1x02_P2.54mm_Vertical,THT,"2.54 mm male header, any brand: please fit and solder"
+1,J9,1,any,,9V in,PinHeader_1x02_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
 2,F1,1,Bourns,MF-NSMF030X-2,PTC 300mA,Fuse_1206_3216Metric,SMD,
 3,D1,1,onsemi,SS34,SS34,D_SMA,SMD,
 4,D2,1,Littelfuse,SMAJ12A,SMAJ12A,D_SMA,SMD,

@@ -1,5 +1,5 @@
 Comment,Designator,Footprint,LCSC Part #
-9V in,J9,PinHeader_1x02_P2.54mm_Vertical,C32713268
+9V in,J9,PinHeader_1x02_P2.54mm_Horizontal,C32713261
 PTC 300mA,F1,Fuse_1206_3216Metric,C19193041
 SS34,D1,D_SMA,C8678
 SMAJ12A,D2,D_SMA,C113957

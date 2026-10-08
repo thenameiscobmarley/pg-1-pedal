@@ -32,7 +32,8 @@ JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"   # PG1.pretty, drawn from the A-1122 da
 VSON10 = MSOP8EP = ""  # (only the full version uses these)
 
 # ---------------------------------------------------------------- power (one 9 V supply)
-P("J9", "9V in", HDR(2), "", {1: "+9V_RAW", 2: "GND"}, "upright, on the jack side right behind the panel DC jack (centre negative: centre pin -> GND here)")
+P("J9", "9V in", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal", "", {1: "+9V_RAW", 2: "GND"},
+  "right-angle, on the parts side with the others; 2 wires from the panel DC jack (centre negative: centre pin -> GND here)")
 P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "MF-NSMF030X-2", {1: "+9V_RAW", 2: "+9V_F"})
 P("D1", "SS34", "Diode_SMD:D_SMA", "SS34", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection (cathode = pin 1)")
 P("D2", "SMAJ12A", "Diode_SMD:D_SMA", "SMAJ12A", {1: "+9V", 2: "GND"}, "surge clamp")

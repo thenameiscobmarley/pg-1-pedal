@@ -26,7 +26,7 @@ LCSC = {  # (value, footprint name) -> JLCPCB part
     ("seed audio", "PinHeader_1x07_P2.54mm_Horizontal"): "C32713266",
     ("pg-hp", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
     ("pg-line", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
-    ("9V in", "PinHeader_1x02_P2.54mm_Vertical"): "C32713268",
+    ("9V in", "PinHeader_1x02_P2.54mm_Horizontal"): "C32713261",
 }
 SKIP = {"J1", "J2", "J3", "J4"}   # 6.35 mm jacks: not stocked, fitted by hand (Tayda A-1122)
 

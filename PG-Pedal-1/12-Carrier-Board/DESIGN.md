@@ -33,7 +33,7 @@ jumper block, as in v1.
 - **seed3** 1×7, right-angle, on the lower edge of the tongue: in l, in r, out l, out r, agnd, 9v, dgnd
   (the Seed3's pins 16, 17, 18, 19, 20, 39, 40).
 - **pg-hp** and **pg-line** 1×6 each, right-angle, same edge: bus l, wiper l, gnd, bus r, wiper r, gnd (the dual pots).
-- **9v** 1×2, upright on the jack side, right behind the panel DC jack (+, −).
+- **9v** 1×2, right-angle, same edge (+, −): two wires from the panel DC jack.
 - The right-angle headers sit on the parts side and point off the board's lower edge, so the jumpers lie flat between
   the board and the lid. The pin names are printed beside each pin.
 
@@ -48,7 +48,7 @@ jumper block, as in v1.
 ## Status
 - [x] circuit and levels (this file)
 - [x] board: `python3 make_board.py` (KiCad 10 + Freerouting) places, routes, pours and checks it, and writes `pcbway/`
-      (result: every connection routed, 0 DRC errors; only silkscreen warnings, e.g. header outlines past the edge)
+      (result: every connection routed, 0 DRC errors, 0 warnings; no printing over pads)
 - [ ] order (below)
 
 ## Ordering at JLCPCB (easier, chosen)
