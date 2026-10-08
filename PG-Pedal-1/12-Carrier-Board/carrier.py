@@ -42,6 +42,8 @@ P("J10", "seed3 + 9v", HDR_RA(10), "",
   {1: "+9V_RAW", 2: "GND", 3: "+9V", 4: "GND", 5: "SEED_SCL", 6: "SEED_SDA", 7: "SEED_SCK", 8: "SEED_FS", 9: "SEED_TX", 10: "SEED_RX"},
   "2 wires from the panel DC jack (centre negative: centre -> pin 2), then 8 jumpers to the Seed3: 39 VIN, 40 DGND, "
   "12 SCL, 13 SDA, 35 SAI2 SCK, 34 SAI2 FS, 33 SAI2 SD A (Seed3 out), 32 SAI2 SD B (Seed3 in)")
+P("J21", "expansion", HDR_RA(4), "", {1: "+3V3", 2: "GND", 3: "SEED_SCL", 4: "SEED_SDA"},
+  "the module bay in the left wall: 3.3 V, ground and the Seed3's I2C (buttons / switches / faders on I2C chips)")
 P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "1206L030/24NR", {1: "+9V_RAW", 2: "+9V_F"})
 P("D1", "B5819W", "Diode_SMD:D_SOD-123", "B5819W", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection, 1 A (cathode = pin 1)")
 P("D2", "SMAJ12A", "Diode_SMD:D_SMA", "SMAJ12A", {1: "+9V", 2: "GND"}, "surge clamp")
@@ -143,12 +145,30 @@ for k, ch in enumerate("LR"):
 for k, ch in enumerate("LR"):
     n = lambda s: f"{s}_{ch}"
     b = 50 + 10 * k
-    P(f"C{b}", "4.7uF", C0805, "CL21A475KAQNNNE", {1: n("LO"), 2: n("OUT_A")})
+    P(f"C{b}", "4.7uF", C0805, "CL21A475KAQNNNE", {1: n("ABUF"), 2: n("OUT_A")})
     P(f"R{b+1}", "1k", R0603, "", {1: n("OUT_A"), 2: n("GOUT_A")})
     P(f"R{b+2}", "1k", R0603, "", {1: n("GOUT_B"), 2: n("OUT_G")})
     P(f"C{b+2}", "100pF C0G", C0603, "", {1: n("GOUT_W"), 2: n("OUT_G")}, "keeps the stage calm with the pot on wires")
     P(f"C{b+1}", "1uF", C0603, "", {1: n("OUT_G"), 2: n("HPIN")})
     P(f"R{b}", "1", R0603, "", {1: n("HPO"), 2: n("JOUT")})
+# ---------------------------------------------------------------- the analog effect (DSP-controlled, can only cut)
+# codec line out -> MCP4461 pot 0 (pot 2 for R) = attenuator between the signal and 1.65 V (the "VCA": the DSP turns it DOWN for
+# analog compression / level) -> pot 1 (3) = rheostat into 10 nF C0G (an analog low-pass from ~1.6 kHz to fully open) ->
+# TLV9062 rail-to-rail buffer -> the pg-hp stage. Its top settings are unity gain and fully open: a glitch can only
+# make it quieter or duller, never louder. Non-volatile: it powers up at whatever the firmware stored (unity / open).
+# MCP4461 (quad, TSSOP-20; datasheet DS22265 table 3-1): pot 0 / 1 = left attenuator / filter, pot 2 / 3 = right.
+# I2C 0x2C (A1 = A0 = 0), the codec's bus. WP low (EEPROM writable), RESET high.
+P("U13", "MCP4461-103", "Package_SO:TSSOP-20_4.4x6.5mm_P0.65mm", "MCP4461-103E/ST",
+  {1: "ATT_R", 2: "FLT_R", 4: "IGND", 5: "ISCL", 6: "ISDA", 7: "IGND", 9: "FLT_L", 10: "ATT_L", 11: "LO_L", 12: "ATT_L",
+   13: "IBIAS", 14: "IGND", 15: "ISO3V3", 16: "IGND", 17: "ISO3V3", 18: "IBIAS", 19: "ATT_R", 20: "LO_R"},
+  "I2C 0x2C; pot 0 / 2 = attenuators (L / R), pot 1 / 3 = filter rheostats (B ends open)")
+P("C75", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "at the MCP4461")
+for ch in "LR":
+    P(f"C{74 if ch == 'L' else 76}", "10nF C0G", C0603, "", {1: f"FLT_{ch}", 2: "IBIAS"}, "the filter's capacitor (C0G: clean)")
+P("U15", "TLV9062", "Package_SO:VSSOP-8_3x3mm_P0.65mm", "TLV9062IDGKR",
+  {1: "ABUF_L", 2: "ABUF_L", 3: "FLT_L", 4: "IGND", 5: "FLT_R", 6: "ABUF_R", 7: "ABUF_R", 8: "ISO3V3"},
+  "rail-to-rail buffers after the analog effect (on the clean 3.3 V)")
+P("C78", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "at the TLV9062")
 P("J19", "pg-hp", HDR_RA(6), "", {1: "GOUT_A_L", 2: "GOUT_W_L", 3: "GOUT_B_L", 4: "GOUT_A_R", 5: "GOUT_W_R", 6: "GOUT_B_R"},
   "isolated side: pg-hp, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
 P("U10", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR",
@@ -167,10 +187,16 @@ P("D61", "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: "JIN_L",
 P("J2", "out", JACK, "NMJ6HFD2", {"T": "JOUT_L", "R": "JOUT_R", "S": "IGND"}, "isolated output: headphones or line")
 P("D62", "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: "JOUT_L", 2: "JOUT_R", 3: "IGND"})
 
+# small resistors and capacitors in 0402 (JLCPCB basic parts; the board shrank to clear the box's corner posts),
+# except the two values JLCPCB only stocks as basic parts in 0603
+R0402, C0402 = "Resistor_SMD:R_0402_1005Metric", "Capacitor_SMD:C_0402_1005Metric"
+parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") else C0402 if fp == C0603 else fp), m, pins, n)
+            for r, v, fp, m, pins, n in parts]
+
 NET_ALIASES = {}
 ISOLATED = {"HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBYP", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
             "BCLK", "WCLK", "DIN", "DOUT", "BCLK_X", "WCLK_X", "DIN_X", "DOUT_X"} | \
-           {f"{s}_{c}" for s in ("JIN", "IN_A", "IN_B", "IN_C", "IN_D", "IN_E", "IN_G", "GIN_A", "GIN_W", "GIN_B", "CIN2", "LO",
+           {f"{s}_{c}" for s in ("JIN", "IN_A", "IN_B", "IN_C", "IN_D", "IN_E", "IN_G", "GIN_A", "GIN_W", "GIN_B", "CIN2", "LO", "ATT", "FLT", "ABUF",
                                  "OUT_A", "GOUT_A", "GOUT_W", "GOUT_B", "OUT_G", "HPIN", "HPO", "JOUT")
             for c in "LR"}
 

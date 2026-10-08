@@ -31,54 +31,67 @@ TOP = WALL_IN - 0.25                   # board edge just short of the wall
 # 14-pin header and the Seed3 block on the right)
 STRIP = (-55.5, 43.0, 55.5, TOP)       # x0, y0, x1, y1
 TONGUE = (-34.0, 12.0, 30.0, TOP)
-OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (30.0, 43.0), (30.0, 12.0), (-34.0, 12.0), (-34.0, 43.0), (-55.5, 43.0)]
+# the top corners are notched round the box's lid-screw posts (Hammond 1590XX: centred at +-51 / +-63, up to ~5.5 mm
+# round): nothing of the board is above y 57 outside +-45
+POST_X, POST_Y = 45.0, 57.0
+OUTLINE = [(-POST_X, TOP), (POST_X, TOP), (POST_X, POST_Y), (55.5, POST_Y), (55.5, 43.0), (30.0, 43.0), (30.0, 12.0),
+           (-34.0, 12.0), (-34.0, 43.0), (-55.5, 43.0), (-55.5, POST_Y), (-POST_X, POST_Y)]
 # TWO WORLDS: the ISOLATED side (both jacks, codec, input buffer; ground IGND) is the strip under the jacks; the PEDAL
 # side (9 V, regulators, knob reader; ground GND) is the tongue below it. Between them runs a strip with no copper at
 # all (BARRIER), crossed only by the three barrier parts (isolated power, I2S isolator, I2C isolator).
 BARRIER = (29.05, 29.95)               # y range of the no-copper strip
-DOMAIN_RECTS = {"iso": [(STRIP[0], STRIP[1], STRIP[2], TOP), (TONGUE[0], BARRIER[1] + 0.4, TONGUE[2], TOP)],
+DOMAIN_RECTS = {"iso": [(-POST_X, STRIP[1], POST_X, TOP), (STRIP[0], STRIP[1], STRIP[2], POST_Y),
+                        (TONGUE[0], BARRIER[1] + 0.4, TONGUE[2], TOP)],
                 "ped": [(TONGUE[0], TONGUE[1], TONGUE[2], BARRIER[0] - 0.4)]}
-BARRIER_PARTS = {"U4": -1.5, "U5": 8.5, "U3": 14.8}   # x of each, centred on the barrier
+BARRIER_PARTS = {"U4": -1.5, "U5": 8.5, "U3": 21.0}   # U3: its body may sit either side of its pins (5.6 mm)   # x of each, centred on the barrier
 # On the isolated side: INPUT on the left (as you look at the pedal's face), OUTPUT on the right, the codec between them.
 DIVIDE = 0.0
 # every part belongs to one job, and the parts of a job sit together in a printed box (title on top);
 # arrows between the boxes show the signal's path. (name, x range it may use, where it starts, parts)
 GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its title, where it starts, parts)
-    # isolated side (the strip between the jack bodies + the tongue above the barrier): input | codec | power / output
-    ("input", [(-30.0, 34.4, -8.4, 69.9)], (-19.0, 52.0), "R30 R31 R32 R33 R34 R35 R36 R37 C30 C31 C32 C33 "
-                                                         "R40 R41 R42 R43 R44 R45 R46 R47 C40 C41 C42 C43 U8 C26 U11 C27 D61"),
-    ("codec", [(-6.9, 34.4, 5.8, 69.9)], (-0.5, 52.0), "U9 C18 C19 C20 C21 C22 C23 C24 C25 R8 R9 R10 R11 R12 R13 R14"),
-    ("output", [(7.3, 47.5, 30.0, 69.9)], (21.0, 60.0), "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 "
-                                                       "U10 C70 C71 C72 R70 C73 D62"),
-    ("iso power", [(7.3, 34.4, 29.5, 46.0)], (19.0, 40.0), "U7 C13 C14 C15 R5 C16 R6 R7 C17"),
+    # isolated side: the strip between the jack bodies + the tongue above the barrier. input | codec | output
+    ("input", [(-23.4, 46.6, -9.6, 69.9), (-33.5, 30.6, -9.6, 46.0)], (-20.0, 42.0),
+     "R30 R31 R32 R33 R34 R35 R36 R37 C30 C31 C32 C33 R40 R41 R42 R43 R44 R45 R46 R47 C40 C41 C42 C43 U8 C26 U11 C27 D61"),
+    ("codec", [(-8.4, 48.6, 5.4, 69.9)], (0.0, 58.0), "U9 C18 C19 C20 C21 C22 C23 C24 C25 R8 R9 R10 R11 R12 R13 R14"),
+    # the DSP-set analog effect (a quad digital pot: level + filter per side, and its buffer) between the codec and the output stage
+    ("analog fx", [(8.4, 36.4, 29.8, 47.1)], (19.5, 41.5), "U13 U15 C74 C75 C76 C78"),
+    ("output", [(6.0, 47.7, 23.4, 69.9)], (15.0, 58.0),
+     "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 U10 C70 C71 C72 R70 C73 D62"),
+    ("iso power", [(-9.0, 35.8, 8.0, 46.0)], (0.0, 41.0), "U7 C13 C14 C15 R5 C16 R6 R7 C17"),
     # the barrier parts (fixed) and their caps + the I2C pull-ups, both sides of it (its box is drawn round all of them)
-    ("isolation", [(-12.0, 30.35, 29.5, 33.6), (-6.0, 22.6, 29.5, 28.65)], (6.0, 29.5),
+    ("isolation", [(-12.0, 30.35, 29.5, 33.2), (9.6, 30.35, 29.5, 35.0), (-6.0, 22.6, 29.5, 28.65)], (6.0, 29.5),
      "U3 U4 U5 C7 C8 C9 C10 C11 C12 R3 R4"),
     # pedal side (the tongue below the barrier)
-    ("power", [(-33.5, 12.5, -7.5, 27.2), (-33.5, 12.5, -2.8, 22.6)], (-20.0, 20.0), "F1 D1 D2 C1 U1 C2 U2 C3 C5"),
+    ("power", [(-33.5, 12.2, -9.0, 28.4), (-33.5, 21.0, -2.8, 27.2)], (-21.0, 21.0), "F1 D1 D2 C1 U1 C2 U2 C3 C5"),
 ]
 GROUP_OF = {r: g for g, _, _, rs in GROUPS for r in rs.split()}
 # the signal's path, drawn as arrows: (from, to, both ways); a name is a group, a J-number a jack or header
-FLOW = [("J1", "input", False), ("input", "codec", False), ("codec", "output", False), ("output", "J2", False),
+FLOW = [("J1", "input", False), ("input", "codec", False), ("codec", "analog fx", False), ("analog fx", "output", False), ("output", "J2", False),
         ("codec", "isolation", True), ("isolation", "J10", True), ("output", "J19", True), ("input", "J20", True),
-        ("J10", "power", False)]
+        ("J10", "power", False), ("J21", "power", True)]
 BOX_M, BOX_TITLE = 0.75, 1.5            # printed box: this far round the parts, plus room for its title on top
 FONT = "IBM Plex Mono"                 # the pedal's own small-word font (installed to ~/.local/share/fonts)
-# Neutrik NMJ6HFD2 (same pins as the NMJ6HCD2, datasheet ST-NMJ6HCD2): body front on the wall, pins 4 / 10.35 / 16.7 mm
-# in from it, rows 16.23 apart, axis 8.14 mm above the board. KiCad's footprint has its origin on the T pin and the
-# front toward +x: turned 90 deg.
-JACK_T = (-8.115, 16.7)                # T pin from (jack axis, inside of the wall)
-JACKS = {"J1": -42.0, "J2": 42.0}
+# Neutrik NMJ6HFD2 (official drawing ST-NMJ6HFD2, 26.02.2021): body front on the inside of the wall, pins 4.35 / 10.7 /
+# 17.05 mm in from it, rows 16.23 apart (8.115 each side of the axis), axis 8.29 mm above the board, 24 mm long behind
+# the panel, panel hole 11.2 mm. KiCad's footprint has its origin on the T pin and the front toward +x: turned 90 deg.
+JACK_T = (-8.115, 17.05)               # T pin from (jack axis, inside of the wall)
+JACKS = {"J1": -34.0, "J2": 34.0}   # clear of the corner posts (see POST_X)
+# the panel DC jack (Tayda A-2237, ~12 mm threaded body, ~18 mm deep with its lugs) hangs over the board at x -13:
+# its body is only ~2.4 mm above the board, so under it only flat parts (0402 / 0603, <= 0.6 mm) may sit
+DC_ZONE = (-13.0 - 7.0, WALL_IN - 19.0, -13.0 + 7.0, TOP)
+FLAT = ("R_0402", "C_0402", "R_0603", "C_0603")
 # headers: (first pin x, row y, side). Right-angle, pointing off the lower edge (the jumpers lie flat).
-HEADERS = {"J10": (2.0, 14.0, "F"),                                # pedal side, tongue edge
-           "J20": (-53.5, 44.5, "F"),   # isolated side, under the in jack, next to the pots: pg-line (the sensitive one)
-           "J19": (33.6, 44.5, "F")}    # isolated side, under the out jack: pg-hp
+HEADERS = {"J10": (3.5, 14.0, "F"),                                # pedal side, tongue edge
+           "J21": (-7.4, 14.0, "F"),    # pedal side, left of J10: to the expansion bay in the left wall (jumper wires)
+           "J20": (-53.5, 44.2, "F"),   # isolated side, under the in jack, next to the pots: pg-line (the sensitive one)
+           "J19": (40.8, 44.2, "F")}    # isolated side, under the out jack: pg-hp
 HEADER_PINS = {   # printed beside each pin
     "J10": ["dc +", "dc -", "vin", "gnd", "scl", "sda", "sck", "fs", "tx", "rx"],
     "J19": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
     "J20": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
+    "J21": ["3v3", "gnd", "scl", "sda"],
 }
-HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "pg-hp", "J20": "pg-line"}
+HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "pg-hp", "J20": "pg-line", "J21": "expansion"}
 JACK_NAME = {"J1": "in (IN)", "J2": "out (OUT)"}
 JACK_NAME_X = {"J1": -36.6, "J2": 51.2}   # moved off the pot headers that sit under the jacks
 
@@ -89,7 +102,8 @@ EDGE = 0.2                             # courtyard to board edge / the barrier (
 NET_W = {"IGND": 0.12, "GND": 0.12, "ISO3V3": 0.5, "+3V3": 0.5, "+5V": 0.6, "+9V": 0.6, "IBIAS": 0.7}
 STICK = {"C26": "U8", "C24": "U9", "C23": "U9", "C19": "U9", "C20": "U9", "C21": "U9", "C22": "U9", "C18": "U9",
          "C4": "U6", "C9": "U4", "C10": "U4", "C11": "U5", "C12": "U5", "C13": "U7", "C14": "U7", "C15": "U7",
-         "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10"}   # keep these right at their chip
+         "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10",
+         "C75": "U13", "C78": "U15"}   # keep these right at their chip
 
 
 def kpt(x, y):
@@ -116,7 +130,7 @@ def make_board():
     nc = ds.m_NetSettings.GetDefaultNetclass()
     nc.SetTrackWidth(K.FromMM(TRACK)), nc.SetClearance(K.FromMM(CLEAR))
     nc.SetViaDiameter(K.FromMM(VIA)), nc.SetViaDrill(K.FromMM(DRILL))
-    ds.m_CopperEdgeClearance = K.FromMM(0.4)
+    ds.m_CopperEdgeClearance = K.FromMM(0.3)
     ds.SetAuxOrigin(kpt(STRIP[0], TONGUE[1]))   # the board's lower-left corner = 0,0 in the placement file
     ds.m_TrackMinWidth = K.FromMM(0.127)   # JLCPCB 2-layer standard: 5 mil
     for i, (x, y) in enumerate(OUTLINE):
@@ -189,6 +203,7 @@ class Placer:
         self.side = {r: "iso" if any(n in ISOLATED for n, cs in netlist.items() if any(c[0] == r for c in cs)) else "ped"
                      for r in geo}
         self.areas = {r: rects for g, rects, _, rs in GROUPS for r in rs.split()}
+        self.tall = set()   # parts too tall to sit under the DC jack (filled in by main)
         self.members = {g: [r for r in rs.split() if r in geo] for g, _, _, rs in GROUPS}
         self.target = {g: t for g, _, t, _ in GROUPS}
         self.gb, self.fov, self.extra = {}, {}, {}
@@ -234,6 +249,8 @@ class Placer:
 
     def free(self, b, skip=(), r=None):
         if not self.inside(b, r):
+            return False
+        if r is not None and r in self.tall and b[0] < DC_ZONE[2] and DC_ZONE[0] < b[2] and b[1] < DC_ZONE[3] and DC_ZONE[1] < b[3]:
             return False
         seen = set()
         for c in self.cells(b):
@@ -334,8 +351,8 @@ class Placer:
 
     # --- first placement: each part as close as it fits to what it's wired to
     def seed(self, order):
-        xs = [x / 2 for x in range(int(STRIP[0] * 2), int(STRIP[2] * 2) + 1)]
-        ys = [y / 2 for y in range(int(TONGUE[1] * 2), int(STRIP[3] * 2) + 1)]
+        xs = [x / 4 for x in range(int(STRIP[0] * 4), int(STRIP[2] * 4) + 1)]
+        ys = [y / 4 for y in range(int(TONGUE[1] * 4), int(STRIP[3] * 4) + 1)]
         for r in order:
             anchors = [self.pin(rr, q) for n in self.of[r] if NET_W.get(n, 1) >= 1 or r in STICK
                        for rr, q in self.nets[n] if rr != r]
@@ -350,7 +367,7 @@ class Placer:
                     self.set(r, x, y, rot)
                     break
             else:
-                sys.exit(f"{r} doesn't fit on the board")
+                sys.exit(f"{r} doesn't fit on the board ({GROUP_OF[r]}: " + ", ".join(f"{q} {tuple(round(v, 1) for v in self.box[q])}" for q in self.members[GROUP_OF[r]] if q in self.pos) + ") obstacles: " + str([tuple(round(v, 1) for v in o) for k, o in self.box.items() if k[0] == "ob" and o[0] < self.areas[r][0][2] and o[2] > self.areas[r][0][0] and o[1] < self.areas[r][0][3] and o[3] > self.areas[r][0][1]]))
 
     def anneal(self, moves=120000):
         rng = self.rng
@@ -481,7 +498,7 @@ def artwork(b):
     (the parts keep off them) and the jack names' boxes (the arrows start / end there)."""
     F = K.F_SilkS
     # each jack's name up the board's side edge, beside it (its pins and the pot headers keep the rest busy)
-    out = [text(b, JACK_NAME[r], STRIP[0] + 1.6 if x < 0 else STRIP[2] - 1.6, 57.0, 0.9, F, 90) for r, x in JACKS.items()]
+    out = [text(b, JACK_NAME[r], STRIP[0] + 1.6 if x < 0 else STRIP[2] - 1.6, 51.5, 0.9, F, 90) for r, x in JACKS.items()]
     labels = {r: fbox(t.GetBoundingBox()) for r, t in zip(JACKS, out)}
     out += [text(b, "IN", DIVIDE - 2.2, TOP - 1.3, 1.0, F),
             text(b, "OUT", DIVIDE + 2.6, TOP - 1.3, 1.0, F),
@@ -565,13 +582,49 @@ def draw_groups(b, pl, nodes):
     """a thin box round each job's parts with its name on top, and the arrows of the signal's path"""
     F = K.F_SilkS
     boxes = dict(nodes)
-    for g, _, _, _ in GROUPS:
+    for g, rects, _, _ in GROUPS:
         x0, y0, x1, y1 = pl.gbox(g)
+        boxes[g] = (x0, y0, x1, y1)
+        # an L-shaped job (two areas) gets an L-shaped frame: one box per area, joined, inside lines left out
+        subs = []
+        if g != "isolation" and len(rects) > 1:
+            for r in rects:
+                ps = [pl.box[m] for m in pl.members[g] if m in pl.box and r[0] <= (pl.box[m][0] + pl.box[m][2]) / 2 <= r[2]
+                      and r[1] <= (pl.box[m][1] + pl.box[m][3]) / 2 <= r[3]]
+                if ps:
+                    subs.append([min(q[0] for q in ps) - BOX_M, min(q[1] for q in ps) - BOX_M,
+                                 max(q[2] for q in ps) + BOX_M, max(q[3] for q in ps) + BOX_M])
+        if len(subs) == 2:
+            lo, hi = sorted(subs, key=lambda q: q[1])
+            mid = (lo[3] + hi[1]) / 2
+            lo[3], hi[1] = mid, mid   # they meet
+            if lo[2] - hi[0] < 0 or hi[2] - lo[0] < 0:
+                subs = []
+        if len(subs) == 2:
+            def edges(q):
+                return [("h", q[1], q[0], q[2]), ("h", q[3], q[0], q[2]), ("v", q[0], q[1], q[3]), ("v", q[2], q[1], q[3])]
+            for i, q in enumerate(subs):
+                o = subs[1 - i]
+                for kind, c, a0, a1 in edges(q):
+                    cut = (o[0], o[2]) if kind == "h" and o[1] <= c <= o[3] else (o[1], o[3]) if kind == "v" and o[0] <= c <= o[2] else None
+                    pieces = [(a0, a1)] if not cut else [(a0, min(a1, cut[0])), (max(a0, cut[1]), a1)]
+                    for p0, p1 in pieces:
+                        if p1 - p0 > 0.05:
+                            if kind == "h":
+                                line(b, p0, c, p1, c, F, 0.12)
+                            else:
+                                line(b, c, p0, c, p1, F, 0.12)
+            top = max(subs, key=lambda q: q[3])
+            text(b, g, top[0] + 0.2, top[3] + 0.85, 0.8, F, 0, -1)
+            continue
         fy = y1 - BOX_TITLE + 0.15   # the frame's top line; the name sits just above it
         for p, q in (((x0, y0), (x1, y0)), ((x1, y0), (x1, fy)), ((x1, fy), (x0, fy)), ((x0, fy), (x0, y0))):
             line(b, *p, *q, F, 0.12)
-        text(b, g, x0 + 0.2, fy + 0.85, 0.8, F, 0, -1)
-        boxes[g] = (x0, y0, x1, y1)
+        if g == "isolation":   # its title goes inside, bottom-right: its top is under the iso power and analog fx boxes
+            text(b, g, x1 - 0.2, y0 + 0.75, 0.8, F, 0, 1)
+            boxes[g] = (x0, y0, x1, fy + 0.1)
+        else:
+            text(b, g, x0 + 0.2, fy + 0.85, 0.8, F, 0, -1)
     cell = 0.5
     def grow(r, m):
         return (r[0] - m, r[1] - m, r[2] + m, r[3] + m)
@@ -580,10 +633,11 @@ def draw_groups(b, pl, nodes):
                 for j in range(math.floor(r[1] / cell), math.ceil(r[3] / cell) + 1)}
     # what the arrows keep off: the board's outside, every box and name, every exposed pad
     allc = cells_of((STRIP[0], TONGUE[1], STRIP[2], TOP))
-    inside = cells_of(grow(STRIP, -0.6)) | cells_of(grow(TONGUE, -0.6))
+    inside = (cells_of(grow((-POST_X, STRIP[1], POST_X, TOP), -0.6)) | cells_of(grow((STRIP[0], STRIP[1], STRIP[2], POST_Y), -0.6))
+              | cells_of(grow(TONGUE, -0.6)))
     fixed = set(allc - inside)
     for fp in b.GetFootprints():
-        if fp.GetReference() not in GROUP_OF:   # jack bodies, headers
+        if fp.GetReference() not in GROUP_OF and fp.GetReference() not in JACKS:   # headers (a jack body: only its pins)
             fp.BuildCourtyardCaches()
             fixed |= cells_of(fbox(fp.GetCourtyard(K.F_CrtYd).BBox()))
         for p in fp.Pads():
@@ -602,7 +656,8 @@ def draw_groups(b, pl, nodes):
             hx, hy = -(ux * c - uy * s_), -(ux * s_ + uy * c)
             line(b, xb, yb, xb + hl * hx, yb + hl * hy, F, 0.15)
     walls = [w for w in (fbox(t.GetBoundingBox()) for t in b.Drawings() if isinstance(t, K.PCB_TEXT) and t.GetLayer() == F)]
-    walls += [(STRIP[0], -1e3, TONGUE[0], STRIP[1]), (TONGUE[2], -1e3, STRIP[2], STRIP[1])]   # off the board
+    walls += [(STRIP[0], -1e3, TONGUE[0], STRIP[1]), (TONGUE[2], -1e3, STRIP[2], STRIP[1]),   # off the board
+              (STRIP[0] - 1, POST_Y, -POST_X, 1e3), (POST_X, POST_Y, STRIP[2] + 1, 1e3)]
     for fp in b.GetFootprints():   # and never across a pad
         for p in fp.Pads():
             px, py = face(p.GetPosition())
@@ -642,7 +697,7 @@ def draw_groups(b, pl, nodes):
             if both:
                 head(*pts[1], *pts[0])
             continue
-        blocked = (fixed | used | set().union(*(cells_of(grow(r, 0.15)) for k, r in boxes.items() if k not in (u, v))))
+        blocked = (fixed | used | set().union(*(cells_of(grow(r, 0.15)) for k, r in boxes.items() if k not in (u, v) and k not in JACKS)))   # (under a jack body: only its pins block)
         blocked -= cells_of(grow(boxes[u], 0.6)) | cells_of(grow(boxes[v], 0.6))
         pts = route_arrow(blocked, grow(boxes[u], 0.3), grow(boxes[v], 0.3))
         if not pts:
@@ -779,7 +834,7 @@ def write_project(pcb):
     """kicad-cli's DRC takes its rules from the .kicad_pro next to the board"""
     import json
     # the check uses JLCPCB's real limits (5 mil); the router aims wider (CLEAR) everywhere it can
-    rules = {"min_track_width": 0.127, "min_clearance": 0.127, "min_copper_edge_clearance": 0.4,
+    rules = {"min_track_width": 0.127, "min_clearance": 0.127, "min_copper_edge_clearance": 0.3,
              "min_via_diameter": VIA, "min_through_hole_diameter": DRILL, "min_text_height": 0.7}
     nc = {"name": "Default", "track_width": TRACK, "clearance": 0.127, "via_diameter": VIA, "via_drill": DRILL}
     json.dump({"board": {"design_settings": {"rules": rules}}, "net_settings": {"classes": [nc], "meta": {"version": 3}},
@@ -867,6 +922,7 @@ def main():
     geo = {r: geometry(fps[r], "F") for r in movable}
     pl = Placer(geo, fixed_pads, obstacles, nets(), random.Random(a.seed))
     pl.fixed_boxes = fixed_boxes
+    pl.tall = {r for r in movable if not str(fps[r].GetFPID().GetLibItemName()).startswith(FLAT)}
     pl.extra = extra
     size = lambda r: (geo[r][0][0][2] - geo[r][0][0][0]) * (geo[r][0][0][3] - geo[r][0][0][1])
     pl.seed(sorted(movable, key=lambda r: ([g for g, _, _, _ in GROUPS].index(GROUP_OF[r]), -size(r))))
@@ -935,7 +991,7 @@ def main():
                 continue
             z.write(os.path.join(g, f), f)
     pos = os.path.join(BUILD, "pos.csv")
-    run(["kicad-cli", "pcb", "export", "pos", "--format", "csv", "--units", "mm", "--side", "both", "--use-drill-file-origin", "-o", pos, pcb],
+    run(["kicad-cli", "pcb", "export", "pos", "--format", "csv", "--units", "mm", "--side", "both", "-o", pos, pcb],
         stdout=subprocess.DEVNULL)
     with open(pos) as f, open(os.path.join(OUT, NAME + "-cpl.csv"), "w", newline="") as o:
         w = csv.writer(o)

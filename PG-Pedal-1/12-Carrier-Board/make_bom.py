@@ -3,7 +3,7 @@
 import csv, collections
 from carrier import parts
 
-MAKER = {"NE5532DR": "Texas Instruments", "TPA6139A2PWR": "Texas Instruments", "LP2985-33DBVR": "Texas Instruments",
+MAKER = {"NE5532DR": "Texas Instruments", "MCP4461-103E/ST": "Microchip", "TLV9062IDGKR": "Texas Instruments", "TPA6139A2PWR": "Texas Instruments", "LP2985-33DBVR": "Texas Instruments",
          "TLV7031DBVR": "Texas Instruments", "PESD15VL2BT": "Nexperia", "BAT54": "Nexperia", "MF-NSMF030X-2": "Bourns",
          "SMAJ12A": "Littelfuse", "SS34": "onsemi", "NMJ6HCD2": "Neutrik", "NMJ6HFD2": "Neutrik", "TLV320AIC3204IRHBR": "Texas Instruments",
          "ISO7741DWR": "Texas Instruments", "ISO1540DR": "Texas Instruments", "ADS1015IDGSR": "Texas Instruments",

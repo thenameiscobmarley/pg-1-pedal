@@ -90,4 +90,63 @@ bool IsoCodec::ReadOverflow(bool& any)
     return true;
 }
 
+static constexpr uint8_t kFxAddr = 0x2C; // MCP4461, A1 = A0 = 0
+// volatile wiper registers 00h 01h 06h 07h, non-volatile 02h 03h 08h 09h (DS22265 table 4-2)
+static constexpr uint8_t kLevelReg[2] = {0x00, 0x06}, kCutReg[2] = {0x01, 0x07};
+
+bool AnalogFx::W(uint8_t reg, uint16_t v)
+{
+    if(v > 256)
+        v = 256;
+    uint8_t d[2] = {uint8_t((reg << 4) | (v >> 8)), uint8_t(v)}; // command 00 = write, D8 in bit 0
+    return i2c_->TransmitBlocking(kFxAddr, d, 2, kI2cMs) == I2CHandle::Result::OK;
+}
+
+bool AnalogFx::R(uint8_t reg, uint16_t& v)
+{
+    uint8_t d[2] = {0, 0};
+    if(i2c_->ReadDataAtAddress(kFxAddr, uint16_t((reg << 4) | 0x0C), 1, d, 2, kI2cMs) != I2CHandle::Result::OK)
+        return false;
+    v = uint16_t(((d[0] & 0x01) << 8) | d[1]);
+    return true;
+}
+
+bool AnalogFx::Alive()
+{
+    uint16_t v;
+    return R(0x00, v);
+}
+
+bool AnalogFx::Init(I2CHandle* i2c)
+{
+    i2c_ = i2c;
+    for(uint8_t reg : {0x02, 0x03, 0x08, 0x09}) // non-volatile: what it powers up at
+    {
+        uint16_t v = 0;
+        if(!R(reg, v))
+            return false;
+        if(v != 256)
+        {
+            if(!W(reg, 256))
+                return false;
+            System::Delay(10); // EEPROM write cycle (tWC 10 ms max)
+        }
+    }
+    return W(0x00, 256) && W(0x01, 256) && W(0x06, 256) && W(0x07, 256);
+}
+
+bool AnalogFx::SetLevel(int side, float gain)
+{
+    gain = gain < 0.f ? 0.f : gain > 1.f ? 1.f : gain;
+    return W(kLevelReg[side & 1], uint16_t(gain * 256.f + 0.5f));
+}
+
+bool AnalogFx::SetCutoff(int side, float hz)
+{
+    // R = 1 / (2 pi f C) - wiper (~75 ohm); the rheostat is 10k at code 0, ~0 at 256
+    const float r    = hz > 1.f ? 1.f / (6.2831853f * hz * 10e-9f) - 75.f : 1e9f;
+    const float code = 256.f - (r < 0.f ? 0.f : r) * (256.f / 10000.f);
+    return W(kCutReg[side & 1], uint16_t(code < 0.f ? 0.f : code + 0.5f));
+}
+
 } // namespace pg

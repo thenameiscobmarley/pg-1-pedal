@@ -67,6 +67,7 @@ Ili9341   lcd;
 pg::Core  core;
 I2CHandle    i2c;
 pg::IsoCodec codec;
+pg::AnalogFx afx; // the board's analog level + filter (unity / open unless the DSP asks)
 // set by the main loop, used by the audio callback
 static volatile float g_in = kInGain, g_out = 0.f, in_peak = 0.f; // g_out stays 0 (silent) until the codec is up
 // the screen picture the core draws into: 150 KB, in the Seed3's 64 MB SDRAM (plain array, no
@@ -279,6 +280,7 @@ int main(void)
     bool codec_ok = codec.Init(&i2c);
     if(!codec_ok)
         core.ReportCodecFault();
+    afx.Init(&i2c); // if it doesn't answer it stays at its stored unity / open: the audio still works
     const uint32_t audio_t0 = System::GetNow();
     WatchdogStart();
 

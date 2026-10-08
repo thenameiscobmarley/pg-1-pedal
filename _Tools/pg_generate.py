@@ -61,11 +61,19 @@ SCREWS = [(-30.74, 39.75), (36.52, 39.75), (-30.74, 3.03), (36.52, 3.03)]
 SCREW_HOLE = 3.2
 
 # Side B (top edge). All on Y=0 (middle of the wall) so the +Y direction never matters.
+# The audio jacks sit at +-34: their 18.2 mm bodies end at +-43.1, clear of the box's corner posts (Hammond 1590XX:
+# lid-screw posts centred 126 x 102 mm, i.e. at +-51 / +-63 from the centre, reaching in to about +-46).
 SIDE_B = [  # label, x, bare hole, part. The 2 audio jacks are PCB-mount and hold the carrier board up by their nuts.
-    ("in", -42.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"),
-    ("9v", -21.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
-    ("out", 42.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated output"),
+    ("in", -34.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"),
+    ("9v", -13.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
+    ("out", 34.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated output"),
 ]
+
+# the EXPANSION BAY in side C (left wall): a slot for a little module (button, switch, fader...) that plugs onto 4
+# jumper ends glued into it (3v3, gnd, scl, sda from the carrier board's J21 "expansion" header). Same coordinates as
+# the Seed3 window (X across the wall height, Y along the face).
+BAY_SIDE, BAY_Y = "C", 17.0
+BAY_WIN = (3.6, 11.5)                  # 4 female jumper ends in a row (4 x 2.54 = 10.2 long, 2.5 thick), +PC added
 
 IO_DIVIDE = 10.5                       # face x between the inputs (in, 9v) and the output (out)
 
@@ -452,7 +460,7 @@ def holes_table():
     for name, x in FOOTSW:
         rows.append(("A", "hole", name, x, FS_Y, round(FS_HOLE + PC, 2), "", "", "soft-touch footswitch A-1091 PBS24B4 (M12)"))
     for name, x, y, d, what in SMALL_POTS:
-        rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k log dual pot A-6980 (9 mm, round shaft): " + what))
+        rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): " + what))
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
@@ -461,6 +469,8 @@ def holes_table():
         rows.append(("B", "hole", name, x, 0.0, round(d + PC, 2), "", "", part))
     rows.append((SEED_SIDE, "rectangle", "seed3 window", 0.0, SEED_Y, "", round(SEED_WIN[0] + PC, 2), round(SEED_WIN[1] + PC, 2),
                  "Daisy Seed3 cartridge (glued jumper-end socket)"))
+    rows.append((BAY_SIDE, "rectangle", "expansion bay", 0.0, BAY_Y, "", round(BAY_WIN[0] + PC, 2), round(BAY_WIN[1] + PC, 2),
+                 "expansion bay: 4 glued jumper ends (carrier J21: 3v3, gnd, scl, sda)"))
     return rows
 
 
@@ -484,12 +494,15 @@ def write_drill(rows):
     body.append(f'<rect x="{scx-SIDE_H/2}" y="{-FACE_H/2}" width="{SIDE_H}" height="{FACE_H}" fill="none" stroke="#000" stroke-width="0.3"/>')
     body.append(f'<text x="{scx}" y="{FACE_H/2+5}" font-family="DejaVu Sans" font-size="2.6" text-anchor="middle">SIDE {SEED_SIDE} ({"right" if SEED_X_SIGN > 0 else "left"})</text>')
     body.append(text(0, -FACE_H / 2 - 4.5, "SIDE A (face) - 1590XX 121.1 x 145.5 mm - print at 100% / actual size", 2.6))
-    for cx, cy in ((0, 0), (0, sbcy), (scx, 0)):
+    bcx = -SEED_X_SIGN * (FACE_W / 2 + SIDE_H / 2)  # the other side wall: the expansion bay
+    body.append(f'<rect x="{bcx-SIDE_H/2}" y="{-FACE_H/2}" width="{SIDE_H}" height="{FACE_H}" fill="none" stroke="#000" stroke-width="0.3"/>')
+    body.append(f'<text x="{bcx}" y="{FACE_H/2+5}" font-family="DejaVu Sans" font-size="2.6" text-anchor="middle">SIDE {BAY_SIDE} ({"left" if SEED_X_SIGN > 0 else "right"})</text>')
+    for cx, cy in ((0, 0), (0, sbcy), (scx, 0), (bcx, 0)):
         body.append(f'<path d="M{cx-3},{-cy} h6 M{cx},{-cy-3} v6" stroke="#888" stroke-width="0.2"/>')
     for side, typ, name, x, y, dia, ww, hh, part in rows:
-        yy = y if side in ("A", SEED_SIDE) else sbcy + y
+        yy = y if side in ("A", SEED_SIDE, BAY_SIDE) else sbcy + y
         x0 = x
-        x = x + (scx if side == SEED_SIDE else 0)
+        x = x + (scx if side == SEED_SIDE else bcx if side == BAY_SIDE else 0)
         if typ == "hole":
             r = dia / 2
             body.append(f'<circle cx="{x}" cy="{-yy}" r="{r}" fill="none" stroke="#c00" stroke-width="0.3"/>')
@@ -503,8 +516,8 @@ def write_drill(rows):
     # 50mm scale bar to verify print scale
     body.append(f'<path d="M{-FACE_W/2},{FACE_H/2+9} h50" stroke="#000" stroke-width="0.4"/>')
     body.append(text(-FACE_W / 2 + 25, -FACE_H / 2 - 12.8, "this bar must measure exactly 50 mm", 2.2))
-    W, H = 190, FACE_H + SIDE_H + 30
-    vb = (-80 if SEED_X_SIGN > 0 else -115, -(FACE_H / 2 + SIDE_H + 12), W, H)
+    W, H = 200, FACE_H + SIDE_H + 30
+    vb = (-100, -(FACE_H / 2 + SIDE_H + 12), W, H)
     open(os.path.join(d, "pg1-drill-template-1to1.svg"), "w").write(svg_doc(W, H, "\n".join(body), vb, "#fff"))
 
 

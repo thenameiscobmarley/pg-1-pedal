@@ -66,6 +66,32 @@ Steps:
 - [x] d. carrier PCB (budget version): circuit (12-Carrier-Board/DESIGN.md, carrier.py), board made by make_board.py
         (KiCad 10 + Freerouting: all parts on the bottom, fully routed, 0 DRC errors), PCBWay files in 12-Carrier-Board/pcbway/
         (Gerbers zip, BOM, CPL); ~$55-80 for 2 assembled boards. Next: user orders (jacks: send to PCBWay or fit later)
+- [~] g. AUDIT + FIX before ordering (2026-10-08, IN PROGRESS - resume here):
+        DONE: JLCPCB CPL rewritten (make_jlc.py: from the board, Gerber coordinates, THT parts = centre of pins,
+        rotation fixes from jlc_rotations.csv = JLCKicadTools table; BOM one line per LCSC part -> no "matched twice").
+        Jack = NMJ6HFD2 official drawing: pins 4.35/10.7/17.05 mm from panel (was 16.7: fixed JACK_T), axis 8.29 mm.
+        Hammond 1590XX drawing: corner lid-screw posts at +-51/+-63 -> jacks moved to +-34, 9v to -13 (pg_generate
+        SIDE_B + plugin sideB), board top corners notched (POST_X 45, POST_Y 57). Passives -> 0402 (JLC basic).
+        B0505S datasheet: body sits to ONE side of pins -> footprint courtyard both sides, U3 at x 21.
+        Flat-only zone under the DC jack (DC_ZONE). Checked OK: AMS1117, PESD15VL2BT, SMAJ12A, LP2985, ISO7741,
+        ISO1540, AIC3204, TPA6139A2, OPA1652 pinouts; encoder M7 (7.2 hole), screen holes/window, pots RK09L (M7, snap
+        off the lug, female jumpers fit its pins).
+        LAST ROUTE: 0 unconnected, isolation OK, but 2 courtyard overlaps: pot headers J20/J19 (row y 44.5) touch the
+        jack courtyards (jacks moved in + JACK_T 17.05). Fix idea: header rows at y 44.2 and copper-edge clearance 0.3
+        (make_board.py: m_CopperEdgeClearance + write_project min_copper_edge_clearance), then re-route.
+        NEXT: check DRC (0.127 rules in .kicad_pro) + check_isolation.py; python3 make_bom.py && python3 make_jlc.py;
+        Tayda upload (drill + UV: holes MOVED) via _Tools/tayda_upload.py with the saved ids; rebuild plugin;
+        export_repo.py (PG_PY = venv with fonttools) + push; tell user: re-upload all 3 JLC files, Standard + Top side,
+        Confirm Parts Placement yes, send screenshot of JLC placement preview to check rotations.
+        MODULE BAY + ANALOG FX (user: "Connector + one analog effect", bay in the LEFT wall, filter + VCA) DONE in
+        code: MCP4461 quad digipot U13 (0x2C, C638707; datasheet pins checked) = per side attenuator + rheostat into
+        10 nF C0G (C22400107) low-pass, TLV9062 VSSOP buffer U15 (C398356), between codec LO and pg-hp. J21
+        "expansion" 4-pin RA header (3v3 gnd scl sda, C32713263) left of J10 (J10 moved to x 3.5). Board: "analog fx"
+        box right of iso power, output box only upper, codec narrower, isolation title bottom-right. Firmware
+        AnalogFx (isoaudio.*): Init = unity/open (+ NV EEPROM), SetLevel / SetCutoff; builds. pg_generate: side C
+        "expansion bay" 4.0 x 11.9 slot at Y 17 (Tayda CSV + drill SVG). Docs updated (DESIGN, WIRING).
+        NEXT (if not yet ticked): full route result + DRC + check_isolation; make_bom/make_jlc; copy renders;
+        Tayda re-upload; export + push; tell user.
 - [x] f. v3 carrier = ISOLATED CODEC (decided 2026-10-08, replaces the 4-jack analog board; resume here).
         DONE: carrier.py netlist (87 parts, barrier check), PG1:DCDC_SIP4_B0505S footprint, firmware (src/isoaudio.*:
         codec + ADS1015 drivers, SAI2 + I2C1, pins moved, touch polled, auto-ranging + too-hot mute, health checks

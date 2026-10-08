@@ -4,7 +4,7 @@
       "rules": {
         "min_track_width": 0.127,
         "min_clearance": 0.127,
-        "min_copper_edge_clearance": 0.4,
+        "min_copper_edge_clearance": 0.3,
         "min_via_diameter": 0.6,
         "min_through_hole_diameter": 0.3,
         "min_text_height": 0.7

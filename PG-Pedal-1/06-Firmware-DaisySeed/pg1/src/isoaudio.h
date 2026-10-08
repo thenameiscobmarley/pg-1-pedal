@@ -33,4 +33,22 @@ class IsoCodec
     uint8_t           page_ = 0xff;
 };
 
+// The carrier board's analog effect (after the codec, before pg-hp): an MCP4461 quad digital pot on the same isolated
+// I2C bus (0x2C). Per side: pot 0 / 2 = attenuator (the "VCA": level / analog compression, can only turn DOWN) and
+// pot 1 / 3 = rheostat into 10 nF C0G (analog low-pass, ~1.6 kHz .. fully open). Codes 0..256, 256 = unity / open.
+// Its non-volatile wipers hold unity / open, so it powers up clean before the firmware runs.
+class AnalogFx
+{
+  public:
+    bool Init(daisy::I2CHandle* i2c);       // unity + open (and stores that in its EEPROM if it isn't already)
+    bool SetLevel(int side, float gain);    // side 0 = L, 1 = R; gain 0..1 (1 = unity)
+    bool SetCutoff(int side, float hz);     // >= ~200 kHz = fully open
+    bool Alive();
+
+  private:
+    bool              W(uint8_t reg, uint16_t v);
+    bool              R(uint8_t reg, uint16_t& v);
+    daisy::I2CHandle* i2c_ = nullptr;
+};
+
 } // namespace pg

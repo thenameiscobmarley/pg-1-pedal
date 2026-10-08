@@ -22,7 +22,7 @@ namespace dims
     constexpr float winCZ = -0.2139f, winHW = 0.239f, winHD = 0.1775f;      // the cut window (47.8 x 35.5 mm)
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
-    constexpr float sideB[3][2] = { { -0.42f, 0 }, { -0.21f, 1 }, { 0.42f, 0 } }; // in, 9v, out (1 = DC jack); v3 isolated board
+    constexpr float sideB[3][2] = { { -0.34f, 0 }, { -0.13f, 1 }, { 0.34f, 0 } }; // in, 9v, out (1 = DC jack); v3 isolated board
     constexpr float smallKnobs[2][2] = { { -0.4095f, -0.325f }, { -0.4095f, -0.105f } };   // pg-hp, pg-line (x, z = -face y)
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,

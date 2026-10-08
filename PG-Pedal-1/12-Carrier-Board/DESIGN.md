@@ -11,7 +11,7 @@ the other jack's gear through the pedal's power), not even ground. The audio cro
 in jack ─ TVS ─ 1k ─ 47 nF ─ 1M/1M ÷2 ─ OPA1652 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
                                      TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
                                                          ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
-codec line out ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
+codec line out ─ analog fx (MCP4461: level + low-pass, TLV9062 buffer) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
 power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / headphone amp; filtered 5 V ─ buffer
 ```
 
@@ -24,7 +24,13 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   strip across the board), the overvoltage clamps on both jacks, the 1 kΩ current limit on the input, the output ceiling
   (~1.1 V rms: the output chips run on 3.3 V), the headphone amp's short-circuit / thermal shutdown, the fuse,
   reverse-polarity and surge protection on 9 V.
-- **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging) and the DSP. If the firmware hangs, a
+- **Analog effect, DSP-controlled:** after the codec, an MCP4461 quad digital pot (on the isolated I2C bus, 0x2C) is,
+  per side, an attenuator (level / analog compression) and a rheostat into a 10 nF C0G cap (analog low-pass, ~1.6 kHz
+  to fully open), then a TLV9062 buffer. Its top settings are unity and fully open, so a glitch can only make the
+  sound quieter or duller, never louder; its own memory holds unity / open, so it powers up clean.
+  (If JLCPCB runs out of the MCP4461-103E/ST, the MCP4451-103E/ST is the same chip without memory: it powers up at
+  half, and the firmware sets it to unity at boot.)
+- **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging), the analog effect's settings and the DSP. If the firmware hangs, a
   hardware watchdog resets the Seed3 in ~2 s and the codec mutes itself when the digital audio stops. If the input is
   too hot for where pg-line is, the screen's health page says "input clip": turn pg-line left.
 
@@ -40,11 +46,13 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
 - **pg-line** (6, isolated side, under the in jack): 1 l, 2 l, 3 l, 1 r, 2 r, 3 r = its pot's pins, left gang then right.
 - **pg-hp** (6, isolated side, under the out jack): the same for pg-hp.
+- **expansion** (4, pedal side, left of seed3 + 9v): 3v3, gnd, scl, sda (the Seed3's I2C) for a module in the
+  expansion bay (a slot in the left wall with 4 glued jumper ends).
 
 ## The board
 - **Two worlds:** the isolated side is the strip under the jacks (and the tongue above the dashed barrier line); the
   pedal side is the tongue below it. Only the three barrier parts cross the line. Each side has its own ground pour.
-- **Jobs in boxes:** every part sits in its job's printed box (input, codec, output, iso iso power, isolation, power),
+- **Jobs in boxes:** every part sits in its job's printed box (input, codec, analog fx, output, iso power, isolation, power),
   arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
 - **All parts on the top side** (with the jacks): JLCPCB assembles one side.
 
@@ -58,7 +66,7 @@ Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 mak
 - 1/4" stereo TRS. The **plastic** nose means the jack's sleeve never touches the metal box: that's what keeps the
   isolated ground isolated. Top-wall holes 11.2 mm (+ powder coat), same pins as the NMJ6HCD2 (KiCad footprint
   `Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal`), jack centre 8.14 mm above the board.
-- Top wall: in -42, 9v -21 (panel DC jack, above the board), out +42.
+- Top wall: in -34, 9v -13 (panel DC jack, above the board), out +34 (clear of the box's corner lid-screw posts).
 
 ## Old versions
 `carrier_v2.py` = the 4-jack analog board (line in, line out, no amp, phones), not isolated.

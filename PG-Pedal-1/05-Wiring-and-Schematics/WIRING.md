@@ -7,6 +7,9 @@
 > - **pg-line** and **pg-hp** headers (6 pins each, on the board under the in / out jacks): 1 l, 2 l, 3 l, 1 r, 2 r,
 >   3 r = pins 1 / 2 / 3 of the pot's left gang, then its right gang. Both pots are centre-click dual 10k LINEAR
 >   (e.g. Alps RK09L1240015): analog gain controls, centre = unity.
+> - **expansion** header (4 pins, on the board left of "seed3 + 9v"): 3v3, gnd, scl, sda → 4 female jumper ends glued
+>   in a row into the expansion bay slot in the LEFT wall (side C). A plug-in module (button, switch, fader...) talks to
+>   the Seed3 over that I2C bus (same bus as the seed3 + 9v header's scl / sda).
 > - **screen**: RESET → 1 (D0), DC → 37 (D30); touch T_DO → 36 (D29); T_IRQ is not used (leave it empty).
 > - The IN / OUT / 9V rows in the table below are replaced by the carrier board.
 
