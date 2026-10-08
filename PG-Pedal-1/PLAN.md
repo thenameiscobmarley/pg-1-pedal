@@ -63,8 +63,9 @@ Steps:
 - [x] a. parts: A-6980 10k log dual pots, A-8567 14 mm white ripple knobs, A-1122 PCB jacks, A-2599 pink KN2310 caps (fit PBS-24)
 - [x] b. layout: Seed3 window on the right wall (side E - CHECK in Tayda's preview), pg-hp / pg-line pots left of the screen, 5 top-edge holes; face print with IBM Plex Mono small words + pink accents (not uploaded to Tayda yet)
 - [x] c. firmware/UI: names from one rule (ui::KnobName / FootName), 2nd settings page (swipe the boxes, tap the dots, slide animation), drag a box up/down to change it, rounded boxes / tiles / strip (more polish possible)
-- [~] d. carrier PCB: circuit done (12-Carrier-Board/DESIGN.md, netlist carrier.py, BOM make_bom.py; jack A-1122 M11 verified);
-        board layout + Gerbers still need KiCad installed; cost ~$110-130 for 2 assembled boards (over the $150 budget: user to decide)
+- [x] d. carrier PCB (budget version): circuit (12-Carrier-Board/DESIGN.md, carrier.py), board made by make_board.py
+        (KiCad 10 + Freerouting: all parts on the bottom, fully routed, 0 DRC errors), PCBWay files in 12-Carrier-Board/pcbway/
+        (Gerbers zip, BOM, CPL); ~$55-80 for 2 assembled boards. Next: user orders (jacks: send to PCBWay or fit later)
 - [~] e. plugin 3D model done (Seed3 right, 5 jacks, small knobs, pink caps); docs + BOM/budget for the carrier board still to do
 
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages

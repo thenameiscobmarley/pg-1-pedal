@@ -28,11 +28,11 @@ SOIC8 = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 VSON10 = "Package_SON:VSON-10-1EP_3x3mm_P0.5mm_EP1.2x2mm"
 MSOP8EP = "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm"
 HDR = lambda n, rows=1: f"Connector_PinHeader_2.54mm:PinHeader_{rows}x{n:02d}_P2.54mm_Vertical"
-JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"
-VSON10 = MSOP8EP = ""  # (only the full version uses these)   # custom footprint (made by make_board.py from the jack's drawing)
+JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"   # PG1.pretty, drawn from the A-1122 datasheet
+VSON10 = MSOP8EP = ""  # (only the full version uses these)
 
 # ---------------------------------------------------------------- power (one 9 V supply)
-P("J9", "9V in", HDR(2), "", {1: "+9V_RAW", 2: "GND"}, "from the panel DC jack (centre negative: centre pin -> GND here)")
+P("J9", "9V in", HDR(2), "", {1: "+9V_RAW", 2: "GND"}, "upright, on the jack side right behind the panel DC jack (centre negative: centre pin -> GND here)")
 P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "MF-NSMF030X-2", {1: "+9V_RAW", 2: "+9V_F"})
 P("D1", "SS34", "Diode_SMD:D_SMA", "SS34", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection (cathode = pin 1)")
 P("D2", "SMAJ12A", "Diode_SMD:D_SMA", "SMAJ12A", {1: "+9V", 2: "GND"}, "surge clamp")
@@ -120,24 +120,18 @@ for ref, name, tip, ring in (("J1", "line in", "JIN_L", "JIN_R"), ("J2", "line o
       "static protection, both lines; 15 V so it never touches the +-7.5 V audio")
 
 # ---------------------------------------------------------------- headers
-def seed_net(p):
-    return "NC_" + SEED[p] if SEED[p] in ("KEY", "3V3A") else SEED[p]
-# the 2x20 header laid out like the Seed3 itself: one row = Seed3 pins 1-20, the other = 40 down to 21 (pin 40 opposite pin 1)
-# (KiCad numbers a 2-row header 1, 2 across the first pair, 3, 4 the next ...)
-P("J10", "seed port", HDR(20, 2), "", {**{2 * k - 1: seed_net(k) for k in range(1, 21)}, **{2 * k: seed_net(41 - k) for k in range(1, 21)}}, "2x20: 40 female-female jumpers from the Seed3 block")
-P("J11", "screen", HDR(14), "", {i + 1: SCREEN[i] for i in range(14)})
-for k in range(4):
-    a, b, push = f"PG{k+1}_A", f"PG{k+1}_B", f"PG{k+1}_PUSH"
-    P(f"J{12+k}", f"pg-{k+1}", HDR(5), "", {1: a, 2: "DGND", 3: b, 4: push, 5: "DGND"}, "encoder: A, C, B, push, push-2")
-for k, net in enumerate(("PGA", "PGB", "PGC")):
-    P(f"J{16+k}", "pg-" + "abc"[k], HDR(2), "", {1: net, 2: "DGND"}, "footswitch")
-P("J19", "pg-hp", HDR(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: top, wiper, bottom per gang")
-P("J20", "pg-line", HDR(6), "", {1: "BUS_L", 2: "LINE_W_L", 3: "AGND", 4: "BUS_R", 5: "LINE_W_R", 6: "AGND"})
-P("J21", "spare", HDR(4), "", {1: "SPARE_34", 2: "SPARE_35", 3: "SPARE_36", 4: "SPARE_37"})
-P("J22", "seed power", HDR(2), "", {1: "+9V", 2: "DGND"}, "(also on the seed port: VIN = pin 39)")
+# Right-angle headers on the BOTTOM of the board along its lower edge: the jumpers lie flat between the board and the lid
+# (pointing straight up they would hit the back of the screen). Only audio + power go through the board; the screen,
+# encoders and footswitches plug straight into the Seed3's jumper block as in v1.
+HDR_RA = lambda n: f"Connector_PinHeader_2.54mm:PinHeader_1x{n:02d}_P2.54mm_Horizontal"
+P("J10", "seed audio", HDR_RA(7), "", {1: "SEED_IN_L", 2: "SEED_IN_R", 3: "SEED_OUT_L", 4: "SEED_OUT_R", 5: "AGND", 6: "+9V", 7: "DGND"},
+  "7 female-female jumpers to the Seed3 block: pins 16, 17, 18, 19, 20 (AGND), 39 (VIN), 40 (DGND)")
+P("J19", "pg-hp", HDR_RA(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: top, wiper, bottom per gang")
+P("J20", "pg-line", HDR_RA(6), "", {1: "BUS_L", 2: "LINE_W_L", 3: "AGND", 4: "BUS_R", 5: "LINE_W_R", 6: "AGND"})
 
-# grounds: analog (AGND, the Seed3's pin 20) and the rest (DGND, pin 40) meet at one point on the board (net tie)
-P("NT1", "net tie", "NetTie:NetTie-3_SMD_Pad0.5mm", "", {1: "GND", 2: "AGND", 3: "DGND"}, "the only place the grounds join")
+# grounds: analog (AGND, the Seed3's pin 20) and the rest (DGND, pin 40) meet at one point on the board (two 0 ohm links)
+P("R70", "0", R0603, "", {1: "GND", 2: "AGND"}, "the only place power ground meets audio ground")
+P("R71", "0", R0603, "", {1: "DGND", 2: "AGND"}, "the Seed3's digital ground meets audio ground here too (one point)")
 NET_ALIASES = {"VIN": "+9V"}   # the Seed3's VIN is the board's protected +9 V
 
 

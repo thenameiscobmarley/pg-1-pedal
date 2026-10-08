@@ -2,9 +2,8 @@
 
 One board, made and assembled by PCBWay from the files in this folder. It hangs from the nuts of the four 1/4" jacks
 along the top wall (no extra screws), carries the analog audio (buffers, line driver, headphone amp, protection, power),
-and has male pin headers for everything else, so every wire to the Seed3, the screen, the knobs and footswitches is a
-plug-on jumper. Nothing gets soldered except the jack, pot, encoder and footswitch lugs at the part end (and the 4 jacks,
-which are big through-hole pins, if PCBWay doesn't fit them).
+and has male pin headers for its wires (Seed3 audio + power, the two small pots, 9 V), so they are plug-on jumpers.
+Nothing gets soldered on it by you if PCBWay also fits the 4 jacks and the headers (send them the jacks).
 
 ## Budget version (chosen 2026-10-08): what it does, each channel
 
@@ -29,21 +28,38 @@ Seed3 AUDIO OUT (18/19) ─ 10 µF ─ NE5532 follower ─ 10 µF ─ BUS (0 V c
 - The full-quality version (OPA1622, ±7.5 V, ~4 V rms phones, ~$26 of parts a board) is kept in `carrier_full.py`.
 
 ## Headers (male, 2.54 mm, for female jumpers)
-- **seed port** 2×20: the Seed3's pins 1-40 in the Seed3's own order (40 female-female jumpers from the glued jumper block in
-  the right wall plug straight on). The board routes them to the part headers below.
-- **screen** 1×14 (same order as the screen's pins: jumpers plug straight across).
-- **pg-1 .. pg-4** 1×5 each (A, C, B, push, push-2), **pg-a .. pg-c** 1×2 each, **pg-hp / pg-line** 1×6 each (the dual pots).
-- **9V** 1×2 (from the panel DC jack), **gnd** test pins, and a 1×4 **spare** (pins 34, 35, 36, 37).
+Only audio and power go through the board. The screen, encoders and footswitches plug straight into the Seed3's glued
+jumper block, as in v1.
+- **seed3** 1×7, right-angle, on the lower edge of the tongue: in l, in r, out l, out r, agnd, 9v, dgnd
+  (the Seed3's pins 16, 17, 18, 19, 20, 39, 40).
+- **pg-hp** and **pg-line** 1×6 each, right-angle, same edge: bus l, wiper l, gnd, bus r, wiper r, gnd (the dual pots).
+- **9v** 1×2, upright on the jack side, right behind the panel DC jack (+, −).
+- The right-angle headers sit on the parts side and point off the board's lower edge, so the jumpers lie flat between
+  the board and the lid. The pin names are printed beside each pin.
 
 ## Mechanics
 - Hangs from the 4 PCB-mount jacks (Tayda A-1122): their bushings go through the top wall, the nuts clamp the board in place.
-- Outline: a 110 mm wide strip under the jacks, reaching down over the screen's top edge on the left half only
-  (keeps clear of the screen's 14-pin header and of the Seed3 block on the right wall). Height above the lid ≥ 10 mm.
+- Outline: a 111 × 27 mm strip under the jacks plus a 62 × 15 mm tongue over the screen's top edge (x −34 .. +28), which
+  keeps clear of the small pots on the left, the screen's 14-pin header and the Seed3 block on the right.
+- All the small parts are on the **bottom** (the lid side, ~8 mm of room): the jack side is covered by the jack bodies.
+  So PCBWay assembles one side only (the bottom).
+- Grounds: AGND is poured on both layers. Power ground (GND) and the Seed3's DGND join it at one point each (R70, R71, 0 Ω).
 
 ## Status
 - [x] circuit and levels (this file)
-- [ ] board: needs KiCad (`sudo pacman -S kicad kicad-library jre-openjdk`), then the netlist in `carrier.py` -> board ->
-      autoroute (Freerouting) -> Gerbers + BOM + placement file for PCBWay assembly
+- [x] board: `python3 make_board.py` (KiCad 10 + Freerouting) places, routes, pours and checks it, and writes `pcbway/`
+      (result: every connection routed, 0 DRC errors; only silkscreen warnings, e.g. header outlines past the edge)
+- [ ] order (below)
+
+## Ordering at PCBWay
+- **PCB:** upload `pcbway/pg1-carrier-gerbers.zip`. 2 layers, 111 × 42 mm, 1.6 mm FR-4, 1 oz copper, any colour,
+  HASL lead-free (or ENIG), quantity 5.
+- **Assembly:** turn on "PCB Assembly", **bottom side only**, quantity 2. Upload `pg1-carrier-bom.csv` and
+  `pg1-carrier-cpl.csv` (placement, 0,0 = the board's lower-left corner). 89 SMD parts + 4 headers.
+- **Jacks:** the 4 Tayda A-1122 jacks are not something PCBWay stocks. Either post 4 to them as customer-supplied parts
+  (the BOM says so), or tell them "leave J1-J4 unfitted" and fit them later (6 big pins each, easy first soldering).
+- `pg1-carrier-top.png` / `-bottom.png` are what it should look like; `pg1-carrier.kicad_pcb` opens in KiCad.
+- Remake everything after a change: `python3 make_bom.py && python3 make_board.py` (a few minutes).
 
 ## The jacks (Tayda A-1122, datasheet in 07-Datasheets)
 - Bushing **M11** (top-wall holes 11.2 mm + powder coat), face plate 15.7 mm, body 21 + 3.8 mm long, 16.2 mm wide (20 mm over the pins).
