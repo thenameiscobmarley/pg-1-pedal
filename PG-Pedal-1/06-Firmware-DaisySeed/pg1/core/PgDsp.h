@@ -9,6 +9,7 @@
 #pragma once
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 
 namespace pg
 {
@@ -22,6 +23,32 @@ inline float Smooth01(float x)
 }
 inline float DbToLin(float db) { return expf(db * 0.11512925f); }
 inline float PowToDb(float p) { return 10.f * log10f(p + 1e-20f); }
+// Fast log2 / exp2 (fitted polynomials; errors ~0.0001 dB) for levels and gains worked out on every sample:
+// on the Seed3's Cortex-M7 the library expf / log10f cost several times more, and they ran ~25 times per sample.
+inline float FastLog2(float x)
+{
+    if(!(x > 1e-30f)) // (also catches NaN)
+        x = 1e-30f;
+    uint32_t i;
+    memcpy(&i, &x, 4);
+    const float e = float(int(i >> 23) - 127);
+    i             = (i & 0x007FFFFFu) | 0x3F800000u;
+    float m;
+    memcpy(&m, &i, 4);
+    return e + ((((0.0434289078f * m - 0.404867174f) * m + 1.59390136f) * m - 3.49249428f) * m + 5.04687604f) * m - 2.78681295f;
+}
+inline float FastExp2(float x)
+{
+    x              = Clampf(x, -126.f, 126.f);
+    const float fl = floorf(x), f = x - fl;
+    const float p  = ((((0.00189437942f * f + 0.00894058253f) * f + 0.0558765569f) * f + 0.240131692f) * f + 0.693156777f) * f + 0.99999977f;
+    const uint32_t i = uint32_t(int(fl) + 127) << 23;
+    float          sc;
+    memcpy(&sc, &i, 4);
+    return p * sc;
+}
+inline float FastPowToDb(float p) { return 3.01029996f * FastLog2(p + 1e-20f); }
+inline float FastDbToLin(float db) { return FastExp2(db * 0.166096405f); }
 // one-pole smoothing coefficient for a time constant `ms` at a update rate `rate_hz`
 inline float Coef(float ms, float rate_hz) { return 1.f - expf(-1000.f / (ms * rate_hz)); }
 // envelope step: towards `target` with `up` when rising, `down` when falling
@@ -80,6 +107,26 @@ struct Svf
         ic2[ch]        = 2.f * v2 - ic2[ch];
         return m0 * v0 + m1 * v1 + m2 * v2;
     }
+    // the same filter when only one output is wanted (set up as LP / HP / BP): fewer loads and multiplies,
+    // which matters on the Seed3 where these run ~60 times per sample
+    inline float Lp(int ch, float v0)
+    {
+        const float v3 = v0 - ic2[ch], v1 = a1 * ic1[ch] + a2 * v3, v2 = ic2[ch] + a2 * ic1[ch] + a3 * v3;
+        ic1[ch] = 2.f * v1 - ic1[ch], ic2[ch] = 2.f * v2 - ic2[ch];
+        return v2;
+    }
+    inline float Hp(int ch, float v0)
+    {
+        const float v3 = v0 - ic2[ch], v1 = a1 * ic1[ch] + a2 * v3, v2 = ic2[ch] + a2 * ic1[ch] + a3 * v3;
+        ic1[ch] = 2.f * v1 - ic1[ch], ic2[ch] = 2.f * v2 - ic2[ch];
+        return v0 - k * v1 - v2;
+    }
+    inline float Bp(int ch, float v0)
+    {
+        const float v3 = v0 - ic2[ch], v1 = a1 * ic1[ch] + a2 * v3, v2 = ic2[ch] + a2 * ic1[ch] + a3 * v3;
+        ic1[ch] = 2.f * v1 - ic1[ch], ic2[ch] = 2.f * v2 - ic2[ch];
+        return k * v1;
+    }
     void Reset() { ic1[0] = ic1[1] = ic2[0] = ic2[1] = 0.f; }
     // |H| in dB, where t = tan(pi * hz / fs) (shared by every filter at that frequency)
     float MagDbT(float t) const
@@ -102,7 +149,7 @@ struct DuckWeight
         a.Set(Svf::HP, fs, hp_hz, 0.5412f), b.Set(Svf::HP, fs, hp_hz, 1.3066f); // Butterworth
         a.Reset(), b.Reset();
     }
-    inline float Run(int ch, float x) { return b.Run(ch, a.Run(ch, x)); }
+    inline float Run(int ch, float x) { return b.Hp(ch, a.Hp(ch, x)); }
 };
 
 // ------------------------------------------------------------------ 0. input auto-level
@@ -112,7 +159,7 @@ struct DuckWeight
 struct LevelStage
 {
     DuckWeight kw; // anti-duck: bass-heavy passages don't read as "hot"
-    float p = 0.f, gain_db = 0.f, cur = 1.f, in_db = -120.f;
+    float p = 0.f, gain_db = 0.f, cur = 1.f, in_db = -120.f, want_lin = 1.f;
     float c_pow = 0.f, c_gain = 0.f, fs = 48000.f;
 
     void Init(float sr)
@@ -132,13 +179,14 @@ struct LevelStage
             const float up = (1.f + 5.f * speed) * block_s, down = (3.f + 12.f * speed) * block_s; // dB per block
             gain_db += Clampf(want - gain_db, -down, up);
         }
-        gain_db = Clampf(gain_db, -cut, boost);
+        gain_db  = Clampf(gain_db, -cut, boost);
+        want_lin = DbToLin(gain_db); // (once per block, not per sample)
     }
     inline void Run(float& l, float& r)
     {
         const float w = kw.Run(0, 0.5f * (l + r));
         p += (w * w - p) * c_pow;
-        cur += (DbToLin(gain_db) - cur) * c_gain;
+        cur += (want_lin - cur) * c_gain;
         l *= cur, r *= cur;
     }
 };
@@ -160,6 +208,12 @@ struct HumStage
 {
     static constexpr int kH = 6; // fundamental + 5 harmonics
     Svf   notch[kH], narrow[kH], broad[kH], det[4];
+    // the hum detectors only look below ~400 Hz, so they run on a low-passed 1/8-rate copy (6 kHz)
+    static constexpr int kDec = 8;
+    Svf   aa[2];
+    float acc_m = 0.f, fs_d = 6000.f;
+    int   dec_n = 0;
+    bool  notch_on[kH] = {}, hiss_on = false;
     float en[kH] = {}, eb[kH] = {}, e_det[4] = {};
     float depth_db[kH] = {}, applied[kH] = {};
     float f0 = 60.f;
@@ -193,15 +247,18 @@ struct HumStage
     float NotchQ(float f) const { return Clampf(f / 4.f, 10.f, 60.f); }
     void  Init(float sr)
     {
-        fs = sr;
+        fs = sr, fs_d = sr / kDec;
+        for(Svf& f : aa)
+            f.Set(Svf::LP, fs, 1000.f, 0.7071f), f.Reset();
+        acc_m = 0.f, dec_n = 0, hiss_on = false;
         static const float dets[4] = {50.f, 100.f, 60.f, 120.f};
         for(int i = 0; i < 4; i++)
-            det[i].Set(Svf::BP, fs, dets[i], 12.f), det[i].Reset(), e_det[i] = 0.f;
+            det[i].Set(Svf::BP, fs_d, dets[i], 12.f), det[i].Reset(), e_det[i] = 0.f;
         Retune(f0);
         hiss_hp.Set(Svf::HP, fs, 6000.f, 0.707f), hiss_hp.Reset();
         hiss_shelf.Set(Svf::HSHELF, fs, 5000.f, 0.7f, 0.f), hiss_shelf.Reset();
         hiss_env = 0.f, hiss_db = 0.f, hiss_applied = 0.f;
-        c_det     = Coef(60.f, fs);
+        c_det     = Coef(60.f, fs_d);
         for(int b = 0; b < NoiseProfile::kBands; b++)
         {
             hb_det[b].Set(Svf::BP, fs, kHissBandHz[b], 1.4f), hb_det[b].Reset();
@@ -220,9 +277,9 @@ struct HumStage
         for(int h = 0; h < kH; h++)
         {
             const float fh = f0 * float(h + 1);
-            notch[h].Set(Svf::BELL, fs, fh, NotchQ(fh), 0.f), notch[h].Reset();
-            narrow[h].Set(Svf::BP, fs, fh, NotchQ(fh)), narrow[h].Reset();
-            broad[h].Set(Svf::BP, fs, fh, 2.f), broad[h].Reset();
+            notch[h].Set(Svf::BELL, fs, fh, NotchQ(fh), 0.f), notch[h].Reset(), notch_on[h] = false;
+            narrow[h].Set(Svf::BP, fs_d, fh, NotchQ(fh)), narrow[h].Reset();
+            broad[h].Set(Svf::BP, fs_d, fh, 2.f), broad[h].Reset();
             en[h] = eb[h] = 0.f, depth_db[h] = 0.f, applied[h] = 0.f;
         }
     }
@@ -300,11 +357,12 @@ struct HumStage
     inline void Run(float& l, float& r)
     {
         const float m = 0.5f * (l + r);
-        for(int b = 0; b < NoiseProfile::kBands; b++) // band levels: for learning, the gate and the display
-        {
-            const float d = hb_det[b].Run(0, m), sq = d * d;
-            hb_env[b] += (sq - hb_env[b]) * (sq > hb_env[b] ? c_hb_up : c_hb_dn);
-        }
+        if(learning || use_learned) // band levels: for learning and the learned gate
+            for(int b = 0; b < NoiseProfile::kBands; b++)
+            {
+                const float d = hb_det[b].Bp(0, m), sq = d * d;
+                hb_env[b] += (sq - hb_env[b]) * (sq > hb_env[b] ? c_hb_up : c_hb_dn);
+            }
         if(use_learned)
         {
             for(int t = 0; t < prof.n_tones; t++)
@@ -313,23 +371,40 @@ struct HumStage
                 l = hb_bell[b].Run(0, l), r = hb_bell[b].Run(1, r);
             return;
         }
-        for(int i = 0; i < 4; i++)
+        acc_m += aa[1].Lp(0, aa[0].Lp(0, m));
+        if(++dec_n == kDec) // the hum detectors, at 6 kHz
         {
-            const float d = det[i].Run(0, m);
-            e_det[i] += (d * d - e_det[i]) * c_det;
+            const float md = acc_m / kDec;
+            acc_m = 0.f, dec_n = 0;
+            for(int i = 0; i < 4; i++)
+            {
+                const float d = det[i].Bp(0, md);
+                e_det[i] += (d * d - e_det[i]) * c_det;
+            }
+            for(int h = 0; h < kH; h++)
+            {
+                const float n = narrow[h].Bp(0, md), b = broad[h].Bp(0, md);
+                en[h] += (n * n - en[h]) * c_det;
+                eb[h] += (b * b - eb[h]) * c_det;
+            }
         }
-        for(int h = 0; h < kH; h++)
+        for(int h = 0; h < kH; h++) // a notch with no depth is a plain wire: skipped
         {
-            const float n = narrow[h].Run(0, m), b = broad[h].Run(0, m);
-            en[h] += (n * n - en[h]) * c_det;
-            eb[h] += (b * b - eb[h]) * c_det;
-            l = notch[h].Run(0, l);
-            r = notch[h].Run(1, r);
+            const bool on = fabsf(applied[h]) > 0.05f;
+            if(on && !notch_on[h])
+                notch[h].Reset();
+            notch_on[h] = on;
+            if(on)
+                l = notch[h].Run(0, l), r = notch[h].Run(1, r);
         }
-        const float hf = hiss_hp.Run(0, m), p = hf * hf;
+        const float hf = hiss_hp.Hp(0, m), p = hf * hf;
         hiss_env += (p - hiss_env) * (p > hiss_env ? c_hiss_up : c_hiss_dn);
-        l = hiss_shelf.Run(0, l);
-        r = hiss_shelf.Run(1, r);
+        const bool hs = fabsf(hiss_applied) > 0.05f;
+        if(hs && !hiss_on)
+            hiss_shelf.Reset();
+        hiss_on = hs;
+        if(hs)
+            l = hiss_shelf.Run(0, l), r = hiss_shelf.Run(1, r);
     }
 };
 
@@ -339,6 +414,7 @@ struct DynEqStage
     static constexpr int kB = 4;
     Svf   peak[kB], detect[kB];
     float env[kB] = {}, dyn_db[kB] = {}, applied[kB] = {}, cached_f[kB] = {}, cached_q[kB] = {};
+    bool  bell_on[kB] = {};
     float level_db[kB] = {-120.f, -120.f, -120.f, -120.f}; // detector level (for the display)
     float fs = 48000.f, att = 0.f, rel = 0.f;
 
@@ -377,11 +453,15 @@ struct DynEqStage
         const float il = l, ir = r;
         for(int b = 0; b < kB; b++)
         {
-            const float dl = detect[b].Run(0, il), dr = detect[b].Run(1, ir);
+            const float dl = detect[b].Bp(0, il), dr = detect[b].Bp(1, ir);
             const float sq = fmaxf(dl * dl, dr * dr);
             env[b] += (sq - env[b]) * (sq > env[b] ? att : rel);
-            l = peak[b].Run(0, l);
-            r = peak[b].Run(1, r);
+            const bool on = fabsf(applied[b]) > 0.02f && applied[b] < 999.f; // a 0 dB band is a plain wire: skipped
+            if(on && !bell_on[b])
+                peak[b].Reset();
+            bell_on[b] = on;
+            if(on)
+                l = peak[b].Run(0, l), r = peak[b].Run(1, r);
         }
     }
 };
@@ -428,7 +508,7 @@ struct CompStage
         const float hl = sc.Run(0, l), hr = sc.Run(1, r);
         const float sq = fmaxf(hl * hl, hr * hr);
         p += (sq - p) * c_det;
-        in_db          = PowToDb(p) + 3.f;
+        in_db          = FastPowToDb(p) + 3.f;
         const float gr = Curve(in_db);
         Follow(env_fast, gr, c_rel, c_att); // gr is negative: "falling" = more reduction = attack
         float g = env_fast;
@@ -438,7 +518,7 @@ struct CompStage
             g = fminf(env_fast, env_slow);
         }
         gr_db         = g;
-        const float k = DbToLin(g + makeup);
+        const float k = FastDbToLin(g + makeup);
         l *= k, r *= k;
     }
 };
@@ -461,8 +541,8 @@ struct MultibandStage
         }
         inline void Run(int ch, float x, float& lo, float& hi)
         {
-            lo = lp[1].Run(ch, lp[0].Run(ch, x));
-            hi = hp[1].Run(ch, hp[0].Run(ch, x));
+            lo = lp[1].Lp(ch, lp[0].Lp(ch, x));
+            hi = hp[1].Hp(ch, hp[0].Hp(ch, x));
         }
     };
     Lr4   x_mid, x_low, x_high;  // 1 kHz, then 120 Hz (low side) and 6 kHz (high side)
@@ -470,6 +550,9 @@ struct MultibandStage
     float p[kB] = {}, avg[kB] = {}, gr[kB] = {}, mk[kB] = {}, g[kB] = {1.f, 1.f, 1.f, 1.f}, amt[kB] = {};
     float c_det[kB] = {}, c_att[kB] = {}, c_rel[kB] = {}, c_avg = 0.f, c_warm = 0.f, c_g = 0.f, fs = 48000.f;
     int   warm[kB] = {}, warm_n = 9600;
+    static constexpr int kGrEvery = 8; // the gain maths every 8 samples (the level is still followed every sample)
+    int   gr_n = 0;
+    float g_want[kB] = {1.f, 1.f, 1.f, 1.f};
     float level_db[kB] = {-120.f, -120.f, -120.f, -120.f};
     static float Xover(int i) { return i == 0 ? 120.f : (i == 1 ? 1000.f : 6000.f); }
 
@@ -483,7 +566,7 @@ struct MultibandStage
         for(int b = 0; b < kB; b++)
         {
             p[b] = avg[b] = 0.f, gr[b] = mk[b] = 0.f, g[b] = 1.f, warm[b] = 0;
-            c_det[b] = Coef(det_ms[b], fs), c_att[b] = Coef(att_ms[b], fs), c_rel[b] = Coef(rel_ms[b], fs);
+            c_det[b] = Coef(det_ms[b], fs), c_att[b] = Coef(att_ms[b], fs / kGrEvery), c_rel[b] = Coef(rel_ms[b], fs / kGrEvery); // (gain maths every 8 samples)
         }
         c_avg = Coef(3000.f, fs), c_warm = Coef(60.f, fs), c_g = Coef(2.f, fs);
         warm_n = int(0.2f * fs);
@@ -521,18 +604,23 @@ struct MultibandStage
                 avg[b] += (p[b] - avg[b]) * (warm[b] < warm_n ? c_warm : c_avg);
                 warm[b] += warm[b] < warm_n ? 1 : 0;
             }
-            if(amt[b] > 0.001f)
+            if(gr_n == 0)
             {
-                // above (its average + 8 dB, down to + 2 dB at full amount): ratio 1.5 .. 5
-                const float over = PowToDb(p[b]) - (PowToDb(avg[b]) + 8.f - 6.f * amt[b]);
-                const float target = over > 0.f ? -over * (1.f - 1.f / (1.5f + 3.5f * amt[b])) : 0.f;
-                gr[b] += (target - gr[b]) * (target < gr[b] ? c_att[b] : c_rel[b]);
+                if(amt[b] > 0.001f)
+                {
+                    // above (its average + 8 dB, down to + 2 dB at full amount): ratio 1.5 .. 5
+                    const float over   = FastPowToDb(p[b]) - (FastPowToDb(avg[b]) + 8.f - 6.f * amt[b]);
+                    const float target = over > 0.f ? -over * (1.f - 1.f / (1.5f + 3.5f * amt[b])) : 0.f;
+                    gr[b] += (target - gr[b]) * (target < gr[b] ? c_att[b] : c_rel[b]);
+                }
+                else
+                    gr[b] += (0.f - gr[b]) * c_rel[b];
+                g_want[b] = FastDbToLin(gr[b] + mk[b]);
             }
-            else
-                gr[b] += (0.f - gr[b]) * c_rel[b];
-            g[b] += (DbToLin(gr[b] + mk[b]) - g[b]) * c_g;
+            g[b] += (g_want[b] - g[b]) * c_g;
             ol += band[0][b] * g[b], orr += band[1][b] * g[b];
         }
+        gr_n = (gr_n + 1) % kGrEvery;
         l = ol, r = orr;
     }
 };
@@ -561,6 +649,11 @@ struct ClarityStage
     float detail = 0.f, p_harm = 0.f, detail_view_db = 0.f;
     Svf   det[kD];
     float det_hz[kD] = {}, p_det[kD] = {};
+    // the 12 lowest detectors (up to ~1.3 kHz) run on a low-passed 1/8-rate copy (6 kHz); the rest at full rate
+    static constexpr int kLowDet = 12, kDec = 8;
+    Svf   aa[2];
+    float acc_m = 0.f, c_det_d = 0.f;
+    int   dec_n = 0;
     float dev_db[kD] = {}; // what it hears: each spot above (+) or below (-) the smooth balance (for the screen)
     Band  band[kMaxBands];
     int   mode = 0, n_bands = 6, live_n = 0;
@@ -582,15 +675,18 @@ struct ClarityStage
         for(int i = 0; i < kD; i++) // 40 Hz .. 16 kHz, ~0.45 octave apart
         {
             det_hz[i] = 40.f * powf(400.f, float(i) / float(kD - 1));
-            det[i].Set(Svf::BP, fs, det_hz[i], 2.2f), det[i].Reset();
+            det[i].Set(Svf::BP, i < kLowDet ? fs / kDec : fs, det_hz[i], 2.2f), det[i].Reset();
             p_det[i] = 0.f, dev_db[i] = 0.f;
         }
+        for(Svf& f : aa)
+            f.Set(Svf::LP, fs, 2000.f, 0.7071f), f.Reset();
+        acc_m = 0.f, dec_n = 0;
         for(Band& b : band)
             b = Band{}, b.f.Set(Svf::BELL, fs, 1000.f, 1.f, 0.f), b.f.Reset();
         live_n = 0, since = 0.f, cut_most = lift_most = 0.f;
         c_lf_up = Coef(2.f, fs), c_lf_dn = Coef(40.f, fs);
         c_ls_up = Coef(150.f, fs), c_ls_dn = Coef(300.f, fs);
-        c_avg = Coef(150.f, fs), c_pk_dn = Coef(60.f, fs), c_det = Coef(200.f, fs);
+        c_avg = Coef(150.f, fs), c_pk_dn = Coef(60.f, fs), c_det = Coef(200.f, fs), c_det_d = Coef(200.f, fs / kDec);
         Apply(true);
     }
     void Apply(bool force)
@@ -735,20 +831,31 @@ struct ClarityStage
     inline void Run(float& l, float& r)
     {
         const float m  = 0.5f * (l + r);
-        const float lo = d_low.Run(0, m), lp = lo * lo;
+        const float lo = d_low.Lp(0, m), lp = lo * lo;
         Follow(low_fast, lp, c_lf_up, c_lf_dn);
         Follow(low_slow, lp, c_ls_up, c_ls_dn);
         p_full += (m * m - p_full) * c_avg;
-        for(int i = 0; i < kD; i++)
+        for(int i = kLowDet; i < kD; i++)
         {
-            const float v = det[i].Run(0, m);
+            const float v = det[i].Bp(0, m);
             p_det[i] += (v * v - p_det[i]) * c_det;
+        }
+        acc_m += aa[1].Lp(0, aa[0].Lp(0, m));
+        if(++dec_n == kDec)
+        {
+            const float md = acc_m / kDec;
+            acc_m = 0.f, dec_n = 0;
+            for(int i = 0; i < kLowDet; i++)
+            {
+                const float v = det[i].Bp(0, md);
+                p_det[i] += (v * v - p_det[i]) * c_det_d;
+            }
         }
         float x[2] = {l, r};
         if(detail > 0.001f)
         {
             // bass detail: 2nd + 3rd harmonics of the bass (Chebyshev, level-tracking), only the harmonics kept
-            const float bl = det_lp.Run(0, l), br = det_lp.Run(1, r);
+            const float bl = det_lp.Lp(0, l), br = det_lp.Lp(1, r);
             const float pk = fmaxf(fabsf(bl), fabsf(br));
             bass_pk        = pk > bass_pk ? pk : bass_pk + (pk - bass_pk) * c_pk_dn;
             const float b[2] = {bl, br};
@@ -756,7 +863,7 @@ struct ClarityStage
             {
                 const float xn = Clampf(b[ch] / (bass_pk + 1e-5f), -1.f, 1.f);
                 float       h  = (0.55f * (2.f * xn * xn - 1.f) + 0.45f * (4.f * xn * xn * xn - 3.f * xn)) * bass_pk;
-                h              = det_out.Run(ch, det_hp.Run(ch, h));
+                h              = det_out.Lp(ch, det_hp.Hp(ch, h));
                 h *= detail * 1.5f;
                 x[ch] += h;
                 if(ch == 0)
@@ -779,15 +886,15 @@ struct ClarityStage
 struct SaturateStage
 {
     Svf   dc, tone;
-    float x1[2] = {};
+    float x1[2] = {}, f1[2] = {}; // last input and its antiderivative (worked out once, used twice)
     float gain = 1.f, bias = 0.f, tb = 0.f, norm = 1.f, mix = 1.f, tone_hz = 0.f;
     float drive_pk = 0.f; // for the display
     float fs = 48000.f;
 
-    static float LogCosh(float u)
+    static float LogCosh(float u) // log(cosh(u)), with the fast exp / log (error ~0.00002)
     {
         const float a = fabsf(u);
-        return a + log1pf(expf(-2.f * a)) - 0.69314718f;
+        return a + 0.693147181f * FastLog2(1.f + FastExp2(-2.885390082f * a)) - 0.69314718f;
     }
     float F(float x) const { return LogCosh(x + bias) - x * tb; } // antiderivative of tanh(x+b) - tanh(b)
     float Fn(float x) const { return tanhf(x + bias) - tb; }
@@ -804,6 +911,8 @@ struct SaturateStage
         bias             = even * 0.6f;
         tb               = tanhf(bias);
         norm             = 1.f / (gain * (1.f - tb * tb));
+        for(int ch = 0; ch < 2; ch++) // the curve may have changed: refresh the cached antiderivative
+            f1[ch] = F(x1[ch]);
         mix              = mix01;
         const float want = 4000.f * powf(2.f, tone01 * 2.3f);
         if(fabsf(want - tone_hz) > 1.f)
@@ -819,8 +928,9 @@ struct SaturateStage
             pk              = fmaxf(pk, fabsf(x));
             const float d   = x - x1[ch];
             // 1st-order antiderivative anti-aliasing: the average of the curve between two samples
-            const float y = fabsf(d) > 1e-4f ? (F(x) - F(x1[ch])) / d : Fn(0.5f * (x + x1[ch]));
-            x1[ch]        = x;
+            const float fx = F(x);
+            const float y  = fabsf(d) > 1e-4f ? (fx - f1[ch]) / d : Fn(0.5f * (x + x1[ch]));
+            x1[ch] = x, f1[ch] = fx;
             const float wet = tone.Run(ch, dc.Run(ch, y * norm));
             *io[ch]         = dry + (wet - dry) * mix;
         }
@@ -836,6 +946,7 @@ struct DeHarshStage
     Svf   det[kD], cut[kD], comfort;
     DuckWeight kw; // anti-duck: "how loud" for the comfort dip ignores the bass
     float p[kD] = {}, cut_db[kD] = {}, applied[kD] = {}, p_full = 0.f, comfort_db = 0.f, comfort_ap = 1000.f;
+    bool  cut_on[kD] = {};
     float c_att = 0.f, c_rel = 0.f, c_full = 0.f;
     float fs = 48000.f;
 
@@ -880,10 +991,14 @@ struct DeHarshStage
         p_full += (w * w - p_full) * c_full;
         for(int i = 0; i < kD; i++)
         {
-            const float d = det[i].Run(0, m), sq = d * d;
+            const float d = det[i].Bp(0, m), sq = d * d;
             p[i] += (sq - p[i]) * (sq > p[i] ? c_att : c_rel);
-            l = cut[i].Run(0, l);
-            r = cut[i].Run(1, r);
+            const bool on = fabsf(applied[i]) > 0.05f; // an idle cut is a plain wire: skipped
+            if(on && !cut_on[i])
+                cut[i].Reset();
+            cut_on[i] = on;
+            if(on)
+                l = cut[i].Run(0, l), r = cut[i].Run(1, r);
         }
         l = comfort.Run(0, l);
         r = comfort.Run(1, r);
@@ -1057,15 +1172,17 @@ struct LoudnessStage
 // The last word on ducking. It compares how loud the mids and highs are coming out against going in
 // (bass-free loudness, K-weighted), and learns the normal ratio from ordinary moments. When the bass gets
 // heavy and the processing has still pulled the rest of the track under that ratio, it lifts everything
-// above 120 Hz back up (at most +6 dB, before the safety limiter). Ordinary compression of loud parts is
+// above ~150 Hz back up with a high shelf (at most +6 dB, before the safety limiter). Ordinary compression of loud parts is
 // left alone: it only acts while the bass is heavy. A changed setting re-learns the ratio (Rebase).
 struct AntiDuckStage
 {
     DuckWeight w_in, w_out;
     Svf   lo_in;
-    MultibandStage::Lr4 xo; // 120 Hz split: everything above it gets the lift
-    float p_in = 0.f, p_out = 0.f, p_full = 0.f, p_lo = 0.f, c_p = 0.f, c_g = 0.f;
-    float ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = 0.f, heavy_hold = 0.f, g = 1.f, rebase_s = 0.f;
+    Svf   lift;            // the lift: a high shelf from ~150 Hz up (only run while it lifts)
+    float lift_ap = 0.f;
+    bool  lift_on = false;
+    float p_in = 0.f, p_out = 0.f, p_full = 0.f, p_lo = 0.f, c_p = 0.f;
+    float ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = 0.f, heavy_hold = 0.f, rebase_s = 0.f;
     bool  have_ref = false;
     float fs = 48000.f;
 
@@ -1074,10 +1191,10 @@ struct AntiDuckStage
         fs = sr;
         w_in.Init(fs, 300.f), w_out.Init(fs, 300.f); // "the rest of the track": everything from 300 Hz up
         lo_in.Set(Svf::LP, fs, 120.f, 0.707f), lo_in.Reset();
-        xo.Set(fs, 120.f);
+        lift.Set(Svf::HSHELF, fs, 150.f, 0.6f, 0.f), lift.Reset(), lift_ap = 0.f, lift_on = false;
         p_in = p_out = p_full = p_lo = 0.f;
-        ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = heavy_hold = 0.f, g = 1.f, rebase_s = 0.f, have_ref = false;
-        c_p = Coef(400.f, fs), c_g = Coef(5.f, fs);
+        ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = heavy_hold = 0.f, rebase_s = 0.f, have_ref = false;
+        c_p = Coef(400.f, fs);
     }
     void Rebase() { rebase_s = 0.6f; } // a setting changed: learn the normal ratio again in a moment
     void Update(float block_s)
@@ -1101,18 +1218,22 @@ struct AntiDuckStage
                 target = Clampf(ref - ratio, 0.f, 6.f) * heavy;
         }
         boost_db += (target - boost_db) * (1.f - expf(-block_s / (target > boost_db ? 0.08f : 0.4f)));
+        if(fabsf(boost_db - lift_ap) > 0.05f)
+            lift.Set(Svf::HSHELF, fs, 150.f, 0.6f, boost_db), lift_ap = boost_db;
     }
     // dl, dr = the sound as it came in; l, r = after every stage (changed in place)
     inline void Run(float dl, float dr, float& l, float& r)
     {
-        const float mi = 0.5f * (dl + dr), wi = w_in.Run(0, mi), lo = lo_in.Run(0, mi);
+        const float mi = 0.5f * (dl + dr), wi = w_in.Run(0, mi), lo = lo_in.Lp(0, mi);
         p_in += (wi * wi - p_in) * c_p, p_full += (mi * mi - p_full) * c_p, p_lo += (lo * lo - p_lo) * c_p;
         const float wo = w_out.Run(0, 0.5f * (l + r)); // measured before the lift: no feedback loop
         p_out += (wo * wo - p_out) * c_p;
-        g += (DbToLin(boost_db) - g) * c_g;
-        float lol, hil, lor, hir;
-        xo.Run(0, l, lol, hil), xo.Run(1, r, lor, hir);
-        l = lol + hil * g, r = lor + hir * g;
+        const bool on = fabsf(lift_ap) > 0.05f;
+        if(on && !lift_on)
+            lift.Reset();
+        lift_on = on;
+        if(on)
+            l = lift.Run(0, l), r = lift.Run(1, r);
     }
 };
 
@@ -1126,7 +1247,7 @@ struct SafetyStage
     Svf   hp[kHp], lp[kLp];
     // detectors, steep so normal music never trips them: ultrasonic = 8th-order high-pass at 21 kHz,
     // infrasonic = 6th-order low-pass at 10 Hz (input) / 5 Hz (output, after the 20 Hz high-pass)
-    Svf   u_in[4], u_out[4], i_in[3], i_out[3];
+    Svf   u_in[2], u_out[4], i_in[3], i_out[3]; // (the input's ultrasonic check is only a note: 4th order is plenty)
     float p_u_in = 0.f, p_i_in = 0.f, p_u_out = 0.f, p_i_out = 0.f, c_det = 0.f;
     float ultra_in_db = -200.f, infra_in_db = -200.f, ultra_out_db = -200.f, infra_out_db = -200.f;
     bool  ultra_possible = true; // false when the sample rate can't even carry ultrasonic sound
@@ -1135,6 +1256,30 @@ struct SafetyStage
     Svf   post;      // 8 Hz high-pass after the limiter: clears the slow wobble its gain riding can leave
     MultibandStage::Lr4 xo; // 120 Hz Linkwitz-Riley split (low + high add back up flat): peaks from the bass are caught in the bass
     float d_lo[2][kMaxLook] = {}, need_lo[kMaxLook] = {}, gb = 1.f, bass_limit_db = 0.f, c_rel_b = 0.f;
+    float k_ear = 1.f; // the ear cap + blast guard as a gain (worked out once per block)
+    bool  woof_on = false, tweet_on = false;
+    // the limiter's look-ahead minimum, kept as it slides (instead of scanning 48 values every sample)
+    struct SlideMin
+    {
+        float v[kMaxLook] = {};
+        int   t[kMaxLook] = {}, head = 0, n = 0, now = 0;
+        void  Reset() { head = n = now = 0; }
+        float Push(float x, int window)
+        {
+            while(n > 0 && v[(head + n - 1) % kMaxLook] >= x) // drop the newer-but-bigger ones from the back
+                n--;
+            const int at = (head + n) % kMaxLook;
+            v[at] = x, t[at] = now, n++;
+            while(t[head] <= now - window) // drop what slid out of the window at the front
+                head = (head + 1) % kMaxLook, n--;
+            now++;
+            return v[head];
+        }
+    } win, win_lo;
+    // infrasonic detectors run on a 1/16-rate copy (they only look below 10 Hz)
+    static constexpr int kInfraDec = 16;
+    float i_acc_in = 0.f, i_acc_out = 0.f, c_det_i = 0.f;
+    int   i_n = 0;
     float p_low = 0.f, p_high = 0.f, p_ear = 0.f, p_fast = 0.f, dc_avg = 0.f;
     float woof_db = 0.f, tweet_db = 0.f, ear_db = 0.f, blast_db = 0.f, woof_ap = 1000.f, tweet_ap = 1000.f;
     float lvl_low = -120.f, lvl_high = -120.f, lvl_ear = -120.f; // for the display
@@ -1162,9 +1307,14 @@ struct SafetyStage
         ultra_possible = fs * 0.47f > 21000.f;
         static const float q8[4] = {0.5098f, 0.6013f, 0.9000f, 2.5629f};
         for(int i = 0; i < 4; i++)
-            u_in[i].Set(Svf::HP, fs, 21000.f, q8[i]), u_out[i].Set(Svf::HP, fs, 21000.f, q8[i]), u_in[i].Reset(), u_out[i].Reset();
+            u_out[i].Set(Svf::HP, fs, 21000.f, q8[i]), u_out[i].Reset();
+        static const float q4[2] = {0.5412f, 1.3066f};
+        for(int i = 0; i < 2; i++)
+            u_in[i].Set(Svf::HP, fs, 21000.f, q4[i]), u_in[i].Reset();
         for(int i = 0; i < 3; i++)
-            i_in[i].Set(Svf::LP, fs, 10.f, q6[i]), i_out[i].Set(Svf::LP, fs, 5.f, q6[i]), i_in[i].Reset(), i_out[i].Reset();
+            i_in[i].Set(Svf::LP, fs / kInfraDec, 10.f, q6[i]), i_out[i].Set(Svf::LP, fs / kInfraDec, 5.f, q6[i]), i_in[i].Reset(), i_out[i].Reset();
+        i_acc_in = i_acc_out = 0.f, i_n = 0, c_det_i = Coef(50.f, fs / kInfraDec);
+        win.Reset(), win_lo.Reset(), k_ear = 1.f;
         u_over_ms = i_over_ms = 0.f;
         p_u_in = p_i_in = p_u_out = p_i_out = 0.f;
         c_det = Coef(50.f, fs);
@@ -1214,6 +1364,7 @@ struct SafetyStage
         const float fast  = PowToDb(p_fast) + 3.f;
         const float blast = (fast > ear_max + 6.f && fast - lvl_ear > 15.f) ? -Clampf(fast - (ear_max + 6.f), 0.f, 30.f) : 0.f;
         Follow(blast_db, blast, 1.f - expf(-block_s / 0.4f), 1.f - expf(-block_s / 0.001f));
+        k_ear = DbToLin(ear_db + blast_db);
         if(fabsf(woof_db - woof_ap) > 0.05f)
             woof.Set(Svf::LSHELF, fs, 150.f, 0.7f, woof_db), woof_ap = woof_db;
         if(fabsf(tweet_db - tweet_ap) > 0.05f)
@@ -1252,6 +1403,7 @@ struct SafetyStage
         xo.Set(fs, 120.f);
         post.Reset();
         ew.a.Reset(), ew.b.Reset(), gb = 1.f;
+        win.Reset(), win_lo.Reset(), i_acc_out = 0.f;
     }
     inline void Run(float& l, float& r)
     {
@@ -1270,22 +1422,29 @@ struct SafetyStage
         // 2. hearing range only: watch what's outside it coming in, then remove it (20 Hz - 19.5 kHz)
         {
             const float mi = 0.5f * (l + r);
-            float u = mi, i = mi;
+            float u = mi;
             for(Svf& f : u_in)
-                u = f.Run(0, u);
-            for(Svf& f : i_in)
-                i = f.Run(0, i);
-            p_u_in += (u * u - p_u_in) * c_det, p_i_in += (i * i - p_i_in) * c_det;
+                u = f.Hp(0, u);
+            p_u_in += (u * u - p_u_in) * c_det;
+            i_acc_in += mi;
         }
         for(Svf& f : hp)
-            l = f.Run(0, l), r = f.Run(1, r);
+            l = f.Hp(0, l), r = f.Hp(1, r);
         for(Svf& f : lp)
-            l = f.Run(0, l), r = f.Run(1, r);
+            l = f.Lp(0, l), r = f.Lp(1, r);
         // 3. speakers: the long-term power in the woofer and tweeter ranges kept under their limits
         //    (voice coils stay cool)
-        l = tweet.Run(0, woof.Run(0, l));
-        r = tweet.Run(1, woof.Run(1, r));
-        const float m = 0.5f * (l + r), lo = d_low.Run(0, m), hi = d_high.Run(0, m);
+        const bool wo = fabsf(woof_ap) > 0.05f, tw = fabsf(tweet_ap) > 0.05f; // at 0 dB they are plain wires: skipped
+        if(wo && !woof_on)
+            woof.Reset();
+        if(tw && !tweet_on)
+            tweet.Reset();
+        woof_on = wo, tweet_on = tw;
+        if(wo)
+            l = woof.Run(0, l), r = woof.Run(1, r);
+        if(tw)
+            l = tweet.Run(0, l), r = tweet.Run(1, r);
+        const float m = 0.5f * (l + r), lo = d_low.Lp(0, m), hi = d_high.Hp(0, m);
         p_low += (lo * lo - p_low) * c_low;
         p_high += (hi * hi - p_high) * c_high;
         const float el = ew.Run(0, l), er = ew.Run(1, r), pw = fmaxf(el * el, er * er);
@@ -1293,7 +1452,7 @@ struct SafetyStage
         p_fast += (pw - p_fast) * c_fast;
         // 3. ears: long-term loudness cap + blast guard + glitch mute
         mute += (mute_target - mute) * (mute_target < mute ? c_mute_dn : c_mute_up);
-        const float k = DbToLin(ear_db + blast_db) * mute;
+        const float k = k_ear * mute;
         l *= k, r *= k;
         // 4. 1 ms look-ahead peak limiter, then a hard ceiling that nothing can pass. Anti-duck: a peak that
         //    comes from the bass is taken out of the bass alone (the mids and highs stay as loud as they were);
@@ -1313,23 +1472,30 @@ struct SafetyStage
         const float pk = fmaxf(fabsf(lol * gn + hil), fabsf(lor * gn + hir));
         need[pos]      = pk > c ? c / pk : 1.f;
         delay[0][pos] = hil, delay[1][pos] = hir, d_lo[0][pos] = lol, d_lo[1][pos] = lor;
-        float mn = 1.f, mb = 1.f;
-        for(int i = 0; i < look; i++)
-            mn = need[i] < mn ? need[i] : mn, mb = need_lo[i] < mb ? need_lo[i] : mb;
+        const float mn = win.Push(need[pos], look), mb = win_lo.Push(need_lo[pos], look);
         gl += (mn - gl) * (mn < gl ? c_att : c_rel);
         gb += (mb - gb) * (mb < gb ? c_att : c_rel_b);
         const int rd = (pos + 1) % look;
-        l            = Clampf(post.Run(0, (d_lo[0][rd] * gb + delay[0][rd]) * gl), -ceiling, ceiling);
-        r            = Clampf(post.Run(1, (d_lo[1][rd] * gb + delay[1][rd]) * gl), -ceiling, ceiling);
+        l            = Clampf(post.Hp(0, (d_lo[0][rd] * gb + delay[0][rd]) * gl), -ceiling, ceiling);
+        r            = Clampf(post.Hp(1, (d_lo[1][rd] * gb + delay[1][rd]) * gl), -ceiling, ceiling);
         pos          = rd;
         // 5. check what actually leaves: nothing outside the hearing range may get out
         const float mo = 0.5f * (l + r);
-        float       uo = mo, io = mo;
+        float       uo = mo;
         for(Svf& f : u_out)
-            uo = f.Run(0, uo);
-        for(Svf& f : i_out)
-            io = f.Run(0, io);
-        p_u_out += (uo * uo - p_u_out) * c_det, p_i_out += (io * io - p_i_out) * c_det;
+            uo = f.Hp(0, uo);
+        p_u_out += (uo * uo - p_u_out) * c_det;
+        i_acc_out += mo;
+        if(++i_n == kInfraDec) // the infrasonic detectors, on the averaged 1/16-rate signal
+        {
+            float i = i_acc_in / kInfraDec, io = i_acc_out / kInfraDec;
+            for(Svf& f : i_in)
+                i = f.Lp(0, i);
+            for(Svf& f : i_out)
+                io = f.Lp(0, io);
+            p_i_in += (i * i - p_i_in) * c_det_i, p_i_out += (io * io - p_i_out) * c_det_i;
+            i_acc_in = i_acc_out = 0.f, i_n = 0;
+        }
     }
 };
 // ------------------------------------------------------------------ 11. pid (auto-adjust)
@@ -1380,14 +1546,14 @@ struct PidStage
     {
         *this = PidStage{};
         for(int a = 0; a < kA; a++)
-            bp[a].Set(Svf::BP, fs, kPidCentre[a], 1.f), bp[a].Reset();
+            bp[a].Set(Svf::BP, fs, kPidCentre[a], 1.f), bp[a].Reset(), oct_c[a] = Oct(kPidCentre[a]);
     }
     inline void Run(float l, float r)
     {
         const float m = 0.5f * (l + r);
         for(int a = 0; a < kA; a++)
         {
-            const float y = bp[a].Run(0, m);
+            const float y = bp[a].Bp(0, m);
             acc[a] += y * y;
         }
         acc_sq += m * m;
@@ -1396,18 +1562,16 @@ struct PidStage
         acc_n++;
     }
     static float Oct(float hz) { return log2f(hz / 1000.f); }
+    float oct_c[kA] = {}; // the six bands' positions in octaves (worked out once)
     // a band's level vs the mean, read at any frequency (straight lines between the six bands)
-    static float At(const float* v, float hz)
+    float At(const float* v, float hz) const
     {
-        const float o = Oct(hz);
-        if(o <= Oct(kPidCentre[0]))
+        const float o = FastLog2(hz * 0.001f);
+        if(o <= oct_c[0])
             return v[0];
         for(int a = 1; a < kA; a++)
-            if(o <= Oct(kPidCentre[a]))
-            {
-                const float t = (o - Oct(kPidCentre[a - 1])) / (Oct(kPidCentre[a]) - Oct(kPidCentre[a - 1]));
-                return v[a - 1] + (v[a] - v[a - 1]) * t;
-            }
+            if(o <= oct_c[a])
+                return v[a - 1] + (v[a] - v[a - 1]) * (o - oct_c[a - 1]) / (oct_c[a] - oct_c[a - 1]);
         return v[kA - 1];
     }
     // one step of a PID loop: e = error, the output is held inside [lo, hi] and the integral
@@ -1454,9 +1618,9 @@ struct PidStage
             corr        = Clampf(slr / (sqrtf(sll * srr) + 1e-12f), -1.f, 1.f);
             float mean = 0.f, tmean = 0.f, db[kA];
             for(int a = 0; a < kA; a++)
-                db[a] = PowToDb(env[a]), mean += db[a] / float(kA), tmean += tilt * Oct(kPidCentre[a]) / float(kA);
+                db[a] = FastPowToDb(env[a]), mean += db[a] / float(kA), tmean += tilt * oct_c[a] / float(kA);
             for(int a = 0; a < kA; a++)
-                rel_db[a] = db[a] - mean, target_db[a] = tilt * Oct(kPidCentre[a]) - tmean;
+                rel_db[a] = db[a] - mean, target_db[a] = tilt * oct_c[a] - tmean;
         }
         const bool use[kG] = {(mask & 1) != 0, (mask & 2) != 0, (mask & 4) != 0, (mask & 8) != 0, (mask & 16) != 0, (mask & 32) != 0};
         auto loop = [&](Loop& l, int g, float e, float lo_, float hi_) {

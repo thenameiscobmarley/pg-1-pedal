@@ -9,6 +9,13 @@ Home page 1 has 8 tabs; page 2 (turn past the last tab, or tap the dots bottom-r
 
 `in -> hum -> input -> dyn eq -> comp -> multiband -> clarity -> saturate -> de-harsh -> width -> takeback -> loudness -> anti-duck -> [bypass] -> safety -> out`
 
+**Will it fit on the Seed3?** Checked on an emulated Cortex-M7 with the firmware's own compiler flags (`_Tools/seed3-bench`:
+`./build.sh && python3 seed3_load.py`, per tab: `python3 stages.py`). Worst case (every tab on, pid steering everything, clarity with
+10 bands): ~5,900 instructions per sample = **~59 % of the audio time** at a typical 1 clock per instruction (~89 % if it were 1.5).
+Default settings: ~51 %. The first version of these features measured 102-153 % (would not have run); fast exp/log, filters that
+compute only the output they need, slower-rate detectors, a sliding-minimum limiter and skipping idle filters brought it down.
+The plugin's cpu health check uses these numbers, so it warns when the pedal would.
+
 **Anti-duck (always on, every stage):** nothing turns the whole track down because the bass got heavy.
 - Every detector that can lower the whole sound (input auto-level, comp, de-harsh's comfort dip, loudness follow, the safety stage's ear meters and blast guard) listens through a steep 150 Hz high-pass, so bass doesn't count as "loud".
 - The safety peak limiter splits at 120 Hz: a peak that comes from the bass is taken out of the bass alone (up to -12 dB); only what that can't fix lowers everything.

@@ -1,0 +1,10 @@
+Seed3 load estimate (emulated Cortex-M7, firmware flags, worst case: every stage on, pid on all, clarity 10 bands)
+audio: 283,696 instructions per 48-sample block (5,910 per sample)
+  (core code 273,372; maths calls per block: expf 77, log10f 60, sinf 48, powf 18, log2f 7, logf 7)
+  upper bound with the maths run in software doubles: 91.7 % at 1.5 clocks/instruction
+  at 1.0 clocks/instruction: 59.1 % of the audio time
+  at 1.5 clocks/instruction: 88.7 % of the audio time
+screen: 2,781,946 instructions per frame on the visualizer page
+  at 1.0: room for ~71 frames/s of drawing (the SPI link's own limit is ~60 fps)
+  at 1.5: room for ~13 frames/s of drawing (the SPI link's own limit is ~60 fps)
+(emulation took 51 s)

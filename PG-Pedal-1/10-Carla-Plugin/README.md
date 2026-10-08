@@ -1,8 +1,15 @@
 # PG-1 Pedal (VST3 for Carla + standalone app)
 
 Your PG-1 as a plugin: a real-size 3D pedal with the **same screen, knobs, touch gestures and sound
-as the Seed3** (8 tabs: hum, dyn eq, comp, clarity, saturate, de-harsh, safety, visual). Both run `06-Firmware-DaisySeed/pg1/core` (PgCore), so whatever you build or change
+as the Seed3** (16 tabs over two home pages). Both run `06-Firmware-DaisySeed/pg1/core` (PgCore), so whatever you build or change
 in the core shows up identically on the PC and on the pedal.
+
+## Runs exactly like the Seed3
+- The core always runs at **48 kHz in 48-sample blocks**, the same as the pedal (`main.cpp`: `SAI_48KHZ`, `SetAudioBlockSize(48)`),
+  whatever rate and block size the host uses. Other host rates are resampled to 48 kHz and back; at 48 kHz samples pass through untouched.
+  The plugin reports its delay to the host (96 samples at 48 kHz: one Seed3 block + the safety limiter's 1 ms look-ahead).
+- The **health tab's cpu check shows the Seed3's load, not your PC's**: each tab's cost was measured on an emulated Cortex-M7 built
+  with the firmware's own flags (`_Tools/seed3-bench`, table in `Source/Seed3Costs.h`), so the plugin warns exactly when the real pedal would.
 
 ## Use it in Carla
 1. Build (below). The VST3 is copied to `~/.vst3/PG-1 Pedal.vst3` automatically.

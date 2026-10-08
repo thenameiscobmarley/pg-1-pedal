@@ -41,5 +41,7 @@ Room + safety (2026-10-07)
 - [x] 36. Seed3 cartridge: stands on its edge in a 19 x 52 window in the left wall, plugs into a socket board (2 female headers, 2 M3 screws), keyed by snipping pin 1; USB-C panel cable + foam tape removed; drill/print/drawings/BOM/3D model updated
 - [x] 37. PID tab (auto-adjust: steers eq / comp / mband / clarity / deharsh / width with user P, I, D; safe ranges; holds in silence) + visualizer scope, bars, history
 - [x] 38. Clarity: up to 10 self-placing bands (own freq / q / gain, cut or lift, 20 detectors, detrended); anti-duck everywhere (bass-free detectors, bass-first safety limiter, false infrasonic mute fixed, final duck guard): onset dips 7-12 dB -> <= 0.3 dB
+- [x] 39. Seed3 load checked on an emulated Cortex-M7 (_Tools/seed3-bench): was 102-153 % worst case, optimised to ~59 % (defaults ~51 %); plugin runs the core at 48 kHz / 48-sample blocks and reports the Seed3 load
+- [ ] 40. (decide) carrier PCB: line/instrument input buffers, headphone amp, ESD/over-voltage protection, pin headers (PCBWay/JLCPCB assembly)
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda

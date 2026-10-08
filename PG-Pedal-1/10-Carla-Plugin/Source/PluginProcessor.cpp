@@ -60,41 +60,36 @@ void PG1Processor::prepareToPlay (double sampleRate, int blockSize)
     for (int p = 0; p < pg::P_COUNT; ++p) keep[(size_t) p] = pedal.GetParam (p).value;
     for (int t = 0; t < pg::kTabs; ++t) stages[(size_t) t] = pedal.StageOn (t);
     const auto prof = pedal.Profile();
-    pedal.Init ((float) sampleRate, framebuffer.data());
+    pedal.Init ((float) Seed3Runner::kRate, framebuffer.data());   // the Seed3's rate, whatever the host runs at
+    runner.prepare (sampleRate);
     if (prof.valid)
         pedal.SetProfile (prof);
     for (int p = 0; p < pg::P_COUNT; ++p) pedal.SetParam (p, keep[(size_t) p]);
     for (int t = 0; t < pg::kTabs; ++t) pedal.SetStageOn (t, stages[(size_t) t]);
-    setLatencySamples (pedal.LatencySamples());   // the safety limiter's 1 ms look-ahead
+    setLatencySamples (runner.latency (pedal));   // one Seed3 block + the safety limiter's 1 ms look-ahead
     scratch.setSize (2, juce::jmax (1, blockSize));
+    outScratch.setSize (2, juce::jmax (1, blockSize));
 }
 
 void PG1Processor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    const auto t0 = juce::Time::getHighResolutionTicks();
-    struct Load   // health: report how much of the block's time the work took, however we leave
-    {
-        pg::Core& c; juce::int64 t0; int n; double sr;
-        ~Load() { c.ReportLoad ((float) (juce::Time::highResolutionTicksToSeconds (juce::Time::getHighResolutionTicks() - t0) * sr / juce::jmax (1, n))); }
-    } load { pedal, t0, buffer.getNumSamples(), getSampleRate() };
+    // health: report the load the Seed3 would have with these stages on (measured on an emulated Cortex-M7,
+    // Seed3Costs.h), not this computer's, so the cpu check warns exactly when the real pedal would be short of time
+    pedal.ReportLoad (seed3Load());
     const int n = buffer.getNumSamples(), inCh = getTotalNumInputChannels(), outCh = buffer.getNumChannels();
     if (scratch.getNumSamples() < n)
-        scratch.setSize (2, n, false, false, true);
+        scratch.setSize (2, n, false, false, true), outScratch.setSize (2, n, false, false, true);
 
     // the core is stereo in / stereo out, like the pedal's jacks: a mono input feeds both sides
     for (int ch = 0; ch < 2; ++ch)
         scratch.copyFrom (ch, 0, buffer, juce::jmin (ch, juce::jmax (0, inCh - 1)), 0, n);
 
     const float* in[2] = { scratch.getReadPointer (0), scratch.getReadPointer (1) };
-    float* out[2]      = { buffer.getWritePointer (0), buffer.getWritePointer (juce::jmin (1, outCh - 1)) };
-    if (outCh == 1)
-    {
-        float* tmp[2] = { buffer.getWritePointer (0), scratch.getWritePointer (1) };   // in[1] is read before written
-        pedal.Process (in, tmp, (size_t) n, nowMs());
-        return;
-    }
-    pedal.Process (in, out, (size_t) n, nowMs());
+    float* out[2]      = { outScratch.getWritePointer (0), outScratch.getWritePointer (1) };
+    runner.process (pedal, in, out, n, nowMs());   // 48 kHz, 48-sample blocks, like the Seed3
+    for (int ch = 0; ch < outCh; ++ch)
+        buffer.copyFrom (ch, 0, outScratch, juce::jmin (ch, 1), 0, n);
 }
 
 juce::AudioProcessorEditor* PG1Processor::createEditor() { return new PG1Editor (*this); }

@@ -5,3 +5,4 @@ venv/
 *.ppm
 PG-Pedal-1/06-Firmware-DaisySeed/pg1/build/
 PG-Pedal-1/10-Carla-Plugin/build/
+_Tools/seed3-bench/bench.elf

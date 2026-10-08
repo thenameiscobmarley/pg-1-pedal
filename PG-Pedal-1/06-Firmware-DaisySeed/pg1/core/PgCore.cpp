@@ -484,6 +484,7 @@ void Core::Process(const float* const* in, float* const* out, size_t n, uint32_t
         bool on[kTabs];
         for(int t = 0; t < kTabs; t++)
             on[t] = StageOn(t);
+        const bool hum_page = screen_ == PAGE && tab_ == T_HUM;
         for(size_t j = 0; j < m; j++)
         {
             const size_t i = done + j;
@@ -503,9 +504,12 @@ void Core::Process(const float* const* in, float* const* out, size_t n, uint32_t
             const float mono_in = 0.5f * (l + r);
             sq_in += mono_in * mono_in;
             ring_in_[ring_pos_] = mono_in;
-            const float lo = dec_lp_[1].Run(0, dec_lp_[0].Run(0, mono_in)); // for the hum learn's fine low end
-            if(++dec_n_ >= kDecim)
-                dec_n_ = 0, ring_lo_[lo_pos_] = lo, lo_pos_ = (lo_pos_ + 1) & (kRingLo - 1);
+            if(hum_page) // the hum learn's fine low end (only learned on the hum page)
+            {
+                const float lo = dec_lp_[1].Run(0, dec_lp_[0].Run(0, mono_in));
+                if(++dec_n_ >= kDecim)
+                    dec_n_ = 0, ring_lo_[lo_pos_] = lo, lo_pos_ = (lo_pos_ + 1) & (kRingLo - 1);
+            }
 
             const float dl = l, dr = r;
             // each stage fades in / out over ~10 ms when switched (no clicks); off = not computed

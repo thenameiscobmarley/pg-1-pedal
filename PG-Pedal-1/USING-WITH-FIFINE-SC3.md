@@ -11,8 +11,9 @@ pedal OUT ──[1/4" → 3.5 mm adapter]──► your headset
 - Cable: **3.5 mm male → 1/4" (6.35 mm) male, TRS stereo**. A mono (TS) cable loses the right channel.
 
 ## Output: straight to the headset
-- The Seed3's audio chip (TI TAC5242) can drive headphones, and gaming headsets are sensitive, so it should get loud enough.
-  Electro-Smith's own datasheet adds a headphone amp chip for headphones, though, so treat volume as "test it" until you've tried it.
+- **The Seed3 has no headphone amp.** Its outputs are line level (0 dBFS = 1 V rms); Electro-Smith's datasheet adds a headphone amp
+  chip (TPA6110A2, its "Figure 3.9") for headphones. A sensitive gaming headset may still get loud enough straight from the line out,
+  so treat it as "test it". If it's too quiet or thin, the fix is that amp chip (it's what the planned carrier board would add).
 - **The pedal has no volume knob of its own.** The safety tab caps the level (peak *ceiling*, long-term *ears*), and the input auto-level keeps it steady,
   but how loud that is in your ears depends on the headset. Hold the headset near your ears (not on) the first time.
 - **The auto-level undoes the SC3 volume knob** (it brings any level back to its target). So set loudness with the **input** tab's
