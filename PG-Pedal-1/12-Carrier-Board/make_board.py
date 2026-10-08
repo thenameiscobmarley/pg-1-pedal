@@ -53,8 +53,8 @@ GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its ti
     ("input", [(-23.4, 46.6, -9.6, 69.9), (-33.5, 30.6, -9.6, 46.0)], (-20.0, 42.0),
      "R30 R31 R32 R33 R34 R35 R36 R37 C30 C31 C32 C33 R40 R41 R42 R43 R44 R45 R46 R47 C40 C41 C42 C43 U8 C26 U11 C27 D61"),
     ("codec", [(-8.4, 48.6, 5.4, 69.9)], (0.0, 58.0), "U9 C18 C19 C20 C21 C22 C23 C24 C25 R8 R9 R10 R11 R12 R13 R14"),
-    # the DSP-set analog effect (a quad digital pot: level + filter per side, and its buffer) between the codec and the output stage
-    ("analog fx", [(8.4, 36.4, 29.8, 47.1)], (19.5, 41.5), "U13 U15 C74 C75 C76 C78"),
+    # fx loop: codec out -> J22 -> output stage (jumper caps close it; an add-on board plugs in instead)
+    ("fx loop", [(8.4, 36.4, 29.8, 47.1)], (19.5, 41.5), "J22"),
     ("output", [(6.0, 47.7, 23.4, 69.9)], (15.0, 58.0),
      "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 U10 C70 C71 C72 R70 C73 D62"),
     ("iso power", [(-9.0, 35.8, 8.0, 46.0)], (0.0, 41.0), "U7 C13 C14 C15 R5 C16 R6 R7 C17"),
@@ -66,7 +66,7 @@ GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its ti
 ]
 GROUP_OF = {r: g for g, _, _, rs in GROUPS for r in rs.split()}
 # the signal's path, drawn as arrows: (from, to, both ways); a name is a group, a J-number a jack or header
-FLOW = [("J1", "input", False), ("input", "codec", False), ("codec", "analog fx", False), ("analog fx", "output", False), ("output", "J2", False),
+FLOW = [("J1", "input", False), ("input", "codec", False), ("codec", "fx loop", False), ("fx loop", "output", False), ("output", "J2", False),
         ("codec", "isolation", True), ("isolation", "J10", True), ("output", "J19", True), ("input", "J20", True),
         ("J10", "power", False), ("J21", "power", True)]
 BOX_M, BOX_TITLE = 0.75, 1.5            # printed box: this far round the parts, plus room for its title on top
@@ -102,8 +102,7 @@ EDGE = 0.2                             # courtyard to board edge / the barrier (
 NET_W = {"IGND": 0.12, "GND": 0.12, "ISO3V3": 0.5, "+3V3": 0.5, "+5V": 0.6, "+9V": 0.6, "IBIAS": 0.7}
 STICK = {"C26": "U8", "C24": "U9", "C23": "U9", "C19": "U9", "C20": "U9", "C21": "U9", "C22": "U9", "C18": "U9",
          "C4": "U6", "C9": "U4", "C10": "U4", "C11": "U5", "C12": "U5", "C13": "U7", "C14": "U7", "C15": "U7",
-         "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10",
-         "C75": "U13", "C78": "U15"}   # keep these right at their chip
+         "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10"}   # keep these right at their chip
 
 
 def kpt(x, y):
@@ -620,7 +619,17 @@ def draw_groups(b, pl, nodes):
         fy = y1 - BOX_TITLE + 0.15   # the frame's top line; the name sits just above it
         for p, q in (((x0, y0), (x1, y0)), ((x1, y0), (x1, fy)), ((x1, fy), (x0, fy)), ((x0, fy), (x0, y0))):
             line(b, *p, *q, F, 0.12)
-        if g == "isolation":   # its title goes inside, bottom-right: its top is under the iso power and analog fx boxes
+        if g == "fx loop":   # the header's pin names, above / below its two rows (its own outline would cover them)
+            fp = b.FindFootprintByReference("J22")
+            for gi in fp.GraphicalItems():
+                if gi.GetLayer() == K.F_SilkS:
+                    gi.SetLayer(K.F_Fab)
+            pads = {p.GetNumber(): face(p.GetPosition()) for p in fp.Pads()}
+            mid = sum(q[1] for q in pads.values()) / len(pads)
+            names = {"1": "s l", "2": "r l", "3": "s r", "4": "r r", "5": "3v3", "6": "gnd", "7": "scl", "8": "sda"}
+            for num, (px, py) in pads.items():
+                text(b, names[num], px, py + (1.6 if py > mid else -1.6), 0.7, F)
+        if g == "isolation":   # its title goes inside, bottom-right: its top is under the iso power and fx loop boxes
             text(b, g, x1 - 0.2, y0 + 0.75, 0.8, F, 0, 1)
             boxes[g] = (x0, y0, x1, fy + 0.1)
         else:

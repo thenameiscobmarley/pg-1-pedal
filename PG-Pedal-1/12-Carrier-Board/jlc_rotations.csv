@@ -1,4 +1,7 @@
 "Footprint pattern","Rotation","Offset X", "Offset Y"
+"^VSSOP-8_3x3mm_P0.65mm",270
+"^PinHeader_1x10_P2.54mm_Horizontal",90
+"^PinHeader_1x0[2-9]_P2.54mm_Horizontal",270
 "^R_Array_Convex_",90
 "^R_Array_Concave_",90
 "^SOT-223",180

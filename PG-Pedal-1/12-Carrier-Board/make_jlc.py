@@ -56,7 +56,9 @@ LCSC.update({   # the analog effect + expansion header
     ("MCP4461-103", "TSSOP-20_4.4x6.5mm_P0.65mm"): "C638707", ("TLV9062", "VSSOP-8_3x3mm_P0.65mm"): "C398356",
     ("10nF C0G", "C_0402_1005Metric"): "C22400107", ("expansion", "PinHeader_1x04_P2.54mm_Horizontal"): "C32713263",
 })
-SKIP = set()   # everything is fitted, the jacks too
+LCSC.update({("PSM712", "SOT-23"): "C32677"})   # basic part: no extended fee
+LCSC.update({("fx loop", "PinHeader_2x04_P2.54mm_Vertical"): "C32713277"})
+SKIP = set()   # everything fitted by JLCPCB, the jacks and headers too: nothing to solder
 
 
 def rotation_fix(fp_name):

@@ -280,7 +280,7 @@ int main(void)
     bool codec_ok = codec.Init(&i2c);
     if(!codec_ok)
         core.ReportCodecFault();
-    afx.Init(&i2c); // if it doesn't answer it stays at its stored unity / open: the audio still works
+    afx.Init(&i2c); // only answers if an add-on board with an MCP4461 sits in the fx loop (J22); harmless if not
     const uint32_t audio_t0 = System::GetNow();
     WatchdogStart();
 

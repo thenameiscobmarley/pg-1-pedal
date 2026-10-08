@@ -33,7 +33,7 @@ class IsoCodec
     uint8_t           page_ = 0xff;
 };
 
-// The carrier board's analog effect (after the codec, before pg-hp): an MCP4461 quad digital pot on the same isolated
+// An optional add-on board in the carrier's fx loop (J22, after the codec, before pg-hp): an MCP4461 quad digital pot on the same isolated
 // I2C bus (0x2C). Per side: pot 0 / 2 = attenuator (the "VCA": level / analog compression, can only turn DOWN) and
 // pot 1 / 3 = rheostat into 10 nF C0G (analog low-pass, ~1.6 kHz .. fully open). Codes 0..256, 256 = unity / open.
 // Its non-volatile wipers hold unity / open, so it powers up clean before the firmware runs.

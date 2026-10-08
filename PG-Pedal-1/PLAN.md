@@ -66,7 +66,7 @@ Steps:
 - [x] d. carrier PCB (budget version): circuit (12-Carrier-Board/DESIGN.md, carrier.py), board made by make_board.py
         (KiCad 10 + Freerouting: all parts on the bottom, fully routed, 0 DRC errors), PCBWay files in 12-Carrier-Board/pcbway/
         (Gerbers zip, BOM, CPL); ~$55-80 for 2 assembled boards. Next: user orders (jacks: send to PCBWay or fit later)
-- [~] g. AUDIT + FIX before ordering (2026-10-08, IN PROGRESS - resume here):
+- [x] g. AUDIT + FIX before ordering (2026-10-08):
         DONE: JLCPCB CPL rewritten (make_jlc.py: from the board, Gerber coordinates, THT parts = centre of pins,
         rotation fixes from jlc_rotations.csv = JLCKicadTools table; BOM one line per LCSC part -> no "matched twice").
         Jack = NMJ6HFD2 official drawing: pins 4.35/10.7/17.05 mm from panel (was 16.7: fixed JACK_T), axis 8.29 mm.
@@ -90,8 +90,14 @@ Steps:
         box right of iso power, output box only upper, codec narrower, isolation title bottom-right. Firmware
         AnalogFx (isoaudio.*): Init = unity/open (+ NV EEPROM), SetLevel / SetCutoff; builds. pg_generate: side C
         "expansion bay" 4.0 x 11.9 slot at Y 17 (Tayda CSV + drill SVG). Docs updated (DESIGN, WIRING).
-        NEXT (if not yet ticked): full route result + DRC + check_isolation; make_bom/make_jlc; copy renders;
-        Tayda re-upload; export + push; tell user.
+        DONE 17:20: routed 100 %, check_isolation OK, DRC only 3 courtyard-MARGIN overlaps (J21/J10, J19/J2, J20/J1:
+        real plastic gaps ~0.7 mm, accepted); jlcpcb/ files remade (38 kinds, 107 parts, all with LCSC codes); Tayda
+        drill + UV templates updated; plugin rebuilt; repo exported (id regex fixed: no false hit on coordinates) +
+        pushed. NEXT: user re-uploads the 3 JLC files and orders; Mouser pots.
+        COST CUT (user: $50 max before shipping, must stay isolated + quiet + safe): analog fx REMOVED (firmware
+        driver kept for an add-on); J22 "fx loop" 2x4 vertical header (LO -> FXR, jumper caps; iso 3v3/gnd/scl/sda)
+        for add-on boards; PSM712 (basic C32677) for D2/D61/D62; C30/C40 -> 100nF 0402 basic; THT parts (J1 J2 J10
+        J19 J20 J21 J22 U3) first skipped, then user said NO soldering: all fitted again (J22 = C32713277). Re-route + DRC, make_jlc, tell user (cheap shipping: Global Standard Direct Line, watch tariff).
 - [x] f. v3 carrier = ISOLATED CODEC (decided 2026-10-08, replaces the 4-jack analog board; resume here).
         DONE: carrier.py netlist (87 parts, barrier check), PG1:DCDC_SIP4_B0505S footprint, firmware (src/isoaudio.*:
         codec + ADS1015 drivers, SAI2 + I2C1, pins moved, touch polled, auto-ranging + too-hot mute, health checks

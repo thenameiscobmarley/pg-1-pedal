@@ -8,10 +8,10 @@ the other jack's gear through the pedal's power), not even ground. The audio cro
 
 ```
             ISOLATED SIDE (its own power, ground IGND)                   |  PEDAL SIDE (9 V, ground GND)
-in jack ─ TVS ─ 1k ─ 47 nF ─ 1M/1M ÷2 ─ OPA1652 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
+in jack ─ TVS ─ 1k ─ 100 nF ─ 1M/1M ÷2 ─ OPA1652 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
                                      TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
                                                          ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
-codec line out ─ analog fx (MCP4461: level + low-pass, TLV9062 buffer) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
+codec line out ─ fx loop (J22: 2 jumper caps, or an add-on) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
 power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / headphone amp; filtered 5 V ─ buffer
 ```
 
@@ -24,13 +24,11 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   strip across the board), the overvoltage clamps on both jacks, the 1 kΩ current limit on the input, the output ceiling
   (~1.1 V rms: the output chips run on 3.3 V), the headphone amp's short-circuit / thermal shutdown, the fuse,
   reverse-polarity and surge protection on 9 V.
-- **Analog effect, DSP-controlled:** after the codec, an MCP4461 quad digital pot (on the isolated I2C bus, 0x2C) is,
-  per side, an attenuator (level / analog compression) and a rheostat into a 10 nF C0G cap (analog low-pass, ~1.6 kHz
-  to fully open), then a TLV9062 buffer. Its top settings are unity and fully open, so a glitch can only make the
-  sound quieter or duller, never louder; its own memory holds unity / open, so it powers up clean.
-  (If JLCPCB runs out of the MCP4461-103E/ST, the MCP4451-103E/ST is the same chip without memory: it powers up at
-  half, and the firmware sets it to unity at boot.)
-- **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging), the analog effect's settings and the DSP. If the firmware hangs, a
+- **fx loop (J22):** the codec's output goes out to J22 and comes back into the pg-hp stage. Two jumper caps (on
+  "s l"-"r l" and "s r"-"r r") close it: **without them there's no sound.** A future add-on board (an analog filter /
+  VCA, etc.) plugs in there instead and gets the isolated 3.3 V, ground and the codec's I2C, so adding to the pedal
+  never needs a new order of this board. The firmware already has a driver for an MCP4461 add-on (pg::AnalogFx).
+- **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging), an add-on board's settings (if any) and the DSP. If the firmware hangs, a
   hardware watchdog resets the Seed3 in ~2 s and the codec mutes itself when the digital audio stops. If the input is
   too hot for where pg-line is, the screen's health page says "input clip": turn pg-line left.
 
@@ -46,20 +44,24 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
 - **pg-line** (6, isolated side, under the in jack): 1 l, 2 l, 3 l, 1 r, 2 r, 3 r = its pot's pins, left gang then right.
 - **pg-hp** (6, isolated side, under the out jack): the same for pg-hp.
+- **fx loop** (2 x 4 straight, isolated side): s l, r l, s r, r r, 3v3, gnd, scl, sda. Jumper caps on s-r pairs.
 - **expansion** (4, pedal side, left of seed3 + 9v): 3v3, gnd, scl, sda (the Seed3's I2C) for a module in the
   expansion bay (a slot in the left wall with 4 glued jumper ends).
 
 ## The board
 - **Two worlds:** the isolated side is the strip under the jacks (and the tongue above the dashed barrier line); the
   pedal side is the tongue below it. Only the three barrier parts cross the line. Each side has its own ground pour.
-- **Jobs in boxes:** every part sits in its job's printed box (input, codec, analog fx, output, iso power, isolation, power),
+- **Jobs in boxes:** every part sits in its job's printed box (input, codec, fx loop, output, iso power, isolation, power),
   arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
 - **All parts on the top side** (with the jacks): JLCPCB assembles one side.
+
+## Nothing to solder
+JLCPCB fits every part, the jacks, headers and power block too. You only push 2 jumper caps onto the fx loop header.
 
 ## Ordering at JLCPCB
 Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 make_jlc.py`). At https://cart.jlcpcb.com/quote:
 1. "Add gerber file" -> `pg1-carrier-gerbers.zip`. Board settings as in the chat (2 layers, 1.6 mm, 5 pcs; black for looks).
-2. **PCB Assembly**: Standard (through-hole jacks + headers are fitted too), **Top side**, PCBA qty **2**, Confirm Parts Placement: Yes.
+2. **PCB Assembly**: Economic, **Top side**, PCBA qty: the lowest it allows, Confirm Parts Placement: Yes.
 3. BOM -> `pg1-carrier-bom-jlc.csv`, CPL -> `pg1-carrier-cpl-jlc.csv`. Every part should show as matched.
 
 ## The jacks (Neutrik NMJ6HFD2: plastic nose)
