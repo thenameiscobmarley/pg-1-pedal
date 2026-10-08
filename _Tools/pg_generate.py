@@ -68,6 +68,8 @@ SIDE_B = [  # label, x, bare hole, part. The 4 audio jacks are PCB-mount and hol
     ("phones", 42.0, 11.4, "6.35mm TRS jack Neutrik NMJ6HCD2: headphone amp"),
 ]
 
+IO_DIVIDE = -10.5                      # face x between the inputs (line in, 9v) and the outputs (line out, no amp, phones)
+
 # Seed3 CARTRIDGE: the Seed3 stands on its side in a window in side C (left wall), component side OUT, and plugs
 # into 2 x 20-pin female headers on a small socket board screwed inside the wall. USB-C points toward the
 # footswitches (-y), BOOT/RESET face outward, so it is plugged in, pressed and swapped from outside, no soldering.
@@ -307,7 +309,8 @@ def build_face_art():
     # (one row, high enough to clear the logo's loop; every audio jack is stereo trs)
     for name, x, _, _ in SIDE_B:
         A.fill(mono.outline(name, x, 61.0, 3.0))
-        A.stroke(poly_path([(x - 1.2, 64.4), (x, 65.5), (x + 1.2, 64.4)]), 0.4)
+        # inputs on the left, outputs on the right: each says which, in pink, right under its hole
+        A.fill(mono.outline("(IN)" if x < IO_DIVIDE else "(OUT)", x, 63.9, 2.2), PINK)
         if name == "9v": # centre-negative polarity mark: minus - ( . ) - plus
             px, py = x, 57.6
             A.stroke(poly_path([(px - 4.6, py), (px - 3.6, py)]), 0.3)          # minus
@@ -318,6 +321,9 @@ def build_face_art():
             A.stroke(poly_path([(px + 1.25, py), (px + 3.4, py)]), 0.3)         # lead from the sleeve
             A.stroke(poly_path([(px + 3.9, py), (px + 5.1, py)]), 0.3)          # plus
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
+    # the IN | OUT divider between the 9v jack and line out: a short column of pink diamonds
+    for dy in (55.0, 58.5, 62.0, 65.5):
+        A.fill(diamond(IO_DIVIDE, dy, 0.55), PINK)
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 

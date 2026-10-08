@@ -31,7 +31,8 @@ PESD15VL2BT,"D61,D62,D63,D64",SOT-23,C38838
 line out,J2,Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal,C368502
 no amp,J3,Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal,C368502
 phones,J4,Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal,C368502
-seed audio,J10,PinHeader_1x07_P2.54mm_Horizontal,C32713266
+seed3 in + power,J10,PinHeader_1x05_P2.54mm_Horizontal,C32713264
+seed3 out,J11,PinHeader_1x02_P2.54mm_Horizontal,C32713261
 pg-hp,J19,PinHeader_1x06_P2.54mm_Horizontal,C32713265
 pg-line,J20,PinHeader_1x06_P2.54mm_Horizontal,C32713265
 0,"R70,R71",R_0603_1608Metric,C21189

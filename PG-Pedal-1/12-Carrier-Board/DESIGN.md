@@ -30,14 +30,17 @@ Seed3 AUDIO OUT (18/19) ─ 10 µF ─ NE5532 follower ─ 10 µF ─ BUS (0 V c
 ## Headers (male, 2.54 mm, for female jumpers)
 Only audio and power go through the board. The screen, encoders and footswitches plug straight into the Seed3's glued
 jumper block, as in v1.
-- **seed3** 1×7, right-angle, on the lower edge of the tongue: in l, in r, out l, out r, agnd, 9v, dgnd
-  (the Seed3's pins 16, 17, 18, 19, 20, 39, 40).
+- **seed3 (IN)** 1×5, right-angle, input half: in l, in r, agnd, 9v, dgnd (the Seed3's pins 16, 17, 20, 39, 40).
+- **seed3 (OUT)** 1×2, right-angle, output half: out l, out r (the Seed3's pins 18, 19).
 - **pg-hp** and **pg-line** 1×6 each, right-angle, same edge: bus l, wiper l, gnd, bus r, wiper r, gnd (the dual pots).
-- **9v** 1×2, right-angle, same edge (+, −): two wires from the panel DC jack.
+- **9v (IN)** 1×2, right-angle, same edge (+, −): two wires from the panel DC jack.
 - The right-angle headers sit on the parts side and point off the board's lower edge, so the jumpers lie flat between
   the board and the lid. The pin names are printed beside each pin.
 
 ## Mechanics
+- **Inputs on the left, outputs on the right** (as you look at the pedal's face), split by a row of diamonds printed on
+  both sides. Every part sits on its own half; every jack and header is labelled (IN) or (OUT). On the parts side
+  (looking at the board from the lid) the halves appear swapped, because you're looking from behind.
 - Hangs from the 4 PCB-mount jacks (Neutrik NMJ6HCD2): their threaded ferrules go through the top wall, the nuts clamp the board in place.
 - Outline: a 111 × 27 mm strip under the jacks plus a 62 × 15 mm tongue over the screen's top edge (x −34 .. +28), which
   keeps clear of the small pots on the left, the screen's 14-pin header and the Seed3 block on the right.

@@ -125,8 +125,9 @@ for ref, name, tip, ring in (("J1", "line in", "JIN_L", "JIN_R"), ("J2", "line o
 # (pointing straight up they would hit the back of the screen). Only audio + power go through the board; the screen,
 # encoders and footswitches plug straight into the Seed3's jumper block as in v1.
 HDR_RA = lambda n: f"Connector_PinHeader_2.54mm:PinHeader_1x{n:02d}_P2.54mm_Horizontal"
-P("J10", "seed audio", HDR_RA(7), "", {1: "SEED_IN_L", 2: "SEED_IN_R", 3: "SEED_OUT_L", 4: "SEED_OUT_R", 5: "AGND", 6: "+9V", 7: "DGND"},
-  "7 female-female jumpers to the Seed3 block: pins 16, 17, 18, 19, 20 (AGND), 39 (VIN), 40 (DGND)")
+P("J10", "seed3 in + power", HDR_RA(5), "", {1: "SEED_IN_L", 2: "SEED_IN_R", 3: "AGND", 4: "+9V", 5: "DGND"},
+  "input side: 5 female-female jumpers to the Seed3 block: pins 16, 17, 20 (AGND), 39 (VIN), 40 (DGND)")
+P("J11", "seed3 out", HDR_RA(2), "", {1: "SEED_OUT_L", 2: "SEED_OUT_R"}, "output side: 2 jumpers from the Seed3's pins 18, 19")
 P("J19", "pg-hp", HDR_RA(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: top, wiper, bottom per gang")
 P("J20", "pg-line", HDR_RA(6), "", {1: "BUS_L", 2: "LINE_W_L", 3: "AGND", 4: "BUS_R", 5: "LINE_W_R", 6: "AGND"})
 

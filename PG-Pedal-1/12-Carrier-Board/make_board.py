@@ -30,21 +30,32 @@ TOP = WALL_IN - 0.25                   # board edge just short of the wall
 # board = a strip under the jacks + a tongue over the screen's top (clear of the pots on the left, the screen's
 # 14-pin header and the Seed3 block on the right)
 STRIP = (-55.5, 43.0, 55.5, TOP)       # x0, y0, x1, y1
-TONGUE = (-34.0, 28.0, 28.0, TOP)
-OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (28.0, 43.0), (28.0, 28.0), (-34.0, 28.0), (-34.0, 43.0), (-55.5, 43.0)]
+TONGUE = (-34.0, 28.0, 30.0, TOP)
+OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (30.0, 43.0), (30.0, 28.0), (-34.0, 28.0), (-34.0, 43.0), (-55.5, 43.0)]
+# INPUTS on the left (as you look at the pedal's face), OUTPUTS on the right, split at DIVIDE: every part stays on its
+# own side, and a row of diamonds marks the line on both sides of the board
+DIVIDE = -12.6
+SIDE_RECTS = {"in": [(STRIP[0], STRIP[1], DIVIDE - 0.35, TOP), (TONGUE[0], TONGUE[1], DIVIDE - 0.35, TOP)],
+              "out": [(DIVIDE + 0.35, STRIP[1], STRIP[2], TOP), (DIVIDE + 0.35, TONGUE[1], TONGUE[2], TOP)]}
+IN_PARTS = {f"{p}{n}" for p, ns in (("R", (10, 11, 12, 13, 14, 24, 30, 31, 32, 33, 34, 44, 1, 2, 70, 71)),
+                                    ("C", (10, 11, 12, 30, 31, 32, 1, 2, 66)), ("U", (4,)), ("D", (61, 1, 2)), ("F", (1,)))
+            for n in ns}
+FONT = "IBM Plex Mono"                 # the pedal's own small-word font (installed to ~/.local/share/fonts)
 # Neutrik NMJ6HCD2 (datasheet ST-NMJ6HCD2): body front on the wall, pins 4 / 10.35 / 16.7 mm in from it, rows 16.23 apart,
 # axis 8.14 mm above the board. KiCad's footprint has its origin on the T pin and the front toward +x: turned 90 deg.
 JACK_T = (-8.115, 16.7)                # T pin from (jack axis, inside of the wall)
 JACKS = {"J1": -42.0, "J2": 0.0, "J3": 21.0, "J4": 42.0}
 # headers: (first pin x, row y, side). Right-angle ones on the bottom point off the lower edge (jumpers lie flat).
-HEADERS = {"J19": (-14.5, 30.0, "B"), "J20": (-32.6, 30.0, "B"), "J10": (8.6, 30.0, "B"), "J9": (2.2, 30.0, "B")}
+HEADERS = {"J9": (-31.8, 30.0, "B"), "J10": (-25.36, 30.0, "B"),                                   # inputs
+           "J11": (-10.4, 30.0, "B"), "J20": (-3.96, 30.0, "B"), "J19": (12.64, 30.0, "B")}       # outputs
 HEADER_PINS = {   # printed beside each pin
-    "J10": ["in l", "in r", "out l", "out r", "agnd", "9v", "dgnd"],
+    "J10": ["in l", "in r", "agnd", "9v", "dgnd"],
+    "J11": ["out l", "out r"],
     "J19": ["bus l", "hp l", "gnd", "bus r", "hp r", "gnd"],
     "J20": ["bus l", "line l", "gnd", "bus r", "line r", "gnd"],
     "J9": ["+", "-"]}
-HEADER_TITLE = {"J10": "seed3", "J19": "pg-hp", "J20": "pg-line", "J9": "9v"}
-JACK_NAME = {"J1": "line in", "J2": "line out", "J3": "no amp", "J4": "phones"}
+HEADER_TITLE = {"J10": "seed3 (IN)", "J11": "seed3 (OUT)", "J19": "pg-hp", "J20": "pg-line", "J9": "9v (IN)"}
+JACK_NAME = {"J1": "line in (IN)", "J2": "line out (OUT)", "J3": "no amp (OUT)", "J4": "phones (OUT)"}
 
 TRACK, CLEAR, VIA, DRILL = 0.3, 0.2, 0.6, 0.3
 GAP = 0.35                             # extra room around each part's courtyard (space for tracks and vias)
@@ -149,6 +160,7 @@ class Placer:
 
     def __init__(self, geo, fixed_pads, obstacles, netlist, rng):
         self.geo, self.rng = geo, rng
+        self.side = {r: "in" if r in IN_PARTS else "out" for r in geo}
         self.refs = list(geo)
         self.pos, self.rot = {}, {}
         self.grid = {}
@@ -164,9 +176,8 @@ class Placer:
         b = self.geo[r][rot][0]
         return (x + b[0] - GAP, y + b[1] - GAP, x + b[2] + GAP, y + b[3] + GAP)
 
-    @staticmethod
-    def inside(b):
-        for x0, y0, x1, y1 in (STRIP, TONGUE):
+    def inside(self, b, r):
+        for x0, y0, x1, y1 in SIDE_RECTS[self.side[r]]:
             if b[0] >= x0 + EDGE - GAP and b[1] >= y0 + EDGE - GAP and b[2] <= x1 - EDGE + GAP and b[3] <= y1 - EDGE + GAP:
                 return True
         return False
@@ -184,8 +195,8 @@ class Placer:
         for c in self.cells(b):
             self.grid[c].discard(key)
 
-    def free(self, b, skip=()):
-        if not self.inside(b):
+    def free(self, b, skip=(), r=None):
+        if not self.inside(b, r):
             return False
         seen = set()
         for c in self.cells(b):
@@ -248,7 +259,7 @@ class Placer:
             tx = sum(a[0] for a in anchors) / len(anchors)
             ty = sum(a[1] for a in anchors) / len(anchors)
             for x, y in sorted(((x, y) for x in xs for y in ys), key=lambda p: (p[0] - tx) ** 2 + (p[1] - ty) ** 2):
-                rot = next((q for q in (0, 90, 180, 270) if self.free(self.boxat(r, x, y, q))), None)
+                rot = next((q for q in (0, 90, 180, 270) if self.free(self.boxat(r, x, y, q), r=r)), None)
                 if rot is not None:
                     self.set(r, x, y, rot)
                     break
@@ -268,13 +279,13 @@ class Placer:
             rot = self.rot[r]
             if rng.random() < 0.2:   # swap with a same-size part
                 s = rng.choice(self.refs)
-                if s == r or sizes[s] != sizes[r]:
+                if s == r or sizes[s] != sizes[r] or self.side[s] != self.side[r]:
                     continue
                 before = self.part_cost([r, s])
                 (u, v), rs = self.pos[s], self.rot[s]
                 b1, b2 = self.boxat(r, u, v, rs), self.boxat(s, x, y, rot)
                 ov = b1[0] < b2[2] and b2[0] < b1[2] and b1[1] < b2[3] and b2[1] < b1[3]
-                if ov or not self.free(b1, (r, s)) or not self.free(b2, (r, s)):
+                if ov or not self.free(b1, (r, s), r) or not self.free(b2, (r, s), s):
                     continue
                 self.set(r, u, v, rs), self.set(s, x, y, rot)
                 d = self.part_cost([r, s]) - before
@@ -291,7 +302,7 @@ class Placer:
                 ny = round((y + rng.gauss(0, step)) * 4) / 4
                 nr = rot
             b = self.boxat(r, nx, ny, nr)
-            if not self.free(b, (r,)):
+            if not self.free(b, (r,), r):
                 continue
             before = self.part_cost([r])
             self.set(r, nx, ny, nr)
@@ -313,7 +324,7 @@ def fbox(bb):
 def text(b, s, x, y, size=1.0, layer=K.B_SilkS, rot=0, just=0):
     t = K.PCB_TEXT(b)
     t.SetText(s), t.SetLayer(layer), t.SetPosition(kpt(x, y))
-    t.SetTextSize(K.VECTOR2I(K.FromMM(size), K.FromMM(size))), t.SetTextThickness(K.FromMM(size * 0.15))
+    t.SetTextSize(K.VECTOR2I(K.FromMM(size), K.FromMM(size))), t.SetTextThickness(K.FromMM(max(0.16, size * 0.15)))   # JLCPCB prints 0.153 mm lines at the least
     t.SetTextAngleDegrees(rot)
     if just:
         t.SetHorizJustify(K.GR_TEXT_H_ALIGN_LEFT if just < 0 else K.GR_TEXT_H_ALIGN_RIGHT)
@@ -321,6 +332,52 @@ def text(b, s, x, y, size=1.0, layer=K.B_SilkS, rot=0, just=0):
         t.SetMirrored(True)
     b.Add(t)
     return t
+
+
+def diamond(b, x, y, r, layer, filled=False):
+    s = K.PCB_SHAPE(b)
+    s.SetShape(K.SHAPE_T_POLY), s.SetLayer(layer), s.SetWidth(K.FromMM(0.15)), s.SetFilled(filled)
+    s.SetPolyPoints([kpt(x, y + r), kpt(x + r, y), kpt(x, y - r), kpt(x - r, y)])
+    b.Add(s)
+
+
+def artwork(b):
+    """the printing: IN / OUT halves split by a row of diamonds, every jack named with (IN) or (OUT), the pg-1 mark.
+    Returns the parts-side texts (the parts keep off them)."""
+    words = [(t.GetLayer(), fbox(t.GetBoundingBox())) for t in b.Drawings() if isinstance(t, K.PCB_TEXT)]
+    for layer in (K.B_SilkS, K.F_SilkS):   # the divider (it steps around the header names)
+        y = 28.9
+        while y < TOP - 0.6:
+            if not any(l == layer and w[0] - 0.8 < DIVIDE < w[2] + 0.8 and w[1] - 0.8 < y < w[3] + 0.8 for l, w in words):
+                diamond(b, DIVIDE, y, 0.45, layer)
+            y += 2.0
+    # parts side (bottom, faces the lid)
+    out = [text(b, JACK_NAME[r], x, 50.7, 1.0) for r, x in JACKS.items()]
+    out += [text(b, "IN", DIVIDE - 3.6, 67.9, 1.8), text(b, "OUT", -4.0, 67.9, 1.8),
+            text(b, "pg-1", 45.0, 47.3, 3.0), text(b, "carrier v2", 45.0, 44.3, 0.9)]
+    for dx in (-6.4, 6.4):
+        diamond(b, 45.0 + dx, 47.3, 0.9, K.B_SilkS, True)
+    # jack side (top, faces the screen): names under the jacks, IN / OUT and the mark on the tongue
+    F = K.F_SilkS
+    for r, x in JACKS.items():
+        text(b, JACK_NAME[r], x, 44.9, 1.1, F)
+    text(b, "9v (IN)", -21.0, 44.9, 1.1, F)
+    text(b, "IN", -23.3, 38.6, 4.0, F), text(b, "line in  9v  seed3", -23.3, 34.4, 0.9, F)
+    text(b, "OUT", -3.0, 38.6, 4.0, F), text(b, "line out  no amp  phones", -2.0, 34.4, 0.9, F)
+    text(b, "pg-1", 16.5, 38.6, 6.0, F), text(b, "carrier  v2", 16.5, 32.7, 1.1, F)
+    for dx in (-11.2, 11.2):
+        diamond(b, 16.5 + dx, 38.6, 1.2, F, True)
+    return out
+
+
+def set_font(pcb):
+    """the big words in the pedal's mono font (KiCad turns it into outlines in the Gerbers); small ones stay in KiCad's
+    stroke font, whose lines are thick enough to print sharp at 1 mm"""
+    import re
+    s = open(pcb).read()
+    s = re.sub(r"\(effects\n\t\t\t\(font\n(\t\t\t\t\(size ([\d.]+) )",
+               lambda m: m.group(0) if float(m.group(2)) < 1.8 else f"(effects\n\t\t\t(font\n\t\t\t\t(face \"{FONT}\")\n{m.group(1)}", s)
+    open(pcb, "w").write(s)
 
 
 def edge_keepout(b, width=0.5):
@@ -413,9 +470,9 @@ def main():
                 fixed_pads[(ref, p.GetNumber())] = (px, py)
                 sz = K.ToMM(p.GetSize(K.F_Cu).x) / 2 + 0.35 if hasattr(p, "GetSize") else 1.5
                 obstacles.append((px - sz, py - sz, px + sz, py + sz))
-    for t in [text(b, JACK_NAME[ref], x, 49.0, 1.0) for ref, x in JACKS.items()] + [text(b, "pg-1 carrier v2", 44.0, 44.8, 1.0)]:
+    for t in artwork(b):
         bx = fbox(t.GetBoundingBox())   # the parts keep off the printing
-        obstacles.append((bx[0] - 0.3, bx[1] - 0.3, bx[2] + 0.3, bx[3] + 0.3))
+        obstacles.append((bx[0] - 0.5, bx[1] - 0.4, bx[2] + 0.5, bx[3] + 0.4))
 
     # 2. everything else on the bottom
     movable = [r for r in fps if r not in JACKS and r not in HEADERS]
@@ -449,6 +506,7 @@ def main():
     zs = [zone(b, agnd, K.F_Cu), zone(b, agnd, K.B_Cu)]
     K.ZONE_FILLER(b).Fill(b.Zones())
     K.SaveBoard(pcb, b)
+    set_font(pcb)
     print(f"zones: {len(zs)} AGND pours")
 
     # 4. check + export
