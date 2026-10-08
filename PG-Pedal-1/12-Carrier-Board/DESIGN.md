@@ -24,7 +24,7 @@ Seed3 AUDIO OUT (18/19) ─ 10 µF ─ NE5532 follower ─ 10 µF ─ BUS (0 V c
   polarity), a 300 mA PTC fuse and a 12 V surge clamp on the 9 V, short-proof outputs (series resistors + the chips' limits),
   pots kept at 0 V (no scratching), 100 kΩ bleeds (no pop when a cable goes in).
 - **Power.** One 9 V supply: 9 V → PTC → Schottky → +9 V (op-amps, and the Seed3's VIN through the board); 4.5 V mid-point
-  from a divider + 47 µF; LP2985 → +3.3 V for the two TPA6139A2s. Parts cost about $6 a board.
+  from a divider + 22 µF; LP2985 → +3.3 V for the two TPA6139A2s. Parts cost about $6 a board.
 - The full-quality version (OPA1622, ±7.5 V, ~4 V rms phones, ~$26 of parts a board) is kept in `carrier_full.py`.
 
 ## Headers (male, 2.54 mm, for female jumpers)
@@ -51,7 +51,16 @@ jumper block, as in v1.
       (result: every connection routed, 0 DRC errors; only silkscreen warnings, e.g. header outlines past the edge)
 - [ ] order (below)
 
-## Ordering at PCBWay
+## Ordering at JLCPCB (easier, chosen)
+Files in `jlcpcb/` (`python3 make_jlc.py` after `make_board.py`). At https://cart.jlcpcb.com/quote:
+1. "Add gerber file" -> `pg1-carrier-gerbers.zip`. Leave the board settings as they are (2 layers, 1.6 mm, 5 pcs).
+2. Turn on **PCB Assembly**: Economic, **Bottom side**, PCBA qty **2**. Next.
+3. BOM -> `pg1-carrier-bom-jlc.csv`, CPL -> `pg1-carrier-cpl-jlc.csv`. Next. Every part should show as matched.
+4. On the placement picture, the parts should sit on their pads; JLCPCB checks the rotations too.
+5. The 4 jacks are not stocked by JLCPCB: they are left off (fit the Tayda A-1122s by hand later).
+Parts use JLCPCB "basic" parts where possible (no fee); 10 kinds are "extended" ($3 each per order).
+
+## Ordering at PCBWay (the other option)
 - **PCB:** upload `pcbway/pg1-carrier-gerbers.zip`. 2 layers, 111 × 42 mm, 1.6 mm FR-4, 1 oz copper, any colour,
   HASL lead-free (or ENIG), quantity 5.
 - **Assembly:** turn on "PCB Assembly", **bottom side only**, quantity 2. Upload `pg1-carrier-bom.csv` and
