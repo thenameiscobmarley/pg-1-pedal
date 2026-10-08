@@ -22,7 +22,9 @@ namespace dims
     constexpr float winCZ = -0.2139f, winHW = 0.239f, winHD = 0.1775f;      // the cut window (47.8 x 35.5 mm)
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
-    constexpr float sideB[4][2] = { { -0.40f, 0 }, { -0.13f, 1 }, { 0.13f, 0 }, { 0.40f, 0 } };   // x, 1 = DC jack
+    constexpr float sideB[5][2] = { { -0.42f, 0 }, { -0.21f, 1 }, { 0.0f, 0 }, { 0.21f, 0 }, { 0.42f, 0 } }; // line in, 9v, line out, no amp, phones (1 = DC jack)
+    constexpr float smallKnobs[2][2] = { { -0.455f, -0.36f }, { -0.455f, -0.13f } };   // pg-hp, pg-line (x, z = -face y)
+    constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
     constexpr float seedZ = -0.155f;
@@ -150,6 +152,7 @@ void PedalView::newOpenGLContextCreated()
     meshNutBig.upload (geo::sweptPolygon (6, 0.082f, { { 0.0f, 0.0f }, { 0.0f, 0.024f } }, true));
     meshThread.upload (geo::lathe (0.06f, { { 0.0f, 0.024f }, { 0.0f, 0.052f } }, 48, true));
     meshPlunger.upload (geo::lathe (0.0435f, { { 0.0f, 0.0f }, { 0.0f, 0.058f }, { -0.008f, 0.066f } }, 48, true));
+    meshCap.upload (geo::lathe (0.115f, { { 0.0f, 0.012f }, { 0.0f, 0.102f }, { -0.012f, 0.112f } }, 64, true)); // KN2310 cap, 23 x 10 mm
     meshScrew.upload (geo::lathe (0.0275f, { { 0.0f, 0.0f }, { 0.0f, 0.028f }, { -0.004f, 0.032f } }, 32, true));
     meshJackNut.upload (geo::sweptPolygon (6, 0.07f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
     meshJackHole.upload (geo::lathe (0.034f, { { 0.0f, 0.0221f }, { 0.0f, 0.0224f } }, 32, true));
@@ -235,7 +238,7 @@ void PedalView::openGLContextClosing()
     for (auto* p : { progFace.get(), progPowder.get(), progChrome.get(), progPlastic.get(), progRecess.get(), progWood.get(), progShadow.get(), progLcd.get() })
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
-                     &meshThread, &meshPlunger, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
+                     &meshThread, &meshPlunger, &meshCap, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
                      &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
         m->release();
     for (auto& k : knobParts)
@@ -353,7 +356,7 @@ void PedalView::renderOpenGL()
     use (*progPlastic);
     for (auto& s : screws)
         draw (*progPlastic, meshScrew, Mat4::translation ({ s[0], 0.0f, s[1] }), black);
-    const Mat4 seedAt = Mat4::translation ({ -W * 0.5f, jackY, seedZ });
+    const Mat4 seedAt = Mat4::translation ({ seedSide * W * 0.5f, jackY, seedZ }) * Mat4::scale (-seedSide, 1.f, 1.f); // built for the left wall, mirrored
     draw (*progPlastic, meshSeedHdr, seedAt, black);
     draw (*progPlastic, meshSeedGlue, seedAt, { 0.62f, 0.60f, 0.52f });   // the hot glue
     draw (*progPlastic, meshSeedPcb, seedAt, { 0.035f, 0.04f, 0.045f });
@@ -373,11 +376,12 @@ void PedalView::renderOpenGL()
     {
         draw (*progChrome, meshNutBig, Mat4::translation ({ fsX[i], 0.0f, fsZ }), steel);
         draw (*progChrome, meshThread, Mat4::translation ({ fsX[i], 0.0f, fsZ }), steel);
-        draw (*progChrome, meshPlunger, Mat4::translation ({ fsX[i], 0.052f - 0.016f * fsTravel[(size_t) i].load(), fsZ }), { 0.93f, 0.93f, 0.94f });
     }
     for (auto& j : sideB)
         draw (*progChrome, j[1] > 0.5f ? meshDcNut : meshJackNut, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, steel);
-    draw (*progChrome, meshSeedUsb, Mat4::translation ({ -W * 0.5f, jackY, seedZ }), { 0.80f, 0.81f, 0.83f });
+    draw (*progChrome, meshSeedUsb, seedAt, { 0.80f, 0.81f, 0.83f });
+    for (auto& s : smallKnobs)   // the small pots' nuts
+        draw (*progChrome, meshNutSmall, Mat4::translation ({ s[0], 0.0f, s[1] }), steel);
 
     // the four knobs (white knurled aluminium), turned by their encoders
     use (*progPlastic);
@@ -392,6 +396,14 @@ void PedalView::renderOpenGL()
                                                                  : Vec3 { 0.90f, 0.90f, 0.88f };
             draw (*progPlastic, k->gpu, k->rotates ? turned : base, c);
         }
+    }
+    for (int i = 0; i < kFs; ++i)   // the pink anodised KN2310 caps (satin, so the plastic shader)
+        draw (*progPlastic, meshCap, Mat4::translation ({ fsX[i], 0.052f - 0.016f * fsTravel[(size_t) i].load(), fsZ }), { 1.0f, 0.50f, 0.76f });
+    for (auto& s : smallKnobs)   // pg-hp, pg-line: 14 mm white knobs on the analog pots (set by hand, not by the core)
+    {
+        const Mat4 base = Mat4::translation ({ s[0], 0.02f, s[1] }) * Mat4::scale (0.7f, 0.85f, 0.7f);
+        for (auto& k : knobParts)
+            draw (*progPlastic, k->gpu, base, k->role == hwk::models::Role::pointer ? Vec3 { 0.12f, 0.12f, 0.13f } : Vec3 { 0.93f, 0.93f, 0.91f });
     }
 }
 

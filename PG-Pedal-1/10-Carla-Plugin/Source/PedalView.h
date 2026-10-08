@@ -75,7 +75,7 @@ private:
     struct KnobPart { hwk::gfx::GpuMesh gpu; hwk::models::Role role; bool rotates; hwk::gfx::Vec3 colour; float polish; };
     std::unique_ptr<hwk::gfx::ShaderProgram> progFace, progPowder, progChrome, progPlastic, progRecess, progWood, progShadow, progLcd;
     hwk::gfx::GpuMesh meshFace, meshShell, meshLid, meshWell, meshLcd, meshDesk, meshShadow,
-                      meshNutSmall, meshNutBig, meshThread, meshPlunger, meshScrew, meshJackNut, meshJackHole,
+                      meshNutSmall, meshNutBig, meshThread, meshPlunger, meshCap, meshScrew, meshJackNut, meshJackHole,
                       meshDcNut,
                       meshSeedWin, meshSeedHdr, meshSeedGlue, meshSeedPcb, meshSeedChips, meshSeedUsb, meshSeedBtn;
     std::vector<std::unique_ptr<KnobPart>> knobParts;

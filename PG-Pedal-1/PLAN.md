@@ -65,7 +65,7 @@ Steps:
 - [x] c. firmware/UI: names from one rule (ui::KnobName / FootName), 2nd settings page (swipe the boxes, tap the dots, slide animation), drag a box up/down to change it, rounded boxes / tiles / strip (more polish possible)
 - [ ] d. carrier PCB: schematic (input buffer + protection, line driver, no-amp buffer, headphone amp + volume, line-out level,
         -9 V charge pump + filtering, pin headers), then board files for PCBWay (needs KiCad installed)
-- [ ] e. plugin 3D model + docs + BOM/budget, push
+- [~] e. plugin 3D model done (Seed3 right, 5 jacks, small knobs, pink caps); docs + BOM/budget for the carrier board still to do
 
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda
