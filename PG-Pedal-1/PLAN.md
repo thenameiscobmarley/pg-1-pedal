@@ -81,7 +81,7 @@ Steps:
         under the in / out jacks. Firmware: fixed gains (kInGain/kOutGain), no knob reading. Face: pink centre dot = unity.
         Board: groups have fixed areas (make_board.py GROUPS), barrier at y 29.5, all parts top side.
         DONE 2026-10-08: routed 100 %, DRC clean at JLCPCB limits (5 mil), check_isolation.py OK; jlcpcb/ files made;
-        Tayda drill 36341 + UV 34248 uploaded; plugin rebuilt. NEXT: user orders (JLCPCB Standard, Top side) + Mouser pots.
+        Tayda drill + UV templates uploaded; plugin rebuilt. NEXT: user orders (JLCPCB Standard, Top side) + Mouser pots.
         TODO: finish layout + route + DRC, make_jlc.py / make_bom.py for the new parts, DESIGN.md rewrite, Tayda
         upload (drill + UV), plugin rebuild, export + push, memory.
         - jacks: ONE stereo IN (left) + ONE stereo OUT (right), both isolated, Neutrik NMJ6HFD2 (plastic nose, C368491),
