@@ -11,9 +11,9 @@ Diameters **already include Tayda's +0.4 mm powder-coat allowance**.
 | 2 | A (Face) | 7.6 | -13.5 | -18.5 | pg-2 |
 | 3 | A (Face) | 7.6 | 13.5 | -18.5 | pg-3 |
 | 4 | A (Face) | 7.6 | 40.5 | -18.5 | pg-4 |
-| 5 | A (Face) | 12.6 | -36 | -50 | fs-1 |
-| 6 | A (Face) | 12.6 | 0 | -50 | fs-2 |
-| 7 | A (Face) | 12.6 | 36 | -50 | fs-3 |
+| 5 | A (Face) | 12.6 | -36 | -50 | pg-a |
+| 6 | A (Face) | 12.6 | 0 | -50 | pg-b |
+| 7 | A (Face) | 12.6 | 36 | -50 | pg-c |
 | 8 | A (Face) | 3.6 | -30.74 | 39.75 | screen screw 1 |
 | 9 | A (Face) | 3.6 | 36.52 | 39.75 | screen screw 2 |
 | 10 | A (Face) | 3.6 | -30.74 | 3.03 | screen screw 3 |

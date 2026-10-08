@@ -14,7 +14,9 @@
 | 3.5 mm → 1/4" TRS stereo cable | Amazon | ~8 |
 | 1/4" → 3.5 mm stereo adapter | Amazon | ~5 |
 | Mini glue gun + sticks | dollar store / Walmart | ~3 |
-| **Total** | | **~$138** |
+| v2 extras: small pots, knobs, PCB jacks, pink caps (in the Tayda cart) | Tayda | ~+10 |
+| Carrier board, 2 assembled (budget version, `12-Carrier-Board`) | PCBWay | ~55-80 |
+| **Total** | | **~$200-230** (v2 with the carrier board; ~$148 without it) |
 | *Later: a good soldering iron + multimeter (your pick)* | | *(not in the total)* |
 
 To save more:

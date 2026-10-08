@@ -655,9 +655,9 @@ WIRING = [
     ("pg-1 encoder", "R", [("push", 4, "enc"), ("B", 3, "enc"), ("A", 2, "enc")], ["C (middle)", "push 2nd pin"]),
     ("pg-3 encoder", "L", [("push", 22, "enc")], []),
     ("screen", "L", [("8 LED", 23, "lcd")], []),
-    ("fs-1 footswitch", "L", [("lug", 24, "fs")], ["other lug"]),
-    ("fs-2 footswitch", "L", [("lug", 25, "fs")], ["other lug"]),
-    ("fs-3 footswitch", "R", [("lug", 10, "fs")], ["other lug"]),
+    ("pg-a footswitch", "L", [("lug", 24, "fs")], ["other lug"]),
+    ("pg-b footswitch", "L", [("lug", 25, "fs")], ["other lug"]),
+    ("pg-c footswitch", "R", [("lug", 10, "fs")], ["other lug"]),
     ("pg-4 encoder", "L", [("A", 26, "enc"), ("B", 27, "enc"), ("push", 28, "enc")], ["C (middle)", "push 2nd pin"]),
     ("screen touch", "L", [("10 T_CLK", 29, "lcd"), ("11 T_CS", 30, "lcd"), ("12 T_DIN", 31, "lcd"),
                            ("13 T_DO", 32, "lcd"), ("14 T_IRQ", 33, "lcd")], []),
@@ -753,7 +753,7 @@ def write_wiring_diagram():
     T(205, cy - 2, "GROUND CHAINS: one black wire from each point to the next, in this order. Don't join the two chains, and don't loop back.", 3.4, w="bold")
     chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "jumper in|socket 20"])
     chain_row(cy + 23, "main chain", "#111", ["9V jack|- (center)", "screen|2 GND *", "pg-4|C + push 2", "pg-3|C + push 2", "pg-2|C + push 2",
-                                              "pg-1|C + push 2", "fs-3|other lug", "fs-2|other lug", "fs-1|other lug", "jumper in|socket 40"])
+                                              "pg-1|C + push 2", "pg-c|other lug", "pg-b|other lug", "pg-a|other lug", "jumper in|socket 40"])
     T(205, cy + 34, "* the screen GND is a plug-on jumper at the screen end: cut its other end off and solder that end into the chain. "
       "(exp jack sleeve joins the audio chain only once the exp jack is used.)", 2.9)
     W, H = 410, cy + 40

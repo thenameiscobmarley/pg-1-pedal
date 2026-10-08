@@ -39,7 +39,7 @@ The plugin's cpu health check uses these numbers, so it warns when the pedal wou
 | **loudness** (page 2, off by default) | At low volume ears lose bass and treble: this gives back about what they lose, more the quieter you listen (follow = quiet passages too). | listen / bass / treble / follow |
 | **config** (page 2) | 8 saved configs (every sound setting + which stages are on). pg-1 picks, **push pg-1 = load**, **push pg-2 twice = save**. Theme: **pearl** (light, default) or classic **bios**. Knobs: normal / reverse. | config / save / theme / knobs |
 | **visual** | Spectrum (in and out), waterfall, stereo (vectorscope + correlation + balance), levels (in / out + what each stage is taking off), **scope** (oscilloscope: the last 13 ms, triggered so a steady note stands still, auto-zoom), **bars** (31 bands with falling peak caps), **history** (in and out loudness over the last 15 s). Tap the screen for the next view. | view / fall / range / source |
-| **pid** (page 2) | Listens to the processed sound and steers the settings of the groups you pick, on top of your own settings: **eq** (each band towards the target balance, ±6 dB), **comp** (threshold + ratio, towards a 12 dB peak-to-average, ±8 dB), **mband** (how firmly each band is held), **clarity** (thump / warmth + clarity, ±4 dB), **deharsh** (depth, ±6 dB), **width** (towards a correlation of 0.35, ±40 %). P reacts to how far off it is, I slowly clears what's left, D brakes fast swings; any of them can be 0.00 (all three 0.00 = no steering). In silence it holds still. Off by default (hold fs-2). The screen shows what it hears vs the target, and how far it is moving each group. | p / i / d / group (push = steer it or not; hold + turn = target tilt, dB per octave) |
+| **pid** (page 2) | Listens to the processed sound and steers the settings of the groups you pick, on top of your own settings: **eq** (each band towards the target balance, ±6 dB), **comp** (threshold + ratio, towards a 12 dB peak-to-average, ±8 dB), **mband** (how firmly each band is held), **clarity** (thump / warmth + clarity, ±4 dB), **deharsh** (depth, ±6 dB), **width** (towards a correlation of 0.35, ±40 %). P reacts to how far off it is, I slowly clears what's left, D brakes fast swings; any of them can be 0.00 (all three 0.00 = no steering). In silence it holds still. Off by default (hold pg-b). The screen shows what it hears vs the target, and how far it is moving each group. | p / i / d / group (push = steer it or not; hold + turn = target tilt, dB per octave) |
 
 The safety levels are dBFS at the pedal's output. They don't know how loud your amp is, so set them
 once at a loud-but-comfortable volume: lower **ears** until it just starts easing down.
@@ -53,13 +53,13 @@ once at a loud-but-comfortable volume: lower **ears** until it just starts easin
 | push a knob | open the tab | flashes its box |
 | **double-push** | | that value back to default |
 | **long-push** (0.6 s) | | back to home |
-| fs-1 | whole-pedal bypass (safety stays on) | same |
-| fs-2 | next tab | dyn eq: next band. Other pages: next page |
-| hold fs-2 (0.6 s) | that tab's stage on / off | this page's stage on / off |
+| pg-a | whole-pedal bypass (safety stays on) | same |
+| pg-b | next tab | dyn eq: next band. Other pages: next page |
+| hold pg-b (0.6 s) | that tab's stage on / off | this page's stage on / off |
 | touch | tap a tab to open it; tap "on" for bypass | tap "< home"; tap the on/off chip; tap a box = what it does; dyn eq: drag nodes, tap band chips, double-tap a node = gain 0; visual: tap = next view |
-| fs-3 | fair A/B: hear your untouched input at the same loudness (a cyan "a/b dry" chip shows); tap again to come back | same |
+| pg-c | fair A/B: hear your untouched input at the same loudness (a cyan "a/b dry" chip shows); tap again to come back | same |
 | touch d-pad (off by default) | turn it on in **config** (tap "touch d-pad", or hold pg-4 + turn), then **tap the title** to show it: arrows move between tabs, the middle opens | left / right pick a value box (yellow frame), up / down change it (hold to repeat), the middle = that knob's push (hold = home). Hides itself after 10 s |
-| fs-1 + fs-2 held 2 s | USB flash mode | same |
+| pg-a + pg-b held 2 s | USB flash mode | same |
 
 ## First power-up
 
@@ -143,7 +143,7 @@ make -j$(nproc)          # builds build/pg1.bin (for the bootloader)
 ```
 make program-boot        # writes the Daisy bootloader into the internal flash
 ```
-**Every update:** within 2 s of power-on (or after fs-1 + fs-2 held 2 s, which waits forever):
+**Every update:** within 2 s of power-on (or after pg-a + pg-b held 2 s, which waits forever):
 ```
 make program-dfu         # writes build/pg1.bin to the QSPI flash through the bootloader
 ```

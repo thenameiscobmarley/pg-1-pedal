@@ -1,5 +1,12 @@
 # PG-1 wiring (Seed3 cartridge, no extra parts)
 
+> **v2 (being designed):** the carrier board (`12-Carrier-Board`) hangs from the 4 audio jacks on the top wall and has male
+> pin headers for everything: a 2x20 **seed port** laid out like the Seed3 (40 female-female jumpers from the glued block,
+> now in the **right** wall), a **screen** header (14 jumpers straight across), **pg-1..pg-4**, **pg-a..pg-c**, **pg-hp** /
+> **pg-line** (the two small pots) and **9V in**. Every wire plugs on at the board; only the part ends (encoder, footswitch,
+> pot and DC-jack lugs) get soldered. The pin numbers below stay the same. Until the board exists, this page (v1) still works.
+
+
 Every part connects to the Daisy Seed3's socket with one wire per pin. There are no resistors, capacitors or chips.
 The Seed3 has internal pull-ups for the encoders and switches, its own power regulators, and a reverse-protected VIN (per its datasheet).
 
@@ -79,7 +86,7 @@ The jumpers move over: cut off their Seed3 ends and solder them to the long head
 - **Swapping:** unplug the 9 V and USB first, pull it straight out (don't rock it hard), push the new one fully home,
   then flash the firmware onto it over USB (`06-Firmware-DaisySeed/README.md`). The saved settings are on the Seed3, so a new one starts at defaults.
 - It sticks out ~8.5 mm. Don't step on that side, and give it a little room on your desk or pedalboard.
-- **BOOT / RESET** are on the outside now, but you'll rarely need them: holding fs-1 + fs-2 for 2 s does the flash mode.
+- **BOOT / RESET** are on the outside now, but you'll rarely need them: holding pg-a + pg-b for 2 s does the flash mode.
 - **Grounds** (the bottom of `wiring-diagram.png` shows both chains step by step): daisy-chain them, as **two separate chains** of black wire, part to part:
   - **audio chain** (quiet): IN jack sleeve → OUT jack sleeve → the jumper in socket place **20 (AGND)** (the exp jack sleeve joins it once the exp jack is used).
   - **main chain** (everything else): 9V jack − lug → each encoder's C + 2nd push pin → each footswitch's 2nd lug → screen GND → the jumper in socket place **40 (DGND)**.
@@ -110,9 +117,9 @@ Jumper wires come in mixed colours, so stick a small label or a dot of tape-flag
 | **pg-3** encoder A / B / push | 14 (D13) / 15 (D14) / 22 (D15) |
 | **pg-4** encoder A / B / push | 26 (D19) / 27 (D20) / 28 (D21) |
 | each encoder: middle pin C + 2nd push pin | main chain → 40 |
-| **fs-1** lug / other lug | 24 (D17) / main chain |
-| **fs-2** lug / other lug | 25 (D18) / main chain |
-| **fs-3** lug / other lug | 10 (D9) / main chain |
+| **pg-a** lug / other lug | 24 (D17) / main chain |
+| **pg-b** lug / other lug | 25 (D18) / main chain |
+| **pg-c** lug / other lug | 10 (D9) / main chain |
 | **screen** 1 VCC | 38 (3V3 digital) |
 | screen 2 GND | main chain → 40 |
 | screen 3 CS | 8 (D7) |
@@ -129,7 +136,7 @@ Seed3 pin numbers: right-side up with USB-C at the bottom, **pins 1-20 run up th
 See `07-Datasheets/Seed3-Pinout.pdf`.
 
 ## Expansion port (for later, no new holes needed)
-Free Seed3 pins for later: pin 34 (D27), 36 (D29), 37 (D30). (Pin 10 / D9 is fs-3, pin 35 / D28 is the exp jack.) Their jumpers (way 1) or header legs (way 2) are already there, so nothing ever needs soldering on the Seed3. Anything you add later (LEDs, a sensor, MIDI, a 2nd screen) plugs in there.
+Free Seed3 pins for later: pin 34 (D27), 36 (D29), 37 (D30). (Pin 10 / D9 is pg-c, pin 35 / D28 is the exp jack.) Their jumpers (way 1) or header legs (way 2) are already there, so nothing ever needs soldering on the Seed3. Anything you add later (LEDs, a sensor, MIDI, a 2nd screen) plugs in there.
 
 **exp jack** (top edge, installed now but not wired): to use it later for an expression pedal, wire **sleeve → ground**, **ring → 3.3 V through a 1 kΩ resistor**, **tip → D28 (pin 35, an analog pin)**,
 then it's the pin 35 jumper plus a firmware change. Keep the 1 kΩ: a mono cable shorts ring to sleeve.
@@ -153,4 +160,4 @@ then it's the pin 35 jumper plus a firmware change. Keep the 1 kΩ: a mono cable
 
 ## Flashing
 Plug USB-C into the left side. **First time:** take the bottom plate off, hold **BOOT**, tap **RESET** (or flash the Seed3 on your desk before installing it), then flash `06-Firmware-DaisySeed/pg1.bin` at https://flash.daisy.audio
-(or run `make program-dfu`). After that, **holding fs-1 + fs-2 for 2 seconds** puts it into flash mode over the same USB-C, with the box closed.
+(or run `make program-dfu`). After that, **holding pg-a + pg-b for 2 seconds** puts it into flash mode over the same USB-C, with the box closed.

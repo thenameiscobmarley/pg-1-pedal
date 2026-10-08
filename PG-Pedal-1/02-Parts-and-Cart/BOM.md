@@ -12,7 +12,7 @@ You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridg
 | A-8180 | 1 | $7.20 | $7.20 | 2.4in SPI touch TFT 240x320 ILI9341 + XPT2046, 4 M3 holes | color touchscreen |
 | A-6331 | 4 | $1.59 | $6.36 | Rotary encoder 20 detents + push switch, D shaft (Alpha RE111F) | pg-1, pg-2, pg-3, pg-4 |
 | A-2850 | 4 | $1.29 | $5.16 | Knurled aluminium knob, white, 20 mm, 6 mm set screw | 4 knobs (your pick) |
-| A-1091 | 3 | $1.97 | $5.91 | Soft-touch momentary footswitch SPST-NO (PBS24B4) | fs-1, fs-2, fs-3 (your pick) |
+| A-1091 | 3 | $1.97 | $5.91 | Soft-touch momentary footswitch SPST-NO (PBS24B4) | pg-a, pg-b, pg-c (your pick) |
 | A-1122 | 4 | $0.49 | $1.96 | 6.35mm 1/4in stereo (TRS) PCB jack | line in, line out, no amp, phones (on the carrier board; their nuts hold it) |
 | A-6980 | 2 | $1.29 | $2.58 | 10k log dual pot, 9 mm, round shaft | pg-hp (headphone volume) + pg-line (line-out level) |
 | A-8567 | 2 | $0.69 | $1.38 | White ripple knob 14 mm | the two small knobs |

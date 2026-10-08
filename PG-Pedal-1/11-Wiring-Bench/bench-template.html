@@ -163,7 +163,7 @@ const PARTS = [
   {id:"out", name:"OUT jack (TRS)", terms:[{id:"tip", label:"tip (left)", want:18, kind:"audio_l"}, {id:"ring", label:"ring (right)", want:19, kind:"audio_r"}, {id:"sleeve", label:"sleeve", want:"A", kind:"gnd"}]},
   {id:"in", name:"IN jack (TRS)", terms:[{id:"tip", label:"tip (left)", want:16, kind:"audio_l"}, {id:"ring", label:"ring (right)", want:17, kind:"audio_r"}, {id:"sleeve", label:"sleeve", want:"A", kind:"gnd"}]},
   enc("pg-1", 2, 3, 4), enc("pg-2", 5, 6, 7), enc("pg-3", 14, 15, 22), enc("pg-4", 26, 27, 28),
-  fsw("fs-1", 24), fsw("fs-2", 25), fsw("fs-3", 10),
+  fsw("pg-a", 24), fsw("pg-b", 25), fsw("pg-c", 10),
   {id:"9v", name:"9V DC jack", terms:[{id:"plus", label:"+ (sleeve lug)", want:39, kind:"pwr"}, {id:"minus", label:"− (centre pin)", want:"M", kind:"gnd"}]},
   {id:"scr", name:"screen (A-8180) header", terms:[
     {id:"1", label:"VCC", want:38, kind:"pwr"}, {id:"2", label:"GND", want:"M", kind:"gnd"}, {id:"3", label:"CS", want:8, kind:"lcd"},
@@ -192,10 +192,10 @@ const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag)
 const pinXY = n => n >= 21 ? {x: 525, y: 75 + (n - 21) * 29} : {x: 655, y: 75 + (20 - n) * 29};
 const BUS = {M: {x0: 28, x1: 286, y: 648, label: "MAIN ground chain", jump: "chain.M"}, A: {x0: 894, x1: 1152, y: 686, label: "AUDIO ground chain", jump: "chain.A"}};
 const LAYOUT = { // card x, y, and which edge the terminals sit on
-  "pg-3": {x: 28, y: 20, side: "R"}, "pg-4": {x: 28, y: 180, side: "R"}, "fs-1": {x: 28, y: 340, side: "R"}, "fs-2": {x: 28, y: 430, side: "R"},
+  "pg-3": {x: 28, y: 20, side: "R"}, "pg-4": {x: 28, y: 180, side: "R"}, "pg-a": {x: 28, y: 340, side: "R"}, "pg-b": {x: 28, y: 430, side: "R"},
   "9v": {x: 28, y: 520, side: "R"},
   "out": {x: 880, y: 20, side: "L"}, "in": {x: 880, y: 136, side: "L"}, "pg-2": {x: 880, y: 252, side: "L"}, "pg-1": {x: 880, y: 412, side: "L"},
-  "fs-3": {x: 880, y: 572, side: "L"}, "scr": {x: 330, y: 708, side: "T"},
+  "pg-c": {x: 880, y: 572, side: "L"}, "scr": {x: 330, y: 708, side: "T"},
 };
 const wiresG = el("g", {});
 const layer = el("g", {});

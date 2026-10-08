@@ -1,13 +1,14 @@
 # Top artwork (UV print)
 
 - **Upload this file:** `pg1-face-uv-print.pdf`. It is exactly 117 × 141 mm (Tayda's 1590XX side A artboard), vector only,
-  CMYK with **black = 0/0/0/100** and no other colors, all in one layer named **CMYK**. There's no RDG_WHITE or RDG_GLOSS layer (not needed on a white box).
+  CMYK with **black = 0/0/0/100** plus one accent **pink = 0/58/20/0** (the corner and centre diamonds, the top dot of each knob ring), all in one layer named **CMYK**. There's no RDG_WHITE or RDG_GLOSS layer (not needed on a white box).
   All text is converted to outlines, so no fonts are needed. Checked against Tayda's UV guide V2 (Apr 2026): artwork stays ≥2 mm inside the artboard,
   ≥3 mm from every hole and 2 mm from the screen window (their face tolerance is ±0.5 mm), and no objects overlap.
 - Optional double-check: Tayda's PDF Analyzer (linked in their UV guide, login pdfman / pdfman).
-- Look: white enclosure with everything in black; smooth rounded ring around the edge; all-lowercase rounded font (Nunito, SIL OFL).
+- Look: white enclosure, black print with a few pink accents (matching the pink footswitch caps); smooth rounded ring around the edge;
+  all-lowercase rounded font (Nunito, SIL OFL) for the control names and the plain monospace IBM Plex Mono (SIL OFL) for the small words.
   Labels are pg-1 / pg-2 / pg-3 / pg-4 under the encoders (20 dots each = 20 detents),
-  fs-1 / fs-2 with rings, jack labels "out / 9v / usb-c / in" plus "trs l+r", and the one-line logo with "pg audio" under it.
+  pg-a / pg-b with rings, jack labels "out / 9v / usb-c / in" plus "trs l+r", and the one-line logo with "pg audio" under it.
 - `pg1-face-preview.png` is a mockup with knobs, switches and the screen. `pg1-face-artwork.svg` is the editable vector version.
 
 On drill.taydakits.com → **New UV print template**:

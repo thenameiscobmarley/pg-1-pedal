@@ -17,7 +17,7 @@ pedal OUT ──[1/4" → 3.5 mm adapter]──► your headset
 - **The pedal has no volume knob of its own.** The safety tab caps the level (peak *ceiling*, long-term *ears*), and the input auto-level keeps it steady,
   but how loud that is in your ears depends on the headset. Hold the headset near your ears (not on) the first time.
 - **The auto-level undoes the SC3 volume knob** (it brings any level back to its target). So set loudness with the **input** tab's
-  **target** (pg-1, -30 to -10 dB). Or switch the input tab off (hold fs-2 on it) and use the SC3 volume as usual.
+  **target** (pg-1, -30 to -10 dB). Or switch the input tab off (hold pg-b on it) and use the SC3 volume as usual.
 - **Headset with a mic on one plug (4-contact TRRS)**: a plain 1/4" TRS adapter can leave the headphone ground unconnected, which sounds thin, hollow or one-sided.
   Use the headset's separate headphone plug if it has one, or a TRRS splitter (headphone + mic) and plug in the headphone branch.
 - If it's too quiet or distorts: tell me. The fix is either a tiny headphone amp (one chip, like Electro-Smith's design)

@@ -23,7 +23,7 @@ in the core shows up identically on the PC and on the pedal.
 | click a knob / two quick clicks | push / double-push (reset to default) |
 | mouse wheel on a knob | spin it |
 | hold a knob click 0.6 s | long-push: back to home |
-| click / hold a footswitch | fs-1 bypass (safety stays on); fs-2 next band / next page, hold = stage on/off |
+| click / hold a footswitch | pg-a bypass (safety stays on); pg-b next band / next page, hold = stage on/off |
 | click / drag on the screen | touch: open tabs, drag eq nodes, tap a box = what it does, tap the on/off chip, tap the visualizer = next view |
 | drag the background | look around |
 | wheel on the background | zoom; double-click the background = reset view |
