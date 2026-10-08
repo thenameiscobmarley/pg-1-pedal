@@ -23,7 +23,7 @@ namespace dims
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
     constexpr float sideB[5][2] = { { -0.42f, 0 }, { -0.21f, 1 }, { 0.0f, 0 }, { 0.21f, 0 }, { 0.42f, 0 } }; // line in, 9v, line out, no amp, phones (1 = DC jack)
-    constexpr float smallKnobs[2][2] = { { -0.455f, -0.36f }, { -0.455f, -0.13f } };   // pg-hp, pg-line (x, z = -face y)
+    constexpr float smallKnobs[2][2] = { { -0.407f, -0.35f }, { -0.407f, -0.125f } };   // pg-hp, pg-line (x, z = -face y)
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below

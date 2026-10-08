@@ -37,14 +37,14 @@
 <path d="M28.2,50.0 h15.6 M36.0,42.2 v15.6" stroke="#c00" stroke-width="0.15"/>
 <text x="36.00" y="42.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">pg-c  Ø12.6</text>
 <text x="36.00" y="58.90" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(36, -50)</text>
-<circle cx="-45.5" cy="-36.0" r="3.95" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-50.95,-36.0 h10.9 M-45.5,-41.45 v10.9" stroke="#c00" stroke-width="0.15"/>
-<text x="-45.50" y="-41.15" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">pg-hp  Ø7.9</text>
-<text x="-45.50" y="-29.45" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-45.5, 36)</text>
-<circle cx="-45.5" cy="-13.0" r="3.95" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-50.95,-13.0 h10.9 M-45.5,-18.45 v10.9" stroke="#c00" stroke-width="0.15"/>
-<text x="-45.50" y="-18.15" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">pg-line  Ø7.9</text>
-<text x="-45.50" y="-6.45" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-45.5, 13)</text>
+<circle cx="-40.7" cy="-35.0" r="3.95" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-46.150000000000006,-35.0 h10.9 M-40.7,-40.45 v10.9" stroke="#c00" stroke-width="0.15"/>
+<text x="-40.70" y="-40.15" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">pg-hp  Ø7.9</text>
+<text x="-40.70" y="-28.45" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-40.7, 35)</text>
+<circle cx="-40.7" cy="-12.5" r="3.95" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-46.150000000000006,-12.5 h10.9 M-40.7,-17.95 v10.9" stroke="#c00" stroke-width="0.15"/>
+<text x="-40.70" y="-17.65" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">pg-line  Ø7.9</text>
+<text x="-40.70" y="-5.95" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-40.7, 12.5)</text>
 <circle cx="-30.74" cy="-39.75" r="1.8" fill="none" stroke="#c00" stroke-width="0.3"/>
 <path d="M-34.04,-39.75 h6.6 M-30.74,-43.05 v6.6" stroke="#c00" stroke-width="0.15"/>
 <text x="-30.74" y="-42.75" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">screen screw 1  Ø3.6</text>

@@ -14,10 +14,10 @@
 <text x="21.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">no amp</text>
 <rect x="32.9" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
 <text x="42.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">phones</text>
-<rect x="-50.25" y="-40.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
-<text x="-45.50" y="-28.40" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">pg-hp</text>
-<rect x="-50.25" y="-17.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
-<text x="-45.50" y="-5.40" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">pg-line</text>
+<rect x="-45.45" y="-39.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
+<text x="-40.70" y="-27.40" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">pg-hp</text>
+<rect x="-45.45" y="-17.25" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
+<text x="-40.70" y="-4.90" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">pg-line</text>
 <rect x="-33.74" y="-42.75" width="77.18" height="42.72" fill="#bcd3f5" fill-opacity="0.55" stroke="#36c" stroke-width="0.4"/>
 <rect x="38.84" y="-37.95" width="2.6" height="35.52" fill="#36c"/>
 <text x="35.44" y="-36.39" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="end" fill="#36c" font-weight="normal">14-pin header</text>

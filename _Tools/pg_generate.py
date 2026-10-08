@@ -41,9 +41,10 @@ FOOTSW = [(PG + "a", -36.0), (PG + "b", 0.0), (PG + "c", 36.0)]   # pg-c (right)
 FS_JOB = {PG + "a": "bypass", PG + "b": "next", PG + "c": "a/b"}  # printed next to each name, smaller
 FS_CAP = "pink"                        # KN2310 aluminium caps (A-2599) on the PBS-24 footswitches
 # two small analog pots left of the screen (10k log dual, A-6980, 14 mm white ripple knobs A-8567), wired to the carrier board
+SMALL_X = -40.7   # centred between the border's inner line (x -54.5) and the screen's outer line (x -26.9)
 SMALL_POTS = [  # label, x, y, bare hole, what it does
-    (PG + "hp", -45.5, 36.0, 7.5, "headphone volume (silent .. +12 dB)"),
-    (PG + "line", -45.5, 13.0, 7.5, "line-out level"),
+    (PG + "hp", SMALL_X, 35.0, 7.5, "headphone volume (silent .. +12 dB)"),
+    (PG + "line", SMALL_X, 12.5, 7.5, "line-out level"),
 ]
 SMALL_KNOB_D = 14.0
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
@@ -281,7 +282,7 @@ def build_face_art():
                 A.stroke(tick(x, KNOB_Y, 11.0, 12.6 if i in (0, 5, 10) else 11.9, deg), 0.35)
             A.fill(lab.outline("0", x - 9.6, KNOB_Y - 11.6, 2.4))
             A.fill(lab.outline("+40", x + 10.0, KNOB_Y - 11.6, 2.4))
-        A.fill(lab.outline(name, x, KNOB_Y - 18.2, 4.3))
+        A.fill(mono.outline(name, x, KNOB_Y - 18.2, 4.3))   # every pg- name in the terminal font
 
     # the two small pots left of the screen: 11 dots over the 300 degree turn (silent .. loudest, the top one pink)
     for name, x, y, _, _ in SMALL_POTS:
@@ -290,7 +291,7 @@ def build_face_art():
             a = math.radians(240 - i * 30)
             rr = 0.5 if i in (0, 10) else 0.24
             A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), rr), PINK if i == 10 else INK)
-        A.fill(lab.outline(name, x, y - r - 3.2, 3.0))
+        A.fill(mono.outline(name, x, y - r - 3.2, 3.0))
 
     # footswitches: a ring with a hairline ring inside it, and 4 small ticks at the quarters
     for name, x in FOOTSW:
@@ -300,9 +301,9 @@ def build_face_art():
             A.stroke(tick(x, FS_Y, 11.6, 12.4, deg), 0.3)
         # "pg-a bypass": the name, then what it does in the plain mono letters, centred together
         job = FS_JOB[name]
-        w1, w2, gap = lab.width(name, 4.3), mono.width(job, 2.7), 1.4
+        w1, w2, gap = mono.width(name, 4.3), mono.width(job, 2.7), 1.4
         x0 = x - (w1 + gap + w2) / 2
-        A.fill(lab.outline(name, x0, FS_Y - 15.0, 4.3, anchor="start"))
+        A.fill(mono.outline(name, x0, FS_Y - 15.0, 4.3, anchor="start"))
         A.fill(mono.outline(job, x0 + w1 + gap, FS_Y - 15.0, 2.7, anchor="start"))
 
     # jack labels along the top edge (match side B holes)
@@ -331,7 +332,7 @@ def build_face_art():
     A.stroke([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(logo_points(0, 51.0))], 0.75)
     A.fill(diamond(-26.4, 51.0, 0.75))
     A.fill(diamond(26.4, 51.0, 0.75))
-    A.fill(tag.outline("pg audio \u00b7 pg-1", 0, 44.0, 3.6, track=0.15))   # brand + model, as on the screen
+    A.fill(mono.outline("pg audio \u00b7 pg-1", 0, 44.0, 3.6))   # brand + model, as on the screen
     return A
 
 
@@ -340,8 +341,15 @@ def check_clearances():
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
             [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS]
+    # a small knob next to a screen screw: the 14 mm knob must clear the screw head (5.5 mm) by 1 mm
+    for _, x, y, _, _ in SMALL_POTS:
+        for sx, sy in SCREWS:
+            if math.hypot(x - sx, y - sy) < SMALL_KNOB_D / 2 + 2.75 + 1.0:
+                raise SystemExit(f"small knob {(x, y)} too close to the screen screw {(sx, sy)}")
     for (x1, y1, r1) in holes:
         for (x2, y2, r2) in holes:
+            if {(x1, y1), (x2, y2)} & set(SCREWS) and {(x1, y1), (x2, y2)} & {(p[1], p[2]) for p in SMALL_POTS}:
+                continue   # checked above
             if (x1, y1) < (x2, y2) and math.hypot(x1 - x2, y1 - y2) < r1 + r2 + (2 if max(r1, r2) <= 1.0 else 8):
                 raise SystemExit(f"holes too close: {(x1, y1)} {(x2, y2)}")
 

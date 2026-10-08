@@ -6,8 +6,8 @@ A,hole,pg-4,40.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
 A,hole,pg-a,-36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
 A,hole,pg-b,0.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
 A,hole,pg-c,36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
-A,hole,pg-hp,-45.50,36.00,7.9,,,"10k log dual pot A-6980 (9 mm, round shaft): headphone volume (silent .. +12 dB)"
-A,hole,pg-line,-45.50,13.00,7.9,,,"10k log dual pot A-6980 (9 mm, round shaft): line-out level"
+A,hole,pg-hp,-40.70,35.00,7.9,,,"10k log dual pot A-6980 (9 mm, round shaft): headphone volume (silent .. +12 dB)"
+A,hole,pg-line,-40.70,12.50,7.9,,,"10k log dual pot A-6980 (9 mm, round shaft): line-out level"
 A,hole,screen screw 1,-30.74,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 2,36.52,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 3,-30.74,3.03,3.6,,,M3 screw for 2.4in screen + board
