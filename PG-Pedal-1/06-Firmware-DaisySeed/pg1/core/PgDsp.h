@@ -3,7 +3,7 @@
 //
 // Signal flow (one Core::Process call):
 //   in -> hum -> input level -> dyn eq -> comp -> multiband -> clarity -> saturate -> de-harsh -> width -> takeback
-//      -> loudness -> [bypass] -> safety -> out
+//      -> loudness -> anti-duck -> [bypass] -> safety -> out
 // (the pid tab only listens after loudness and steers the other stages' settings)
 // Safety is after the bypass switch: it is always on.
 #pragma once
@@ -90,12 +90,28 @@ struct Svf
     }
 };
 
+// Anti-duck weighting for level detectors: a steep (4th-order) high-pass, so the bass hardly counts.
+// Every detector that can turn the WHOLE sound down listens through this, so a bass-heavy moment is never
+// mistaken for "too loud" and the rest of the track never dips under it (150 Hz: a 50 Hz note counts
+// ~38 dB less, an 80 Hz one ~22 dB less; 300 Hz for the anti-duck guard's "rest of the track").
+struct DuckWeight
+{
+    Svf  a, b;
+    void Init(float fs, float hp_hz)
+    {
+        a.Set(Svf::HP, fs, hp_hz, 0.5412f), b.Set(Svf::HP, fs, hp_hz, 1.3066f); // Butterworth
+        a.Reset(), b.Reset();
+    }
+    inline float Run(int ch, float x) { return b.Run(ch, a.Run(ch, x)); }
+};
+
 // ------------------------------------------------------------------ 0. input auto-level
 // Brings any source to the same working level: quiet ones up (at most `boost`), hot ones down (at
 // most `cut`). Slow and gated, so it rides the level like a careful engineer and never pumps up
 // silence or noise. The 119 dB converter in the Seed3 has the headroom to do this digitally.
 struct LevelStage
 {
+    DuckWeight kw; // anti-duck: bass-heavy passages don't read as "hot"
     float p = 0.f, gain_db = 0.f, cur = 1.f, in_db = -120.f;
     float c_pow = 0.f, c_gain = 0.f, fs = 48000.f;
 
@@ -104,6 +120,7 @@ struct LevelStage
         fs = sr;
         p = 0.f, gain_db = 0.f, cur = 1.f, in_db = -120.f;
         c_pow = Coef(400.f, fs), c_gain = Coef(20.f, fs);
+        kw.Init(fs, 150.f);
     }
     // target dBFS rms, boost / cut limits in dB, speed 0..1
     void Update(float target, float boost, float cut, float speed, float block_s)
@@ -119,7 +136,8 @@ struct LevelStage
     }
     inline void Run(float& l, float& r)
     {
-        p += (0.5f * (l * l + r * r) - p) * c_pow;
+        const float w = kw.Run(0, 0.5f * (l + r));
+        p += (w * w - p) * c_pow;
         cur += (DbToLin(gain_db) - cur) * c_gain;
         l *= cur, r *= cur;
     }
@@ -371,7 +389,7 @@ struct DynEqStage
 // ------------------------------------------------------------------ 3. compressor
 struct CompStage
 {
-    Svf   sc_hp;              // sidechain: ignore the deepest bass so it doesn't pump
+    DuckWeight sc;            // sidechain (anti-duck): bass hits barely drive it, so it never pumps the track down
     float p = 0.f;            // detector power
     float env_fast = 0.f, env_slow = 0.f, gr_db = 0.f, in_db = -120.f;
     float thr = -18.f, ratio = 2.5f, makeup = 0.f;
@@ -382,7 +400,7 @@ struct CompStage
     void Init(float sr)
     {
         fs = sr;
-        sc_hp.Set(Svf::HP, fs, 90.f, 0.707f), sc_hp.Reset();
+        sc.Init(fs, 150.f);
         p = 0.f, env_fast = env_slow = gr_db = 0.f;
         c_det      = Coef(5.f, fs);
         c_slow_att = Coef(400.f, fs), c_slow_rel = Coef(1200.f, fs);
@@ -407,7 +425,7 @@ struct CompStage
     }
     inline void Run(float& l, float& r)
     {
-        const float hl = sc_hp.Run(0, l), hr = sc_hp.Run(1, r);
+        const float hl = sc.Run(0, l), hr = sc.Run(1, r);
         const float sq = fmaxf(hl * hl, hr * hr);
         p += (sq - p) * c_det;
         in_db          = PowToDb(p) + 3.f;
@@ -520,119 +538,197 @@ struct MultibandStage
 };
 
 // ------------------------------------------------------------------ 4. clarity + bass
+// Bass: thump (a short low lift on each hit), detail (the bass's own harmonics, heard on small speakers)
+// and warmth (a steady low shelf). Clarity: up to 10 bands that find their own spots. 20 detectors listen
+// half an octave apart; where the sound bulges above a smooth balance a band moves there and cuts, where it
+// sags a band moves there and lifts. Each band glides its own frequency, width (q) and gain, so it follows
+// the music instead of jumping. Modes: dynamic (cuts and lifts), add (only lifts), normalise (stronger,
+// slower, towards an even balance).
 struct ClarityStage
 {
-    Svf   d_low, d_mud, d_pres, d_hi;              // detectors (mono)
-    Svf   thump, mud, pres, warm_lo, warm_hi;      // the moves (stereo)
-    Svf   det_lp, det_hp, det_out;                 // bass detail: harmonics of the bass (stereo)
-    float low_fast = 0.f, low_slow = 0.f, p_mud = 0.f, p_pres = 0.f, p_hi = 0.f, p_full = 0.f, bass_pk = 0.f;
-    float thump_db = 0.f, mud_db = 0.f, pres_db = 0.f, warm_lo_db = 0.f, warm_hi_db = 0.f;
-    float ap[5] = {};
+    static constexpr int kMaxBands = 10, kD = 20;
+    struct Band
+    {
+        Svf   f;
+        float hz = 1000.f, q = 1.f, db = 0.f;      // where it is now
+        float t_hz = 1000.f, t_q = 1.f, t_db = 0.f; // where it is heading
+        float ap_hz = 0.f, ap_q = 0.f, ap_db = 0.f; // what the filter is set to
+        bool  live = false;
+    };
+    Svf   d_low, thump, warm_lo, det_lp, det_hp, det_out;
+    float low_fast = 0.f, low_slow = 0.f, p_full = 0.f, bass_pk = 0.f;
+    float thump_db = 0.f, warm_lo_db = 0.f, ap_thump = 1000.f, ap_warm = 1000.f;
     float detail = 0.f, p_harm = 0.f, detail_view_db = 0.f;
-    // mode: 0 dynamic (lifts and cuts), 1 add (only lifts, never cuts), 2 normalise (8-band tonal balance)
-    static constexpr int kNB = 8;
-    int   mode = 0;
-    Svf   bal_det[kNB], bal[kNB];
-    float p_bal[kNB] = {}, bal_db[kNB] = {}, bal_ap[kNB] = {}, c_bal = 0.f;
-    bool  bal_active = false;
-    float c_lf_up = 0.f, c_lf_dn = 0.f, c_ls_up = 0.f, c_ls_dn = 0.f, c_avg = 0.f, c_pk_dn = 0.f;
+    Svf   det[kD];
+    float det_hz[kD] = {}, p_det[kD] = {};
+    float dev_db[kD] = {}; // what it hears: each spot above (+) or below (-) the smooth balance (for the screen)
+    Band  band[kMaxBands];
+    int   mode = 0, n_bands = 6, live_n = 0;
+    float max_db = 2.f, since = 0.f, cut_most = 0.f, lift_most = 0.f;
+    float c_lf_up = 0.f, c_lf_dn = 0.f, c_ls_up = 0.f, c_ls_dn = 0.f, c_avg = 0.f, c_pk_dn = 0.f, c_det = 0.f;
     float fs = 48000.f;
 
     void Init(float sr)
     {
         fs = sr;
-        d_low.Set(Svf::LP, fs, 100.f, 0.707f), d_mud.Set(Svf::BP, fs, 300.f, 1.2f);
-        d_pres.Set(Svf::BP, fs, 3200.f, 1.f), d_hi.Set(Svf::HP, fs, 7000.f, 0.707f);
+        d_low.Set(Svf::LP, fs, 100.f, 0.707f);
         det_lp.Set(Svf::LP, fs, 120.f, 0.707f), det_hp.Set(Svf::HP, fs, 90.f, 0.707f), det_out.Set(Svf::LP, fs, 1500.f, 0.707f);
-        Svf* all[] = {&d_low, &d_mud, &d_pres, &d_hi, &thump, &mud, &pres, &warm_lo, &warm_hi, &det_lp, &det_hp, &det_out};
-        for(Svf* s : all)
-            s->Reset();
-        thump_db = mud_db = pres_db = warm_lo_db = warm_hi_db = 0.f;
-        for(float& a : ap)
-            a = 1000.f;
-        low_fast = low_slow = p_mud = p_pres = p_hi = p_full = bass_pk = 0.f;
+        Svf* all[] = {&d_low, &thump, &warm_lo, &det_lp, &det_hp, &det_out};
+        for(Svf* f : all)
+            f->Reset();
+        thump_db = warm_lo_db = 0.f, ap_thump = ap_warm = 1000.f;
+        low_fast = low_slow = p_full = bass_pk = 0.f;
         p_harm = 0.f, detail_view_db = 0.f;
+        for(int i = 0; i < kD; i++) // 40 Hz .. 16 kHz, ~0.45 octave apart
+        {
+            det_hz[i] = 40.f * powf(400.f, float(i) / float(kD - 1));
+            det[i].Set(Svf::BP, fs, det_hz[i], 2.2f), det[i].Reset();
+            p_det[i] = 0.f, dev_db[i] = 0.f;
+        }
+        for(Band& b : band)
+            b = Band{}, b.f.Set(Svf::BELL, fs, 1000.f, 1.f, 0.f), b.f.Reset();
+        live_n = 0, since = 0.f, cut_most = lift_most = 0.f;
         c_lf_up = Coef(2.f, fs), c_lf_dn = Coef(40.f, fs);
         c_ls_up = Coef(150.f, fs), c_ls_dn = Coef(300.f, fs);
-        c_avg = Coef(150.f, fs), c_pk_dn = Coef(60.f, fs);
-        for(int b = 0; b < kNB; b++)
-            bal_det[b].Set(Svf::BP, fs, BalHz(b), 1.2f), bal_det[b].Reset(), bal[b].Set(Svf::BELL, fs, BalHz(b), 1.2f, 0.f), bal[b].Reset(),
-                p_bal[b] = 0.f, bal_db[b] = bal_ap[b] = 0.f;
-        c_bal      = Coef(2000.f, fs);
-        bal_active = false;
+        c_avg = Coef(150.f, fs), c_pk_dn = Coef(60.f, fs), c_det = Coef(200.f, fs);
         Apply(true);
     }
     void Apply(bool force)
     {
-        const float v[5] = {thump_db, mud_db, pres_db, warm_lo_db, warm_hi_db};
-        for(int i = 0; i < 5; i++)
-            if(force || fabsf(v[i] - ap[i]) > 0.05f)
-            {
-                switch(i)
+        if(force || fabsf(thump_db - ap_thump) > 0.05f)
+            thump.Set(Svf::LSHELF, fs, 90.f, 0.7f, thump_db), ap_thump = thump_db;
+        if(force || fabsf(warm_lo_db - ap_warm) > 0.05f)
+            warm_lo.Set(Svf::LSHELF, fs, 220.f, 0.7f, warm_lo_db), ap_warm = warm_lo_db;
+        for(Band& b : band)
+            if(force || fabsf(b.db - b.ap_db) > 0.05f || fabsf(b.hz - b.ap_hz) > b.ap_hz * 0.004f || fabsf(b.q - b.ap_q) > b.ap_q * 0.01f)
+                b.f.Set(Svf::BELL, fs, b.hz, b.q, b.db), b.ap_hz = b.hz, b.ap_q = b.q, b.ap_db = b.db;
+    }
+    static float Oct(float hz) { return log2f(hz / 1000.f); }
+    // the band search: find the bulges and dips, hand them to bands (each band keeps the spot nearest to it)
+    void Search()
+    {
+        const float full = PowToDb(p_full);
+        if(full < -60.f) // silence: hold every band where it is
+            return;
+        // vs the overall trend (a straight line through the whole spectrum): only bulges and dips count,
+        // the overall tilt is warmth's (and the pid tab's) job
+        float d[kD], sx = 0.f, sy = 0.f, sxx = 0.f, sxy = 0.f;
+        for(int i = 0; i < kD; i++)
+        {
+            d[i] = PowToDb(p_det[i]);
+            sx += float(i), sy += d[i], sxx += float(i * i), sxy += float(i) * d[i];
+        }
+        const float slope = (float(kD) * sxy - sx * sy) / (float(kD) * sxx - sx * sx), icpt = (sy - slope * sx) / float(kD);
+        for(int i = 0; i < kD; i++)
+            d[i] -= icpt + slope * float(i);
+        const float mean = 0.f;
+        for(int i = 0; i < kD; i++) // a little smoothing across neighbours, so one busy note isn't a "spot"
+        {
+            const float a = d[i > 0 ? i - 1 : i], c = d[i < kD - 1 ? i + 1 : i];
+            dev_db[i] = 0.25f * a + 0.5f * d[i] + 0.25f * c;
+        }
+        struct Spot
+        {
+            float hz, q, db, w;
+        } spot[kD];
+        int         ns       = 0;
+        const float strength = mode == 2 ? 0.9f : 0.6f, step = log2f(det_hz[1] / det_hz[0]);
+        float       raw[kD];
+        for(int i = 0; i < kD; i++)
+            raw[i] = d[i] - mean;
+        for(int i = 1; i < kD - 1; i++) // the end detectors only help measure: no band below ~50 Hz or above ~12 kHz
+        {
+            const float v = dev_db[i];
+            if(fabsf(v) < 1.5f)
+                continue;
+            const float l = dev_db[i - 1], r = dev_db[i + 1];
+            if(!((v > 0.f && v >= l && v >= r) || (v < 0.f && v <= l && v <= r))) // only the tip of a bulge / dip
+                continue;
+            if(mode == 1 && v > 0.f) // add: never cut
+                continue;
+            // the exact centre (a parabola through the three raw readings)
+            const float rl = raw[i - 1], rv = raw[i], rr = raw[i + 1], den = rl - 2.f * rv + rr;
+            const float off = fabsf(den) > 1e-6f ? Clampf(0.5f * (rl - rr) / den, -0.5f, 0.5f) : 0.f;
+            // how wide: where the raw reading falls to half on each side (in octaves), minus the detectors' own
+            // width (~0.75 octave), so a narrow ring gets a narrow band and a broad hump a broad one
+            auto edge = [&](int dir) {
+                float x = 0.f;
+                for(int j = i + dir; j >= 0 && j < kD; j += dir)
                 {
-                    case 0: thump.Set(Svf::LSHELF, fs, 90.f, 0.7f, v[i]); break;
-                    case 1: mud.Set(Svf::BELL, fs, 300.f, 0.9f, v[i]); break;
-                    case 2: pres.Set(Svf::BELL, fs, 3200.f, 0.8f, v[i]); break;
-                    case 3: warm_lo.Set(Svf::LSHELF, fs, 220.f, 0.7f, v[i]); break;
-                    default: warm_hi.Set(Svf::HSHELF, fs, 8000.f, 0.7f, v[i]); break;
+                    const float prev = raw[j - dir], cur = raw[j];
+                    if(cur * rv <= 0.f || fabsf(cur) < 0.5f * fabsf(rv))
+                        return x + step * Clampf((fabsf(prev) - 0.5f * fabsf(rv)) / (fabsf(prev) - fabsf(cur) + 1e-6f), 0.f, 1.f);
+                    x += step;
                 }
-                ap[i] = v[i];
+                return x;
+            };
+            const float bw_seen = edge(-1) + edge(1), bw = sqrtf(fmaxf(bw_seen * bw_seen - 0.75f * 0.75f, 0.12f * 0.12f));
+            const float k = powf(2.f, bw);
+            spot[ns++] = {det_hz[i] * powf(2.f, off * step), Clampf(sqrtf(k) / (k - 1.f), 0.5f, 8.f), Clampf(-v * strength, -max_db, max_db), fabsf(v)};
+        }
+        for(int a = 1; a < ns; a++) // biggest first
+            for(int b = a; b > 0 && spot[b].w > spot[b - 1].w; b--)
+            {
+                const Spot t = spot[b];
+                spot[b] = spot[b - 1], spot[b - 1] = t;
             }
+        if(ns > n_bands)
+            ns = n_bands;
+        bool taken[kMaxBands] = {};
+        for(int s = 0; s < ns; s++)
+        {
+            int best = -1;
+            float bd = 1.f; // a live band within an octave follows the spot (glides there)
+            for(int b = 0; b < n_bands; b++)
+                if(!taken[b] && band[b].live && fabsf(Oct(band[b].hz) - Oct(spot[s].hz)) < bd)
+                    bd = fabsf(Oct(band[b].hz) - Oct(spot[s].hz)), best = b;
+            if(best < 0) // otherwise a free band (no gain) jumps there
+                for(int b = 0; b < n_bands && best < 0; b++)
+                    if(!taken[b] && !band[b].live)
+                        best = b, band[b].hz = spot[s].hz, band[b].q = spot[s].q, band[b].f.Reset();
+            if(best < 0)
+                continue;
+            taken[best]       = true;
+            band[best].live   = true;
+            band[best].t_hz   = spot[s].hz, band[best].t_q = spot[s].q, band[best].t_db = spot[s].db;
+        }
+        for(int b = 0; b < kMaxBands; b++)
+            if(!taken[b])
+                band[b].t_db = 0.f; // nothing to do here now: fade out (and become free once silent)
     }
-    static float BalHz(int b)
+    // the knobs: thump (most per hit, dB), detail (harmonics), clarity (most each band may move, dB),
+    // warmth (steady low shelf, dB); m = mode; bands = how many bands (1-10)
+    void Update(float thump_max, float detail_db, float clarity_db, float warmth_db, float block_s, int m = 0, int bands = 6)
     {
-        static const float hz[kNB] = {60.f, 150.f, 350.f, 800.f, 1800.f, 4000.f, 8000.f, 14000.f};
-        return hz[b];
-    }
-    // the knobs, in dB of lift: thump (most per hit), detail (harmonics), clarity (presence), warmth (low shelf)
-    void Update(float thump_max, float detail_db, float clarity_db, float warmth_db, float block_s, int m = 0)
-    {
-        mode                  = m;
-        detail                = detail_db / 6.f;
-        const float a_clarity = clarity_db / 6.f, a_warmth = warmth_db / 4.f;
-        const float c3  = 1.f - expf(-block_s / 0.003f), c80 = 1.f - expf(-block_s / 0.08f);
-        const float c250 = 1.f - expf(-block_s / 0.25f), c2s = 1.f - expf(-block_s / 2.f);
-        // thump: a short lift of the lows on each hit (fast level jumping above the slow level)
+        mode    = m;
+        n_bands = bands < 1 ? 1 : (bands > kMaxBands ? kMaxBands : bands);
+        max_db  = clarity_db;
+        detail  = detail_db / 6.f;
+        const float c3 = 1.f - expf(-block_s / 0.003f), c80 = 1.f - expf(-block_s / 0.08f), c250 = 1.f - expf(-block_s / 0.25f);
         const float transient = fmaxf(0.f, PowToDb(low_fast) - PowToDb(low_slow));
         const float t_thump   = fminf(thump_max, transient);
         thump_db += (t_thump - thump_db) * (t_thump > thump_db ? c3 : c80);
-        const float full = PowToDb(p_full);
-        float       t_mud = 0.f, t_pres = 0.f, t_whi = 0.f;
-        if(full > -60.f)
-        {
-            // mud: 300 Hz holding more than its share -> cut. presence: always lifted by the knob's amount,
-            // down to a quarter of it when the 3 kHz range is already strong (so bright music isn't pushed)
-            t_mud  = -a_clarity * Clampf((PowToDb(p_mud) - full + 8.f) * 0.8f, 0.f, 6.f);
-            t_pres = clarity_db * Clampf(1.f - ((PowToDb(p_pres) - full) + 18.f) / 6.f, 0.25f, 1.f);
-            t_whi  = -a_warmth * Clampf((PowToDb(p_hi) - full + 24.f) * 0.5f, 0.f, 4.f); // only when bright
-        }
-        if(mode == 1) // add: only ever lift (no mud cut, no taming of the top)
-            t_mud = 0.f, t_whi = 0.f;
-        // normalise: pull the 8 bands toward a smooth, slightly warm slope (warmth = a warmer slope)
-        float t_bal[kNB] = {};
-        if(mode == 2 && full > -60.f)
-        {
-            t_mud = 0.f, t_pres = 0.f, t_whi = 0.f; // the balance does their job
-            float dev[kNB], mean = 0.f;
-            for(int b = 0; b < kNB; b++)
-                dev[b] = PowToDb(p_bal[b]) + (4.5f + 1.5f * a_warmth) * log2f(BalHz(b) / 1000.f), mean += dev[b] / float(kNB);
-            for(int b = 0; b < kNB; b++)
-                t_bal[b] = -Clampf((dev[b] - mean) * 0.7f, -6.f, 6.f) * a_clarity;
-        }
-        bal_active = mode == 2;
-        for(int b = 0; b < kNB; b++)
-        {
-            bal_db[b] += (t_bal[b] - bal_db[b]) * (1.f - expf(-block_s / 1.5f));
-            bal_active = bal_active || fabsf(bal_db[b]) > 0.05f;
-            if(fabsf(bal_db[b] - bal_ap[b]) > 0.05f)
-                bal[b].Set(Svf::BELL, fs, BalHz(b), 1.2f, bal_db[b]), bal_ap[b] = bal_db[b];
-        }
-        const float c_moves = full > -60.f ? c250 : c2s;
-        mud_db += (t_mud - mud_db) * c_moves;
-        pres_db += (t_pres - pres_db) * c_moves;
-        warm_hi_db += (t_whi - warm_hi_db) * c_moves;
         warm_lo_db += (warmth_db - warm_lo_db) * c250;
-        // what the detail knob is adding right now: the bass's harmonics, as extra weight on the bass
+        since += block_s;
+        if(since >= 0.02f) // look for spots 50 times a second
+            since = 0.f, Search();
+        // glide: frequency and width over ~0.3 s (normalise ~1 s), gain in ~0.15 s / out ~0.4 s
+        const float slow = mode == 2 ? 3.f : 1.f;
+        const float c_f = 1.f - expf(-block_s / (0.3f * slow)), c_in = 1.f - expf(-block_s / (0.15f * slow)),
+                    c_out = 1.f - expf(-block_s / (0.4f * slow));
+        live_n = 0, cut_most = lift_most = 0.f;
+        for(Band& b : band)
+        {
+            if(!b.live)
+                continue;
+            b.hz *= powf(b.t_hz / b.hz, c_f);
+            b.q *= powf(b.t_q / b.q, c_f);
+            b.db += (b.t_db - b.db) * (fabsf(b.t_db) > fabsf(b.db) ? c_in : c_out);
+            if(b.t_db == 0.f && fabsf(b.db) < 0.03f)
+                b.live = false, b.db = 0.f;
+            live_n += b.live;
+            cut_most = fminf(cut_most, b.db), lift_most = fmaxf(lift_most, b.db);
+        }
         detail_view_db = detail > 0.001f ? 10.f * log10f((low_slow + p_harm + 1e-20f) / (low_slow + 1e-20f)) : 0.f;
         Apply(false);
     }
@@ -642,17 +738,16 @@ struct ClarityStage
         const float lo = d_low.Run(0, m), lp = lo * lo;
         Follow(low_fast, lp, c_lf_up, c_lf_dn);
         Follow(low_slow, lp, c_ls_up, c_ls_dn);
-        const float mu = d_mud.Run(0, m), pr = d_pres.Run(0, m), hi = d_hi.Run(0, m);
-        p_mud += (mu * mu - p_mud) * c_avg;
-        p_pres += (pr * pr - p_pres) * c_avg;
-        p_hi += (hi * hi - p_hi) * c_avg;
         p_full += (m * m - p_full) * c_avg;
-
+        for(int i = 0; i < kD; i++)
+        {
+            const float v = det[i].Run(0, m);
+            p_det[i] += (v * v - p_det[i]) * c_det;
+        }
         float x[2] = {l, r};
         if(detail > 0.001f)
         {
-            // bass detail: 2nd + 3rd harmonics of the bass (Chebyshev, level-tracking) so it is heard
-            // on small speakers too; only the harmonics are kept (90 Hz - 1.5 kHz)
+            // bass detail: 2nd + 3rd harmonics of the bass (Chebyshev, level-tracking), only the harmonics kept
             const float bl = det_lp.Run(0, l), br = det_lp.Run(1, r);
             const float pk = fmaxf(fabsf(bl), fabsf(br));
             bass_pk        = pk > bass_pk ? pk : bass_pk + (pk - bass_pk) * c_pk_dn;
@@ -670,21 +765,12 @@ struct ClarityStage
         }
         for(int ch = 0; ch < 2; ch++)
         {
-            float y = thump.Run(ch, x[ch]);
-            y       = mud.Run(ch, y);
-            y       = pres.Run(ch, y);
-            y       = warm_lo.Run(ch, y);
-            x[ch]   = warm_hi.Run(ch, y);
+            float y = warm_lo.Run(ch, thump.Run(ch, x[ch]));
+            for(Band& b : band)
+                if(b.live)
+                    y = b.f.Run(ch, y);
+            x[ch] = y;
         }
-        if(mode == 2)
-            for(int b = 0; b < kNB; b++)
-            {
-                const float d = bal_det[b].Run(0, m);
-                p_bal[b] += (d * d - p_bal[b]) * c_bal;
-            }
-        if(bal_active)
-            for(int b = 0; b < kNB; b++)
-                x[0] = bal[b].Run(0, x[0]), x[1] = bal[b].Run(1, x[1]);
         l = x[0], r = x[1];
     }
 };
@@ -748,6 +834,7 @@ struct DeHarshStage
 {
     static constexpr int kD = 6;
     Svf   det[kD], cut[kD], comfort;
+    DuckWeight kw; // anti-duck: "how loud" for the comfort dip ignores the bass
     float p[kD] = {}, cut_db[kD] = {}, applied[kD] = {}, p_full = 0.f, comfort_db = 0.f, comfort_ap = 1000.f;
     float c_att = 0.f, c_rel = 0.f, c_full = 0.f;
     float fs = 48000.f;
@@ -759,6 +846,7 @@ struct DeHarshStage
             det[i].Set(Svf::BP, fs, kDeHarshF[i], 3.f), det[i].Reset(), cut[i].Set(Svf::BELL, fs, kDeHarshF[i], 3.f, 0.f), cut[i].Reset(),
                 p[i] = 0.f, cut_db[i] = 0.f, applied[i] = 0.f;
         comfort.Set(Svf::BELL, fs, 3000.f, 0.7f, 0.f), comfort.Reset();
+        kw.Init(fs, 150.f);
         comfort_db = 0.f, comfort_ap = 0.f, p_full = 0.f;
         c_att = Coef(1.f, fs), c_full = Coef(300.f, fs);
     }
@@ -788,8 +876,8 @@ struct DeHarshStage
     }
     inline void Run(float& l, float& r)
     {
-        const float m = 0.5f * (l + r);
-        p_full += (m * m - p_full) * c_full;
+        const float m = 0.5f * (l + r), w = kw.Run(0, m);
+        p_full += (w * w - p_full) * c_full;
         for(int i = 0; i < kD; i++)
         {
             const float d = det[i].Run(0, m), sq = d * d;
@@ -930,6 +1018,7 @@ struct TakebackStage
 struct LoudnessStage
 {
     Svf   lo, hi;
+    DuckWeight kw; // anti-duck: a bass-heavy part doesn't count as a loud part
     float lo_db = 0.f, hi_db = 0.f, lo_ap = 1000.f, hi_ap = 1000.f, p = 0.f, c_p = 0.f, eff = 80.f, fs = 48000.f;
 
     void Init(float sr)
@@ -939,6 +1028,7 @@ struct LoudnessStage
         lo.Set(Svf::LSHELF, fs, 90.f, 0.7f, 0.f), hi.Set(Svf::HSHELF, fs, 9000.f, 0.7f, 0.f);
         lo_db = hi_db = 0.f, lo_ap = hi_ap = 0.f, p = 0.f;
         c_p = Coef(1000.f, fs);
+        kw.Init(fs, 150.f);
     }
     // listen = how loud you listen (phon, 40 quiet .. 90 loud); bass / treble 0..1; follow the music level
     void Update(float listen, float bass, float treble, bool follow, float block_s)
@@ -957,9 +1047,72 @@ struct LoudnessStage
     }
     inline void Run(float& l, float& r)
     {
-        const float m = 0.5f * (l + r);
-        p += (m * m - p) * c_p;
+        const float w = kw.Run(0, 0.5f * (l + r));
+        p += (w * w - p) * c_p;
         l = hi.Run(0, lo.Run(0, l)), r = hi.Run(1, lo.Run(1, r));
+    }
+};
+
+// ------------------------------------------------------------------ 9b. anti-duck guard (always on)
+// The last word on ducking. It compares how loud the mids and highs are coming out against going in
+// (bass-free loudness, K-weighted), and learns the normal ratio from ordinary moments. When the bass gets
+// heavy and the processing has still pulled the rest of the track under that ratio, it lifts everything
+// above 120 Hz back up (at most +6 dB, before the safety limiter). Ordinary compression of loud parts is
+// left alone: it only acts while the bass is heavy. A changed setting re-learns the ratio (Rebase).
+struct AntiDuckStage
+{
+    DuckWeight w_in, w_out;
+    Svf   lo_in;
+    MultibandStage::Lr4 xo; // 120 Hz split: everything above it gets the lift
+    float p_in = 0.f, p_out = 0.f, p_full = 0.f, p_lo = 0.f, c_p = 0.f, c_g = 0.f;
+    float ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = 0.f, heavy_hold = 0.f, g = 1.f, rebase_s = 0.f;
+    bool  have_ref = false;
+    float fs = 48000.f;
+
+    void Init(float sr)
+    {
+        fs = sr;
+        w_in.Init(fs, 300.f), w_out.Init(fs, 300.f); // "the rest of the track": everything from 300 Hz up
+        lo_in.Set(Svf::LP, fs, 120.f, 0.707f), lo_in.Reset();
+        xo.Set(fs, 120.f);
+        p_in = p_out = p_full = p_lo = 0.f;
+        ref = 0.f, share_avg = -12.f, boost_db = 0.f, heavy = heavy_hold = 0.f, g = 1.f, rebase_s = 0.f, have_ref = false;
+        c_p = Coef(400.f, fs), c_g = Coef(5.f, fs);
+    }
+    void Rebase() { rebase_s = 0.6f; } // a setting changed: learn the normal ratio again in a moment
+    void Update(float block_s)
+    {
+        const float in_db = PowToDb(p_in), out_db = PowToDb(p_out);
+        float       target = 0.f;
+        if(in_db > -50.f && out_db > -70.f)
+        {
+            const float ratio = out_db - in_db, share = PowToDb(p_lo) - PowToDb(p_full);
+            share_avg += (share - share_avg) * (1.f - expf(-block_s / 8.f));
+            // heavy: the bass carries most of the energy, or clearly more than usual for this music
+            heavy      = fmaxf(Smooth01((share + 6.f) / 5.f), Smooth01((share - share_avg) / 4.f));
+            heavy_hold = fmaxf(heavy, heavy_hold * expf(-block_s / 2.f)); // bass was heavy in the last ~2 s
+            if(rebase_s > 0.f)
+                rebase_s -= block_s, have_ref = rebase_s <= 0.f ? false : have_ref;
+            else if(!have_ref)
+                ref = ratio, have_ref = true;
+            else if(heavy_hold < 0.2f) // learn only from ordinary moments (not as the bass comes or goes)
+                ref += (ratio - ref) * (1.f - expf(-block_s / (ratio > ref ? 5.f : 20.f)));
+            if(have_ref && rebase_s <= 0.f)
+                target = Clampf(ref - ratio, 0.f, 6.f) * heavy;
+        }
+        boost_db += (target - boost_db) * (1.f - expf(-block_s / (target > boost_db ? 0.08f : 0.4f)));
+    }
+    // dl, dr = the sound as it came in; l, r = after every stage (changed in place)
+    inline void Run(float dl, float dr, float& l, float& r)
+    {
+        const float mi = 0.5f * (dl + dr), wi = w_in.Run(0, mi), lo = lo_in.Run(0, mi);
+        p_in += (wi * wi - p_in) * c_p, p_full += (mi * mi - p_full) * c_p, p_lo += (lo * lo - p_lo) * c_p;
+        const float wo = w_out.Run(0, 0.5f * (l + r)); // measured before the lift: no feedback loop
+        p_out += (wo * wo - p_out) * c_p;
+        g += (DbToLin(boost_db) - g) * c_g;
+        float lol, hil, lor, hir;
+        xo.Run(0, l, lol, hil), xo.Run(1, r, lor, hir);
+        l = lol + hil * g, r = lor + hir * g;
     }
 };
 
@@ -978,6 +1131,10 @@ struct SafetyStage
     float ultra_in_db = -200.f, infra_in_db = -200.f, ultra_out_db = -200.f, infra_out_db = -200.f;
     bool  ultra_possible = true; // false when the sample rate can't even carry ultrasonic sound
     Svf   d_low, d_high, woof, tweet;
+    DuckWeight ew;   // anti-duck: the ear meters weigh bass like ears do (dBA-like), so bass never turns the track down
+    Svf   post;      // 8 Hz high-pass after the limiter: clears the slow wobble its gain riding can leave
+    MultibandStage::Lr4 xo; // 120 Hz Linkwitz-Riley split (low + high add back up flat): peaks from the bass are caught in the bass
+    float d_lo[2][kMaxLook] = {}, need_lo[kMaxLook] = {}, gb = 1.f, bass_limit_db = 0.f, c_rel_b = 0.f;
     float p_low = 0.f, p_high = 0.f, p_ear = 0.f, p_fast = 0.f, dc_avg = 0.f;
     float woof_db = 0.f, tweet_db = 0.f, ear_db = 0.f, blast_db = 0.f, woof_ap = 1000.f, tweet_ap = 1000.f;
     float lvl_low = -120.f, lvl_high = -120.f, lvl_ear = -120.f; // for the display
@@ -1014,6 +1171,10 @@ struct SafetyStage
         d_low.Set(Svf::LP, fs, 150.f, 0.707f), d_low.Reset();
         d_high.Set(Svf::HP, fs, 4500.f, 0.707f), d_high.Reset();
         woof.Set(Svf::LSHELF, fs, 150.f, 0.7f, 0.f), woof.Reset();
+        ew.Init(fs, 150.f);
+        xo.Set(fs, 120.f);
+        gb = 1.f, bass_limit_db = 0.f, c_rel_b = Coef(60.f, fs);
+        post.Set(Svf::HP, fs, 8.f, 0.7071f), post.Reset();
         tweet.Set(Svf::HSHELF, fs, 4500.f, 0.7f, 0.f), tweet.Reset();
         p_low = p_high = p_ear = p_fast = dc_avg = 0.f;
         woof_db = tweet_db = ear_db = blast_db = 0.f, woof_ap = tweet_ap = 0.f;
@@ -1021,7 +1182,7 @@ struct SafetyStage
         look = int(fs * 0.001f + 0.5f);
         look = look < 1 ? 1 : (look > kMaxLook ? kMaxLook : look);
         for(int i = 0; i < kMaxLook; i++)
-            delay[0][i] = delay[1][i] = 0.f, need[i] = 1.f;
+            delay[0][i] = delay[1][i] = 0.f, need[i] = 1.f, d_lo[0][i] = d_lo[1][i] = 0.f, need_lo[i] = 1.f;
         c_low = Coef(2000.f, fs), c_high = Coef(1000.f, fs), c_ear = Coef(3000.f, fs), c_fast = Coef(10.f, fs);
         c_att = 1.f - expf(-10.f / float(look)), c_rel = Coef(80.f, fs), c_dc = Coef(50.f, fs); // fully down in time
         c_mute_dn = Coef(1.f, fs), c_mute_up = Coef(150.f, fs);
@@ -1034,12 +1195,13 @@ struct SafetyStage
         ultra_out_db  = ultra_possible ? PowToDb(p_u_out) + 3.f : -200.f;
         infra_in_db   = PowToDb(p_i_in) + 3.f;
         infra_out_db  = PowToDb(p_i_out) + 3.f;
-        // outside the hearing range got out and STAYED out (only a failed filter does that; the steep 20 Hz
-        // filter rings for a moment after a loud, sudden bass hit, and that dies away well within these times)
+        // outside the hearing range got out and STAYED out (only a failed filter does that). A sudden, loud
+        // bass note can leave a short slow wobble behind the limiter; that dies away well within a second,
+        // and a false trip would mute (duck) the whole track, so the infrasonic side needs a full second.
         const float block_ms = block_s * 1000.f;
         u_over_ms            = ultra_out_db > -50.f ? u_over_ms + block_ms : 0.f;
         i_over_ms            = infra_out_db > -40.f ? i_over_ms + block_ms : 0.f;
-        if(u_over_ms >= 100.f || i_over_ms >= 300.f)
+        if(u_over_ms >= 100.f || i_over_ms >= 1000.f)
             range_trips++, u_over_ms = i_over_ms = 0.f, MuteReset();
         lvl_low       = PowToDb(p_low) + 3.f;
         lvl_high      = PowToDb(p_high) + 3.f;
@@ -1062,7 +1224,8 @@ struct SafetyStage
             if(mute_hold <= 0)
                 mute_target = 1.f;
         }
-        limit_db = 20.f * log10f(gl + 1e-9f);
+        limit_db      = 20.f * log10f(gl + 1e-9f);
+        bass_limit_db = 20.f * log10f(gb + 1e-9f);
     }
     void Glitch()
     {
@@ -1085,7 +1248,10 @@ struct SafetyStage
         for(Svf& f : i_out)
             f.Reset();
         for(int i = 0; i < kMaxLook; i++)
-            delay[0][i] = delay[1][i] = 0.f, need[i] = 1.f;
+            delay[0][i] = delay[1][i] = 0.f, need[i] = 1.f, d_lo[0][i] = d_lo[1][i] = 0.f, need_lo[i] = 1.f;
+        xo.Set(fs, 120.f);
+        post.Reset();
+        ew.a.Reset(), ew.b.Reset(), gb = 1.f;
     }
     inline void Run(float& l, float& r)
     {
@@ -1122,24 +1288,39 @@ struct SafetyStage
         const float m = 0.5f * (l + r), lo = d_low.Run(0, m), hi = d_high.Run(0, m);
         p_low += (lo * lo - p_low) * c_low;
         p_high += (hi * hi - p_high) * c_high;
-        const float pw = fmaxf(l * l, r * r);
+        const float el = ew.Run(0, l), er = ew.Run(1, r), pw = fmaxf(el * el, er * er);
         p_ear += (pw - p_ear) * c_ear;
         p_fast += (pw - p_fast) * c_fast;
         // 3. ears: long-term loudness cap + blast guard + glitch mute
         mute += (mute_target - mute) * (mute_target < mute ? c_mute_dn : c_mute_up);
         const float k = DbToLin(ear_db + blast_db) * mute;
         l *= k, r *= k;
-        // 4. 1 ms look-ahead peak limiter, then a hard ceiling that nothing can pass
-        const float pk = fmaxf(fabsf(l), fabsf(r));
-        need[pos]      = pk > ceiling * 0.98f ? ceiling * 0.98f / pk : 1.f; // a hair under, so the hard ceiling stays a backstop
-        delay[0][pos] = l, delay[1][pos] = r;
-        float mn = 1.f;
+        // 4. 1 ms look-ahead peak limiter, then a hard ceiling that nothing can pass. Anti-duck: a peak that
+        //    comes from the bass is taken out of the bass alone (the mids and highs stay as loud as they were);
+        //    only what the bass can't fix pulls the whole sound down.
+        const float c   = ceiling * 0.98f; // a hair under, so the hard ceiling stays a backstop
+        float lol, hil, lor, hir;
+        xo.Run(0, l, lol, hil), xo.Run(1, r, lor, hir);
+        auto bass_room = [c](float lo, float hi) { // most the bass may stay at so lo * g + hi fits under c
+            const float a = fabsf(lo);
+            if(fabsf(lo + hi) <= c || a < 1e-6f)
+                return 1.f;
+            const float same = (lo >= 0.f) == (hi >= 0.f) ? 1.f : -1.f;
+            return Clampf((c - same * fabsf(hi)) / a, 0.25f, 1.f); // at most -12 dB on the bass
+        };
+        const float gn = fminf(bass_room(lol, hil), bass_room(lor, hir));
+        need_lo[pos]   = gn;
+        const float pk = fmaxf(fabsf(lol * gn + hil), fabsf(lor * gn + hir));
+        need[pos]      = pk > c ? c / pk : 1.f;
+        delay[0][pos] = hil, delay[1][pos] = hir, d_lo[0][pos] = lol, d_lo[1][pos] = lor;
+        float mn = 1.f, mb = 1.f;
         for(int i = 0; i < look; i++)
-            mn = need[i] < mn ? need[i] : mn;
+            mn = need[i] < mn ? need[i] : mn, mb = need_lo[i] < mb ? need_lo[i] : mb;
         gl += (mn - gl) * (mn < gl ? c_att : c_rel);
+        gb += (mb - gb) * (mb < gb ? c_att : c_rel_b);
         const int rd = (pos + 1) % look;
-        l            = Clampf(delay[0][rd] * gl, -ceiling, ceiling);
-        r            = Clampf(delay[1][rd] * gl, -ceiling, ceiling);
+        l            = Clampf(post.Run(0, (d_lo[0][rd] * gb + delay[0][rd]) * gl), -ceiling, ceiling);
+        r            = Clampf(post.Run(1, (d_lo[1][rd] * gb + delay[1][rd]) * gl), -ceiling, ceiling);
         pos          = rd;
         // 5. check what actually leaves: nothing outside the hearing range may get out
         const float mo = 0.5f * (l + r);

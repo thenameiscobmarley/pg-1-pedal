@@ -43,6 +43,7 @@ static const char* const kRestKeys[P_COUNT - P_EQ_END] = {
     "cfg.screen",                                                                    // screen link fast / safe
     "pid.p",       "pid.i",         "pid.d",         "pid.group",                    // pid gains + group cursor
     "pid.mask",    "pid.tilt",                                                      // pid: steered groups, target balance
+    "clar.bands",                                                                    // clarity: how many bands
 };
 static_assert(sizeof(kRestKeys) / sizeof(kRestKeys[0]) == P_COUNT - P_EQ_END, "every setting needs a permanent name");
 

@@ -40,8 +40,8 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"release", "ms", "pg-4 release: how fast it lets go. 0 = auto", F_RELEASE, 0, 0, 40, 1, 1, 0},
         {"thump", "db", "pg-1 thump: most it lifts the lows on each hit", F_STENTH, 24, 0, 60, 5, 1, 24},
         {"detail", "", "pg-2 detail: bass harmonics, heard anywhere", F_STENTH, 21, 0, 60, 5, 1, 21},
-        {"clarity", "db", "pg-3 clarity: presence lift (and mud cut)", F_STENTH, 20, 0, 60, 5, 1, 20},
-        {"warmth", "db", "pg-4 warmth: fuller lows (tames bright highs)", F_STENTH, 10, 0, 40, 5, 1, 10},
+        {"clarity", "db", "pg-3 clarity: most each band may cut/lift. hold = bands", F_STENTH, 20, 0, 60, 5, 1, 20},
+        {"warmth", "db", "pg-4 warmth: fuller lows (a steady low lift)", F_STENTH, 10, 0, 40, 5, 1, 10},
         {"drive", "db", "pg-1 drive: how hard it hits the tape curve", F_STENTH, 40, 0, 180, 5, 1, 40},
         {"even", "%", "pg-2 even: tube-like even harmonics (warmer)", F_PCT, 30, 0, 100, 2, 1, 30},
         {"tone", "%", "pg-3 tone: top end of the drive. low = darker", F_PCT, 70, 0, 100, 2, 1, 70},
@@ -97,6 +97,7 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"group", "", "pg-4 group: pick one, push = steer it or not", F_PIDGRP, 0, 0, 5, 1, 1, 0},
         {"groups", "", "", F_INT, 3, 0, 63, 1, 1, 3},
         {"tilt", "db/oct", "hold pg-4 + turn: target balance. - = darker", F_STENTH, -20, -60, 20, 5, 1, -20},
+        {"bands", "", "hold pg-3 + turn: how many bands clarity may use", F_INT, 6, 1, 10, 1, 1, 6},
     };
     for(int i = 0; i < P_COUNT - P_EQ_END; i++)
         params_[P_EQ_END + i] = rest[i];
@@ -136,6 +137,7 @@ void Core::ResetStages()
     tb_.Init(sample_rate_);
     loud_.Init(sample_rate_);
     pid_.Init(sample_rate_);
+    antiduck_.Init(sample_rate_);
 }
 
 void Core::SetParam(int p, int v)
@@ -147,6 +149,7 @@ void Core::SetParam(int p, int v)
     if(v == pr.value)
         return;
     pr.value = v;
+    rebase_duck_ = true;
     for(int k = 0; k < kKnobs; k++)
         if(KnobParam(k) == p || (tab_ == T_EQ && k == 0 && p == ParamIndex(band_, B_Q)))
             param_changed_ |= 1u << k;
@@ -160,6 +163,7 @@ void Core::SetStageOn(int tab, bool on)
     if(tab < 0 || tab >= kTabs || tab == T_SAFETY || tab == T_VIS || tab == T_HEALTH || tab == T_CONFIG)
         return;
     stage_on_[tab] = on;
+    rebase_duck_   = true;
     state_dirty_   = true;
     redraw_title_  = true;
 }
@@ -182,6 +186,8 @@ int Core::KnobParam(int k) const
         return P_DPAD; // hold pg-4 + turn: the touch d-pad
     if(tab_ == T_CONFIG && k == 2 && knob_down_[2])
         return P_SCR_FAST; // hold pg-3 + turn: screen fast / safe
+    if(tab_ == T_CLARITY && k == 2 && knob_down_[2])
+        return P_CL_BANDS; // hold pg-3 + turn: how many bands
     if(tab_ == T_PID && k == 3 && knob_down_[3])
         return P_PID_TILT; // hold pg-4 + turn: the target balance
     if(tab_ == T_HUM && k == 3 && params_[P_HUM_MAINS].value == 3)
@@ -256,14 +262,16 @@ void Core::KnobPress(int i, bool down, uint32_t now)
         knob_down_[i]         = true;
         turned_while_held_[i] = false;
         press_t0_[i]          = now;
-        if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3)))
+        if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3) ||
+                             (tab_ == T_CLARITY && i == 2)))
             param_changed_ |= 1u << i; // the box shows its held setting (q / mode / screen / d-pad) while held
         return;
     }
     if(!knob_down_[i])
         return;
     knob_down_[i] = false;
-    if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3)))
+    if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3) ||
+                             (tab_ == T_CLARITY && i == 2)))
         param_changed_ |= 1u << i;
     if(turned_while_held_[i])
         return;
@@ -431,7 +439,7 @@ void Core::UpdateStages(size_t frames)
     }
     if(StageOn(T_CLARITY) || mix_[T_CLARITY] > 0.f)
         clar_.Update(fmaxf(0.f, Pf(P_THUMP) * 0.1f + pid_.lo_db), Pf(P_DETAIL) * 0.1f, fmaxf(0.f, Pf(P_CLARITY) * 0.1f + pid_.pres_db),
-                     fmaxf(0.f, Pf(P_WARMTH) * 0.1f + 0.5f * pid_.lo_db), bs, params_[P_CL_MODE].value);
+                     fmaxf(0.f, Pf(P_WARMTH) * 0.1f + 0.5f * pid_.lo_db), bs, params_[P_CL_MODE].value, params_[P_CL_BANDS].value);
     if(StageOn(T_MBAND) || mix_[T_MBAND] > 0.f)
     {
         float a[4] = {Pf(P_MB_LOW) * 0.01f, Pf(P_MB_LMID) * 0.01f, Pf(P_MB_HMID) * 0.01f, Pf(P_MB_HIGH) * 0.01f};
@@ -449,6 +457,9 @@ void Core::UpdateStages(size_t frames)
         sat_.Update(Pf(P_DRIVE) * 0.1f, Pf(P_EVEN) * 0.01f, Pf(P_TONE) * 0.01f, Pf(P_MIX) * 0.01f);
     if(StageOn(T_DEHARSH) || mix_[T_DEHARSH] > 0.f)
         dh_.Update(Clampf(Pf(P_DH_DEPTH) + pid_.dh_db, 0.f, 12.f), Pf(P_DH_SENS) * 0.01f, Pf(P_DH_SPEED) * 0.01f, Pf(P_DH_COMFORT) * 0.01f, bs);
+    if(rebase_duck_)
+        rebase_duck_ = false, antiduck_.Rebase();
+    antiduck_.Update(bs);
     safety_.Update(Pf(P_S_CEIL) * 0.1f, Pf(P_S_EAR), Pf(P_S_WOOF), Pf(P_S_TWEET), bs);
 }
 
@@ -533,6 +544,7 @@ void Core::Process(const float* const* in, float* const* out, size_t n, uint32_t
 #undef PG_STAGE
             if(on[T_PID]) // pid listens to the processed sound (it never changes it directly)
                 pid_.Run(l, r);
+            antiduck_.Run(dl, dr, l, r); // always: bass-heavy moments never pull the rest of the track under
             // loudness of the untouched input and of the processed sound (~3 s), for the fair A/B
             const float pd = 0.5f * (dl * dl + dr * dr), pw = 0.5f * (l * l + r * r);
             if(pd > 1e-7f && pw > 1e-7f) // only while something is playing

@@ -335,9 +335,7 @@ void Core::DrawStrip(uint32_t now)
         case T_CLARITY: // what each knob is doing right now (mud cut and top taming show on the graph)
             F1(a, 12, clar_.thump_db, true), snprintf(cell[0], 20, "thump %s", a);
             F1(a, 12, clar_.detail_view_db, true), snprintf(cell[1], 20, "detail %s", a);
-            F1(a, 12, params_[P_CL_MODE].value == 2 ? 0.f : clar_.pres_db, true), snprintf(cell[2], 20, "clar %s", a);
-            if(params_[P_CL_MODE].value == 2)
-                snprintf(cell[2], 20, "balancing");
+            snprintf(cell[2], 20, "%d of %d bands", clar_.live_n, params_[P_CL_BANDS].value);
             F1(a, 12, clar_.warm_lo_db, true), snprintf(cell[3], 20, "warm %s", a);
             break;
         case T_SAT:
@@ -457,7 +455,7 @@ void Core::DrawParamBox(int k, uint32_t now)
     FrameRect(r.x, r.y, r.w, r.h, kGrey);
     char lab[20], val[16];
     const bool q_held = ((tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0]) || (tab_ == T_CONFIG && k == 3 && knob_down_[3]) ||
-                        (tab_ == T_PID && k == 3 && knob_down_[3]);
+                        (tab_ == T_PID && k == 3 && knob_down_[3]) || (tab_ == T_CLARITY && k == 2 && knob_down_[2]);
     // knob number as a cream chip (matches pg-1..pg-4 under the knobs), then what it does
     FillRect(r.x + 3, r.y + 2, 9, 10, q_held ? kYellow : kCream);
     snprintf(lab, sizeof(lab), "%d", k + 1);
@@ -517,6 +515,16 @@ void Core::DrawParamBox(int k, uint32_t now)
                 TextFb(bx, by - 13, "target tilt", Font_6x8, kYellow);
             else
                 TextFb(bx, by - 13, st ? "steered" : "push: steer", Font_6x8, st ? kCyan : kDimText);
+        }
+        if(tab_ == T_CLARITY && k == 2) // the clarity box also shows how many bands (hold pg-3 + turn)
+        {
+            char t[24], m[12];
+            Format(P_CLARITY, m, sizeof(m));
+            if(q_held) // the box shows the band count now; this line keeps the clarity amount in view
+                snprintf(t, sizeof(t), "each %s db", m);
+            else
+                snprintf(t, sizeof(t), "%d bands", params_[P_CL_BANDS].value);
+            TextFb(bx, by - 13, t, Font_6x8, q_held ? kYellow : kDimText);
         }
         if(tab_ == T_CLARITY && k == 0) // the thump box also shows the mode (hold pg-1 + turn)
         {
@@ -731,37 +739,41 @@ void Core::GraphClarity(uint32_t)
     const int dh = int(Pf(P_DETAIL) / 60.f * 10.f);
     for(int x = d0; x < d1; x += 2)
         FillRect(x, kGy + kGh - 2 - dh, 1, dh, kPink);
-    // the moves, drawn as the curve they make right now (+-12 dB)
-    const Svf* f[5] = {&clar_.thump, &clar_.mud, &clar_.pres, &clar_.warm_lo, &clar_.warm_hi};
-    int        prev = -1;
+    // what it hears: each spot above / below the smooth balance (dotted, around the middle)
+    for(int i = 0; i < ClarityStage::kD; i++)
+        for(int k = -1; k <= 1; k++)
+            Px(XF(clar_.det_hz[i], 20, 3) + k, YGain(Clampf(clar_.dev_db[i], -12.f, 12.f)), kCream);
+    // what it does: the curve all the moves make right now (+-12 dB)
+    int prev = -1;
     for(int x = kGx; x < kGx + kGw; x++)
     {
         const float t = tanf(kPi * fminf(FX(x, 20, 3), sample_rate_ * 0.49f) / sample_rate_);
-        float       s = 0.f;
-        for(const Svf* v : f)
-            s += v->MagDbT(t);
-        if(clar_.bal_active)
-            for(int b = 0; b < ClarityStage::kNB; b++)
-                s += clar_.bal[b].MagDbT(t);
+        float       s = clar_.thump.MagDbT(t) + clar_.warm_lo.MagDbT(t);
+        for(const ClarityStage::Band& b : clar_.band)
+            if(b.live)
+                s += b.f.MagDbT(t);
         const int y = YGain(s * 1.5f);
         if(prev >= 0)
             Line(x - 1, prev, x, y, kWhite), Line(x - 1, prev + 1, x, y + 1, kWhite);
         prev = y;
     }
-    struct Tag
+    // each band: a dot where it sits, and a bar as wide as it is (its q)
+    for(int i = 0; i < ClarityStage::kMaxBands; i++)
     {
-        float hz, db;
-        const char* n;
-    } tags[5] = {{70, clar_.thump_db, "thump"}, {300, clar_.mud_db, "mud"}, {3200, clar_.pres_db, "pres"},
-                 {200, clar_.warm_lo_db, "warm"}, {9000, clar_.warm_hi_db, "air"}};
-    for(int i = 0; i < 5; i++)
-    {
-        const int x = XF(tags[i].hz, 20, 3), y = YGain(tags[i].db * 1.5f);
-        FillRect(x - 2, y - 2, 5, 5, kBandCol[i % 4]);
-        static const bool low_row[5] = {true, false, true, true, false};
-        TextFb(x - TextW(tags[i].n, Font_6x8) / 2, low_row[i] ? kGy + kGh - 20 : kGy + 16, tags[i].n, Font_6x8,
-               fabsf(tags[i].db) > 0.3f ? kBandCol[i % 4] : kDimText);
+        const ClarityStage::Band& b = clar_.band[i];
+        if(!b.live)
+            continue;
+        const float half = asinhf(1.f / (2.f * b.q)) / logf(2.f); // half the bandwidth, octaves
+        const int   x = XF(b.hz, 20, 3), y = YGain(b.db * 1.5f);
+        const int   x0 = XF(b.hz / powf(2.f, half), 20, 3), x1 = XF(b.hz * powf(2.f, half), 20, 3);
+        const uint16_t c = b.db < 0.f ? kPink : kCyan;
+        FillRect(x0, y, x1 - x0 + 1, 1, c);
+        FillRect(x - 2, y - 2, 5, 5, c);
     }
+    char nb[24];
+    snprintf(nb, sizeof(nb), "%d bands", params_[P_CL_BANDS].value);
+    TextFb(kGx + 4, kGy + 4, nb, Font_6x8, kDimText);
+    TextFb(kGx + 4, kGy + kGh - 20, "lift", Font_6x8, kCyan), TextFb(kGx + 34, kGy + kGh - 20, "cut", Font_6x8, kPink);
     // mode button (tap to change): dynamic / add / normalise
     char m[16], t[24];
     Format(P_CL_MODE, m, sizeof(m));
@@ -978,11 +990,9 @@ void Core::GraphVis(uint32_t)
         const char* n;
         float       v;
     } gr[5] = {{"comp", comp_.gr_db}, {"de-harsh", 0.f}, {"safety", safety_.limit_db + safety_.ear_db + safety_.blast_db},
-               {"hum", 0.f}, {"mud", clar_.mud_db}};
+               {"bass lim", safety_.bass_limit_db}, {"clarity", clar_.cut_most}};
     for(int i = 0; i < DeHarshStage::kD; i++)
         gr[1].v = fminf(gr[1].v, dh_.cut_db[i]);
-    for(int h = 0; h < HumStage::kH; h++)
-        gr[3].v = fminf(gr[3].v, hum_.depth_db[h]);
     for(int i = 0; i < 5; i++)
     {
         const int y = kGy + 16 + i * 22, x = kGx + 132;
@@ -991,6 +1001,16 @@ void Core::GraphVis(uint32_t)
         FillRect(x + 54, y, int(Clampf(-gr[i].v / 20.f, 0.f, 1.f) * 92.f), 8, Pearl(float(i) / 5.f));
         char b[12];
         F1(b, 12, gr[i].v, false);
+        TextFb(x + 150, y, b, Font_6x8, kDimText);
+    }
+    // anti-duck: how much it is lifting the mids and highs back up right now (bass-heavy moments)
+    {
+        const int y = kGy + 16 + 5 * 22, x = kGx + 132;
+        TextFb(x, y, "anti-duck", Font_6x8, kCream);
+        FillRect(x + 54, y, 92, 8, kBlue);
+        FillRect(x + 54, y, int(Clampf(antiduck_.boost_db / 6.f, 0.f, 1.f) * 92.f), 8, kCyan);
+        char b[12];
+        F1(b, 12, antiduck_.boost_db, true);
         TextFb(x + 150, y, b, Font_6x8, kDimText);
     }
 }

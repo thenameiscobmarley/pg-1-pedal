@@ -40,5 +40,6 @@ Room + safety (2026-10-07)
 - [x] 35. Fixes: false 'infrasonic out' mute on loud sudden bass (output checks now need a sustained leak: 0.3 s / 0.1 s, detector 5 Hz); plugin keeps its state in ~/.config/PG-1 Pedal (configs survive reloading the plugin)
 - [x] 36. Seed3 cartridge: stands on its edge in a 19 x 52 window in the left wall, plugs into a socket board (2 female headers, 2 M3 screws), keyed by snipping pin 1; USB-C panel cable + foam tape removed; drill/print/drawings/BOM/3D model updated
 - [x] 37. PID tab (auto-adjust: steers eq / comp / mband / clarity / deharsh / width with user P, I, D; safe ranges; holds in silence) + visualizer scope, bars, history
+- [x] 38. Clarity: up to 10 self-placing bands (own freq / q / gain, cut or lift, 20 detectors, detrended); anti-duck everywhere (bass-free detectors, bass-first safety limiter, false infrasonic mute fixed, final duck guard): onset dips 7-12 dB -> <= 0.3 dB
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda

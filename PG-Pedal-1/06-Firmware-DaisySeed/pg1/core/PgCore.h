@@ -120,6 +120,7 @@ enum
     P_PID_P, P_PID_I, P_PID_D, P_PID_GROUP, // pid: the 3 gains, and which group pg-4 points at
     P_PID_MASK, // pid: the groups it steers (bits: eq, comp, mband, clarity, deharsh, width)
     P_PID_TILT, // pid: the target balance, dB per octave in tenths (hold pg-4 + turn)
+    P_CL_BANDS, // clarity: how many self-placing bands (1-10, hold pg-3 + turn)
     P_COUNT // a new setting also needs a permanent name in PgState.cpp (kRestKeys); saves load by name, so order is free
 };
 
@@ -367,6 +368,8 @@ class Core
     LoudnessStage loud_;
     SafetyStage   safety_;
     PidStage      pid_;
+    AntiDuckStage antiduck_;
+    volatile bool rebase_duck_ = false; // a setting changed: the anti-duck guard re-learns its normal
     float         mix_[kTabs] = {}, wet_ = 1.f, c_ramp_ = 0.f;
     float         p_dry_ = 0.f, p_wet_ = 0.f, match_ = 1.f, ab_mix_ = 0.f, c_match_ = 0.f; // fair A/B
     size_t        sub_block_ = 48;
