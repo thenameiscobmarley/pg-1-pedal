@@ -37,3 +37,22 @@ Sizes: encoder M7 → 7.2 + 0.4; footswitch M12 → 12.2 + 0.4; TRS jack 3/8" �
 screen window = the lit area minus 0.8 mm per side (no black edge); Seed3 window 19 × 52 (+0.4) for the Seed3 cartridge (18 × 51) (the socket is glued in, no screws).
 
 `pg1-drill-template-1to1.pdf`: print at 100% (the bar must measure 50 mm) to sanity-check with real parts.
+
+## How every part mounts (all plain holes, nothing screws into the box)
+Every hole Tayda drills is a smooth clearance hole: no part ever gets turned to screw into the box. Each part is pushed
+through from inside and held by **its own nut** on the outside (only the nut turns).
+| Part | Hole | Held by |
+|---|---|---|
+| pg-1..pg-4 encoders (A-6331, RE111F-41**B3**: threaded M7 collar) | 7.6 mm | washer + M7 nut on the face |
+| pg-hp / pg-line pots (A-6980, threaded M7 collar) | 7.9 mm | washer + nut on the face (both come with the pot) |
+| pg-a..pg-c footswitches (A-1091, M12 thread) | 12.6 mm | one nut inside (sets the height), one on the face |
+| 4 audio jacks (A-1122, M11 collar, soldered to the carrier board) | 11.6 mm | nut + washer outside the top wall: the 4 nuts also hold the board |
+| 9V jack (A-2237) | 12.4 mm | its nut outside |
+| screen | 4 x 3.6 mm + window | **M3x12 screw from the face -> 5 mm nylon spacer -> screen board -> M3 nut behind it** (the nut holds it; the hole has no thread) |
+
+- **Anti-rotation tab:** the pots (and maybe the encoders) have a small metal tab sticking up beside the collar, meant for a
+  tiny second hole. There isn't one: bend the tab flat or snip it off with flush cutters before mounting, so the part sits flat.
+  The nut alone holds it fine.
+- **Carrier board:** lower it in from the open back (lid off) about 1 cm away from the top wall, then slide it straight toward
+  the wall so the 4 jack collars go through their holes, and put the nuts on. Nothing is twisted.
+- If the encoders arrive without nuts: they're M7 x 0.75 (same as most pedal pots).
