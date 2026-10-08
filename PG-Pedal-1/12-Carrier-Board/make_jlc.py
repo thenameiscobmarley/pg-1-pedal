@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Writes jlcpcb/ : the JLCPCB assembly files (BOM with JLCPCB/LCSC part numbers + placement), from carrier.py and the
-board made by make_board.py (run that first). The 4 jacks aren't stocked by JLCPCB: they're left off (fitted by hand).
+board made by make_board.py (run that first). Every part is fitted, the 4 Neutrik jacks too.
 Part numbers checked in JLCPCB's parts library on 2026-10-08 ("base" = no extra fee, the rest are "extended")."""
 import csv, os, shutil
 from carrier import parts
@@ -26,9 +26,13 @@ LCSC = {  # (value, footprint name) -> JLCPCB part
     ("seed audio", "PinHeader_1x07_P2.54mm_Horizontal"): "C32713266",
     ("pg-hp", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
     ("pg-line", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
+    ("line in", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
+    ("line out", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
+    ("no amp", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
+    ("phones", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
     ("9V in", "PinHeader_1x02_P2.54mm_Horizontal"): "C32713261",
 }
-SKIP = {"J1", "J2", "J3", "J4"}   # 6.35 mm jacks: not stocked, fitted by hand (Tayda A-1122)
+SKIP = set()   # everything is fitted, the jacks too
 
 
 def main():
@@ -58,7 +62,7 @@ def main():
                         row["Rot"]])
     shutil.copy(os.path.join(HERE, "pcbway", "pg1-carrier-gerbers.zip"), os.path.join(OUT, "pg1-carrier-gerbers.zip"))
     n = sum(len(r) for r in groups.values())
-    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (jacks left off)")
+    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (everything fitted)")
 
 
 if __name__ == "__main__":

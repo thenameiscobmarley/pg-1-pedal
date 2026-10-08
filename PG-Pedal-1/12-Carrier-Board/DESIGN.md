@@ -38,7 +38,7 @@ jumper block, as in v1.
   the board and the lid. The pin names are printed beside each pin.
 
 ## Mechanics
-- Hangs from the 4 PCB-mount jacks (Tayda A-1122): their bushings go through the top wall, the nuts clamp the board in place.
+- Hangs from the 4 PCB-mount jacks (Neutrik NMJ6HCD2): their threaded ferrules go through the top wall, the nuts clamp the board in place.
 - Outline: a 111 × 27 mm strip under the jacks plus a 62 × 15 mm tongue over the screen's top edge (x −34 .. +28), which
   keeps clear of the small pots on the left, the screen's 14-pin header and the Seed3 block on the right.
 - All the small parts are on the **bottom** (the lid side, ~8 mm of room): the jack side is covered by the jack bodies.
@@ -57,7 +57,7 @@ Files in `jlcpcb/` (`python3 make_jlc.py` after `make_board.py`). At https://car
 2. Turn on **PCB Assembly**: Economic, **Bottom side**, PCBA qty **2**. Next.
 3. BOM -> `pg1-carrier-bom-jlc.csv`, CPL -> `pg1-carrier-cpl-jlc.csv`. Next. Every part should show as matched.
 4. On the placement picture, the parts should sit on their pads; JLCPCB checks the rotations too.
-5. The 4 jacks are not stocked by JLCPCB: they are left off (fit the Tayda A-1122s by hand later).
+5. Everything is fitted, the 4 Neutrik jacks too (JLCPCB part C368502).
 Parts use JLCPCB "basic" parts where possible (no fee); 10 kinds are "extended" ($3 each per order).
 
 ## Ordering at PCBWay (the other option)
@@ -65,17 +65,18 @@ Parts use JLCPCB "basic" parts where possible (no fee); 10 kinds are "extended" 
   HASL lead-free (or ENIG), quantity 5.
 - **Assembly:** turn on "PCB Assembly", **bottom side only**, quantity 2. Upload `pg1-carrier-bom.csv` and
   `pg1-carrier-cpl.csv` (placement, 0,0 = the board's lower-left corner). 89 SMD parts + 4 headers.
-- **Jacks:** the 4 Tayda A-1122 jacks are not something PCBWay stocks. Either post 4 to them as customer-supplied parts
-  (the BOM says so), or tell them "leave J1-J4 unfitted" and fit them later (6 big pins each, easy first soldering).
+- **Jacks:** PCBWay has to source the 4 Neutrik NMJ6HCD2s (Mouser / DigiKey stock them).
 - `pg1-carrier-top.png` / `-bottom.png` are what it should look like; `pg1-carrier.kicad_pcb` opens in KiCad.
 - Remake everything after a change: `python3 make_bom.py && python3 make_board.py` (a few minutes).
 
-## The jacks (Tayda A-1122, datasheet in 07-Datasheets)
-- Bushing **M11** (top-wall holes 11.2 mm + powder coat), face plate 15.7 mm, body 21 + 3.8 mm long, 16.2 mm wide (20 mm over the pins).
-- Jack centre **8 mm above the board**: the board's top surface sits 26 mm below the face surface, leaving ~8 mm to the lid.
-- Pins (1.6 mm holes) in two rows 16.2 mm apart: T / R / S on one side, the switch contacts TS / RS / SS on the other,
-  4.2 + 6.3 + 6.3 mm from the front. The switch contacts aren't used.
+## The jacks (Neutrik NMJ6HCD2, datasheet ST-NMJ6HCD2)
+- 1/4" (6.35 mm) stereo TRS, switched (the switches aren't used), chrome threaded ferrule with nut and washers.
+- Top-wall holes **11.4 mm** + powder coat (Tayda drill file: 11.8 mm). Body 23.5 mm long, 18.2 mm wide.
+- Jack centre **8.14 mm above the board**, so the board's top surface sits ~26 mm below the face surface (~8 mm to the lid).
+- Pins (1.4 mm holes) in two rows 16.23 mm apart: T / R / S at 16.7 / 10.35 / 4 mm in from the wall; the other row
+  is the switch contacts, not used. Footprint: KiCad's own `Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal`.
 - Spaced 21 mm apart on the wall (line in -42, line out 0, no amp +21, phones +42; the 9V panel jack at -21 sits above the board).
+- (Earlier plan: Tayda A-1122. Switched because JLCPCB stocks the Neutrik and fits it, so the board arrives complete.)
 
 ## Cost (rough, before quotes)
 Budget version: 5 bare boards ~$5-10, assembly of 2 (setup + stencil ~$30-40, parts ~$6 a board), shipping ~$20-30:

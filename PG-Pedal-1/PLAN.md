@@ -46,7 +46,7 @@ Room + safety (2026-10-07)
 ## v2 redesign (decided 2026-10-08, in progress) - resume here
 Decisions from the user (question rounds):
 - Carrier PCB, made + assembled by PCBWay from files we generate (Tayda doesn't make custom PCBs). Hangs from the top-wall jack nuts
-  (PCB-mount 1/4" TRS jacks, e.g. Tayda A-1122 / REAN NYS216): no extra screws.
+  (PCB-mount 1/4" TRS jacks: Neutrik NMJ6HCD2, fitted by JLCPCB): no extra screws.
 - Top edge jacks (all 1/4" TRS): line-in, line-out, headphones, no-amp, + 9V. The exp jack is dropped.
 - no-amp = the processed sound at the same loudness that came in (unity gain), through a clean buffer that can drive a headset.
 - Headphone amp: very low noise, drives 50 ohm now and 200 ohm later, max +12 dB over line (~4 V rms) -> needs more than a 9 V single
@@ -60,7 +60,7 @@ Decisions from the user (question rounds):
 - Screen: fancier, more spacious, touch-smart; tabs can have more than 4 settings: swipe the 4 boxes sideways as a page, with page dots
   (knobs always work the boxes you see).
 Steps:
-- [x] a. parts: A-6980 10k log dual pots, A-8567 14 mm white ripple knobs, A-1122 PCB jacks, A-2599 pink KN2310 caps (fit PBS-24)
+- [x] a. parts: A-6980 10k log dual pots, A-8567 14 mm white ripple knobs, Neutrik NMJ6HCD2 jacks (on the carrier board), A-2599 pink KN2310 caps (fit PBS-24)
 - [x] b. layout: Seed3 window on the right wall (side E - CHECK in Tayda's preview), pg-hp / pg-line pots left of the screen, 5 top-edge holes; face print with IBM Plex Mono small words + pink accents (not uploaded to Tayda yet)
 - [x] c. firmware/UI: names from one rule (ui::KnobName / FootName), 2nd settings page (swipe the boxes, tap the dots, slide animation), drag a box up/down to change it, rounded boxes / tiles / strip (more polish possible)
 - [x] d. carrier PCB (budget version): circuit (12-Carrier-Board/DESIGN.md, carrier.py), board made by make_board.py

@@ -28,7 +28,7 @@ SOIC8 = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 VSON10 = "Package_SON:VSON-10-1EP_3x3mm_P0.5mm_EP1.2x2mm"
 MSOP8EP = "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm"
 HDR = lambda n, rows=1: f"Connector_PinHeader_2.54mm:PinHeader_{rows}x{n:02d}_P2.54mm_Vertical"
-JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"   # PG1.pretty, drawn from the A-1122 datasheet
+JACK = "Connector_Audio:Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"   # stocked by JLCPCB (C368502), so they fit it too
 VSON10 = MSOP8EP = ""  # (only the full version uses these)
 
 # ---------------------------------------------------------------- power (one 9 V supply)
@@ -116,7 +116,7 @@ P("R53", "100k", R0603, "", {1: "EN_REF", 2: "GND"})
 # ---------------------------------------------------------------- jacks (PCB-mount, their nuts hold the board)
 for ref, name, tip, ring in (("J1", "line in", "JIN_L", "JIN_R"), ("J2", "line out", "JLO_L", "JLO_R"),
                              ("J3", "no amp", "JNA_L", "JNA_R"), ("J4", "phones", "JHP_L", "JHP_R")):
-    P(ref, name, JACK, "Tayda A-1122", {"T": tip, "R": ring, "S": "AGND"})
+    P(ref, name, JACK, "NMJ6HCD2", {"T": tip, "R": ring, "S": "AGND"})
     P("D6" + ref[1], "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: tip, 2: ring, 3: "AGND"},
       "static protection, both lines; 15 V so it never touches the +-7.5 V audio")
 

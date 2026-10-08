@@ -32,7 +32,9 @@ TOP = WALL_IN - 0.25                   # board edge just short of the wall
 STRIP = (-55.5, 43.0, 55.5, TOP)       # x0, y0, x1, y1
 TONGUE = (-34.0, 28.0, 28.0, TOP)
 OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (28.0, 43.0), (28.0, 28.0), (-34.0, 28.0), (-34.0, 43.0), (-55.5, 43.0)]
-FLANGE = 1.4                           # jack front flange: its front sits on the wall, the footprint origin is its back
+# Neutrik NMJ6HCD2 (datasheet ST-NMJ6HCD2): body front on the wall, pins 4 / 10.35 / 16.7 mm in from it, rows 16.23 apart,
+# axis 8.14 mm above the board. KiCad's footprint has its origin on the T pin and the front toward +x: turned 90 deg.
+JACK_T = (-8.115, 16.7)                # T pin from (jack axis, inside of the wall)
 JACKS = {"J1": -42.0, "J2": 0.0, "J3": 21.0, "J4": 42.0}
 # headers: (first pin x, row y, side). Right-angle ones on the bottom point off the lower edge (jumpers lie flat).
 HEADERS = {"J19": (-14.5, 30.0, "B"), "J20": (-32.6, 30.0, "B"), "J10": (8.6, 30.0, "B"), "J9": (2.2, 30.0, "B")}
@@ -384,7 +386,10 @@ def main():
     # 1. fixed parts
     obstacles, fixed_pads = [], {}
     for ref, x in JACKS.items():
-        put(fps[ref], x, WALL_IN - FLANGE, 0, "F")
+        put(fps[ref], x + JACK_T[0], WALL_IN - JACK_T[1], 90, "F")
+        for g in fps[ref].GraphicalItems():   # its outline runs past the board edge (the ferrule): keep it off the print
+            if g.GetLayer() == K.F_SilkS:
+                g.SetLayer(K.F_Fab)
     for ref, (x, y, side) in HEADERS.items():
         fp = fps[ref]
         put(fp, x, y, fixed_rot(fp, side, "down"), side)

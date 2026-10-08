@@ -46,7 +46,7 @@ through from inside and held by **its own nut** on the outside (only the nut tur
 | pg-1..pg-4 encoders (A-6331, RE111F-41**B3**: threaded M7 collar) | 7.6 mm | washer + M7 nut on the face |
 | pg-hp / pg-line pots (A-6980, threaded M7 collar) | 7.9 mm | washer + nut on the face (both come with the pot) |
 | pg-a..pg-c footswitches (A-1091, M12 thread) | 12.6 mm | one nut inside (sets the height), one on the face |
-| 4 audio jacks (A-1122, M11 collar, soldered to the carrier board) | 11.6 mm | nut + washer outside the top wall: the 4 nuts also hold the board |
+| 4 audio jacks (Neutrik NMJ6HCD2, fitted on the carrier board by JLCPCB) | 11.8 mm | nut + washer outside the top wall: the 4 nuts also hold the board |
 | 9V jack (A-2237) | 12.4 mm | its nut outside |
 | screen | 4 x 3.6 mm + window | **M3x12 screw from the face -> 5 mm nylon spacer -> screen board -> M3 nut behind it** (the nut holds it; the hole has no thread) |
 

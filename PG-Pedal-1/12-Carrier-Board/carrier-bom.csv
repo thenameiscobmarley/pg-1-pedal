@@ -26,7 +26,7 @@ Item #,Designator,Qty,Manufacturer,Mfg Part #,Description / Value,Package/Footpr
 25,U9,1,Texas Instruments,TLV7031DBVR,TLV7031,SOT-23-5,SMD,
 26,R50,1,any,,resistor 470k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
 27,D50,1,,1N4148W,1N4148W,D_SOD-123,SMD,
-28,"J1,J2,J3,J4",4,Tayda Electronics,Tayda A-1122,6.35 mm stereo PCB jack,Jack_6.35mm_TRS_PCB_A-1122,THT,customer-supplied (we send 4 Tayda A-1122): please fit and solder; or leave unfitted
+28,"J1,J2,J3,J4",4,Neutrik,NMJ6HCD2,6.35 mm stereo PCB jack,Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal,THT,please fit and solder
 29,"D61,D62,D63,D64",4,Nexperia,PESD15VL2BT,PESD15VL2BT,SOT-23,SMD,
 30,J10,1,any,,seed audio,PinHeader_1x07_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
 31,J19,1,any,,pg-hp,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"

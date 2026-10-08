@@ -5,7 +5,7 @@ from carrier import parts
 
 MAKER = {"NE5532DR": "Texas Instruments", "TPA6139A2PWR": "Texas Instruments", "LP2985-33DBVR": "Texas Instruments",
          "TLV7031DBVR": "Texas Instruments", "PESD15VL2BT": "Nexperia", "BAT54": "Nexperia", "MF-NSMF030X-2": "Bourns",
-         "SMAJ12A": "Littelfuse", "SS34": "onsemi", "Tayda A-1122": "Tayda Electronics", "EEE-1EA470WP": "Panasonic",
+         "SMAJ12A": "Littelfuse", "SS34": "onsemi", "NMJ6HCD2": "Neutrik", "EEE-1EA470WP": "Panasonic",
          "EEE-1CA470WR": "Panasonic", "EEE-1EA100SR": "Panasonic"}
 groups = collections.OrderedDict()
 for ref, value, fp, mpn, pins, note in parts:
@@ -32,7 +32,7 @@ with open("carrier-bom.csv", "w", newline="") as f:
                 "Type", "Your Instructions / Notes"])
     for i, ((value, pkg, mpn), refs) in enumerate(groups.items(), 1):
         tht = pkg.startswith("PinHeader") or "Jack" in pkg
-        note = ("customer-supplied (we send 4 Tayda A-1122): please fit and solder; or leave unfitted" if "Jack" in pkg else
+        note = ("please fit and solder" if "Jack" in pkg else
                 "2.54 mm male header, any brand: please fit and solder" if tht else
                 "any brand with the same value and package" if not mpn else "")
         w.writerow([i, ",".join(refs), len(refs), MAKER.get(mpn, "any" if not mpn else ""), mpn or "", describe(value, pkg),

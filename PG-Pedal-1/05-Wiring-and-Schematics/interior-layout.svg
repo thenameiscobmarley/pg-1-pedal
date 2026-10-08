@@ -4,16 +4,16 @@
 <rect x="-57.949999999999996" y="-70.15" width="115.89999999999999" height="140.3" rx="3" fill="none" stroke="#aaa" stroke-width="0.25" stroke-dasharray="1 1"/>
 <rect x="-56.55" y="-70.25" width="113.1" height="26.0" rx="1.5" fill="#cfe9cf" fill-opacity="0.5" stroke="#1f9d3a" stroke-width="0.35" stroke-dasharray="1.5 1"/>
 <text x="0.00" y="-45.85" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#1f6d2a" font-weight="normal">carrier board (pcbway): amp, buffers, protection, pin headers</text>
-<rect x="-50.1" y="-70.25" width="16.2" height="24.8" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
-<text x="-42.00" y="-57.85" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">line in</text>
+<rect x="-51.1" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
+<text x="-42.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">line in</text>
 <rect x="-25.75" y="-70.25" width="9.5" height="16.0" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
 <text x="-21.00" y="-62.25" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">9v</text>
-<rect x="-8.1" y="-70.25" width="16.2" height="24.8" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
-<text x="0.00" y="-57.85" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">line out</text>
-<rect x="12.9" y="-70.25" width="16.2" height="24.8" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
-<text x="21.00" y="-57.85" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">no amp</text>
-<rect x="33.9" y="-70.25" width="16.2" height="24.8" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
-<text x="42.00" y="-57.85" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">phones</text>
+<rect x="-9.1" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
+<text x="0.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">line out</text>
+<rect x="11.9" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
+<text x="21.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">no amp</text>
+<rect x="32.9" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
+<text x="42.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">phones</text>
 <rect x="-50.25" y="-40.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
 <text x="-45.50" y="-28.40" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">pg-hp</text>
 <rect x="-50.25" y="-17.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
