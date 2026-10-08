@@ -463,10 +463,11 @@ def main():
     shutil.rmtree(g, ignore_errors=True), os.makedirs(g)
     run(["kicad-cli", "pcb", "export", "gerbers", "-o", g + "/", "--layers",
          "F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,Edge.Cuts", pcb], stdout=subprocess.DEVNULL)
-    run(["kicad-cli", "pcb", "export", "drill", "-o", g + "/", "--format", "excellon", "--generate-map",
-         "--map-format", "gerberx2", pcb], stdout=subprocess.DEVNULL)
+    run(["kicad-cli", "pcb", "export", "drill", "-o", g + "/", "--format", "excellon", pcb], stdout=subprocess.DEVNULL)
     with zipfile.ZipFile(os.path.join(OUT, NAME + "-gerbers.zip"), "w", zipfile.ZIP_DEFLATED) as z:
-        for f in sorted(os.listdir(g)):
+        for f in sorted(os.listdir(g)):   # (no drill map / job file: board houses read those as extra layers)
+            if f.endswith((".gbrjob",)) or "drl_map" in f:
+                continue
             z.write(os.path.join(g, f), f)
     pos = os.path.join(BUILD, "pos.csv")
     run(["kicad-cli", "pcb", "export", "pos", "--format", "csv", "--units", "mm", "--side", "both", "--use-drill-file-origin", "-o", pos, pcb],
