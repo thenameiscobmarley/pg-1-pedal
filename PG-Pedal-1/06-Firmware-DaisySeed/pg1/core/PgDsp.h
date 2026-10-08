@@ -4,6 +4,7 @@
 // Signal flow (one Core::Process call):
 //   in -> hum -> input level -> dyn eq -> comp -> multiband -> clarity -> saturate -> de-harsh -> width -> takeback
 //      -> loudness -> [bypass] -> safety -> out
+// (the pid tab only listens after loudness and steers the other stages' settings)
 // Safety is after the bypass switch: it is always on.
 #pragma once
 #include <cmath>
@@ -1148,6 +1149,151 @@ struct SafetyStage
         for(Svf& f : i_out)
             io = f.Run(0, io);
         p_u_out += (uo * uo - p_u_out) * c_det, p_i_out += (io * io - p_i_out) * c_det;
+    }
+};
+// ------------------------------------------------------------------ 11. pid (auto-adjust)
+// Listens to the processed sound and steers the other tabs' settings towards a target, one PID
+// controller per group. Nothing here touches the audio: it measures (Run) and hands out corrections
+// that Core adds on top of the user's own settings (Update). Every correction has a fixed safe range,
+// all-zero P / I / D means no correction, and in silence it holds still instead of drifting.
+//   eq       each band's level vs the target tilt          -> that band's gain (+-6 dB)
+//   comp     crest (peak over average) vs 12 dB             -> threshold (+-8 dB) and ratio
+//   mband    each band's level vs the target tilt           -> how firmly it holds that band
+//   clarity  bass and presence vs the target tilt           -> thump / warmth and clarity (+-4 dB)
+//   de-harsh the 3-5 kHz level vs the target tilt           -> depth (+-6 dB)
+//   width    stereo correlation vs 0.35                     -> width (+-40 %)
+// (namespace scope: libDaisy builds as C++14, where class-scope constexpr arrays need a separate definition)
+constexpr float kPidCentre[6] = {60.f, 160.f, 450.f, 1200.f, 3200.f, 9000.f}; // the 6 bands it listens to
+constexpr float kPidMbHz[4]   = {60.f, 400.f, 2500.f, 10000.f};                // the multiband's 4 bands
+struct PidStage
+{
+    static constexpr int kA = 6, kG = 6;
+    enum Group
+    {
+        G_EQ,
+        G_COMP,
+        G_MB,
+        G_CLAR,
+        G_DH,
+        G_WIDTH
+    };
+    struct Loop
+    {
+        float i = 0.f, prev = 0.f, d = 0.f, u = 0.f, e = 0.f;
+        bool  fresh = true;
+    };
+    static constexpr float kCrestTarget = 12.f, kCorrTarget = 0.35f;
+
+    Svf   bp[kA];
+    float acc[kA] = {}, acc_sq = 0.f, acc_pk = 0.f, acc_ll = 0.f, acc_rr = 0.f, acc_lr = 0.f;
+    int   acc_n = 0;
+    float env[kA] = {}, p_full = 0.f, pk_env = 0.f, sll = 0.f, srr = 0.f, slr = 0.f;
+    // what it hears (for the screen): each band vs the mean of all six, and the target for it
+    float rel_db[kA] = {}, target_db[kA] = {}, level_db = -120.f, crest_db = 0.f, corr = 0.f;
+    bool  tracking = false;
+    Loop  eq[4], comp, mb[4], lo, pres, dh, width;
+    // the corrections Core adds (0 when off)
+    float eq_db[4] = {}, comp_db = 0.f, mb_amt[4] = {}, lo_db = 0.f, pres_db = 0.f, dh_db = 0.f, width_add = 0.f;
+
+    void Init(float fs)
+    {
+        *this = PidStage{};
+        for(int a = 0; a < kA; a++)
+            bp[a].Set(Svf::BP, fs, kPidCentre[a], 1.f), bp[a].Reset();
+    }
+    inline void Run(float l, float r)
+    {
+        const float m = 0.5f * (l + r);
+        for(int a = 0; a < kA; a++)
+        {
+            const float y = bp[a].Run(0, m);
+            acc[a] += y * y;
+        }
+        acc_sq += m * m;
+        acc_pk = fmaxf(acc_pk, fabsf(m));
+        acc_ll += l * l, acc_rr += r * r, acc_lr += l * r;
+        acc_n++;
+    }
+    static float Oct(float hz) { return log2f(hz / 1000.f); }
+    // a band's level vs the mean, read at any frequency (straight lines between the six bands)
+    static float At(const float* v, float hz)
+    {
+        const float o = Oct(hz);
+        if(o <= Oct(kPidCentre[0]))
+            return v[0];
+        for(int a = 1; a < kA; a++)
+            if(o <= Oct(kPidCentre[a]))
+            {
+                const float t = (o - Oct(kPidCentre[a - 1])) / (Oct(kPidCentre[a]) - Oct(kPidCentre[a - 1]));
+                return v[a - 1] + (v[a] - v[a - 1]) * t;
+            }
+        return v[kA - 1];
+    }
+    // one step of a PID loop: e = error, the output is held inside [lo, hi] and the integral
+    // only winds while the output can still move that way (no wind-up)
+    static void Step(Loop& c, float e, float lo, float hi, float kp, float ki, float kd, float dt)
+    {
+        c.e = e;
+        if(c.fresh)
+            c.prev = e, c.d = 0.f, c.fresh = false;
+        c.d += ((e - c.prev) / dt - c.d) * (1.f - expf(-dt / 0.05f));
+        c.prev            = e;
+        const float i_new = c.i + e * dt;
+        const float u_try = kp * e + ki * i_new + kd * c.d;
+        if((u_try <= hi || e < 0.f) && (u_try >= lo || e > 0.f))
+            c.i = i_new;
+        if(ki > 1e-6f)
+            c.i = Clampf(c.i, lo / ki, hi / ki);
+        const float want = Clampf(kp * e + ki * c.i + kd * c.d, lo, hi);
+        c.u += (want - c.u) * (1.f - expf(-dt / 0.08f));
+    }
+    static void Release(Loop& c, float dt) // off: ease back to no correction
+    {
+        c.u += (0.f - c.u) * (1.f - expf(-dt / 0.3f));
+        c.i = 0.f, c.d = 0.f, c.fresh = true;
+    }
+    void Update(bool on, int mask, float kp, float ki, float kd, float tilt, const float eq_hz[4], float dt)
+    {
+        if(acc_n > 0)
+        {
+            const float n = 1.f / float(acc_n), c = 1.f - expf(-dt / 0.3f);
+            for(int a = 0; a < kA; a++)
+                env[a] += (acc[a] * n - env[a]) * c, acc[a] = 0.f;
+            p_full += (acc_sq * n - p_full) * c;
+            pk_env = fmaxf(acc_pk, pk_env * expf(-dt / 0.2f));
+            sll += (acc_ll * n - sll) * c, srr += (acc_rr * n - srr) * c, slr += (acc_lr * n - slr) * c;
+            acc_sq = acc_pk = acc_ll = acc_rr = acc_lr = 0.f;
+            acc_n  = 0;
+        }
+        level_db = PowToDb(p_full);
+        tracking = on && level_db > -55.f;
+        if(level_db > -55.f)
+        {
+            crest_db    = 20.f * log10f(pk_env + 1e-9f) - level_db;
+            corr        = Clampf(slr / (sqrtf(sll * srr) + 1e-12f), -1.f, 1.f);
+            float mean = 0.f, tmean = 0.f, db[kA];
+            for(int a = 0; a < kA; a++)
+                db[a] = PowToDb(env[a]), mean += db[a] / float(kA), tmean += tilt * Oct(kPidCentre[a]) / float(kA);
+            for(int a = 0; a < kA; a++)
+                rel_db[a] = db[a] - mean, target_db[a] = tilt * Oct(kPidCentre[a]) - tmean;
+        }
+        const bool use[kG] = {(mask & 1) != 0, (mask & 2) != 0, (mask & 4) != 0, (mask & 8) != 0, (mask & 16) != 0, (mask & 32) != 0};
+        auto loop = [&](Loop& l, int g, float e, float lo_, float hi_) {
+            if(!on || !use[g])
+                Release(l, dt);
+            else if(tracking)
+                Step(l, e, lo_, hi_, kp, ki, kd, dt);
+        };
+        auto gap = [&](float hz) { return At(target_db, hz) - At(rel_db, hz); }; // + = quieter than the target
+        for(int b = 0; b < 4; b++)
+            loop(eq[b], G_EQ, gap(eq_hz[b]), -6.f, 6.f), eq_db[b] = eq[b].u;
+        loop(comp, G_COMP, crest_db - kCrestTarget, -8.f, 8.f), comp_db = comp.u;
+        for(int b = 0; b < 4; b++)
+            loop(mb[b], G_MB, -gap(kPidMbHz[b]), -10.f, 10.f), mb_amt[b] = mb[b].u * 0.05f;
+        loop(lo, G_CLAR, gap(80.f), -4.f, 4.f), lo_db = lo.u;
+        loop(pres, G_CLAR, gap(3000.f), -4.f, 4.f), pres_db = pres.u;
+        loop(dh, G_DH, -gap(3500.f), -6.f, 6.f), dh_db = dh.u;
+        loop(width, G_WIDTH, (corr - kCorrTarget) * 10.f, -10.f, 10.f), width_add = width.u * 0.04f;
     }
 };
 } // namespace pg

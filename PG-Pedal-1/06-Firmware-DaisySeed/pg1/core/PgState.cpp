@@ -41,11 +41,13 @@ static const char* const kRestKeys[P_COUNT - P_EQ_END] = {
     "mb.bass",     "mb.lmid",       "mb.hmid",       "mb.high",                      // multiband
     "cfg.dpad",                                                                      // touch d-pad mode
     "cfg.screen",                                                                    // screen link fast / safe
+    "pid.p",       "pid.i",         "pid.d",         "pid.group",                    // pid gains + group cursor
+    "pid.mask",    "pid.tilt",                                                      // pid: steered groups, target balance
 };
 static_assert(sizeof(kRestKeys) / sizeof(kRestKeys[0]) == P_COUNT - P_EQ_END, "every setting needs a permanent name");
 
 static const char* const kTabKeys[kTabs] = {"hum",      "eq",    "comp", "clarity", "sat",    "deharsh", "safety", "vis",
-                                            "input",    "health", "takeback", "width", "loud", "config", "mband"};
+                                            "input",    "health", "takeback", "width", "loud", "config", "mband", "pid"};
 static_assert(sizeof(kTabKeys) / sizeof(kTabKeys[0]) == kTabs, "every tab needs a permanent name");
 
 // a setting whose meaning changed gets a higher version here (everything else is 1)

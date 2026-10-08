@@ -20,7 +20,7 @@
 
 namespace pg
 {
-constexpr int kKnobs = 4, kBands = 4, kTabs = 15; // home shows 8 per page
+constexpr int kKnobs = 4, kBands = 4, kTabs = 16; // home shows 8 per page
 
 // The tabs, in signal-flow order (home: 4 top, 4 bottom)
 enum Tab
@@ -39,7 +39,8 @@ enum Tab
     T_WIDTH,
     T_LOUD,
     T_CONFIG,
-    T_MBAND // multiband dynamics (runs right after comp)
+    T_MBAND, // multiband dynamics (runs right after comp)
+    T_PID    // pid auto-adjust: steers the other tabs' settings (listens after loudness)
 };
 constexpr int kSlots = 8; // saved configs
 constexpr const char* kFirmwareVersion = "1.0";
@@ -68,7 +69,9 @@ enum Fmt : uint8_t
     F_SLOT,   // config 3
     F_SAVE,   // push x2
     F_THEME,  // pearl / bios
-    F_KNOBS   // normal / reverse
+    F_KNOBS,  // normal / reverse
+    F_HUND,   // 0.50 (value in hundredths)
+    F_PIDGRP  // eq / comp / mband / clarity / deharsh / width
 };
 
 struct Param
@@ -114,6 +117,9 @@ enum
     P_MB_LOW, P_MB_LMID, P_MB_HMID, P_MB_HIGH,
     P_DPAD, // config: the touch d-pad mode (off by default)
     P_SCR_FAST, // config: screen link fast (48 MHz, ~60 fps) or safe (24 MHz, ~25 fps)
+    P_PID_P, P_PID_I, P_PID_D, P_PID_GROUP, // pid: the 3 gains, and which group pg-4 points at
+    P_PID_MASK, // pid: the groups it steers (bits: eq, comp, mband, clarity, deharsh, width)
+    P_PID_TILT, // pid: the target balance, dB per octave in tenths (hold pg-4 + turn)
     P_COUNT // a new setting also needs a permanent name in PgState.cpp (kRestKeys); saves load by name, so order is free
 };
 
@@ -271,6 +277,9 @@ class Core
     void GraphLoud(uint32_t now);
     void GraphConfig(uint32_t now);
     void GraphMband(uint32_t now);
+    void GraphPid(uint32_t now);
+    void VisScope(), VisBars(float fall, float range), VisHistory(float range);
+    void RecordHistory(uint32_t now);
     void UpdateHealth(uint32_t now);
     void DrawFooter(uint32_t now);
     void StartLearn(uint32_t now);
@@ -305,7 +314,7 @@ class Core
     float             sample_rate_ = 48000.f;
     volatile int      screen_ = HOME, focus_ = T_EQ, tab_ = T_EQ, band_ = 0;
     volatile bool     effect_on_ = true, want_dfu_ = false;
-    volatile bool     stage_on_[kTabs] = {true, true, true, true, false, true, true, true, true, true, true, false, false, true, true};
+    volatile bool     stage_on_[kTabs] = {true, true, true, true, false, true, true, true, true, true, true, false, false, true, true, false};
     bool              pending_boot_ = true, repush_ = false;
     bool              splash_on_ = false, splash_ui_drawn_ = false;
     volatile bool     splash_skip_ = false;
@@ -357,6 +366,7 @@ class Core
     TakebackStage tb_;
     LoudnessStage loud_;
     SafetyStage   safety_;
+    PidStage      pid_;
     float         mix_[kTabs] = {}, wet_ = 1.f, c_ramp_ = 0.f;
     float         p_dry_ = 0.f, p_wet_ = 0.f, match_ = 1.f, ab_mix_ = 0.f, c_match_ = 0.f; // fair A/B
     size_t        sub_block_ = 48;
@@ -421,6 +431,13 @@ class Core
     float     spec_a_[320] = {}, spec_b_[320] = {};
     float     gr_hist_[200] = {}, lv_in_[160] = {}, lv_out_[160] = {};
     int       lv_pos_ = 0;
+    // visualizer: bars' peak caps, loudness history (one column per 50 ms, ~15 s), scope height
+    static constexpr int kBars = 31;
+    float     bar_pk_[kBars] = {};
+    float     hist_in_[320] = {}, hist_out_[320] = {};
+    int       hist_pos_ = 0;
+    uint32_t  last_hist_ = 0;
+    float     scope_gain_ = 4.f;
     int       gr_pos_ = 0;
     float     corr_ = 0.f;
     uint32_t  last_graph_ = 0, last_border_ = 0, last_anim_ = 0, last_strip_ = 0;

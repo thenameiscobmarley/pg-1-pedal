@@ -14,7 +14,7 @@ static constexpr uint32_t kRestMs = 5u * 60u * 1000u, kDarkMs = 20u * 60u * 1000
 
 // which parameter each knob moves on a page (eq: per band, see KnobParam)
 static const int kTabBase[kTabs] = {P_HUM_MAINS, -1, P_C_THRESH, P_THUMP, P_DRIVE, P_DH_DEPTH, P_S_CEIL, P_V_MODE, P_IN_TARGET, P_H_ROW,
-                                   P_TB_PUNCH, P_W_WIDTH, P_LD_LISTEN, P_CF_SLOT, P_MB_LOW};
+                                   P_TB_PUNCH, P_W_WIDTH, P_LD_LISTEN, P_CF_SLOT, P_MB_LOW, P_PID_P};
 
 void Core::Init(float sample_rate, uint16_t* framebuffer)
 {
@@ -54,7 +54,7 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"ears", "db", "pg-2 ears: max loudness over ~3 s, eases down", F_SINT, -10, -30, -3, 1, 1, -10},
         {"woofer", "db", "pg-3 woofer: max steady bass power (cool coil)", F_SINT, -9, -30, 0, 1, 1, -9},
         {"tweeter", "db", "pg-4 tweeter: max steady treble power", F_SINT, -20, -40, -6, 1, 1, -20},
-        {"view", "", "pg-1 view: spectrum, waterfall, stereo, levels", F_VMODE, 0, 0, 3, 1, 1, 0},
+        {"view", "", "pg-1 view: spectrum, waterfall, stereo, levels, scope..", F_VMODE, 0, 0, 6, 1, 1, 0},
         {"fall", "", "pg-2 fall: how fast the display drops back", F_INT, 5, 1, 10, 1, 1, 5},
         {"range", "db", "pg-3 range: db shown from top to bottom", F_INT, 90, 30, 120, 10, 10, 90},
         {"source", "", "pg-4 source: input, output or both", F_VSRC, 2, 0, 2, 1, 1, 2},
@@ -91,6 +91,12 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"highs", "%", "pg-4 highs: holds back sharp s's and cymbals", F_PCT, 30, 0, 100, 2, 1, 30},
         {"d-pad", "", "hold pg-4 + turn: the touch d-pad on / off", F_ONOFF, 0, 0, 1, 1, 1, 0},
         {"screen", "", "hold pg-3 + turn: screen fast (60 fps) or safe", F_ONOFF, 1, 0, 1, 1, 1, 1},
+        {"p", "", "pg-1 p: pushes harder the further off it is. 0 = off", F_HUND, 50, 0, 500, 5, 1, 50},
+        {"i", "/s", "pg-2 i: slowly clears what p leaves over. 0 = off", F_HUND, 20, 0, 500, 5, 1, 20},
+        {"d", "s", "pg-3 d: brakes fast swings (less overshoot). 0 = off", F_HUND, 0, 0, 500, 5, 1, 0},
+        {"group", "", "pg-4 group: pick one, push = steer it or not", F_PIDGRP, 0, 0, 5, 1, 1, 0},
+        {"groups", "", "", F_INT, 3, 0, 63, 1, 1, 3},
+        {"tilt", "db/oct", "hold pg-4 + turn: target balance. - = darker", F_STENTH, -20, -60, 20, 5, 1, -20},
     };
     for(int i = 0; i < P_COUNT - P_EQ_END; i++)
         params_[P_EQ_END + i] = rest[i];
@@ -129,6 +135,7 @@ void Core::ResetStages()
     width_.Init(sample_rate_);
     tb_.Init(sample_rate_);
     loud_.Init(sample_rate_);
+    pid_.Init(sample_rate_);
 }
 
 void Core::SetParam(int p, int v)
@@ -175,6 +182,8 @@ int Core::KnobParam(int k) const
         return P_DPAD; // hold pg-4 + turn: the touch d-pad
     if(tab_ == T_CONFIG && k == 2 && knob_down_[2])
         return P_SCR_FAST; // hold pg-3 + turn: screen fast / safe
+    if(tab_ == T_PID && k == 3 && knob_down_[3])
+        return P_PID_TILT; // hold pg-4 + turn: the target balance
     if(tab_ == T_HUM && k == 3 && params_[P_HUM_MAINS].value == 3)
         return P_LRN_MARGIN; // learned mode: pg-4 sets the gate's margin instead of the hiss threshold
     return kTabBase[tab_] + k;
@@ -247,14 +256,14 @@ void Core::KnobPress(int i, bool down, uint32_t now)
         knob_down_[i]         = true;
         turned_while_held_[i] = false;
         press_t0_[i]          = now;
-        if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2)))
+        if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3)))
             param_changed_ |= 1u << i; // the box shows its held setting (q / mode / screen / d-pad) while held
         return;
     }
     if(!knob_down_[i])
         return;
     knob_down_[i] = false;
-    if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2)))
+    if(screen_ == PAGE && (((tab_ == T_EQ || tab_ == T_CLARITY) && i == 0) || (tab_ == T_CONFIG && i >= 2) || (tab_ == T_PID && i == 3)))
         param_changed_ |= 1u << i;
     if(turned_while_held_[i])
         return;
@@ -278,6 +287,14 @@ void Core::KnobPress(int i, bool down, uint32_t now)
             pending_save_ = true, save_arm_t_ = 0;
         else
             save_arm_t_ = now, cfg_msg_ = "push pg-2 again to save here", cfg_msg_t0_ = now;
+        pending_flash_kind_ = 1, pending_flash_index_ = i;
+        return;
+    }
+    if(tab_ == T_PID && i == 3) // pid: push pg-4 = steer the group it points at, or stop steering it
+    {
+        SetParam(P_PID_MASK, params_[P_PID_MASK].value ^ (1 << params_[P_PID_GROUP].value));
+        param_changed_ |= 1u << 3;
+        redraw_panel_       = true;
         pending_flash_kind_ = 1, pending_flash_index_ = i;
         return;
     }
@@ -391,29 +408,39 @@ void Core::UpdateStages(size_t frames)
         safety_.want_reset = false;
         ResetStages();
     }
+    { // pid: listens to the processed sound, hands out corrections that ride on top of the settings below
+        float hz[kBands];
+        for(int b = 0; b < kBands; b++)
+            hz[b] = FreqHz(b);
+        pid_.Update(StageOn(T_PID), params_[P_PID_MASK].value, Pf(P_PID_P) * 0.01f, Pf(P_PID_I) * 0.01f, Pf(P_PID_D) * 0.01f,
+                    Pf(P_PID_TILT) * 0.1f, hz, bs);
+    }
     if(StageOn(T_INPUT) || mix_[T_INPUT] > 0.f)
         lvl_.Update(Pf(P_IN_TARGET), Pf(P_IN_BOOST), Pf(P_IN_CUT), Pf(P_IN_SPEED) * 0.01f, bs);
     if(StageOn(T_HUM) || mix_[T_HUM] > 0.f)
         hum_.Update(params_[P_HUM_MAINS].value, Pf(P_HUM_DEPTH), Pf(P_HISS_CUT), Pf(P_HISS_THR), bs, Pf(P_LRN_MARGIN));
     if(StageOn(T_EQ) || mix_[T_EQ] > 0.f)
         for(int b = 0; b < kBands; b++)
-            eq_.Update(b, FreqHz(b), QOf(b), Pf(ParamIndex(b, B_GAIN)) * 0.1f, Pf(ParamIndex(b, B_THRESH)),
+            eq_.Update(b, FreqHz(b), QOf(b), Pf(ParamIndex(b, B_GAIN)) * 0.1f + pid_.eq_db[b], Pf(ParamIndex(b, B_THRESH)),
                        Pf(ParamIndex(b, B_RANGE)) * 0.1f, bs);
     if(StageOn(T_COMP) || mix_[T_COMP] > 0.f)
     {
         const int r = params_[P_C_RELEASE].value;
-        comp_.Update(Pf(P_C_THRESH), Pf(P_C_RATIO) * 0.1f, 0.1f * powf(2.f, Pf(P_C_ATTACK) / 4.f),
+        comp_.Update(Pf(P_C_THRESH) - pid_.comp_db, fmaxf(1.f, Pf(P_C_RATIO) * 0.1f + pid_.comp_db * 0.15f), 0.1f * powf(2.f, Pf(P_C_ATTACK) / 4.f),
                      r == 0 ? 0.f : 20.f * powf(2.f, float(r - 1) / 6.f));
     }
     if(StageOn(T_CLARITY) || mix_[T_CLARITY] > 0.f)
-        clar_.Update(Pf(P_THUMP) * 0.1f, Pf(P_DETAIL) * 0.1f, Pf(P_CLARITY) * 0.1f, Pf(P_WARMTH) * 0.1f, bs, params_[P_CL_MODE].value);
+        clar_.Update(fmaxf(0.f, Pf(P_THUMP) * 0.1f + pid_.lo_db), Pf(P_DETAIL) * 0.1f, fmaxf(0.f, Pf(P_CLARITY) * 0.1f + pid_.pres_db),
+                     fmaxf(0.f, Pf(P_WARMTH) * 0.1f + 0.5f * pid_.lo_db), bs, params_[P_CL_MODE].value);
     if(StageOn(T_MBAND) || mix_[T_MBAND] > 0.f)
     {
-        const float a[4] = {Pf(P_MB_LOW) * 0.01f, Pf(P_MB_LMID) * 0.01f, Pf(P_MB_HMID) * 0.01f, Pf(P_MB_HIGH) * 0.01f};
+        float a[4] = {Pf(P_MB_LOW) * 0.01f, Pf(P_MB_LMID) * 0.01f, Pf(P_MB_HMID) * 0.01f, Pf(P_MB_HIGH) * 0.01f};
+        for(int b = 0; b < 4; b++)
+            a[b] = Clampf(a[b] + pid_.mb_amt[b], 0.f, 1.f);
         mb_.Update(a, bs);
     }
     if(StageOn(T_WIDTH) || mix_[T_WIDTH] > 0.f)
-        width_.Update(Pf(P_W_WIDTH) * 0.01f, Pf(P_W_MONO), Pf(P_W_AIR), params_[P_W_GUARD].value != 0, bs);
+        width_.Update(Clampf(Pf(P_W_WIDTH) * 0.01f + pid_.width_add, 0.f, 2.f), Pf(P_W_MONO), Pf(P_W_AIR), params_[P_W_GUARD].value != 0, bs);
     if(StageOn(T_TAKEBACK) || mix_[T_TAKEBACK] > 0.f)
         tb_.Update(Pf(P_TB_PUNCH) * 0.01f, Pf(P_TB_DETAIL) * 0.01f, Pf(P_TB_AIR) * 0.01f, Pf(P_TB_SPACE) * 0.01f, bs);
     if(StageOn(T_LOUD) || mix_[T_LOUD] > 0.f)
@@ -421,7 +448,7 @@ void Core::UpdateStages(size_t frames)
     if(StageOn(T_SAT) || mix_[T_SAT] > 0.f)
         sat_.Update(Pf(P_DRIVE) * 0.1f, Pf(P_EVEN) * 0.01f, Pf(P_TONE) * 0.01f, Pf(P_MIX) * 0.01f);
     if(StageOn(T_DEHARSH) || mix_[T_DEHARSH] > 0.f)
-        dh_.Update(Pf(P_DH_DEPTH), Pf(P_DH_SENS) * 0.01f, Pf(P_DH_SPEED) * 0.01f, Pf(P_DH_COMFORT) * 0.01f, bs);
+        dh_.Update(Clampf(Pf(P_DH_DEPTH) + pid_.dh_db, 0.f, 12.f), Pf(P_DH_SENS) * 0.01f, Pf(P_DH_SPEED) * 0.01f, Pf(P_DH_COMFORT) * 0.01f, bs);
     safety_.Update(Pf(P_S_CEIL) * 0.1f, Pf(P_S_EAR), Pf(P_S_WOOF), Pf(P_S_TWEET), bs);
 }
 
@@ -504,6 +531,8 @@ void Core::Process(const float* const* in, float* const* out, size_t n, uint32_t
             }
             PG_STAGE(T_LOUD, loud_)
 #undef PG_STAGE
+            if(on[T_PID]) // pid listens to the processed sound (it never changes it directly)
+                pid_.Run(l, r);
             // loudness of the untouched input and of the processed sound (~3 s), for the fair A/B
             const float pd = 0.5f * (dl * dl + dr * dr), pw = 0.5f * (l * l + r * r);
             if(pd > 1e-7f && pw > 1e-7f) // only while something is playing
@@ -1172,6 +1201,15 @@ void Core::DrawIcon(int i, int cx, int cy, uint16_t c)
                 FillRect(x - 1, cy + 12 - h - 4, 8, 1, c);
             }
             break;
+        case T_PID: // a step that overshoots its target line, then settles onto it
+            HLineDots(cx - 18, cx + 18, cy - 6, 2, dim);
+            Line(cx - 18, cy + 12, cx - 12, cy + 12, c);
+            for(int x = 0; x < 30; x++)
+            {
+                const float t = float(x) / 3.f, v = 18.f * (1.f - expf(-t * 0.35f) * cosf(t * 1.1f));
+                Px(cx - 12 + x, cy + 12 - int(v), c), Px(cx - 12 + x, cy + 13 - int(v), c);
+            }
+            break;
         case T_CONFIG: // sliders
             for(int k = 0; k < 3; k++)
             {
@@ -1237,6 +1275,7 @@ int Core::DrawUi(Canvas& c, uint32_t now)
 {
     if(fb_ == nullptr)
         return 0;
+    RecordHistory(now);
     if(pending_boot_) // power-on: the tabs appear, each traced by a pearl outline
     {
         pending_boot_ = false;
@@ -1254,7 +1293,7 @@ int Core::DrawUi(Canvas& c, uint32_t now)
     }
     if(tour_on_)
     {
-        if(tour_skip_ || now - tour_t0_ > 4u * 3200u && int32_t(now - tour_t0_) > 0)
+        if(tour_skip_ || (now - tour_t0_ > 4u * 3200u && int32_t(now - tour_t0_) > 0))
         {
             tour_on_ = false, tour_skip_ = false;
             SetParam(P_TOUR_DONE, 1); // never again (it's saved)
@@ -1597,7 +1636,7 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
         }
         if(tab_ == T_VIS && y >= ui::kGy && y < ui::kGy + ui::kGh) // tap the display: next view
         {
-            SetParam(P_V_MODE, (params_[P_V_MODE].value + 1) % 4);
+            SetParam(P_V_MODE, (params_[P_V_MODE].value + 1) % (params_[P_V_MODE].max + 1));
             redraw_all_ = true;
             return;
         }

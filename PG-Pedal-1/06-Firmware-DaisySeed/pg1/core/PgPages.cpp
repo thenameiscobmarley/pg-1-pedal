@@ -98,8 +98,8 @@ void Core::Format(int p, char* buf, int n) const
         case F_MAINS: snprintf(buf, size_t(n), "%s", v == 0 ? "auto" : (v == 1 ? "50 hz" : (v == 2 ? "60 hz" : (hum_.prof.valid ? "learned" : "learn")))); break;
         case F_VMODE:
         {
-            static const char* const m[4] = {"spectrum", "waterfall", "stereo", "levels"};
-            snprintf(buf, size_t(n), "%s", m[v & 3]);
+            static const char* const m[7] = {"spectrum", "waterfall", "stereo", "levels", "scope", "bars", "history"};
+            snprintf(buf, size_t(n), "%s", m[(v >= 0 && v < 7) ? v : 0]);
             break;
         }
         case F_VSRC: snprintf(buf, size_t(n), "%s", v == 0 ? "in" : (v == 1 ? "out" : "both")); break;
@@ -118,6 +118,13 @@ void Core::Format(int p, char* buf, int n) const
         case F_SAVE: snprintf(buf, size_t(n), "push x2"); break;
         case F_THEME: snprintf(buf, size_t(n), "%s", v ? "bios" : "pearl"); break;
         case F_KNOBS: snprintf(buf, size_t(n), "%s", v ? "reverse" : "normal"); break;
+        case F_HUND: snprintf(buf, size_t(n), "%d.%02d", v / 100, v % 100); break;
+        case F_PIDGRP:
+        {
+            static const char* const g[PidStage::kG] = {"eq", "comp", "mband", "clarity", "deharsh", "width"};
+            snprintf(buf, size_t(n), "%s", g[(v >= 0 && v < PidStage::kG) ? v : 0]);
+            break;
+        }
         default: snprintf(buf, size_t(n), "%d", v); break;
     }
 }
@@ -262,6 +269,7 @@ void Core::DrawGraph(uint32_t now)
         case T_LOUD: GraphLoud(now); break;
         case T_CONFIG: GraphConfig(now); break;
         case T_MBAND: GraphMband(now); break;
+        case T_PID: GraphPid(now); break;
         default: GraphVis(now); break;
     }
     pad_dirty_ = true; // (the d-pad sits on top of the graph)
@@ -385,6 +393,12 @@ void Core::DrawStrip(uint32_t now)
                 F1(a, 12, mb_.gr[b], false), snprintf(cell[b], 20, "%s %s", n[b], a);
             break;
         }
+        case T_PID:
+            snprintf(cell[0], 20, "level %d", Di(pid_.level_db + 3.f));
+            F1(a, 12, pid_.crest_db, false), snprintf(cell[1], 20, "crest %s", a);
+            F1(a, 12, pid_.corr, true), snprintf(cell[2], 20, "corr %s", a);
+            snprintf(cell[3], 20, "%s", !StageOn(T_PID) ? "off" : (pid_.tracking ? "steering" : "waiting"));
+            break;
         case T_CONFIG:
         {
             int used = 0;
@@ -442,7 +456,8 @@ void Core::DrawParamBox(int k, uint32_t now)
     FillRect(r.x, r.y, r.w, r.h, kBlue);
     FrameRect(r.x, r.y, r.w, r.h, kGrey);
     char lab[20], val[16];
-    const bool q_held = ((tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0]) || (tab_ == T_CONFIG && k == 3 && knob_down_[3]);
+    const bool q_held = ((tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0]) || (tab_ == T_CONFIG && k == 3 && knob_down_[3]) ||
+                        (tab_ == T_PID && k == 3 && knob_down_[3]);
     // knob number as a cream chip (matches pg-1..pg-4 under the knobs), then what it does
     FillRect(r.x + 3, r.y + 2, 9, 10, q_held ? kYellow : kCream);
     snprintf(lab, sizeof(lab), "%d", k + 1);
@@ -494,6 +509,14 @@ void Core::DrawParamBox(int k, uint32_t now)
         {
             const bool on = params_[P_DPAD].value != 0;
             TextFb(bx, by - 13, on ? "d-pad on" : "d-pad off", Font_6x8, q_held ? kYellow : kDimText);
+        }
+        if(tab_ == T_PID && k == 3) // the group box: is that group steered? (held: the target tilt)
+        {
+            const bool st = (params_[P_PID_MASK].value >> params_[P_PID_GROUP].value) & 1;
+            if(q_held)
+                TextFb(bx, by - 13, "target tilt", Font_6x8, kYellow);
+            else
+                TextFb(bx, by - 13, st ? "steered" : "push: steer", Font_6x8, st ? kCyan : kDimText);
         }
         if(tab_ == T_CLARITY && k == 0) // the thump box also shows the mode (hold pg-1 + turn)
         {
@@ -878,6 +901,15 @@ void Core::GraphVis(uint32_t)
         return;
     }
     FillRect(kGx, kGy, kGw, kGh, kBlueDeep);
+    if(first)
+        for(float& v : bar_pk_)
+            v = -200.f; // the bars' peak caps start from the bottom
+    if(mode == 4)
+        return VisScope();
+    if(mode == 5)
+        return VisBars(fall, range);
+    if(mode == 6)
+        return VisHistory(range);
     if(mode == 0) // spectrum: input as filled bars, output as a white line
     {
         FreqGrid(20.f, 3.f);
@@ -1164,5 +1196,161 @@ void Core::GraphMband(uint32_t)
     TextFb(XF(120, 20, 3) - 9, kGy + kGh - 9, "120", Font_6x8, kDimText);
     TextFb(XF(1000, 20, 3) - 6, kGy + kGh - 9, "1k", Font_6x8, kDimText);
     TextFb(XF(6000, 20, 3) - 6, kGy + kGh - 9, "6k", Font_6x8, kDimText);
+}
+// ------------------------------------------------------------------ visualizer: scope, bars, history
+// oscilloscope: the last ~13 ms of sound, triggered on a rising zero crossing so a steady note stands
+// still, and auto-scaled (the x number) so quiet sounds still fill the screen
+void Core::VisScope()
+{
+    const int src = params_[P_V_SRC].value;
+    const int pos = ring_pos_, step = 2, n = kGw * step;
+    const float* main = src == 0 ? ring_in_ : ring_out_;
+    auto at = [&](const float* r, int k) { return r[(pos + k) & (kRing - 1)]; }; // k = 0 is the oldest sample
+    int start = 0;
+    for(int k = 1; k < kRing - n; k++)
+        if(at(main, k - 1) < 0.f && at(main, k) >= 0.f && at(main, k + 3) > at(main, k))
+        {
+            start = k;
+            break;
+        }
+    float pk = 0.f;
+    for(int k = 0; k < n; k++)
+        pk = fmaxf(pk, fabsf(at(main, start + k)));
+    const float want = Clampf(0.9f / fmaxf(pk, 0.004f), 1.f, 200.f);
+    scope_gain_ += (want - scope_gain_) * (want < scope_gain_ ? 0.5f : 0.08f); // shrink fast, grow slowly
+    const int cy = kGy + kGh / 2, half = kGh / 2 - 6;
+    for(int g = 1; g < 8; g++)
+        VLineDots(kGx + g * kGw / 8, kGy, kGy + kGh - 1, 3, kGrid);
+    HLineDots(kGx, kGx + kGw - 1, cy - half / 2, 3, kGrid), HLineDots(kGx, kGx + kGw - 1, cy + half / 2, 3, kGrid);
+    Line(kGx, cy, kGx + kGw - 1, cy, kGrid);
+    auto trace = [&](const float* r, bool bright) {
+        int prev = -1;
+        for(int x = 0; x < kGw; x++)
+        {
+            const float v = Clampf(at(r, start + x * step) * scope_gain_, -1.f, 1.f);
+            const int   y = cy - int(v * float(half));
+            if(prev >= 0)
+                Line(kGx + x - 1, prev, kGx + x, y, bright ? Pearl(float(x) / 500.f) : kLtBlue);
+            prev = y;
+        }
+    };
+    if(src == 2)
+        trace(ring_in_, false);
+    trace(main, true);
+    char b[24];
+    snprintf(b, sizeof(b), "scope %s  x%d", src == 0 ? "in" : (src == 1 ? "out" : "in+out"), Di(scope_gain_));
+    TextFb(kGx + 4, kGy + 4, b, Font_6x8, kDimText);
+    TextFb(kGx + kGw - 6 * 9 - 4, kGy + kGh - 10, "13 ms", Font_6x8, kDimText);
+}
+
+// bars: the spectrum in 31 chunky bands (about a third of an octave each) with falling peak caps
+void Core::VisBars(float fall, float range)
+{
+    const int src = params_[P_V_SRC].value;
+    Spectrum(src == 0 ? ring_in_ : ring_out_, spec_a_, 20.f, 3.f, fall);
+    for(int j = 0; j < kBars; j++)
+    {
+        const int x0 = kGx + j * kGw / kBars, x1 = kGx + (j + 1) * kGw / kBars;
+        float     v  = -200.f;
+        for(int x = x0; x < x1; x++)
+            v = fmaxf(v, spec_a_[x]);
+        bar_pk_[j] = fmaxf(v, bar_pk_[j] - 0.15f * fall);
+        const int y = YDb(v, 0.f, -range), yp = YDb(bar_pk_[j], 0.f, -range);
+        for(int yy = y; yy < kGy + kGh; yy++) // coloured by height, like the waterfall
+            FillRect(x0 + 1, yy, x1 - x0 - 2, 1, Heat(float(kGy + kGh - yy) / float(kGh)));
+        FillRect(x0 + 1, yp, x1 - x0 - 2, 2, kCream);
+    }
+    TextFb(kGx + 4, kGy + 4, src == 0 ? "bars: input" : "bars: output", Font_6x8, kDimText);
+}
+
+void Core::RecordHistory(uint32_t now)
+{
+    if(now - last_hist_ < 50)
+        return;
+    last_hist_          = now;
+    hist_in_[hist_pos_] = PowToDb(in_rms_) + 3.f, hist_out_[hist_pos_] = PowToDb(out_rms_) + 3.f;
+    hist_pos_           = (hist_pos_ + 1) % kGw;
+}
+
+// history: how loud the input (blue) and output (pearl) were over the last ~15 s, newest on the right
+void Core::VisHistory(float range)
+{
+    for(int db = -10; db > -int(range); db -= 10)
+    {
+        const int y = YDb(float(db), 0.f, -range);
+        HLineDots(kGx, kGx + kGw - 1, y, 3, kGrid);
+        char b[8];
+        snprintf(b, sizeof(b), "%d", db);
+        TextFb(kGx + kGw - 20, y - 9, b, Font_6x8, kDimText);
+    }
+    const int pos = hist_pos_;
+    for(int pass = 0; pass < 2; pass++)
+    {
+        const float* h    = pass ? hist_out_ : hist_in_;
+        int          prev = -1;
+        for(int x = 0; x < kGw; x++)
+        {
+            const int y = YDb(h[(pos + x) % kGw], 0.f, -range);
+            if(prev >= 0)
+                Line(kGx + x - 1, prev, kGx + x, y, pass ? Pearl(float(x) / 600.f) : kLtBlue);
+            prev = y;
+        }
+    }
+    TextFb(kGx + 4, kGy + 4, "loudness 15 s: in blue, out pearl", Font_6x8, kDimText);
+}
+
+// ------------------------------------------------------------------ pid
+// left: what it hears - each band vs the mix (bars) and the target balance (cream ticks).
+// right: the 6 groups, which are steered, and how far each is being moved right now.
+void Core::GraphPid(uint32_t)
+{
+    FillRect(kGx, kGy, kGw, kGh, kBlueDeep);
+    const int cy = kGy + 66, sc = 4; // 4 px per dB, +-12 dB
+    static const char* const f[PidStage::kA] = {"60", "160", "450", "1.2k", "3.2k", "9k"};
+    TextFb(kGx + 4, kGy + 3, "what it hears", Font_6x8, kDimText);
+    Line(kGx + 4, cy, kGx + 156, cy, kGrid);
+    for(int a = 0; a < PidStage::kA; a++)
+    {
+        const int x = kGx + 8 + a * 25, w = 18;
+        const int h = int(Clampf(pid_.rel_db[a], -12.f, 12.f) * float(sc));
+        if(pid_.level_db > -55.f)
+            FillRect(x, h > 0 ? cy - h : cy, w, abs(h) + 1, Pearl(float(a) / 6.f));
+        const int t = cy - int(Clampf(pid_.target_db[a], -12.f, 12.f) * float(sc));
+        FillRect(x - 2, t, w + 4, 2, kCream);
+        TextFb(x + (w - TextW(f[a], Font_6x8)) / 2, kGy + kGh - 10, f[a], Font_6x8, kDimText);
+    }
+    if(pid_.level_db <= -55.f)
+        TextFb(kGx + 26, cy - 20, "waiting for sound", Font_6x8, kYellow);
+    // the groups
+    static const char* const g[PidStage::kG] = {"eq", "comp", "mband", "clarity", "deharsh", "width"};
+    float big = 0.f;
+    for(int b = 0; b < 4; b++)
+        big = fabsf(pid_.eq_db[b]) > fabsf(big) ? pid_.eq_db[b] : big;
+    float mb = 0.f;
+    for(int b = 0; b < 4; b++)
+        mb += pid_.mb_amt[b] * 25.f;
+    const float clar = fabsf(pid_.lo_db) > fabsf(pid_.pres_db) ? pid_.lo_db : pid_.pres_db;
+    const float v[PidStage::kG]    = {big, -pid_.comp_db, mb, clar, pid_.dh_db, pid_.width_add * 100.f};
+    const float span[PidStage::kG] = {6.f, 8.f, 50.f, 4.f, 6.f, 40.f};
+    const bool  pct[PidStage::kG]  = {false, false, true, false, false, true};
+    const int   gx = kGx + 166, mask = params_[P_PID_MASK].value, cur = params_[P_PID_GROUP].value;
+    VLineDots(gx - 6, kGy + 2, kGy + kGh - 3, 2, kGrid);
+    for(int i = 0; i < PidStage::kG; i++)
+    {
+        const int  y  = kGy + 6 + i * 21;
+        const bool st = (mask >> i) & 1;
+        TextFb(gx, y, g[i], Font_6x8, i == cur ? kYellow : (st ? kCream : kDimText));
+        const int bx = gx + 50, bw = 60, mid = bx + bw / 2;
+        FillRect(bx, y, bw, 8, kBlue);
+        const int d = int(Clampf(v[i] / span[i], -1.f, 1.f) * float(bw / 2));
+        if(st)
+            FillRect(d < 0 ? mid + d : mid, y, abs(d) + 1, 8, Pearl(float(i) / 6.f));
+        FillRect(mid, y - 2, 1, 12, kWhite);
+        char b[12];
+        F1(b, 12, v[i], true);
+        if(pct[i])
+            snprintf(b, sizeof(b), "%+d%%", Di(v[i]));
+        TextFb(bx + bw + 4, y, st ? b : "off", Font_6x8, st ? kDimText : kGrid);
+    }
 }
 } // namespace pg
