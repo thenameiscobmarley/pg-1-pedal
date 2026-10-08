@@ -6,29 +6,27 @@ and has male pin headers for everything else, so every wire to the Seed3, the sc
 plug-on jumper. Nothing gets soldered except the jack, pot, encoder and footswitch lugs at the part end (and the 4 jacks,
 which are big through-hole pins, if PCBWay doesn't fit them).
 
-## What it does (signal flow, each channel)
+## Budget version (chosen 2026-10-08): what it does, each channel
 
 ```
-line in jack ─ 1k ─┬─ clamp diodes to ±7.5 V ─ 10 µF ─ input stage (OPA1652, inverting, ×0.5, 20 kΩ in) ─► Seed3 AUDIO IN (16/17)
-                    └─ ESD/TVS
-Seed3 AUDIO OUT (18/19) ─ 10 µF ─ output buffer (OPA1652, inverting, ×1) ─┬─► no amp:  OPA1622, ×2  ─ 1 Ω ─► "no amp" jack
-                                                                         ├─► pg-line pot (10k log) ─► OPA1652, ×2 ─ 100 Ω ─► "line out" jack
-                                                                         └─► pg-hp pot (10k log) ─► OPA1622, ×4 ─ 1 Ω ─► "phones" jack
+line in jack ─ TVS ─ 1k ─ 10 µF ─ NE5532 inverting ×0.5 (around 4.5 V) ─ 10 µF ─► Seed3 AUDIO IN (16/17)
+Seed3 AUDIO OUT (18/19) ─ 10 µF ─ NE5532 follower ─ 10 µF ─ BUS (0 V centred) ─┬─► TPA6139A2 ×−2 ─ 1 Ω ─► "no amp" jack
+                                                                              ├─► pg-line pot ─ NE5532 ×−2 ─ 10 µF ─ 100 Ω ─► "line out" jack
+                                                                              └─► pg-hp pot ─ TPA6139A2 ×−4 ─ 1 Ω ─► "phones" jack
 ```
-- **Levels.** The input stage takes 2 V rms (a hot headphone output) down to the Seed3's 1 V rms full scale. The outputs
-  give the 6 dB back, so **no amp = the same loudness that came in** (unity), **line out** = up to that (pg-line turns it down),
-  **phones** = up to **+12 dB** over the Seed3's output (~4 V rms: plenty for 50 Ω now and 200 Ω later; silent at the bottom).
-  The two inversions cancel, so every output has the input's polarity.
-- **Low noise.** OPA1622 (2.8 nV/√Hz, made for headphones, drives 32 Ω and up cleanly) for phones and no-amp; OPA1652 (4.5 nV/√Hz)
-  everywhere else; ±7.5 V rails from low-noise regulators (TPS7A4901 / TPS7A3001, ~15 µV rms). Expected noise at the phones
-  jack with the volume up: well under 10 µV (inaudible on any headset).
-- **No thumps.** The OPA1622s have an enable pin: held off for ~1 s at power-up (RC + comparator) and switched off at once when
-  the 9 V drops, so plugging / unplugging power doesn't pop in your ears.
-- **Protection.** 1 kΩ + clamp diodes to the rails on both inputs (nothing above the rails can reach the Seed3; its inputs
-  take ±1.8 V at most), TVS diodes on every jack contact for static, a Schottky in the 9 V line (reverse polarity), a PTC fuse,
-  outputs short-circuit proof (OPA1622/OPA1652 current limit + series resistors), DC-coupled outputs with < 1 mV offset.
-- **Power.** 9 V jack → Schottky + PTC → +9 V (also feeds the Seed3 VIN through the board) → TPS7A4901 → +7.5 V;
-  LT1054 charge pump → −8 V → LC filter → TPS7A3001 → −7.5 V. About 40 mA extra at normal listening levels.
+- **Levels.** The input stage halves the level, so up to 2 V rms (a hot headphone output) fits the Seed3's 1 V rms; above
+  ~2.5 V rms in it starts to clip (don't feed it a power-amp speaker output). **no amp** gives the 6 dB back = the same loudness
+  that came in. **line out** = up to that (pg-line turns it down). **phones** = pg-hp from silent to +12 dB over the Seed3,
+  clean up to ~1 V rms into 50 Ω and ~2 V rms into 200 Ω (the TPA6139A2's limit: loud on any headset).
+- **Low noise.** NE5532 (5 nV/√Hz) and the TPA6139A2 (DirectPath, about 6 µV rms output noise, no output capacitors, no thump)
+  on a quiet 3.3 V regulator (LP2985, 30 µV). Hiss at the phones jack is far below anything you can hear.
+- **No thumps.** Both TPA6139A2s are held muted until ~0.5 s after power-up and mute at once when the 9 V goes (TLV7031).
+- **Protection.** A 15 V TVS pair on every jack (static), 1 kΩ + 20 kΩ in front of the input op-amp, a Schottky (reverse
+  polarity), a 300 mA PTC fuse and a 12 V surge clamp on the 9 V, short-proof outputs (series resistors + the chips' limits),
+  pots kept at 0 V (no scratching), 100 kΩ bleeds (no pop when a cable goes in).
+- **Power.** One 9 V supply: 9 V → PTC → Schottky → +9 V (op-amps, and the Seed3's VIN through the board); 4.5 V mid-point
+  from a divider + 47 µF; LP2985 → +3.3 V for the two TPA6139A2s. Parts cost about $6 a board.
+- The full-quality version (OPA1622, ±7.5 V, ~4 V rms phones, ~$26 of parts a board) is kept in `carrier_full.py`.
 
 ## Headers (male, 2.54 mm, for female jumpers)
 - **seed port** 2×20: the Seed3's pins 1-40 in the Seed3's own order (40 female-female jumpers from the glued jumper block in
@@ -55,11 +53,8 @@ Seed3 AUDIO OUT (18/19) ─ 10 µF ─ output buffer (OPA1652, inverting, ×1) �
 - Spaced 21 mm apart on the wall (line in -42, line out 0, no amp +21, phones +42; the 9V panel jack at -21 sits above the board).
 
 ## Cost (rough, before quotes)
-PCBWay: 5 bare boards ~$5-10; assembly of 2 boards: setup + stencil ~$30-50, parts ~$26 a board (OPA1622 x2, OPA1652 x3,
-TPS7A4901, TPS7A3001, LT1054 are most of it), shipping ~$20-30. **About $110-130 for 2 finished boards.**
-A cheaper version (NE5532 op-amps, a single-chip headphone amp with its own charge pump) would be about $50-70, but with a
-lower headphone maximum (~1 V rms instead of ~4 V rms) and a bit more noise.
+Budget version: 5 bare boards ~$5-10, assembly of 2 (setup + stencil ~$30-40, parts ~$6 a board), shipping ~$20-30:
+**about $55-80 for 2 finished boards.** (The full version would be about $110-130.)
 
 ## To check before ordering
-- LT1054 pinout against its datasheet (analog.com didn't load from here): assumed 1 FB/SHDN, 2 CAP+, 3 GND, 4 CAP-, 5 VOUT, 6 VREF, 7 OSC, 8 V+.
 - Tayda's preview: the Seed3 window must be on the right wall (side E) beside the screen.

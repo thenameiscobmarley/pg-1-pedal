@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PG-1 carrier board: every part, its footprint, its maker part number and its connections (the netlist).
+"""PG-1 carrier board, budget version (NE5532 + TPA6139A2, one 9 V supply): every part, its footprint, its maker part number and its connections (the netlist).
 DESIGN.md explains the circuit. make_board.py (needs KiCad's pcbnew) turns this into the board, and the BOM /
 placement files PCBWay's assembly service needs.
 
@@ -28,86 +28,88 @@ SOIC8 = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 VSON10 = "Package_SON:VSON-10-1EP_3x3mm_P0.5mm_EP1.2x2mm"
 MSOP8EP = "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm"
 HDR = lambda n, rows=1: f"Connector_PinHeader_2.54mm:PinHeader_{rows}x{n:02d}_P2.54mm_Vertical"
-JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"   # custom footprint (made by make_board.py from the jack's drawing)
+JACK = "PG1:Jack_6.35mm_TRS_PCB_A-1122"
+VSON10 = MSOP8EP = ""  # (only the full version uses these)   # custom footprint (made by make_board.py from the jack's drawing)
 
-# ---------------------------------------------------------------- power
+# ---------------------------------------------------------------- power (one 9 V supply)
 P("J9", "9V in", HDR(2), "", {1: "+9V_RAW", 2: "GND"}, "from the panel DC jack (centre negative: centre pin -> GND here)")
 P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "MF-NSMF030X-2", {1: "+9V_RAW", 2: "+9V_F"})
 P("D1", "SS34", "Diode_SMD:D_SMA", "SS34", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection (cathode = pin 1)")
 P("D2", "SMAJ12A", "Diode_SMD:D_SMA", "SMAJ12A", {1: "+9V", 2: "GND"}, "surge clamp")
 P("C1", "47uF 25V", "Capacitor_SMD:CP_Elec_6.3x5.8", "EEE-1EA470WP", {1: "+9V", 2: "GND"})
-# +7.5 V: TPS7A4901 (adjustable): R2/R1 sets 1.185 V * (1 + R2/R1)
-# (datasheet pins: 1 OUT, 2 FB, 3 NC, 4 GND, 5 EN, 6 NR/SS, 7 DNC, 8 IN, pad GND; VFB 1.185 V)
-P("U1", "TPS7A4901", MSOP8EP, "TPS7A4901DGNR", {1: "+7V5", 2: "FB_P", 3: "NC", 4: "GND", 5: "+9V", 6: "NR_P", 7: "NC_DNC", 8: "+9V", 9: "GND"})
-P("R1", "10k", R0603, "", {1: "FB_P", 2: "GND"})
-P("R2", "53.6k", R0603, "", {1: "+7V5", 2: "FB_P"})
-P("C2", "10nF", C0603, "", {1: "NR_P", 2: "GND"}, "noise-reduction cap")
-P("C3", "10uF 25V", C0805, "", {1: "+7V5", 2: "GND"})
-P("C4", "10uF 25V", C0805, "", {1: "+9V", 2: "GND"})
-# -8 V raw from the LT1054 charge pump, LC filtered, then -7.5 V from the TPS7A3001
-P("U2", "LT1054", SOIC8, "LT1054CS8#PBF", {1: "NC", 2: "CAP+", 3: "GND", 4: "CAP-", 5: "-8V_RAW", 6: "NC", 7: "NC", 8: "+9V"})
-P("C5", "10uF 25V", C0805, "", {1: "CAP+", 2: "CAP-"}, "flying cap")
-P("C6", "47uF 25V", "Capacitor_SMD:CP_Elec_6.3x5.8", "EEE-1EA470WP", {1: "GND", 2: "-8V_RAW"})
-P("L1", "10uH", "Inductor_SMD:L_1210_3225Metric", "", {1: "-8V_RAW", 2: "-8V_F"}, "keeps the 25 kHz switching out of the audio")
-P("C7", "22uF 25V", C1206, "", {1: "GND", 2: "-8V_F"})
-# (datasheet pins: 1 OUT, 2 FB, 3 NC, 4 GND, 5 EN (tied to IN = on), 6 NR/SS, 7 DNC, 8 IN, pad IN; VFB -1.176 V)
-P("U3", "TPS7A3001", MSOP8EP, "TPS7A3001DGNR", {1: "-7V5", 2: "FB_N", 3: "NC", 4: "GND", 5: "-8V_F", 6: "NR_N", 7: "NC_DNC", 8: "-8V_F", 9: "-8V_F"})
-P("R3", "10k", R0603, "", {1: "FB_N", 2: "GND"})
-P("R4", "53.6k", R0603, "", {1: "-7V5", 2: "FB_N"})
-P("C8", "10nF", C0603, "", {1: "NR_N", 2: "GND"})
-P("C9", "10uF 25V", C0805, "", {1: "GND", 2: "-7V5"})
+# 4.5 V mid-point for the NE5532s (a stiff divider, only bias resistors hang off it)
+P("R1", "10k", R0603, "", {1: "+9V", 2: "VREF"})
+P("R2", "10k", R0603, "", {1: "VREF", 2: "GND"})
+P("C2", "47uF 16V", "Capacitor_SMD:CP_Elec_5x5.4", "EEE-1CA470WR", {1: "VREF", 2: "GND"})
+# 3.3 V for the two headphone-level chips: LP2985 (16 V in, 30 uV noise)
+P("U1", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR", {1: "+9V", 2: "GND", 3: "+9V", 4: "BYP", 5: "+3V3A"},
+  "(pins: 1 IN, 2 GND, 3 ON/OFF, 4 BYPASS, 5 OUT)")
+P("C3", "10nF", C0603, "", {1: "BYP", 2: "GND"})
+P("C4", "4.7uF", C0805, "", {1: "+3V3A", 2: "GND"})
+P("C5", "1uF", C0603, "", {1: "+9V", 2: "GND"})
 
 # ---------------------------------------------------------------- audio, per channel
-OPA1652 = lambda ch_a, ch_b: {1: ch_a[2], 2: ch_a[1], 3: ch_a[0], 4: "-7V5", 5: ch_b[0], 6: ch_b[1], 7: ch_b[2], 8: "+7V5"}  # (+in, -in, out)
+# NE5532 (SOIC-8): 1 OUT A, 2 -IN A, 3 +IN A, 4 V- (GND), 5 +IN B, 6 -IN B, 7 OUT B, 8 V+ (+9 V)
+NE5532 = lambda a, b: {1: a[2], 2: a[1], 3: a[0], 4: "GND", 5: b[0], 6: b[1], 7: b[2], 8: "+9V"}  # (+in, -in, out)
 for k, ch in enumerate("LR"):
     n = lambda s: f"{s}_{ch}"
     base = 10 + 20 * k
-    # input: TVS, 1k, clamps to the rails, 100k bias, 10 uF in, inverting x0.5 (20k in / 10k feedback)
-    P(f"R{base}", "1k", R0603, "", {1: n("JIN"), 2: n("IN_P")})
-    P(f"D{base+1}", "BAV99", "Package_TO_SOT_SMD:SOT-23", "BAV99", {1: "-7V5", 2: "+7V5", 3: n("IN_P")}, "clamp to the rails")
-    P(f"R{base+1}", "100k", R0603, "", {1: n("IN_P"), 2: "GND"})
-    P(f"C{base}", "10uF NP", "Capacitor_SMD:CP_Elec_5x5.4", "UUP1E100MCL1GS", {1: n("IN_P"), 2: n("IN_C")}, "non-polar coupling")
-    P(f"R{base+2}", "20k", R0603, "", {1: n("IN_C"), 2: n("IN_N")})
-    P(f"R{base+3}", "10k", R0603, "", {1: n("IN_N"), 2: n("SEED_IN_RAW")})
-    P(f"C{base+1}", "100pF C0G", C0603, "", {1: n("IN_N"), 2: n("SEED_IN_RAW")})
-    P(f"R{base+4}", "100", R0603, "", {1: n("SEED_IN_RAW"), 2: f"SEED_IN_{ch}"})
-    # output buffer from the Seed3: 10 uF, inverting x1 (10k / 10k)
-    P(f"C{base+2}", "10uF NP", "Capacitor_SMD:CP_Elec_5x5.4", "UUP1E100MCL1GS", {1: f"SEED_OUT_{ch}", 2: n("OB_C")})
-    P(f"R{base+5}", "100k", R0603, "", {1: f"SEED_OUT_{ch}", 2: "GND"})
-    P(f"R{base+6}", "10k", R0603, "", {1: n("OB_C"), 2: n("OB_N")})
-    P(f"R{base+7}", "10k", R0603, "", {1: n("OB_N"), 2: n("BUS")})
-    P(f"C{base+3}", "100pF C0G", C0603, "", {1: n("OB_N"), 2: n("BUS")})
-    # no amp: OPA1622 non-inverting x2 (1k / 1k), 1 ohm out
-    P(f"R{base+8}", "1k", R0603, "", {1: n("NA_N"), 2: "GND"})
-    P(f"R{base+9}", "1k", R0603, "", {1: n("NA_N"), 2: n("NA_O")})
-    P(f"R{base+10}", "1", R0603, "", {1: n("NA_O"), 2: n("JNA")})
-    # line out: pg-line pot -> OPA1652 non-inverting x2, 100 ohm out
-    P(f"R{base+11}", "10k", R0603, "", {1: n("LO_N"), 2: "GND"})
-    P(f"R{base+12}", "10k", R0603, "", {1: n("LO_N"), 2: n("LO_O")})
-    P(f"R{base+13}", "100", R0603, "", {1: n("LO_O"), 2: n("JLO")})
-    # phones: pg-hp pot -> OPA1622 non-inverting x4 (1k / 3k), 1 ohm out
-    P(f"R{base+14}", "1k", R0603, "", {1: n("HP_N"), 2: "GND"})
-    P(f"R{base+15}", "3k", R0603, "", {1: n("HP_N"), 2: n("HP_O")})
-    P(f"R{base+16}", "1", R0603, "", {1: n("HP_O"), 2: n("JHP")})
-# op-amps: U4 = input stages (L, R), U5 = output buffers (L, R), U6 = line drivers (L, R)
-P("U4", "OPA1652", SOIC8, "OPA1652AIDR", OPA1652(("GND", "IN_N_L", "SEED_IN_RAW_L"), ("GND", "IN_N_R", "SEED_IN_RAW_R")))
-P("U5", "OPA1652", SOIC8, "OPA1652AIDR", OPA1652(("GND", "OB_N_L", "BUS_L"), ("GND", "OB_N_R", "BUS_R")))
-P("U6", "OPA1652", SOIC8, "OPA1652AIDR", OPA1652(("LINE_W_L", "LO_N_L", "LO_O_L"), ("LINE_W_R", "LO_N_R", "LO_O_R")))
-# OPA1622 (VSON-10, datasheet): 1 +IN A, 2 V+, 3 GND, 4 V-, 5 +IN B, 6 -IN B, 7 OUT B, 8 EN (to its GND pin: > 0.82 V = on),
-# 9 OUT A, 10 -IN A, pad V-
-OPA1622 = lambda pa, na, oa, pb, nb, ob: {1: pa, 2: "+7V5", 3: "GND", 4: "-7V5", 5: pb, 6: nb, 7: ob, 8: "AMP_EN", 9: oa, 10: na, 11: "-7V5"}
-P("U7", "OPA1622", VSON10, "OPA1622IDRCR", OPA1622("BUS_L", "NA_N_L", "NA_O_L", "BUS_R", "NA_N_R", "NA_O_R"), "no amp")
-P("U8", "OPA1622", VSON10, "OPA1622IDRCR", OPA1622("HP_W_L", "HP_N_L", "HP_O_L", "HP_W_R", "HP_N_R", "HP_O_R"), "phones")
-for i, (net, ref) in enumerate((("+7V5", "C40"), ("-7V5", "C41"), ("+7V5", "C42"), ("-7V5", "C43"), ("+7V5", "C44"),
-                                ("-7V5", "C45"), ("+7V5", "C46"), ("-7V5", "C47"), ("+7V5", "C48"), ("-7V5", "C49"))):
-    P(ref, "100nF", C0603, "", {1: net, 2: "GND"} if net[0] == "+" else {1: "GND", 2: net}, "decoupling at each op-amp")
-# pop-free: the amps switch on ~1 s after +7.5 V is up, off at once when the 9 V goes (TLV7031 comparator)
-P("U9", "TLV7031", "Package_TO_SOT_SMD:SOT-23-5", "TLV7031DBVR", {1: "AMP_EN", 2: "GND", 3: "EN_RC", 4: "EN_REF", 5: "+7V5"})
-P("R50", "1M", R0603, "", {1: "+7V5", 2: "EN_RC"})
+    # input: 1k (with the jack's TVS) -> 10 uF -> inverting x0.5 around 4.5 V (20k in, 10k feedback) -> 10 uF -> Seed3 in
+    P(f"R{base}", "1k", R0603, "", {1: n("JIN"), 2: n("IN_A")})
+    P(f"R{base+14}", "100k", R0603, "", {1: n("IN_A"), 2: "AGND"}, "keeps the coupling cap charged right (no pop when a cable goes in)")
+    P(f"C{base}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("IN_B"), 2: n("IN_A")}, "+ side to the op-amp (4.5 V)")
+    P(f"R{base+1}", "20k", R0603, "", {1: n("IN_B"), 2: n("IN_N")})
+    P(f"R{base+2}", "10k", R0603, "", {1: n("IN_N"), 2: n("IN_O")})
+    P(f"C{base+1}", "100pF C0G", C0603, "", {1: n("IN_N"), 2: n("IN_O")})
+    P(f"C{base+2}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("IN_O"), 2: n("SEED_IN_RAW")})
+    P(f"R{base+3}", "100", R0603, "", {1: n("SEED_IN_RAW"), 2: f"SEED_IN_{ch}"})
+    P(f"R{base+4}", "100k", R0603, "", {1: n("SEED_IN_RAW"), 2: "AGND"})
+    # from the Seed3: 10 uF -> NE5532 follower (biased at 4.5 V) -> 10 uF -> BUS (0 V centred, feeds both pots and no-amp)
+    P(f"C{base+3}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("OB_P"), 2: f"SEED_OUT_{ch}"})
+    P(f"R{base+5}", "100k", R0603, "", {1: n("OB_P"), 2: "VREF"})
+    P(f"R{base+6}", "100k", R0603, "", {1: f"SEED_OUT_{ch}", 2: "AGND"})
+    P(f"C{base+4}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("OB_O"), 2: n("BUS")})
+    P(f"R{base+7}", "100k", R0603, "", {1: n("BUS"), 2: "AGND"}, "keeps the pots at 0 V (no scratching)")
+    # line out: pg-line wiper -> 22k -> NE5532 inverting x2 (43k) -> 10 uF -> 100 ohm -> jack (100k bleed: no plug-in pop)
+    P(f"C{base+5}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("LO_A"), 2: n("LINE_W")})
+    P(f"R{base+8}", "22k", R0603, "", {1: n("LO_A"), 2: n("LO_N")})
+    P(f"R{base+9}", "43k", R0603, "", {1: n("LO_N"), 2: n("LO_O")})
+    P(f"C{base+6}", "47pF C0G", C0603, "", {1: n("LO_N"), 2: n("LO_O")})
+    P(f"C{base+7}", "10uF 25V", "Capacitor_SMD:CP_Elec_4x5.4", "EEE-1EA100SR", {1: n("LO_O"), 2: n("LO_C")})
+    P(f"R{base+10}", "100", R0603, "", {1: n("LO_C"), 2: n("JLO")})
+    P(f"R{base+11}", "100k", R0603, "", {1: n("JLO"), 2: "AGND"})
+    # the two headphone-level outputs (TPA6139A2, ground-centred, no output caps): 1 uF into each input
+    P(f"C{base+8}", "1uF", C0603, "", {1: n("BUS"), 2: n("NA_IN")}, "no amp input")
+    P(f"C{base+9}", "1uF", C0603, "", {1: n("HP_W"), 2: n("HP_IN")}, "phones input")
+    P(f"R{base+12}", "1", R0603, "", {1: n("NA_O"), 2: n("JNA")})
+    P(f"R{base+13}", "1", R0603, "", {1: n("HP_O"), 2: n("JHP")})
+P("U4", "NE5532", SOIC8, "NE5532DR", NE5532(("VREF", "IN_N_L", "IN_O_L"), ("VREF", "IN_N_R", "IN_O_R")), "input stages")
+P("U5", "NE5532", SOIC8, "NE5532DR", NE5532(("OB_P_L", "OB_O_L", "OB_O_L"), ("OB_P_R", "OB_O_R", "OB_O_R")), "followers from the Seed3")
+P("U6", "NE5532", SOIC8, "NE5532DR", NE5532(("VREF", "LO_N_L", "LO_O_L"), ("VREF", "LO_N_R", "LO_O_R")), "line drivers")
+# TPA6139A2 (TSSOP-14): 1 -IN_L, 2 OUT_L, 3 GND, 4 MUTE (low = muted), 5 VSS, 6 CN, 7 NC, 8 NC, 9 CP, 10 VDD, 11 GND,
+# 12 GAIN (resistor to GND: open = x-2, 11k5 = x-4), 13 OUT_R, 14 -IN_R
+TPA = lambda inl, outl, inr, outr, pre: {1: inl, 2: outl, 3: "AGND", 4: "MUTE_N", 5: pre + "VSS", 6: pre + "CN", 9: pre + "CP",
+                                         10: "+3V3A", 11: "AGND", 12: pre + "GAIN", 13: outr, 14: inr}
+P("U7", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR", {**TPA("NA_IN_L", "NA_O_L", "NA_IN_R", "NA_O_R", "NA_"), 12: "NC_GAIN"},
+  "no amp: x-2 (gain pin open) = the same loudness that came in (the input stage was x-0.5)")
+P("U8", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR", TPA("HP_IN_L", "HP_O_L", "HP_IN_R", "HP_O_R", "HP_"),
+  "phones: x-4 (11k5 on the gain pin): +12 dB over the Seed3 at the top of pg-hp (clean up to ~1 V rms on 50 ohm, ~2 V rms on 200+)")
+P("R60", "11.5k 1%", R0603, "", {1: "HP_GAIN", 2: "AGND"})
+for pre, cc in (("NA_", "C60"), ("HP_", "C62")):
+    P(cc, "1uF", C0603, "", {1: pre + "CP", 2: pre + "CN"}, "charge-pump flying cap")
+    P(cc[:-1] + str(int(cc[-1]) + 1), "1uF", C0603, "", {1: "AGND", 2: pre + "VSS"}, "charge-pump hold cap")
+for ref in ("C64", "C65"):
+    P(ref, "1uF", C0603, "", {1: "+3V3A", 2: "AGND"}, "at each TPA6139A2")
+for ref in ("C66", "C67", "C68"):
+    P(ref, "100nF", C0603, "", {1: "+9V", 2: "GND"}, "at each NE5532")
+# pop-free: both TPA6139A2s stay muted until ~0.5 s after power-up, and mute at once when the 9 V goes
+P("U9", "TLV7031", "Package_TO_SOT_SMD:SOT-23-5", "TLV7031DBVR", {1: "MUTE_N", 2: "GND", 3: "EN_RC", 4: "EN_REF", 5: "+3V3A"},
+  "(pins: 1 OUT, 2 V-, 3 IN+, 4 IN-, 5 V+)")
+P("R50", "470k", R0603, "", {1: "+3V3A", 2: "EN_RC"})
 P("C50", "1uF", C0603, "", {1: "EN_RC", 2: "GND"})
 P("D50", "BAT54", "Package_TO_SOT_SMD:SOT-23", "BAT54", {1: "EN_RC", 2: "NC", 3: "+9V_SENSE"}, "drains the delay when the 9 V goes")
 P("R51", "10k", R0603, "", {1: "+9V", 2: "+9V_SENSE"})
-P("R52", "100k", R0603, "", {1: "+7V5", 2: "EN_REF"})
+P("R52", "100k", R0603, "", {1: "+3V3A", 2: "EN_REF"})
 P("R53", "100k", R0603, "", {1: "EN_REF", 2: "GND"})
 
 # ---------------------------------------------------------------- jacks (PCB-mount, their nuts hold the board)
@@ -129,7 +131,7 @@ for k in range(4):
     P(f"J{12+k}", f"pg-{k+1}", HDR(5), "", {1: a, 2: "DGND", 3: b, 4: push, 5: "DGND"}, "encoder: A, C, B, push, push-2")
 for k, net in enumerate(("PGA", "PGB", "PGC")):
     P(f"J{16+k}", "pg-" + "abc"[k], HDR(2), "", {1: net, 2: "DGND"}, "footswitch")
-P("J19", "pg-hp", HDR(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: in, wiper, gnd per gang")
+P("J19", "pg-hp", HDR(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: top, wiper, bottom per gang")
 P("J20", "pg-line", HDR(6), "", {1: "BUS_L", 2: "LINE_W_L", 3: "AGND", 4: "BUS_R", 5: "LINE_W_R", 6: "AGND"})
 P("J21", "spare", HDR(4), "", {1: "SPARE_34", 2: "SPARE_35", 3: "SPARE_36", 4: "SPARE_37"})
 P("J22", "seed power", HDR(2), "", {1: "+9V", 2: "DGND"}, "(also on the seed port: VIN = pin 39)")
