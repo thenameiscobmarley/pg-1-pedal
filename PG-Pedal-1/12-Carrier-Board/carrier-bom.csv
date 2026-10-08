@@ -1,0 +1,49 @@
+Item,Designator,Qty,Value,Package,Manufacturer Part Number,Assembly
+1,J9,1,9V in,PinHeader_1x02_P2.54mm_Vertical,generic,THT (hand / optional)
+2,F1,1,PTC 300mA,Fuse_1206_3216Metric,MF-NSMF030X-2,SMT
+3,D1,1,SS34,D_SMA,SS34,SMT
+4,D2,1,SMAJ12A,D_SMA,SMAJ12A,SMT
+5,"C1,C6",2,47uF 25V,CP_Elec_6.3x5.8,EEE-1EA470WP,SMT
+6,U1,1,TPS7A4901,MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm,TPS7A4901DGNR,SMT
+7,"R1,R3,R13,R16,R17,R21,R22,R33,R36,R37,R41,R42,R51",13,10k,R_0603_1608Metric,generic,SMT
+8,"R2,R4",2,53.6k,R_0603_1608Metric,generic,SMT
+9,"C2,C8",2,10nF,C_0603_1608Metric,generic,SMT
+10,"C3,C4,C5,C9",4,10uF 25V,C_0805_2012Metric,generic,SMT
+11,U2,1,LT1054,SOIC-8_3.9x4.9mm_P1.27mm,LT1054CS8#PBF,SMT
+12,L1,1,10uH,L_1210_3225Metric,generic,SMT
+13,C7,1,22uF 25V,C_1206_3216Metric,generic,SMT
+14,U3,1,TPS7A3001,MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm,TPS7A3001DGNR,SMT
+15,"R10,R18,R19,R24,R30,R38,R39,R44",8,1k,R_0603_1608Metric,generic,SMT
+16,"D11,D31",2,BAV99,SOT-23,BAV99,SMT
+17,"R11,R15,R31,R35,R52,R53",6,100k,R_0603_1608Metric,generic,SMT
+18,"C10,C12,C30,C32",4,10uF NP,CP_Elec_5x5.4,UUP1E100MCL1GS,SMT
+19,"R12,R32",2,20k,R_0603_1608Metric,generic,SMT
+20,"C11,C13,C31,C33",4,100pF C0G,C_0603_1608Metric,generic,SMT
+21,"R14,R23,R34,R43",4,100,R_0603_1608Metric,generic,SMT
+22,"R20,R26,R40,R46",4,1,R_0603_1608Metric,generic,SMT
+23,"R25,R45",2,3k,R_0603_1608Metric,generic,SMT
+24,"U4,U5,U6",3,OPA1652,SOIC-8_3.9x4.9mm_P1.27mm,OPA1652AIDR,SMT
+25,"U7,U8",2,OPA1622,VSON-10-1EP_3x3mm_P0.5mm_EP1.2x2mm,OPA1622IDRCR,SMT
+26,"C40,C41,C42,C43,C44,C45,C46,C47,C48,C49",10,100nF,C_0603_1608Metric,generic,SMT
+27,U9,1,TLV7031,SOT-23-5,TLV7031DBVR,SMT
+28,R50,1,1M,R_0603_1608Metric,generic,SMT
+29,C50,1,1uF,C_0603_1608Metric,generic,SMT
+30,D50,1,BAT54,SOT-23,BAT54,SMT
+31,J1,1,line in,Jack_6.35mm_TRS_PCB_A-1122,Tayda A-1122,THT (hand / optional)
+32,"D61,D62,D63,D64",4,PESD15VL2BT,SOT-23,PESD15VL2BT,SMT
+33,J2,1,line out,Jack_6.35mm_TRS_PCB_A-1122,Tayda A-1122,THT (hand / optional)
+34,J3,1,no amp,Jack_6.35mm_TRS_PCB_A-1122,Tayda A-1122,THT (hand / optional)
+35,J4,1,phones,Jack_6.35mm_TRS_PCB_A-1122,Tayda A-1122,THT (hand / optional)
+36,J10,1,seed port,PinHeader_2x20_P2.54mm_Vertical,generic,THT (hand / optional)
+37,J11,1,screen,PinHeader_1x14_P2.54mm_Vertical,generic,THT (hand / optional)
+38,J12,1,pg-1,PinHeader_1x05_P2.54mm_Vertical,generic,THT (hand / optional)
+39,J13,1,pg-2,PinHeader_1x05_P2.54mm_Vertical,generic,THT (hand / optional)
+40,J14,1,pg-3,PinHeader_1x05_P2.54mm_Vertical,generic,THT (hand / optional)
+41,J15,1,pg-4,PinHeader_1x05_P2.54mm_Vertical,generic,THT (hand / optional)
+42,J16,1,pg-a,PinHeader_1x02_P2.54mm_Vertical,generic,THT (hand / optional)
+43,J17,1,pg-b,PinHeader_1x02_P2.54mm_Vertical,generic,THT (hand / optional)
+44,J18,1,pg-c,PinHeader_1x02_P2.54mm_Vertical,generic,THT (hand / optional)
+45,J19,1,pg-hp,PinHeader_1x06_P2.54mm_Vertical,generic,THT (hand / optional)
+46,J20,1,pg-line,PinHeader_1x06_P2.54mm_Vertical,generic,THT (hand / optional)
+47,J21,1,spare,PinHeader_1x04_P2.54mm_Vertical,generic,THT (hand / optional)
+48,J22,1,seed power,PinHeader_1x02_P2.54mm_Vertical,generic,THT (hand / optional)

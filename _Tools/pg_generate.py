@@ -61,11 +61,11 @@ SCREW_HOLE = 3.2
 
 # Side B (top edge). All on Y=0 (middle of the wall) so the +Y direction never matters.
 SIDE_B = [  # label, x, bare hole, part. The 4 audio jacks are PCB-mount and hold the carrier board up by their nuts.
-    ("line in", -42.0, 9.5, "6.35mm TRS PCB jack A-1122 (on the carrier board)"),    # input on the LEFT
+    ("line in", -42.0, 11.2, "6.35mm TRS PCB jack A-1122, M11 bushing (on the carrier board)"),    # input on the LEFT
     ("9v", -21.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
-    ("line out", 0.0, 9.5, "6.35mm TRS PCB jack A-1122 (on the carrier board)"),
-    ("no amp", 21.0, 9.5, "6.35mm TRS PCB jack A-1122: processed, same loudness as came in"),
-    ("phones", 42.0, 9.5, "6.35mm TRS PCB jack A-1122: headphone amp"),
+    ("line out", 0.0, 11.2, "6.35mm TRS PCB jack A-1122, M11 bushing (on the carrier board)"),
+    ("no amp", 21.0, 11.2, "6.35mm TRS PCB jack A-1122, M11: processed, same loudness as came in"),
+    ("phones", 42.0, 11.2, "6.35mm TRS PCB jack A-1122, M11: headphone amp"),
 ]
 
 # Seed3 CARTRIDGE: the Seed3 stands on its side in a window in side C (left wall), component side OUT, and plugs
@@ -554,7 +554,7 @@ def write_interior():
     p.append(text(0, FACE_H / 2 - 2.5 - CARRIER_H + 1.6, "carrier board (pcbway): amp, buffers, protection, pin headers", 1.9, color="#1f6d2a"))
     # jacks bodies (inside, from the top wall)
     for name, x, dd, _ in SIDE_B:
-        depth, wdt = (16.0, 9.5) if name == "9v" else (21.0, 13.0)
+        depth, wdt = (16.0, 9.5) if name == "9v" else (24.8, 16.2)   # A-1122: 21 + 3.8 mm long, 16.2 wide
         p.append(f'<rect x="{x-wdt/2}" y="{-FACE_H/2+2.5}" width="{wdt}" height="{depth}" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>')
         p.append(text(x, FACE_H / 2 - 2.5 - depth / 2, name, 2.2))
     # the two small pots (9 mm body) left of the screen
