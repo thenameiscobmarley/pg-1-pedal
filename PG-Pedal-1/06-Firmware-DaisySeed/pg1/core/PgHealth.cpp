@@ -32,7 +32,7 @@ struct CheckDef
 
 static const CheckDef kDefs[Core::kChecks] = {
     {"input dc", "DC voltage is coming in on the input",
-     "a source or a wire is sending DC. Check the IN jack wires (pins 16, 17) and use the ground loop isolator.", S_WARN, 2.f},
+     "a source is sending DC into the IN jack. Its cable or the source itself is faulty.", S_WARN, 2.f},
     {"input clip", "the source is louder than the input can take",
      "turn the source (SC3 volume) down until the 'in clip' chip stays off.", S_WARN, 0.3f},
     {"one side", "only one side of the input has sound",
@@ -58,7 +58,7 @@ static const CheckDef kDefs[Core::kChecks] = {
     {"switch stuck", "a footswitch reads pressed all the time",
      "check its 2 wires: they may be touching each other or the box.", S_WARN, 0.f},
     {"touch stuck", "the touchscreen reads a finger all the time",
-     "check the 5 touch wires (pins 29-33) are pushed fully on.", S_WARN, 0.f},
+     "check the 4 touch wires (pins 29, 30, 31, 36) are pushed fully on.", S_WARN, 0.f},
     {"screen link", "the screen connection had errors and was restarted",
      "check the screen wires (CS, SCK, SDI, DC, RESET) are pushed fully on.", S_WARN, 0.f},
     {"ultrasonic in", "sound above hearing came in (removed)",
@@ -69,6 +69,10 @@ static const CheckDef kDefs[Core::kChecks] = {
      "the hearing-range filter failed. This should never happen: the output was muted and reset. Tell me.", S_FAULT, 0.f},
     {"infrasonic out", "sound below hearing reached the output: muted",
      "the hearing-range filter failed. This should never happen: the output was muted and reset. Tell me.", S_FAULT, 0.f},
+    {"input too hot", "the input is hotter than any range: output muted",
+     "that's a speaker or power-amp level. Unplug it: use the amp's line / headphone out, or turn it right down.", S_FAULT, 0.f},
+    {"audio chip", "the isolated audio chip didn't answer and was set up again",
+     "check the seed3 + 9v header jumpers: scl, sda (pins 12, 13) and sck, fs, tx, rx (pins 35, 34, 33, 32).", S_FAULT, 0.f},
 };
 
 static uint16_t SevCol(int sev) { return sev == 2 ? kPink : (sev == 1 ? kYellow : kLtBlue); }
@@ -84,6 +88,13 @@ void Core::ReportLoad(float f)
 }
 
 void Core::ReportDisplayFault() { disp_faults_++, last_disp_t_ = last_proc_; }
+void Core::ReportInputHot(bool hot)
+{
+    if(hot)
+        hot_t_ = last_proc_;
+    input_hot_ = hot;
+}
+void Core::ReportCodecFault() { codec_faults_++, last_codec_t_ = last_proc_; }
 
 int Core::ActiveAlerts() const
 {
@@ -149,6 +160,8 @@ void Core::UpdateHealth(uint32_t now)
             bad[C_FSSTUCK] = true, detail[C_FSSTUCK] = f;
     bad[C_TOUCH] = ts_.down && now - ts_.t0 > uint32_t(30000.f * tm);
     bad[C_SCREEN] = disp_faults_ != 0 && now - last_disp_t_ < 60000;
+    bad[C_HOT]    = input_hot_ || (hot_t_ != 0 && now - hot_t_ < 10000);
+    bad[C_CODEC]  = codec_faults_ != 0 && now - last_codec_t_ < 60000;
     static const float u_thr[3] = {-30.f, -38.f, -45.f}, i_thr[3] = {-22.f, -28.f, -34.f};
     bad[C_ULTRA_IN] = safety_.ultra_in_db > u_thr[s];
     bad[C_INFRA_IN] = safety_.infra_in_db > i_thr[s];

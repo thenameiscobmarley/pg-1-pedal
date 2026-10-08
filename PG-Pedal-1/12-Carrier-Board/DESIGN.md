@@ -1,89 +1,64 @@
-# PG-1 carrier board (v2)
+# PG-1 carrier board (v3: isolated)
 
-One board, made and assembled by PCBWay from the files in this folder. It hangs from the nuts of the four 1/4" jacks
-along the top wall (no extra screws), carries the analog audio (buffers, line driver, headphone amp, protection, power),
-and has male pin headers for its wires (Seed3 audio + power, the two small pots, 9 V), so they are plug-on jumpers.
-Nothing gets soldered on it by you if PCBWay also fits the 4 jacks and the headers (send them the jacks).
+One board, made and fully assembled by JLCPCB (every part, the 2 jacks too) from the files in `jlcpcb/`. It hangs
+from the nuts of the two 1/4" jacks on the top wall (no extra screws) and does all of the pedal's audio.
 
-## Budget version (chosen 2026-10-08): what it does, each channel
+**One stereo input, one stereo output, both isolated:** nothing you plug in has a wire path into the pedal (or into
+the other jack's gear through the pedal's power), not even ground. The audio crosses to the Seed3 as digital data.
 
 ```
-line in jack ─ TVS ─ 1k ─ 10 µF ─ NE5532 inverting ×0.5 (around 4.5 V) ─ 10 µF ─► Seed3 AUDIO IN (16/17)
-Seed3 AUDIO OUT (18/19) ─ 10 µF ─ NE5532 follower ─ 10 µF ─ BUS (0 V centred) ─┬─► TPA6139A2 ×−2 ─ 1 Ω ─► "no amp" jack
-                                                                              ├─► pg-line pot ─ NE5532 ×−2 ─ 10 µF ─ 100 Ω ─► "line out" jack
-                                                                              └─► pg-hp pot ─ TPA6139A2 ×−4 ─ 1 Ω ─► "phones" jack
+            ISOLATED SIDE (its own power, ground IGND)                   |  PEDAL SIDE (9 V, ground GND)
+in jack ─ TVS ─ 1k ─ 47 nF ─ 1M/1M ÷2 ─ OPA1652 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
+                                     TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
+                                                         ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
+codec line out ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
+power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / headphone amp; filtered 5 V ─ buffer
 ```
-- **Levels.** The input stage halves the level, so up to 2 V rms (a hot headphone output) fits the Seed3's 1 V rms; above
-  ~2.5 V rms in it starts to clip (don't feed it a power-amp speaker output). **no amp** gives the 6 dB back = the same loudness
-  that came in. **line out** = up to that (pg-line turns it down). **phones** = pg-hp from silent to +12 dB over the Seed3,
-  clean up to ~1 V rms into 50 Ω and ~2 V rms into 200 Ω (the TPA6139A2's limit: loud on any headset).
-- **Low noise.** NE5532 (5 nV/√Hz) and the TPA6139A2 (DirectPath, about 6 µV rms output noise, no output capacitors, no thump)
-  on a quiet 3.3 V regulator (LP2985, 30 µV). Hiss at the phones jack is far below anything you can hear.
-- **No thumps.** Both TPA6139A2s are held muted until ~0.5 s after power-up and mute at once when the 9 V goes (TLV7031).
-- **Protection.** A 15 V TVS pair on every jack (static), 1 kΩ + 20 kΩ in front of the input op-amp, a Schottky (reverse
-  polarity), a 300 mA PTC fuse and a 12 V surge clamp on the 9 V, short-proof outputs (series resistors + the chips' limits),
-  pots kept at 0 V (no scratching), 100 kΩ bleeds (no pop when a cable goes in).
-- **Power.** One 9 V supply: 9 V → PTC → Schottky → +9 V (op-amps, and the Seed3's VIN through the board); 4.5 V mid-point
-  from a divider + 22 µF; LP2985 → +3.3 V for the two TPA6139A2s. Parts cost about $6 a board.
-- The full-quality version (OPA1622, ±7.5 V, ~4 V rms phones, ~$26 of parts a board) is kept in `carrier_full.py`.
 
-## Headers (male, 2.54 mm, for female jumpers)
-Only audio and power go through the board. The screen, encoders and footswitches plug straight into the Seed3's glued
-jumper block, as in v1.
-- **seed3 (IN)** 1×5, right-angle, input half: in l, in r, agnd, 9v, dgnd (the Seed3's pins 16, 17, 20, 39, 40).
-- **seed3 (OUT)** 1×2, right-angle, output half: out l, out r (the Seed3's pins 18, 19).
-- **pg-hp** and **pg-line** 1×6 each, right-angle, same edge: bus l, wiper l, gnd, bus r, wiper r, gnd (the dual pots).
-- **9v (IN)** 1×2, right-angle, same edge (+, −): two wires from the panel DC jack.
-- The right-angle headers sit on the parts side and point off the board's lower edge, so the jumpers lie flat between
-  the board and the lid. The pin names are printed beside each pin.
+## What's hardware and what's software
+- **Both levels are analog.** pg-line (input gain) and pg-hp (output gain) are centre-click dual LINEAR pots that set
+  the gain of op-amp stages in the signal path: the pot sits between two end resistors in an inverting stage, so
+  gain = (R_end + R_one side) / (R_end + R_other side). **Centre click = unity** ("whatever comes in goes out,
+  processed"); left = less (to −33 / −21 dB), right = more (to +33 / +21 dB). The face print's dots show the dB.
+- **Hardware only (no software can change it):** both levels, the isolation (ISO7741, ISO1540, B0505S and a no-copper
+  strip across the board), the overvoltage clamps on both jacks, the 1 kΩ current limit on the input, the output ceiling
+  (~1.1 V rms: the output chips run on 3.3 V), the headphone amp's short-circuit / thermal shutdown, the fuse,
+  reverse-polarity and surge protection on 9 V.
+- **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging) and the DSP. If the firmware hangs, a
+  hardware watchdog resets the Seed3 in ~2 s and the codec mutes itself when the digital audio stops. If the input is
+  too hot for where pg-line is, the screen's health page says "input clip": turn pg-line left.
 
-## Mechanics
-- **Inputs on the left, outputs on the right** (as you look at the pedal's face), split by a row of diamonds printed on
-  both sides. Every part sits on its own half; every jack and header is labelled (IN) or (OUT). On the parts side
-  (looking at the board from the lid) the halves appear swapped, because you're looking from behind.
-- Hangs from the 4 PCB-mount jacks (Neutrik NMJ6HCD2): their threaded ferrules go through the top wall, the nuts clamp the board in place.
-- Outline: a 111 × 27 mm strip under the jacks plus a 62 × 15 mm tongue over the screen's top edge (x −34 .. +28), which
-  keeps clear of the small pots on the left, the screen's 14-pin header and the Seed3 block on the right.
-- All the small parts are on the **bottom** (the lid side, ~8 mm of room): the jack side is covered by the jack bodies.
-  So PCBWay assembles one side only (the bottom).
-- Grounds: AGND is poured on both layers. Power ground (GND) and the Seed3's DGND join it at one point each (R70, R71, 0 Ω).
+## Levels
+- **In:** guitar (sees ~670 kΩ, like any pedal), a line output, a headphone output (up to ~2 V rms) or a mic (pg-line
+  turned right). Mic quality is "works", not studio (the guitar-friendly input adds some hiss at full gain).
+- **Out:** headphones (16-600 Ω) or a line input.
+- **Pots:** dual 10k LINEAR with a centre detent, panel mount, e.g. Alps **RK09L1240015** (9 mm, Mouser) or Bourns
+  PTM902-125S-103B2. Both gangs used (left / right). Wire pins 1 / 2 / 3 of each gang to the header's 1 / 2 / 3.
 
-## Status
-- [x] circuit and levels (this file)
-- [x] board: `python3 make_board.py` (KiCad 10 + Freerouting) places, routes, pours and checks it, and writes `pcbway/`
-      (result: every connection routed, 0 DRC errors, 0 warnings; no printing over pads)
-- [ ] order (below)
+## Headers (male, 2.54 mm, right-angle: they point off the board's edge so the jumpers lie flat)
+- **seed3 + 9v** (10, pedal side): dc +, dc − (from the panel DC jack), then vin → Seed3 39, gnd → 40, scl → 12,
+  sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
+- **pg-line** (6, isolated side, under the in jack): 1 l, 2 l, 3 l, 1 r, 2 r, 3 r = its pot's pins, left gang then right.
+- **pg-hp** (6, isolated side, under the out jack): the same for pg-hp.
 
-## Ordering at JLCPCB (easier, chosen)
-Files in `jlcpcb/` (`python3 make_jlc.py` after `make_board.py`). At https://cart.jlcpcb.com/quote:
-1. "Add gerber file" -> `pg1-carrier-gerbers.zip`. Leave the board settings as they are (2 layers, 1.6 mm, 5 pcs).
-2. Turn on **PCB Assembly**: Economic, **Bottom side**, PCBA qty **2**. Next.
-3. BOM -> `pg1-carrier-bom-jlc.csv`, CPL -> `pg1-carrier-cpl-jlc.csv`. Next. Every part should show as matched.
-4. On the placement picture, the parts should sit on their pads; JLCPCB checks the rotations too.
-5. Everything is fitted, the 4 Neutrik jacks too (JLCPCB part C368502).
-Parts use JLCPCB "basic" parts where possible (no fee); 10 kinds are "extended" ($3 each per order).
+## The board
+- **Two worlds:** the isolated side is the strip under the jacks (and the tongue above the dashed barrier line); the
+  pedal side is the tongue below it. Only the three barrier parts cross the line. Each side has its own ground pour.
+- **Jobs in boxes:** every part sits in its job's printed box (input, codec, output, iso iso power, isolation, power),
+  arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
+- **All parts on the top side** (with the jacks): JLCPCB assembles one side.
 
-## Ordering at PCBWay (the other option)
-- **PCB:** upload `pcbway/pg1-carrier-gerbers.zip`. 2 layers, 111 × 42 mm, 1.6 mm FR-4, 1 oz copper, any colour,
-  HASL lead-free (or ENIG), quantity 5.
-- **Assembly:** turn on "PCB Assembly", **bottom side only**, quantity 2. Upload `pg1-carrier-bom.csv` and
-  `pg1-carrier-cpl.csv` (placement, 0,0 = the board's lower-left corner). 89 SMD parts + 4 headers.
-- **Jacks:** PCBWay has to source the 4 Neutrik NMJ6HCD2s (Mouser / DigiKey stock them).
-- `pg1-carrier-top.png` / `-bottom.png` are what it should look like; `pg1-carrier.kicad_pcb` opens in KiCad.
-- Remake everything after a change: `python3 make_bom.py && python3 make_board.py` (a few minutes).
+## Ordering at JLCPCB
+Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 make_jlc.py`). At https://cart.jlcpcb.com/quote:
+1. "Add gerber file" -> `pg1-carrier-gerbers.zip`. Board settings as in the chat (2 layers, 1.6 mm, 5 pcs; black for looks).
+2. **PCB Assembly**: Standard (through-hole jacks + headers are fitted too), **Top side**, PCBA qty **2**, Confirm Parts Placement: Yes.
+3. BOM -> `pg1-carrier-bom-jlc.csv`, CPL -> `pg1-carrier-cpl-jlc.csv`. Every part should show as matched.
 
-## The jacks (Neutrik NMJ6HCD2, datasheet ST-NMJ6HCD2)
-- 1/4" (6.35 mm) stereo TRS, switched (the switches aren't used), chrome threaded ferrule with nut and washers.
-- Top-wall holes **11.4 mm** + powder coat (Tayda drill file: 11.8 mm). Body 23.5 mm long, 18.2 mm wide.
-- Jack centre **8.14 mm above the board**, so the board's top surface sits ~26 mm below the face surface (~8 mm to the lid).
-- Pins (1.4 mm holes) in two rows 16.23 mm apart: T / R / S at 16.7 / 10.35 / 4 mm in from the wall; the other row
-  is the switch contacts, not used. Footprint: KiCad's own `Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal`.
-- Spaced 21 mm apart on the wall (line in -42, line out 0, no amp +21, phones +42; the 9V panel jack at -21 sits above the board).
-- (Earlier plan: Tayda A-1122. Switched because JLCPCB stocks the Neutrik and fits it, so the board arrives complete.)
+## The jacks (Neutrik NMJ6HFD2: plastic nose)
+- 1/4" stereo TRS. The **plastic** nose means the jack's sleeve never touches the metal box: that's what keeps the
+  isolated ground isolated. Top-wall holes 11.2 mm (+ powder coat), same pins as the NMJ6HCD2 (KiCad footprint
+  `Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal`), jack centre 8.14 mm above the board.
+- Top wall: in -42, 9v -21 (panel DC jack, above the board), out +42.
 
-## Cost (rough, before quotes)
-Budget version: 5 bare boards ~$5-10, assembly of 2 (setup + stencil ~$30-40, parts ~$6 a board), shipping ~$20-30:
-**about $55-80 for 2 finished boards.** (The full version would be about $110-130.)
-
-## To check before ordering
-- Tayda's preview: the Seed3 window must be on the right wall (side E) beside the screen.
+## Old versions
+`carrier_v2.py` = the 4-jack analog board (line in, line out, no amp, phones), not isolated.

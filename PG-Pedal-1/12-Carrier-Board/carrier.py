@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-"""PG-1 carrier board, budget version (NE5532 + TPA6139A2, one 9 V supply): every part, its footprint, its maker part number and its connections (the netlist).
-DESIGN.md explains the circuit. make_board.py (needs KiCad's pcbnew) turns this into the board, and the BOM /
-placement files PCBWay's assembly service needs.
+"""PG-1 carrier board, v3: ONE isolated stereo input + ONE isolated stereo output (chosen 2026-10-08).
 
-Nets are plain strings. Per audio channel the same block is built twice (L / R)."""
+Everything that touches a jack sits on the ISOLATED side, with its own power and ground (IGND): a TLV320AIC3204 audio
+chip (mic / guitar / line / headphone-out levels in; headphones or line out), an input buffer, and protection. The
+audio crosses to the pedal as digital data only: ISO7741 (I2S) + ISO1540 (I2C), powered across by a B0505S. Nothing
+the jacks connect to has a wire path into the pedal, not even ground.
 
-# Seed3 pin -> what it is (the same map as 05-Wiring-and-Schematics/WIRING.md)
-SEED = {1: "KEY", 2: "PG1_A", 3: "PG1_B", 4: "PG1_PUSH", 5: "PG2_A", 6: "PG2_B", 7: "PG2_PUSH", 8: "LCD_CS",
-        9: "LCD_SCK", 10: "PGC", 11: "LCD_SDI", 12: "LCD_DC", 13: "LCD_RESET", 14: "PG3_A", 15: "PG3_B",
-        16: "SEED_IN_L", 17: "SEED_IN_R", 18: "SEED_OUT_L", 19: "SEED_OUT_R", 20: "AGND", 21: "3V3A",
+The pedal side: 9 V in (fuse, reverse-polarity, surge), 5 V + 3.3 V and the isolators' pedal halves.
+
+BOTH LEVELS ARE ANALOG: pg-line (input gain) and pg-hp (output gain) are centre-detent dual linear pots that set the
+gain of op-amp stages in the signal path, on the isolated side. Centre click = unity ("whatever comes in goes out,
+processed"), left = less, right = more. No software sets a level, so a crash can't make it loud.
+
+DESIGN.md explains it. make_board.py turns this into the board, make_jlc.py into JLCPCB's files.
+Nets are plain strings. The old 4-jack analog board is carrier_v2.py."""
+
+# Seed3 pin -> what it is (05-Wiring-and-Schematics/WIRING.md). v3: SAI2 on 32-35 + I2C1 on 12/13; the Seed3's own
+# audio pins (16-19) are not used.
+SEED = {1: "LCD_RESET", 2: "PG1_A", 3: "PG1_B", 4: "PG1_PUSH", 5: "PG2_A", 6: "PG2_B", 7: "PG2_PUSH", 8: "LCD_CS",
+        9: "LCD_SCK", 10: "PGC", 11: "LCD_SDI", 12: "SEED_SCL", 13: "SEED_SDA", 14: "PG3_A", 15: "PG3_B",
+        16: "NC_AUDIO_IN_1", 17: "NC_AUDIO_IN_2", 18: "NC_AUDIO_OUT_1", 19: "NC_AUDIO_OUT_2", 20: "AGND", 21: "3V3A",
         22: "PG3_PUSH", 23: "LCD_LED", 24: "PGA", 25: "PGB", 26: "PG4_A", 27: "PG4_B", 28: "PG4_PUSH",
-        29: "T_CLK", 30: "T_CS", 31: "T_DIN", 32: "T_DO", 33: "T_IRQ", 34: "SPARE_34", 35: "SPARE_35",
-        36: "SPARE_36", 37: "SPARE_37", 38: "3V3D", 39: "VIN", 40: "DGND"}
-SCREEN = ["3V3D", "DGND", "LCD_CS", "LCD_RESET", "LCD_DC", "LCD_SDI", "LCD_SCK", "LCD_LED", "NC_SDO",
-          "T_CLK", "T_CS", "T_DIN", "T_DO", "T_IRQ"]
+        29: "T_CLK", 30: "T_CS", 31: "T_DIN", 32: "SEED_RX", 33: "SEED_TX", 34: "SEED_FS", 35: "SEED_SCK",
+        36: "T_DO", 37: "LCD_DC", 38: "3V3D", 39: "VIN", 40: "DGND"}
 
 parts = []   # (ref, value, footprint, mpn, {pin: net}, note)
 
@@ -22,119 +31,148 @@ def P(ref, value, fp, mpn, pins, note=""):
     parts.append((ref, value, fp, mpn, pins, note))
 
 
-R0603, C0603, C0805, C1206 = "Resistor_SMD:R_0603_1608Metric", "Capacitor_SMD:C_0603_1608Metric", \
-    "Capacitor_SMD:C_0805_2012Metric", "Capacitor_SMD:C_1206_3216Metric"
+R0603, R1206 = "Resistor_SMD:R_0603_1608Metric", "Resistor_SMD:R_1206_3216Metric"
+C0603, C0805, C1206 = "Capacitor_SMD:C_0603_1608Metric", "Capacitor_SMD:C_0805_2012Metric", "Capacitor_SMD:C_1206_3216Metric"
 SOIC8 = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
-VSON10 = "Package_SON:VSON-10-1EP_3x3mm_P0.5mm_EP1.2x2mm"
-MSOP8EP = "Package_SO:MSOP-8-1EP_3x3mm_P0.65mm_EP1.68x1.88mm"
-HDR = lambda n, rows=1: f"Connector_PinHeader_2.54mm:PinHeader_{rows}x{n:02d}_P2.54mm_Vertical"
-JACK = "Connector_Audio:Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"   # stocked by JLCPCB (C368502), so they fit it too
-VSON10 = MSOP8EP = ""  # (only the full version uses these)
+HDR_RA = lambda n: f"Connector_PinHeader_2.54mm:PinHeader_1x{n:02d}_P2.54mm_Horizontal"
+JACK = "Connector_Audio:Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal"   # plastic nose: the sleeve never touches the box
 
-# ---------------------------------------------------------------- power (one 9 V supply)
-P("J9", "9V in", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Horizontal", "", {1: "+9V_RAW", 2: "GND"},
-  "right-angle, on the parts side with the others; 2 wires from the panel DC jack (centre negative: centre pin -> GND here)")
-P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "MF-NSMF030X-2", {1: "+9V_RAW", 2: "+9V_F"})
-P("D1", "SS34", "Diode_SMD:D_SMA", "SS34", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection (cathode = pin 1)")
+# ================================================================ PEDAL SIDE (ground: GND)
+P("J10", "seed3 + 9v", HDR_RA(10), "",
+  {1: "+9V_RAW", 2: "GND", 3: "+9V", 4: "GND", 5: "SEED_SCL", 6: "SEED_SDA", 7: "SEED_SCK", 8: "SEED_FS", 9: "SEED_TX", 10: "SEED_RX"},
+  "2 wires from the panel DC jack (centre negative: centre -> pin 2), then 8 jumpers to the Seed3: 39 VIN, 40 DGND, "
+  "12 SCL, 13 SDA, 35 SAI2 SCK, 34 SAI2 FS, 33 SAI2 SD A (Seed3 out), 32 SAI2 SD B (Seed3 in)")
+P("F1", "PTC 300mA", "Fuse:Fuse_1206_3216Metric", "1206L030/24NR", {1: "+9V_RAW", 2: "+9V_F"})
+P("D1", "B5819W", "Diode_SMD:D_SOD-123", "B5819W", {1: "+9V", 2: "+9V_F"}, "reverse-polarity protection, 1 A (cathode = pin 1)")
 P("D2", "SMAJ12A", "Diode_SMD:D_SMA", "SMAJ12A", {1: "+9V", 2: "GND"}, "surge clamp")
 P("C1", "22uF 25V", C1206, "CL31A226KAHNNNE", {1: "+9V", 2: "GND"})
-# 4.5 V mid-point for the NE5532s (a stiff divider, only bias resistors hang off it)
-P("R1", "10k", R0603, "", {1: "+9V", 2: "VREF"})
-P("R2", "10k", R0603, "", {1: "VREF", 2: "GND"})
-P("C2", "22uF 25V", C0805, "CL21A226MAQNNNE", {1: "VREF", 2: "GND"})
-# 3.3 V for the two headphone-level chips: LP2985 (16 V in, 30 uV noise)
-P("U1", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR", {1: "+9V", 2: "GND", 3: "+9V", 4: "BYP", 5: "+3V3A"},
-  "(pins: 1 IN, 2 GND, 3 ON/OFF, 4 BYPASS, 5 OUT)")
-P("C3", "10nF", C0603, "", {1: "BYP", 2: "GND"})
-P("C4", "4.7uF", C0805, "", {1: "+3V3A", 2: "GND"})
-P("C5", "1uF", C0603, "", {1: "+9V", 2: "GND"})
+SOT223 = "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
+P("U1", "AMS1117-5.0", SOT223, "AMS1117-5.0", {1: "GND", 2: "+5V", 3: "+9V"}, "5 V for the isolated supply")
+P("C2", "22uF 25V", C1206, "CL31A226KAHNNNE", {1: "+5V", 2: "GND"})
+P("U2", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR", {1: "+5V", 2: "GND", 3: "+5V", 4: "PBYP", 5: "+3V3"},
+  "3.3 V for the isolators' pedal halves (~10 mA)")
+P("C3", "4.7uF", C0805, "CL21A475KAQNNNE", {1: "+3V3", 2: "GND"})
+P("C5", "10nF", C0603, "", {1: "PBYP", 2: "GND"})
+P("R3", "4.7k", R0603, "", {1: "+3V3", 2: "SEED_SCL"}, "I2C pull-ups, pedal side")
+P("R4", "4.7k", R0603, "", {1: "+3V3", 2: "SEED_SDA"})
 
-# ---------------------------------------------------------------- audio, per channel
-# NE5532 (SOIC-8): 1 OUT A, 2 -IN A, 3 +IN A, 4 V- (GND), 5 +IN B, 6 -IN B, 7 OUT B, 8 V+ (+9 V)
-NE5532 = lambda a, b: {1: a[2], 2: a[1], 3: a[0], 4: "GND", 5: b[0], 6: b[1], 7: b[2], 8: "+9V"}  # (+in, -in, out)
+# ================================================================ THE BARRIER (each part has one half on each side)
+P("U3", "B0505S-1WR3", "PG1:DCDC_SIP4_B0505S", "B0505S-1WR3", {1: "GND", 2: "+5V", 3: "IGND", 4: "ISO5V_RAW"},
+  "isolated 5 V, 1 W, 1 kV")
+P("C7", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "+5V", 2: "GND"})
+P("C8", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "ISO5V_RAW", 2: "IGND"})
+P("U4", "ISO7741", "Package_SO:SOIC-16W_7.5x10.3mm_P1.27mm", "ISO7741DWR",
+  {1: "+3V3", 2: "GND", 3: "SEED_SCK", 4: "SEED_FS", 5: "SEED_TX", 6: "SEED_RX", 7: "+3V3", 8: "GND",
+   9: "IGND", 10: "ISO3V3", 11: "DOUT_X", 12: "DIN_X", 13: "WCLK_X", 14: "BCLK_X", 15: "IGND", 16: "ISO3V3"},
+  "digital audio across: A bit clock, B word clock, C data to the codec; D data back")
+P("C9", "100nF", C0603, "", {1: "+3V3", 2: "GND"}, "ISO7741 side 1")
+P("C10", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "ISO7741 side 2")
+P("U5", "ISO1540", SOIC8, "ISO1540DR",
+  {1: "+3V3", 2: "SEED_SDA", 3: "SEED_SCL", 4: "GND", 5: "IGND", 6: "ISCL", 7: "ISDA", 8: "ISO3V3"}, "I2C across (codec control)")
+P("C11", "100nF", C0603, "", {1: "+3V3", 2: "GND"}, "ISO1540 side 1")
+P("C12", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "ISO1540 side 2")
+
+# ================================================================ ISOLATED SIDE (ground: IGND)
+P("U7", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR",
+  {1: "ISO5V_RAW", 2: "IGND", 3: "ISO5V_RAW", 4: "IBYP", 5: "ISO3V3"}, "quiet 3.3 V for the codec (30 uV noise)")
+P("C13", "10nF", C0603, "", {1: "IBYP", 2: "IGND"})
+P("C14", "4.7uF", C0805, "CL21A475KAQNNNE", {1: "ISO3V3", 2: "IGND"})
+P("C15", "1uF", C0603, "", {1: "ISO5V_RAW", 2: "IGND"})
+P("R5", "10", R0603, "", {1: "ISO5V_RAW", 2: "ISO5V"}, "filters the converter's ripple off the input buffer's supply")
+P("C16", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "ISO5V", 2: "IGND"})
+P("R6", "10k", R0603, "", {1: "ISO3V3", 2: "IBIAS"}, "1.65 V mid-point for the input buffer")
+P("R7", "10k", R0603, "", {1: "IBIAS", 2: "IGND"})
+P("C17", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "IBIAS", 2: "IGND"})
+# the codec: TLV320AIC3204 (RHB, QFN-32). I2C 0x18, clocks from the bit clock (PLL), internal LDOs for AVDD / DVDD.
+P("U9", "TLV320AIC3204", "Package_DFN_QFN:Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm", "TLV320AIC3204IRHBR",
+  {1: "IGND", 2: "BCLK", 3: "WCLK", 4: "DIN", 5: "DOUT", 6: "ISO3V3", 7: "IGND", 8: "IGND", 9: "ISCL", 10: "ISDA",
+   12: "IGND", 15: "CIN2_L", 16: "CIN2_R", 17: "IGND", 18: "REF", 24: "AVDD",
+   22: "LO_L", 23: "LO_R", 26: "ISO3V3", 28: "IGND", 29: "DVDD", 30: "CRESET", 31: "CRESET", 33: "IGND"},
+  "pins: 1 MCLK (unused: PLL from BCLK), 8 MFP3 grounded, 12 SPI_SELECT=0 (I2C), 30 LDO_SELECT high (DVDD LDO on):\n"
+  "  joined to the reset pin's pull-up next to it, so both come up together; the firmware then resets it over I2C")
+P("C18", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "REF", 2: "IGND"}, "REF")
+P("C19", "1uF", C0603, "", {1: "AVDD", 2: "IGND"})
+P("C20", "100nF", C0603, "", {1: "AVDD", 2: "IGND"})
+P("C21", "1uF", C0603, "", {1: "DVDD", 2: "IGND"})
+P("C22", "100nF", C0603, "", {1: "DVDD", 2: "IGND"})
+P("C23", "1uF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "LDOIN / HPVDD")
+P("C24", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "IOVDD")
+P("R8", "10k", R0603, "", {1: "ISO3V3", 2: "CRESET"}, "power-on reset (the firmware also resets it over I2C)")
+P("C25", "100nF", C0603, "", {1: "CRESET", 2: "IGND"})
+P("R9", "4.7k", R0603, "", {1: "ISO3V3", 2: "ISCL"}, "I2C pull-ups, isolated side")
+P("R10", "4.7k", R0603, "", {1: "ISO3V3", 2: "ISDA"})
+for ref, a, b in (("R11", "BCLK_X", "BCLK"), ("R12", "WCLK_X", "WCLK"), ("R13", "DIN_X", "DIN"), ("R14", "DOUT", "DOUT_X")):
+    P(ref, "33", R0603, "", {1: a, 2: b}, "series resistor: clean clock / data edges")
+# input buffer: OPA1652 (FET-quiet, rail-to-rail out) on the filtered isolated 5 V
+P("U8", "OPA1652", SOIC8, "OPA1652AIDR",
+  {1: "IN_D_L", 2: "IN_D_L", 3: "IN_C_L", 4: "IGND", 5: "IN_C_R", 6: "IN_D_R", 7: "IN_D_R", 8: "ISO5V"}, "input followers")
+P("C26", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
+P("U11", "OPA1652", SOIC8, "OPA1652AIDR",
+  {1: "IN_G_L", 2: "GIN_W_L", 3: "IBIAS", 4: "IGND", 5: "IBIAS", 6: "GIN_W_R", 7: "IN_G_R", 8: "ISO5V"}, "pg-line gain stages")
+P("C27", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
+P("U12", "OPA1652", SOIC8, "OPA1652AIDR",
+  {1: "OUT_G_L", 2: "GOUT_W_L", 3: "IBIAS", 4: "IGND", 5: "IBIAS", 6: "GOUT_W_R", 7: "OUT_G_R", 8: "ISO5V"}, "pg-hp gain stages")
+P("C28", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
+P("J20", "pg-line", HDR_RA(6), "", {1: "GIN_A_L", 2: "GIN_W_L", 3: "GIN_B_L", 4: "GIN_A_R", 5: "GIN_W_R", 6: "GIN_B_R"},
+  "isolated side: pg-line, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
+
+# ---------------------------------------------------------------- the input, per channel
+# jack -> 1k (1206: survives an amp's speaker output with the TVS) -> IN_A (1M to ground: ~670k input, guitar-friendly)
+#   line / guitar / headphone-out path: 47 nF C0G -> 1M / 1M (x0.5 round 1.65 V) -> follower -> 20k / 10k (x1/3) ->
+#     1 uF -> codec IN2 (clean up to ~1.9 V rms at the jack)
+# then pg-line (analog gain, centre = unity) -> 20k / 10k (x1/3) -> 1 uF -> codec IN2 (fixed gain: no software leveling)
 for k, ch in enumerate("LR"):
     n = lambda s: f"{s}_{ch}"
-    base = 10 + 20 * k
-    # input: 1k (with the jack's TVS) -> 10 uF -> inverting x0.5 around 4.5 V (20k in, 10k feedback) -> 10 uF -> Seed3 in
-    P(f"R{base}", "1k", R0603, "", {1: n("JIN"), 2: n("IN_A")})
-    P(f"R{base+14}", "100k", R0603, "", {1: n("IN_A"), 2: "AGND"}, "keeps the coupling cap charged right (no pop when a cable goes in)")
-    P(f"C{base}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("IN_B"), 2: n("IN_A")}, "ceramic X5R: the audio voltage across it is tiny, so it adds no distortion")
-    P(f"R{base+1}", "20k", R0603, "", {1: n("IN_B"), 2: n("IN_N")})
-    P(f"R{base+2}", "10k", R0603, "", {1: n("IN_N"), 2: n("IN_O")})
-    P(f"C{base+1}", "100pF C0G", C0603, "", {1: n("IN_N"), 2: n("IN_O")})
-    P(f"C{base+2}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("IN_O"), 2: n("SEED_IN_RAW")})
-    P(f"R{base+3}", "100", R0603, "", {1: n("SEED_IN_RAW"), 2: f"SEED_IN_{ch}"})
-    P(f"R{base+4}", "100k", R0603, "", {1: n("SEED_IN_RAW"), 2: "AGND"})
-    # from the Seed3: 10 uF -> NE5532 follower (biased at 4.5 V) -> 10 uF -> BUS (0 V centred, feeds both pots and no-amp)
-    P(f"C{base+3}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("OB_P"), 2: f"SEED_OUT_{ch}"})
-    P(f"R{base+5}", "100k", R0603, "", {1: n("OB_P"), 2: "VREF"})
-    P(f"R{base+6}", "100k", R0603, "", {1: f"SEED_OUT_{ch}", 2: "AGND"})
-    P(f"C{base+4}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("OB_O"), 2: n("BUS")})
-    P(f"R{base+7}", "100k", R0603, "", {1: n("BUS"), 2: "AGND"}, "keeps the pots at 0 V (no scratching)")
-    # line out: pg-line wiper -> 51k -> NE5532 inverting x2 (100k) -> 10 uF -> 100 ohm -> jack (100k bleed: no plug-in pop)
-    P(f"C{base+5}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("LO_A"), 2: n("LINE_W")})
-    P(f"R{base+8}", "51k", R0603, "", {1: n("LO_A"), 2: n("LO_N")})
-    P(f"R{base+9}", "100k", R0603, "", {1: n("LO_N"), 2: n("LO_O")})
-    P(f"C{base+6}", "47pF C0G", C0603, "", {1: n("LO_N"), 2: n("LO_O")})
-    P(f"C{base+7}", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: n("LO_O"), 2: n("LO_C")})
-    P(f"R{base+10}", "100", R0603, "", {1: n("LO_C"), 2: n("JLO")})
-    P(f"R{base+11}", "100k", R0603, "", {1: n("JLO"), 2: "AGND"})
-    # the two headphone-level outputs (TPA6139A2, ground-centred, no output caps): 1 uF into each input
-    P(f"C{base+8}", "1uF", C0603, "", {1: n("BUS"), 2: n("NA_IN")}, "no amp input")
-    P(f"C{base+9}", "1uF", C0603, "", {1: n("HP_W"), 2: n("HP_IN")}, "phones input")
-    P(f"R{base+12}", "1", R0603, "", {1: n("NA_O"), 2: n("JNA")})
-    P(f"R{base+13}", "1", R0603, "", {1: n("HP_O"), 2: n("JHP")})
-P("U4", "NE5532", SOIC8, "NE5532DR", NE5532(("VREF", "IN_N_L", "IN_O_L"), ("VREF", "IN_N_R", "IN_O_R")), "input stages")
-P("U5", "NE5532", SOIC8, "NE5532DR", NE5532(("OB_P_L", "OB_O_L", "OB_O_L"), ("OB_P_R", "OB_O_R", "OB_O_R")), "followers from the Seed3")
-P("U6", "NE5532", SOIC8, "NE5532DR", NE5532(("VREF", "LO_N_L", "LO_O_L"), ("VREF", "LO_N_R", "LO_O_R")), "line drivers")
-# TPA6139A2 (TSSOP-14): 1 -IN_L, 2 OUT_L, 3 GND, 4 MUTE (low = muted), 5 VSS, 6 CN, 7 NC, 8 NC, 9 CP, 10 VDD, 11 GND,
-# 12 GAIN (resistor to GND: open = x-2, 11k5 = x-4), 13 OUT_R, 14 -IN_R
-TPA = lambda inl, outl, inr, outr, pre: {1: inl, 2: outl, 3: "AGND", 4: "MUTE_N", 5: pre + "VSS", 6: pre + "CN", 9: pre + "CP",
-                                         10: "+3V3A", 11: "AGND", 12: pre + "GAIN", 13: outr, 14: inr}
-P("U7", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR", {**TPA("NA_IN_L", "NA_O_L", "NA_IN_R", "NA_O_R", "NA_"), 12: "NC_GAIN"},
-  "no amp: x-2 (gain pin open) = the same loudness that came in (the input stage was x-0.5)")
-P("U8", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR", TPA("HP_IN_L", "HP_O_L", "HP_IN_R", "HP_O_R", "HP_"),
-  "phones: x-4 (11k5 on the gain pin): +12 dB over the Seed3 at the top of pg-hp (clean up to ~1 V rms on 50 ohm, ~2 V rms on 200+)")
-P("R60", "11.5k 1%", R0603, "", {1: "HP_GAIN", 2: "AGND"})
-for pre, cc in (("NA_", "C60"), ("HP_", "C62")):
-    P(cc, "1uF", C0603, "", {1: pre + "CP", 2: pre + "CN"}, "charge-pump flying cap")
-    P(cc[:-1] + str(int(cc[-1]) + 1), "1uF", C0603, "", {1: "AGND", 2: pre + "VSS"}, "charge-pump hold cap")
-for ref in ("C64", "C65"):
-    P(ref, "1uF", C0603, "", {1: "+3V3A", 2: "AGND"}, "at each TPA6139A2")
-for ref in ("C66", "C67", "C68"):
-    P(ref, "100nF", C0603, "", {1: "+9V", 2: "GND"}, "at each NE5532")
-# pop-free: both TPA6139A2s stay muted until ~0.5 s after power-up, and mute at once when the 9 V goes
-P("U9", "TLV7031", "Package_TO_SOT_SMD:SOT-23-5", "TLV7031DBVR", {1: "MUTE_N", 2: "GND", 3: "EN_RC", 4: "EN_REF", 5: "+3V3A"},
-  "(pins: 1 OUT, 2 V-, 3 IN+, 4 IN-, 5 V+)")
-P("R50", "470k", R0603, "", {1: "+3V3A", 2: "EN_RC"})
-P("C50", "1uF", C0603, "", {1: "EN_RC", 2: "GND"})
-P("D50", "1N4148W", "Diode_SMD:D_SOD-123", "1N4148W", {1: "+9V_SENSE", 2: "EN_RC"}, "drains the delay when the 9 V goes")
-P("R51", "10k", R0603, "", {1: "+9V", 2: "+9V_SENSE"})
-P("R52", "100k", R0603, "", {1: "+3V3A", 2: "EN_REF"})
-P("R53", "100k", R0603, "", {1: "EN_REF", 2: "GND"})
+    b = 30 + 10 * k
+    P(f"R{b}", "1k", R1206, "", {1: n("JIN"), 2: n("IN_A")}, "1206: takes the current when the TVS clamps a hot input")
+    P(f"R{b+1}", "1M", R0603, "", {1: n("IN_A"), 2: "IGND"}, "no pop when a cable goes in")
+    P(f"C{b}", "47nF C0G", C1206, "", {1: n("IN_A"), 2: n("IN_B")}, "C0G: no distortion even at 1M")
+    P(f"R{b+2}", "1M", R0603, "", {1: n("IN_B"), 2: n("IN_C")})
+    P(f"R{b+3}", "1M", R0603, "", {1: n("IN_C"), 2: "IBIAS"})
+    P(f"C{b+1}", "100pF C0G", C0603, "", {1: n("IN_C"), 2: "IBIAS"}, "keeps radio out")
+    P(f"R{b+4}", "20k", R0603, "", {1: n("IN_G"), 2: n("IN_E")})
+    P(f"R{b+5}", "10k", R0603, "", {1: n("IN_E"), 2: "IGND"})
+    P(f"C{b+2}", "1uF", C0603, "", {1: n("IN_E"), 2: n("CIN2")})
+    # pg-line: inverting stage, the pot between 220-ohm ends: gain = (220 + R_bw) / (220 + R_aw): -33 dB .. 0 (centre) .. +33 dB
+    P(f"R{b+6}", "220", R0603, "", {1: n("IN_D"), 2: n("GIN_A")})
+    P(f"R{b+7}", "220", R0603, "", {1: n("GIN_B"), 2: n("IN_G")})
+    P(f"C{b+3}", "100pF C0G", C0603, "", {1: n("GIN_W"), 2: n("IN_G")}, "keeps the stage calm with the pot on wires")
+# ---------------------------------------------------------------- the output, per channel
+# codec line out -> 4.7 uF -> pg-hp stage (inverting, the pot between 1k ends: -21 dB .. 0 (centre) .. +21 dB) ->
+# 1 uF -> TPA6139A2 (x-2, ground-centred: no output caps, short-proof, pop-free) -> 1 ohm -> jack
+for k, ch in enumerate("LR"):
+    n = lambda s: f"{s}_{ch}"
+    b = 50 + 10 * k
+    P(f"C{b}", "4.7uF", C0805, "CL21A475KAQNNNE", {1: n("LO"), 2: n("OUT_A")})
+    P(f"R{b+1}", "1k", R0603, "", {1: n("OUT_A"), 2: n("GOUT_A")})
+    P(f"R{b+2}", "1k", R0603, "", {1: n("GOUT_B"), 2: n("OUT_G")})
+    P(f"C{b+2}", "100pF C0G", C0603, "", {1: n("GOUT_W"), 2: n("OUT_G")}, "keeps the stage calm with the pot on wires")
+    P(f"C{b+1}", "1uF", C0603, "", {1: n("OUT_G"), 2: n("HPIN")})
+    P(f"R{b}", "1", R0603, "", {1: n("HPO"), 2: n("JOUT")})
+P("J19", "pg-hp", HDR_RA(6), "", {1: "GOUT_A_L", 2: "GOUT_W_L", 3: "GOUT_B_L", 4: "GOUT_A_R", 5: "GOUT_W_R", 6: "GOUT_B_R"},
+  "isolated side: pg-hp, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
+P("U10", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR",
+  {1: "HPIN_L", 2: "HPO_L", 3: "IGND", 4: "HP_ON", 5: "HP_VSS", 6: "HP_CN", 9: "HP_CP", 10: "ISO3V3", 11: "IGND",
+   12: "NC_GAIN", 13: "HPO_R", 14: "HPIN_R"}, "headphone / line driver, x-2 (gain pin open): +6 dB at the top of pg-hp")
+P("C70", "1uF", C0603, "", {1: "HP_CP", 2: "HP_CN"}, "charge-pump flying cap")
+P("C71", "1uF", C0603, "", {1: "IGND", 2: "HP_VSS"}, "charge-pump hold cap")
+P("C72", "1uF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "at the TPA6139A2")
+P("R70", "470k", R0603, "", {1: "ISO3V3", 2: "HP_ON"}, "stays muted ~0.5 s after power-up: no thump")
+P("C73", "1uF", C0603, "", {1: "HP_ON", 2: "IGND"})
 
 # ---------------------------------------------------------------- jacks (PCB-mount, their nuts hold the board)
-for ref, name, tip, ring in (("J1", "line in", "JIN_L", "JIN_R"), ("J2", "line out", "JLO_L", "JLO_R"),
-                             ("J3", "no amp", "JNA_L", "JNA_R"), ("J4", "phones", "JHP_L", "JHP_R")):
-    P(ref, name, JACK, "NMJ6HCD2", {"T": tip, "R": ring, "S": "AGND"})
-    P("D6" + ref[1], "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: tip, 2: ring, 3: "AGND"},
-      "static protection, both lines; 15 V so it never touches the +-7.5 V audio")
+P("J1", "in", JACK, "NMJ6HFD2", {"T": "JIN_L", "R": "JIN_R", "S": "IGND"}, "isolated input: mic, guitar, line, headphone out")
+P("D61", "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: "JIN_L", 2: "JIN_R", 3: "IGND"},
+  "static / overvoltage clamp, both lines (15 V: never touches a normal signal)")
+P("J2", "out", JACK, "NMJ6HFD2", {"T": "JOUT_L", "R": "JOUT_R", "S": "IGND"}, "isolated output: headphones or line")
+P("D62", "PESD15VL2BT", "Package_TO_SOT_SMD:SOT-23", "PESD15VL2BT", {1: "JOUT_L", 2: "JOUT_R", 3: "IGND"})
 
-# ---------------------------------------------------------------- headers
-# Right-angle headers on the BOTTOM of the board along its lower edge: the jumpers lie flat between the board and the lid
-# (pointing straight up they would hit the back of the screen). Only audio + power go through the board; the screen,
-# encoders and footswitches plug straight into the Seed3's jumper block as in v1.
-HDR_RA = lambda n: f"Connector_PinHeader_2.54mm:PinHeader_1x{n:02d}_P2.54mm_Horizontal"
-P("J10", "seed3 in + power", HDR_RA(5), "", {1: "SEED_IN_L", 2: "SEED_IN_R", 3: "AGND", 4: "+9V", 5: "DGND"},
-  "input side: 5 female-female jumpers to the Seed3 block: pins 16, 17, 20 (AGND), 39 (VIN), 40 (DGND)")
-P("J11", "seed3 out", HDR_RA(2), "", {1: "SEED_OUT_L", 2: "SEED_OUT_R"}, "output side: 2 jumpers from the Seed3's pins 18, 19")
-P("J19", "pg-hp", HDR_RA(6), "", {1: "BUS_L", 2: "HP_W_L", 3: "AGND", 4: "BUS_R", 5: "HP_W_R", 6: "AGND"}, "dual pot: top, wiper, bottom per gang")
-P("J20", "pg-line", HDR_RA(6), "", {1: "BUS_L", 2: "LINE_W_L", 3: "AGND", 4: "BUS_R", 5: "LINE_W_R", 6: "AGND"})
-
-# grounds: analog (AGND, the Seed3's pin 20) and the rest (DGND, pin 40) meet at one point on the board (two 0 ohm links)
-P("R70", "0", R0603, "", {1: "GND", 2: "AGND"}, "the only place power ground meets audio ground")
-P("R71", "0", R0603, "", {1: "DGND", 2: "AGND"}, "the Seed3's digital ground meets audio ground here too (one point)")
-NET_ALIASES = {"VIN": "+9V"}   # the Seed3's VIN is the board's protected +9 V
+NET_ALIASES = {}
+ISOLATED = {"HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBYP", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
+            "BCLK", "WCLK", "DIN", "DOUT", "BCLK_X", "WCLK_X", "DIN_X", "DOUT_X"} | \
+           {f"{s}_{c}" for s in ("JIN", "IN_A", "IN_B", "IN_C", "IN_D", "IN_E", "IN_G", "GIN_A", "GIN_W", "GIN_B", "CIN2", "LO",
+                                 "OUT_A", "GOUT_A", "GOUT_W", "GOUT_B", "OUT_G", "HPIN", "HPO", "JOUT")
+            for c in "LR"}
 
 
 def nets():
@@ -149,6 +187,12 @@ def nets():
 
 if __name__ == "__main__":
     ns = nets()
-    print(f"{len(parts)} parts, {len(ns)} nets")
+    print(f"{len(parts)} parts, {len(ns)} nets ({len([n for n in ns if n in ISOLATED])} isolated)")
     lonely = [n for n, c in ns.items() if len(c) < 2]
     print("nets with only one connection (check):", lonely)
+    # nothing may connect the two sides except the barrier parts
+    barrier = {"U3", "U4", "U5"}
+    for ref, _, _, _, pins, _ in parts:
+        sides = {n in ISOLATED for n in pins.values() if not n.startswith("NC")}
+        if len(sides) > 1 and ref not in barrier:
+            print("CROSSES THE BARRIER:", ref)

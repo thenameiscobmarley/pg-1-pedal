@@ -13,7 +13,7 @@ You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridg
 | A-6331 | 4 | $1.59 | $6.36 | Rotary encoder 20 detents + push switch, D shaft (Alpha RE111F) | pg-1, pg-2, pg-3, pg-4 |
 | A-2850 | 4 | $1.29 | $5.16 | Knurled aluminium knob, white, 20 mm, 6 mm set screw | 4 knobs (your pick) |
 | A-1091 | 3 | $1.97 | $5.91 | Soft-touch momentary footswitch SPST-NO (PBS24B4) | pg-a, pg-b, pg-c (your pick) |
-| A-6980 | 2 | $1.29 | $2.58 | 10k log dual pot, 9 mm, round shaft | pg-hp (headphone volume) + pg-line (line-out level) |
+| (Mouser) | 2 | ~$3 | ~$6 | Alps RK09L1240015: dual 10k LINEAR, centre click, 6 mm D shaft (not sold by Tayda) | pg-line (input gain) + pg-hp (output gain): analog, centre = unity |
 | A-8567 | 2 | $0.69 | $1.38 | White ripple knob 14 mm | the two small knobs |
 | A-2599 | 3 | $1.20 | $3.60 | KN2310 pink aluminium footswitch cap 23 mm (for PBS-24) | pink caps on pg-a, pg-b, pg-c |
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
@@ -23,7 +23,7 @@ You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridg
 | A-1247 | 4 | $0.02 | $0.08 | M3 nut | screen nuts |
 | A-8519 | 3 | $0.11 | $0.33 | AWG22 stranded wire BLACK 1ft | the ground chain between parts |
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
-| | | | **$40.86** | **Tayda subtotal** | |
+| | | | **$38.28** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 

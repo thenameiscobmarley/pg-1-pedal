@@ -2,8 +2,8 @@
   "board": {
     "design_settings": {
       "rules": {
-        "min_track_width": 0.15,
-        "min_clearance": 0.2,
+        "min_track_width": 0.127,
+        "min_clearance": 0.127,
         "min_copper_edge_clearance": 0.4,
         "min_via_diameter": 0.6,
         "min_through_hole_diameter": 0.3,
@@ -15,8 +15,8 @@
     "classes": [
       {
         "name": "Default",
-        "track_width": 0.3,
-        "clearance": 0.2,
+        "track_width": 0.2,
+        "clearance": 0.127,
         "via_diameter": 0.6,
         "via_drill": 0.3
       }

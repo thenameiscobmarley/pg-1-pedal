@@ -1,11 +1,14 @@
 # PG-1 wiring (Seed3 cartridge, no extra parts)
 
-> **v2 (being designed):** the carrier board (`12-Carrier-Board`) hangs from the 4 audio jacks on the top wall and has male
-> pin headers for everything: a 2x20 **seed port** laid out like the Seed3 (40 female-female jumpers from the glued block,
-> now in the **right** wall), a **screen** header (14 jumpers straight across), **pg-1..pg-4**, **pg-a..pg-c**, **pg-hp** /
-> **pg-line** (the two small pots) and **9V in**. Every wire plugs on at the board; only the part ends (encoder, footswitch,
-> pot and DC-jack lugs) get soldered. The pin numbers below stay the same. Until the board exists, this page (v1) still works.
-
+> **v3 (isolated carrier board, `12-Carrier-Board`):** the board hangs from the 2 audio jacks (in, out) and does all
+> the audio, isolated. The Seed3's own audio pins (16-19) are no longer used. Wires that changed:
+> - **carrier board "seed3 + 9v" header** (10 pins): dc + / dc − = the 2 wires from the 9V jack; then jumpers to the
+>   Seed3: vin → 39, gnd → 40, scl → 12, sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
+> - **pg-line** and **pg-hp** headers (6 pins each, on the board under the in / out jacks): 1 l, 2 l, 3 l, 1 r, 2 r,
+>   3 r = pins 1 / 2 / 3 of the pot's left gang, then its right gang. Both pots are centre-click dual 10k LINEAR
+>   (e.g. Alps RK09L1240015): analog gain controls, centre = unity.
+> - **screen**: RESET → 1 (D0), DC → 37 (D30); touch T_DO → 36 (D29); T_IRQ is not used (leave it empty).
+> - The IN / OUT / 9V rows in the table below are replaced by the carrier board.
 
 Every part connects to the Daisy Seed3's socket with one wire per pin. There are no resistors, capacitors or chips.
 The Seed3 has internal pull-ups for the encoders and switches, its own power regulators, and a reverse-protected VIN (per its datasheet).
@@ -123,13 +126,13 @@ Jumper wires come in mixed colours, so stick a small label or a dot of tape-flag
 | **screen** 1 VCC | 38 (3V3 digital) |
 | screen 2 GND | main chain → 40 |
 | screen 3 CS | 8 (D7) |
-| screen 4 RESET | 13 (D12) |
-| screen 5 DC | 12 (D11) |
+| screen 4 RESET | 1 (D0) — v3 (was 13) |
+| screen 5 DC | 37 (D30) — v3 (was 12) |
 | screen 6 SDI (MOSI) | 11 (D10) |
 | screen 7 SCK | 9 (D8) |
 | screen 8 LED | 23 (D16) |
 | screen 9 SDO | leave empty |
-| screen 10 T_CLK / 11 T_CS / 12 T_DIN / 13 T_DO / 14 T_IRQ (touch) | 29 (D22) / 30 (D23) / 31 (D24) / 32 (D25) / 33 (D26) |
+| screen 10 T_CLK / 11 T_CS / 12 T_DIN / 13 T_DO (touch) | 29 (D22) / 30 (D23) / 31 (D24) / 36 (D29) — v3; 14 T_IRQ empty |
 
 Seed3 pin numbers: right-side up with USB-C at the bottom, **pins 1-20 run up the right side** (pin 1 next to USB-C) and **pins 21-40 run down the left side** (pin 40 next to USB-C).
 **On the socket board's back it's mirrored:** seen from inside the box (face up, USB-C end on your left), **pins 1-20 are the top row from left to right** and **pins 40-21 the bottom row from left to right**. Pin 1 and pin 40 are the ones at the USB-C end.

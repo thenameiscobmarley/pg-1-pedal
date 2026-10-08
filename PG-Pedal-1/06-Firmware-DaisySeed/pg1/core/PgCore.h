@@ -174,6 +174,8 @@ class Core
     // ---- health checks: the platform reports what only it can see
     void ReportLoad(float fraction);  // audio processing time / block time (1.0 = no time left)
     void ReportDisplayFault();        // the screen link failed and was restarted
+    void ReportInputHot(bool hot);    // the input is too hot for any range: the output is muted while it lasts
+    void ReportCodecFault();          // the isolated audio chip didn't answer and was set up again
     int  ActiveAlerts() const;        // warnings + faults showing right now
 
     // ---- saving: the whole state (settings, 8 configs, learned noise) as one block of bytes. The pedal
@@ -189,6 +191,7 @@ class Core
     {
         C_DC, C_CLIP, C_ONESIDE, C_PHASE, C_NOINPUT, C_LIMITER, C_EARS, C_GLITCH, C_CPU, C_DROPOUT,
         C_KNOBSTUCK, C_KNOBJITTER, C_FSSTUCK, C_TOUCH, C_SCREEN, C_ULTRA_IN, C_INFRA_IN, C_ULTRA_OUT, C_INFRA_OUT,
+        C_HOT, C_CODEC,
         kChecks
     };
     static int         CheckSev(int check);  // 0 note, 1 warning, 2 fault
@@ -385,6 +388,8 @@ class Core
     // health: raw-input statistics (from Process), platform reports, and each check's state
     volatile float    h_dc_[2] = {}, h_pow_[2] = {}, h_x_ = 0.f, load_ = 0.f;
     float             h_c_ = 0.f;
+    volatile bool     input_hot_ = false;
+    volatile uint32_t codec_faults_ = 0, last_codec_t_ = 0, hot_t_ = 0;
     volatile uint32_t disp_faults_ = 0, dropouts_ = 0, last_proc_ = 0, last_drop_t_ = 0, last_disp_t_ = 0, last_glitch_t_ = 0;
     int               seen_glitches_ = 0, drops_window_ = 0, seen_trips_ = 0;
     uint32_t          last_trip_t_ = 0;

@@ -1,35 +1,36 @@
 Item #,Designator,Qty,Manufacturer,Mfg Part #,Description / Value,Package/Footprint,Type,Your Instructions / Notes
-1,J9,1,any,,9V in,PinHeader_1x02_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
-2,F1,1,Bourns,MF-NSMF030X-2,PTC 300mA,Fuse_1206_3216Metric,SMD,
-3,D1,1,onsemi,SS34,SS34,D_SMA,SMD,
+1,J10,1,any,,seed3 + 9v,PinHeader_1x10_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
+2,F1,1,Littelfuse,1206L030/24NR,PTC 300mA,Fuse_1206_3216Metric,SMD,
+3,D1,1,,B5819W,B5819W,D_SOD-123,SMD,
 4,D2,1,Littelfuse,SMAJ12A,SMAJ12A,D_SMA,SMD,
-5,C1,1,,CL31A226KAHNNNE,"ceramic capacitor 22uF 25V X7R 1206, 25 V or more",C_1206_3216Metric,SMD,
-6,"R1,R2,R12,R32,R51",5,any,,resistor 10k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-7,C2,1,,CL21A226MAQNNNE,"ceramic capacitor 22uF 25V X7R 0805, 25 V or more",C_0805_2012Metric,SMD,
-8,U1,1,Texas Instruments,LP2985-33DBVR,LP2985-33,SOT-23-5,SMD,
-9,C3,1,any,,"ceramic capacitor 10nF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
-10,C4,1,any,,"ceramic capacitor 4.7uF X7R 0805, 25 V or more",C_0805_2012Metric,SMD,any brand with the same value and package
-11,"C5,C18,C19,C38,C39,C60,C61,C62,C63,C64,C65,C50",12,any,,"ceramic capacitor 1uF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
-12,"R10,R30",2,any,,resistor 1k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-13,"R24,R14,R15,R16,R17,R19,R21,R44,R34,R35,R36,R37,R39,R41,R52,R53",16,any,,resistor 100k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-14,"C10,C12,C13,C14,C15,C17,C30,C32,C33,C34,C35,C37",12,,CL21A106KAYNNNE,"ceramic capacitor 10uF 25V X7R 0805, 25 V or more",C_0805_2012Metric,SMD,
-15,"R11,R31",2,any,,resistor 20k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-16,"C11,C31",2,any,,"ceramic capacitor 100pF C0G 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
-17,"R13,R20,R33,R40",4,any,,resistor 100 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-18,"R18,R38",2,any,,resistor 51k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-19,"C16,C36",2,any,,"ceramic capacitor 47pF C0G 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
-20,"R22,R23,R42,R43",4,any,,resistor 1 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-21,"U4,U5,U6",3,Texas Instruments,NE5532DR,NE5532,SOIC-8_3.9x4.9mm_P1.27mm,SMD,
-22,"U7,U8",2,Texas Instruments,TPA6139A2PWR,TPA6139A2,TSSOP-14_4.4x5mm_P0.65mm,SMD,
-23,R60,1,any,,resistor 11.5k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-24,"C66,C67,C68",3,any,,"ceramic capacitor 100nF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
-25,U9,1,Texas Instruments,TLV7031DBVR,TLV7031,SOT-23-5,SMD,
-26,R50,1,any,,resistor 470k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
-27,D50,1,,1N4148W,1N4148W,D_SOD-123,SMD,
-28,"J1,J2,J3,J4",4,Neutrik,NMJ6HCD2,6.35 mm stereo PCB jack,Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal,THT,please fit and solder
-29,"D61,D62,D63,D64",4,Nexperia,PESD15VL2BT,PESD15VL2BT,SOT-23,SMD,
-30,J10,1,any,,seed3 in + power,PinHeader_1x05_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
-31,J11,1,any,,seed3 out,PinHeader_1x02_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
-32,J19,1,any,,pg-hp,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
-33,J20,1,any,,pg-line,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
-34,"R70,R71",2,any,,0 ohm jumper 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+5,"C1,C2",2,,CL31A226KAHNNNE,"ceramic capacitor 22uF 25V X7R 1206, 25 V or more",C_1206_3216Metric,SMD,
+6,U1,1,AMS,AMS1117-5.0,AMS1117-5.0,SOT-223-3_TabPin2,SMD,
+7,"U2,U7",2,Texas Instruments,LP2985-33DBVR,LP2985-33,SOT-23-5,SMD,
+8,"C3,C14,C50,C60",4,,CL21A475KAQNNNE,"ceramic capacitor 4.7uF X7R 0805, 25 V or more",C_0805_2012Metric,SMD,
+9,"C5,C13",2,any,,"ceramic capacitor 10nF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
+10,"R3,R4,R9,R10",4,any,,resistor 4.7k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+11,U3,1,Mornsun,B0505S-1WR3,B0505S-1WR3,DCDC_SIP4_B0505S,THT,"2.54 mm male header, any brand: please fit and solder"
+12,"C7,C8,C16,C17,C18",5,,CL21A106KAYNNNE,"ceramic capacitor 10uF 25V X7R 0805, 25 V or more",C_0805_2012Metric,SMD,
+13,U4,1,Texas Instruments,ISO7741DWR,ISO7741,SOIC-16W_7.5x10.3mm_P1.27mm,SMD,
+14,"C9,C10,C11,C12,C20,C22,C24,C25,C26,C27,C28",11,any,,"ceramic capacitor 100nF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
+15,U5,1,Texas Instruments,ISO1540DR,ISO1540,SOIC-8_3.9x4.9mm_P1.27mm,SMD,
+16,"C15,C19,C21,C23,C32,C42,C51,C61,C70,C71,C72,C73",12,any,,"ceramic capacitor 1uF X7R 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
+17,R5,1,any,,resistor 10 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+18,"R6,R7,R8,R35,R45",5,any,,resistor 10k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+19,U9,1,Texas Instruments,TLV320AIC3204IRHBR,TLV320AIC3204,Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm,SMD,
+20,"R11,R12,R13,R14",4,any,,resistor 33 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+21,"U8,U11,U12",3,Texas Instruments,OPA1652AIDR,OPA1652,SOIC-8_3.9x4.9mm_P1.27mm,SMD,
+22,J20,1,any,,pg-line,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
+23,"R30,R40",2,any,,resistor 1k 1% 1206,R_1206_3216Metric,SMD,any brand with the same value and package
+24,"R31,R32,R33,R41,R42,R43",6,any,,resistor 1M 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+25,"C30,C40",2,any,,"ceramic capacitor 47nF C0G 1206, 25 V or more",C_1206_3216Metric,SMD,any brand with the same value and package
+26,"C31,C33,C41,C43,C52,C62",6,any,,"ceramic capacitor 100pF C0G 0603, 25 V or more",C_0603_1608Metric,SMD,any brand with the same value and package
+27,"R34,R44",2,any,,resistor 20k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+28,"R36,R37,R46,R47",4,any,,resistor 220 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+29,"R51,R52,R61,R62",4,any,,resistor 1k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+30,"R50,R60",2,any,,resistor 1 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+31,J19,1,any,,pg-hp,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
+32,U10,1,Texas Instruments,TPA6139A2PWR,TPA6139A2,TSSOP-14_4.4x5mm_P0.65mm,SMD,
+33,R70,1,any,,resistor 470k 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
+34,"J1,J2",2,Neutrik,NMJ6HFD2,6.35 mm stereo PCB jack,Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal,THT,please fit and solder
+35,"D61,D62",2,Nexperia,PESD15VL2BT,PESD15VL2BT,SOT-23,SMD,

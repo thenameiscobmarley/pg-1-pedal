@@ -15,7 +15,7 @@ import argparse, csv, math, os, random, shutil, subprocess, sys, zipfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import pcbnew as K   # noqa: E402
-from carrier import parts, nets   # noqa: E402
+from carrier import parts, nets, ISOLATED   # noqa: E402
 
 BUILD, OUT = os.path.join(HERE, "build"), os.path.join(HERE, "pcbway")
 FPLIB, LOCAL = "/usr/share/kicad/footprints", os.path.join(HERE, "PG1.pretty")
@@ -30,39 +30,66 @@ TOP = WALL_IN - 0.25                   # board edge just short of the wall
 # board = a strip under the jacks + a tongue over the screen's top (clear of the pots on the left, the screen's
 # 14-pin header and the Seed3 block on the right)
 STRIP = (-55.5, 43.0, 55.5, TOP)       # x0, y0, x1, y1
-TONGUE = (-34.0, 28.0, 30.0, TOP)
-OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (30.0, 43.0), (30.0, 28.0), (-34.0, 28.0), (-34.0, 43.0), (-55.5, 43.0)]
-# INPUTS on the left (as you look at the pedal's face), OUTPUTS on the right, split at DIVIDE: every part stays on its
-# own side, and a row of diamonds marks the line on both sides of the board
-DIVIDE = -12.6
-SIDE_RECTS = {"in": [(STRIP[0], STRIP[1], DIVIDE - 0.35, TOP), (TONGUE[0], TONGUE[1], DIVIDE - 0.35, TOP)],
-              "out": [(DIVIDE + 0.35, STRIP[1], STRIP[2], TOP), (DIVIDE + 0.35, TONGUE[1], TONGUE[2], TOP)]}
-IN_PARTS = {f"{p}{n}" for p, ns in (("R", (10, 11, 12, 13, 14, 24, 30, 31, 32, 33, 34, 44, 1, 2, 70, 71)),
-                                    ("C", (10, 11, 12, 30, 31, 32, 1, 2, 66)), ("U", (4,)), ("D", (61, 1, 2)), ("F", (1,)))
-            for n in ns}
+TONGUE = (-34.0, 12.0, 30.0, TOP)
+OUTLINE = [(-55.5, TOP), (55.5, TOP), (55.5, 43.0), (30.0, 43.0), (30.0, 12.0), (-34.0, 12.0), (-34.0, 43.0), (-55.5, 43.0)]
+# TWO WORLDS: the ISOLATED side (both jacks, codec, input buffer; ground IGND) is the strip under the jacks; the PEDAL
+# side (9 V, regulators, knob reader; ground GND) is the tongue below it. Between them runs a strip with no copper at
+# all (BARRIER), crossed only by the three barrier parts (isolated power, I2S isolator, I2C isolator).
+BARRIER = (29.05, 29.95)               # y range of the no-copper strip
+DOMAIN_RECTS = {"iso": [(STRIP[0], STRIP[1], STRIP[2], TOP), (TONGUE[0], BARRIER[1] + 0.4, TONGUE[2], TOP)],
+                "ped": [(TONGUE[0], TONGUE[1], TONGUE[2], BARRIER[0] - 0.4)]}
+BARRIER_PARTS = {"U4": -1.5, "U5": 8.5, "U3": 14.8}   # x of each, centred on the barrier
+# On the isolated side: INPUT on the left (as you look at the pedal's face), OUTPUT on the right, the codec between them.
+DIVIDE = 0.0
+# every part belongs to one job, and the parts of a job sit together in a printed box (title on top);
+# arrows between the boxes show the signal's path. (name, x range it may use, where it starts, parts)
+GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its title, where it starts, parts)
+    # isolated side (the strip between the jack bodies + the tongue above the barrier): input | codec | power / output
+    ("input", [(-30.0, 34.4, -8.4, 69.9)], (-19.0, 52.0), "R30 R31 R32 R33 R34 R35 R36 R37 C30 C31 C32 C33 "
+                                                         "R40 R41 R42 R43 R44 R45 R46 R47 C40 C41 C42 C43 U8 C26 U11 C27 D61"),
+    ("codec", [(-6.9, 34.4, 5.8, 69.9)], (-0.5, 52.0), "U9 C18 C19 C20 C21 C22 C23 C24 C25 R8 R9 R10 R11 R12 R13 R14"),
+    ("output", [(7.3, 47.5, 30.0, 69.9)], (21.0, 60.0), "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 "
+                                                       "U10 C70 C71 C72 R70 C73 D62"),
+    ("iso power", [(7.3, 34.4, 29.5, 46.0)], (19.0, 40.0), "U7 C13 C14 C15 R5 C16 R6 R7 C17"),
+    # the barrier parts (fixed) and their caps + the I2C pull-ups, both sides of it (its box is drawn round all of them)
+    ("isolation", [(-12.0, 30.35, 29.5, 33.6), (-6.0, 22.6, 29.5, 28.65)], (6.0, 29.5),
+     "U3 U4 U5 C7 C8 C9 C10 C11 C12 R3 R4"),
+    # pedal side (the tongue below the barrier)
+    ("power", [(-33.5, 12.5, -7.5, 27.2), (-33.5, 12.5, -2.8, 22.6)], (-20.0, 20.0), "F1 D1 D2 C1 U1 C2 U2 C3 C5"),
+]
+GROUP_OF = {r: g for g, _, _, rs in GROUPS for r in rs.split()}
+# the signal's path, drawn as arrows: (from, to, both ways); a name is a group, a J-number a jack or header
+FLOW = [("J1", "input", False), ("input", "codec", False), ("codec", "output", False), ("output", "J2", False),
+        ("codec", "isolation", True), ("isolation", "J10", True), ("output", "J19", True), ("input", "J20", True),
+        ("J10", "power", False)]
+BOX_M, BOX_TITLE = 0.75, 1.5            # printed box: this far round the parts, plus room for its title on top
 FONT = "IBM Plex Mono"                 # the pedal's own small-word font (installed to ~/.local/share/fonts)
-# Neutrik NMJ6HCD2 (datasheet ST-NMJ6HCD2): body front on the wall, pins 4 / 10.35 / 16.7 mm in from it, rows 16.23 apart,
-# axis 8.14 mm above the board. KiCad's footprint has its origin on the T pin and the front toward +x: turned 90 deg.
+# Neutrik NMJ6HFD2 (same pins as the NMJ6HCD2, datasheet ST-NMJ6HCD2): body front on the wall, pins 4 / 10.35 / 16.7 mm
+# in from it, rows 16.23 apart, axis 8.14 mm above the board. KiCad's footprint has its origin on the T pin and the
+# front toward +x: turned 90 deg.
 JACK_T = (-8.115, 16.7)                # T pin from (jack axis, inside of the wall)
-JACKS = {"J1": -42.0, "J2": 0.0, "J3": 21.0, "J4": 42.0}
-# headers: (first pin x, row y, side). Right-angle ones on the bottom point off the lower edge (jumpers lie flat).
-HEADERS = {"J9": (-31.8, 30.0, "B"), "J10": (-25.36, 30.0, "B"),                                   # inputs
-           "J11": (-10.4, 30.0, "B"), "J20": (-3.96, 30.0, "B"), "J19": (12.64, 30.0, "B")}       # outputs
+JACKS = {"J1": -42.0, "J2": 42.0}
+# headers: (first pin x, row y, side). Right-angle, pointing off the lower edge (the jumpers lie flat).
+HEADERS = {"J10": (2.0, 14.0, "F"),                                # pedal side, tongue edge
+           "J20": (-53.5, 44.5, "F"),   # isolated side, under the in jack, next to the pots: pg-line (the sensitive one)
+           "J19": (33.6, 44.5, "F")}    # isolated side, under the out jack: pg-hp
 HEADER_PINS = {   # printed beside each pin
-    "J10": ["in l", "in r", "agnd", "9v", "dgnd"],
-    "J11": ["out l", "out r"],
-    "J19": ["bus l", "hp l", "gnd", "bus r", "hp r", "gnd"],
-    "J20": ["bus l", "line l", "gnd", "bus r", "line r", "gnd"],
-    "J9": ["+", "-"]}
-HEADER_TITLE = {"J10": "seed3 (IN)", "J11": "seed3 (OUT)", "J19": "pg-hp", "J20": "pg-line", "J9": "9v (IN)"}
-JACK_NAME = {"J1": "line in (IN)", "J2": "line out (OUT)", "J3": "no amp (OUT)", "J4": "phones (OUT)"}
+    "J10": ["dc +", "dc -", "vin", "gnd", "scl", "sda", "sck", "fs", "tx", "rx"],
+    "J19": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
+    "J20": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
+}
+HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "pg-hp", "J20": "pg-line"}
+JACK_NAME = {"J1": "in (IN)", "J2": "out (OUT)"}
+JACK_NAME_X = {"J1": -36.6, "J2": 51.2}   # moved off the pot headers that sit under the jacks
 
-TRACK, CLEAR, VIA, DRILL = 0.3, 0.2, 0.6, 0.3
-GAP = 0.35                             # extra room around each part's courtyard (space for tracks and vias)
-EDGE = 0.4                             # courtyard to board edge
-NET_W = {"AGND": 0.12, "GND": 0.35, "+9V": 0.5, "+3V3A": 0.6, "VREF": 0.7}
-STICK = {"C66": "U4", "C67": "U5", "C68": "U6", "C64": "U7", "C65": "U8", "C4": "U1", "C5": "U1", "C3": "U1",
-         "C60": "U7", "C61": "U7", "C62": "U8", "C63": "U8", "R60": "U8"}   # keep these right at their chip
+TRACK, CLEAR, VIA, DRILL = 0.2, 0.15, 0.6, 0.3  # 0.2 mm tracks: these currents are all < 0.15 A
+HALO = {"U9": 1.1}                     # extra room round fine-pitch chips: the tracks must get out of every pin
+GAP = 0.3                             # extra room around each part's courtyard (space for tracks and vias)
+EDGE = 0.2                             # courtyard to board edge / the barrier (the job areas keep the boxes in)
+NET_W = {"IGND": 0.12, "GND": 0.12, "ISO3V3": 0.5, "+3V3": 0.5, "+5V": 0.6, "+9V": 0.6, "IBIAS": 0.7}
+STICK = {"C26": "U8", "C24": "U9", "C23": "U9", "C19": "U9", "C20": "U9", "C21": "U9", "C22": "U9", "C18": "U9",
+         "C4": "U6", "C9": "U4", "C10": "U4", "C11": "U5", "C12": "U5", "C13": "U7", "C14": "U7", "C15": "U7",
+         "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10"}   # keep these right at their chip
 
 
 def kpt(x, y):
@@ -91,7 +118,7 @@ def make_board():
     nc.SetViaDiameter(K.FromMM(VIA)), nc.SetViaDrill(K.FromMM(DRILL))
     ds.m_CopperEdgeClearance = K.FromMM(0.4)
     ds.SetAuxOrigin(kpt(STRIP[0], TONGUE[1]))   # the board's lower-left corner = 0,0 in the placement file
-    ds.m_TrackMinWidth = K.FromMM(0.15)   # Freerouting necks down to 0.15 mm into the TSSOP pins (PCBWay: 0.1 mm min)
+    ds.m_TrackMinWidth = K.FromMM(0.127)   # JLCPCB 2-layer standard: 5 mil
     for i, (x, y) in enumerate(OUTLINE):
         s = K.PCB_SHAPE(b)
         s.SetShape(K.SHAPE_T_SEGMENT), s.SetLayer(K.Edge_Cuts), s.SetWidth(K.FromMM(0.1))
@@ -146,8 +173,7 @@ def fixed_rot(fp, side, want):
         px = [p[0] for p in pads.values()]
         py = [p[1] for p in pads.values()]
         along_x = max(px) - min(px) > max(py) - min(py) or len(pads) == 1
-        first_left = pads["1"][0] == min(px)
-        if want == "down" and along_x and first_left and (y0 + y1) / 2 < min(py) - 0.5:
+        if want == "down" and along_x and (y0 + y1) / 2 < min(py) - 0.5:
             return rot
         if want == "up" and along_x and first_left:
             return rot
@@ -160,7 +186,14 @@ class Placer:
 
     def __init__(self, geo, fixed_pads, obstacles, netlist, rng):
         self.geo, self.rng = geo, rng
-        self.side = {r: "in" if r in IN_PARTS else "out" for r in geo}
+        self.side = {r: "iso" if any(n in ISOLATED for n, cs in netlist.items() if any(c[0] == r for c in cs)) else "ped"
+                     for r in geo}
+        self.areas = {r: rects for g, rects, _, rs in GROUPS for r in rs.split()}
+        self.members = {g: [r for r in rs.split() if r in geo] for g, _, _, rs in GROUPS}
+        self.target = {g: t for g, _, t, _ in GROUPS}
+        self.gb, self.fov, self.extra = {}, {}, {}
+        self.fixed_boxes = []   # header names, jack names: the job boxes keep off them
+        self.ow = 2.0           # weight of box overlap (the job areas already keep the boxes apart)
         self.refs = list(geo)
         self.pos, self.rot = {}, {}
         self.grid = {}
@@ -173,14 +206,18 @@ class Placer:
 
     # --- geometry
     def boxat(self, r, x, y, rot):
-        b = self.geo[r][rot][0]
-        return (x + b[0] - GAP, y + b[1] - GAP, x + b[2] + GAP, y + b[3] + GAP)
+        b, g = self.geo[r][rot][0], GAP + HALO.get(r, 0.0)
+        return (x + b[0] - g, y + b[1] - g, x + b[2] + g, y + b[3] + g)
 
     def inside(self, b, r):
-        for x0, y0, x1, y1 in SIDE_RECTS[self.side[r]]:
-            if b[0] >= x0 + EDGE - GAP and b[1] >= y0 + EDGE - GAP and b[2] <= x1 - EDGE + GAP and b[3] <= y1 - EDGE + GAP:
-                return True
-        return False
+        g = GROUP_OF[r]
+        m = BOX_M + 0.15 - GAP if g != "isolation" else -GAP   # the job's printed box must fit in its area too
+        t = BOX_TITLE if g != "isolation" else 0.0
+        if not any(b[0] >= x0 + m and b[1] >= y0 + m and b[2] <= x1 - m and b[3] <= y1 - m - t
+                   for x0, y0, x1, y1 in self.areas[r]):
+            return False
+        return any(b[0] >= x0 + EDGE - GAP and b[1] >= y0 + EDGE - GAP and b[2] <= x1 - EDGE + GAP and b[3] <= y1 - EDGE + GAP
+                   for x0, y0, x1, y1 in DOMAIN_RECTS[self.side[r]])
 
     def cells(self, b):
         c = self.CELL
@@ -215,6 +252,8 @@ class Placer:
         self.pos[r], self.rot[r] = (x, y), rot
         self.box[r] = self.boxat(r, x, y, rot)
         self._add(r, self.box[r])
+        self.gb.pop(GROUP_OF.get(r), None)
+        self.fov.pop(GROUP_OF.get(r), None)
 
     # --- cost
     def pin(self, ref, pin):
@@ -232,19 +271,66 @@ class Placer:
         return NET_W.get(n, 1.0) * (max(xs) - min(xs) + max(ys) - min(ys))
 
     def stick_cost(self, r):
+        """a decoupling cap: its distance to the chip's pin it serves (the non-ground net they share)"""
         other = STICK.get(r)
-        if not other or other not in self.pos or r not in self.pos:
+        if not other or r not in self.pos:
             return 0.0
-        (x, y), (u, v) = self.pos[r], self.pos[other]
-        return 2.0 * (abs(x - u) + abs(y - v))
+        x, y = self.pos[r]
+        pins = [self.pin(o, q) for n in self.of[r] if n not in ("GND", "IGND")
+                for o, q in self.nets[n] if o == other]
+        pins = [p for p in pins if p]
+        if not pins:
+            return 0.0
+        return 2.0 * min(abs(x - u) + abs(y - v) for u, v in pins)
 
     def part_cost(self, rs):
         ns = set(n for r in rs for n in self.of[r])
         st = set(rs) | {k for k, v in STICK.items() if v in rs}
-        return sum(self.net_cost(n) for n in ns) + sum(self.stick_cost(s) for s in st)
+        return sum(self.net_cost(n) for n in ns) + sum(self.stick_cost(s) for s in st) + self.group_cost()
 
     def total(self):
-        return sum(self.net_cost(n) for n in self.nets) + sum(self.stick_cost(s) for s in STICK)
+        return sum(self.net_cost(n) for n in self.nets) + sum(self.stick_cost(s) for s in STICK) + self.group_cost()
+
+    # --- the job boxes: small, apart, and next to the box they feed
+    def gbox(self, g):
+        if g not in self.gb:
+            bs = [self.box[r] for r in self.members[g] if r in self.box] + self.extra.get(g, [])
+            if not bs:
+                return None
+            self.gb[g] = (min(b[0] for b in bs) - BOX_M, min(b[1] for b in bs) - BOX_M,
+                          max(b[2] for b in bs) + BOX_M, max(b[3] for b in bs) + BOX_M + BOX_TITLE)
+        return self.gb[g]
+
+    @staticmethod
+    def _ov(a, b):
+        w, h = min(a[2], b[2]) - max(a[0], b[0]) + 0.6, min(a[3], b[3]) - max(a[1], b[1]) + 0.6
+        return w * h if w > 0 and h > 0 else 0.0
+
+    def overlap(self):
+        gs = [(g, self.gbox(g)) for g in self.members]
+        gs = [(g, b) for g, b in gs if b]
+        tot = 0.0
+        for i in range(len(gs)):
+            g, a = gs[i]
+            if g not in self.fov:   # against the fixed names: only redone when this box moved
+                self.fov[g] = sum(self._ov(a, f) for f in self.fixed_boxes)
+            tot += self.fov[g]
+            for j in range(i + 1, len(gs)):
+                tot += self._ov(a, gs[j][1])
+        return tot
+
+    def group_cost(self):
+        c = 0.0
+        for g in self.members:
+            b = self.gbox(g)
+            if b:
+                c += 0.4 * ((b[2] - b[0]) + (b[3] - b[1]))
+        for u, v, _ in FLOW:
+            if u in self.members and v in self.members:
+                a, b = self.gbox(u), self.gbox(v)
+                if a and b:
+                    c += 0.15 * (abs((a[0] + a[2]) - (b[0] + b[2])) + abs((a[1] + a[3]) - (b[1] + b[3]))) / 2
+        return c + self.ow * self.overlap()
 
     # --- first placement: each part as close as it fits to what it's wired to
     def seed(self, order):
@@ -253,7 +339,7 @@ class Placer:
         for r in order:
             anchors = [self.pin(rr, q) for n in self.of[r] if NET_W.get(n, 1) >= 1 or r in STICK
                        for rr, q in self.nets[n] if rr != r]
-            anchors = [a for a in anchors if a] or [(-3.0, 40.0)]
+            anchors = [self.target[GROUP_OF[r]]] * 3 + [a for a in anchors if a][:3]
             if r in STICK and STICK[r] in self.pos:
                 anchors = [self.pos[STICK[r]]]
             tx = sum(a[0] for a in anchors) / len(anchors)
@@ -274,12 +360,15 @@ class Placer:
                  for r in self.refs}
         for k in range(moves):
             t = t0 * (t1 / t0) ** (k / moves)
+            if k % 2000 == 0:
+                self.ow = 2.0   # the areas keep the boxes apart; this only tidies the edges
+                self.gb.clear(), self.fov.clear()
             r = rng.choice(self.refs)
             x, y = self.pos[r]
             rot = self.rot[r]
             if rng.random() < 0.2:   # swap with a same-size part
                 s = rng.choice(self.refs)
-                if s == r or sizes[s] != sizes[r] or self.side[s] != self.side[r]:
+                if s == r or sizes[s] != sizes[r] or GROUP_OF[s] != GROUP_OF[r]:
                     continue
                 before = self.part_cost([r, s])
                 (u, v), rs = self.pos[s], self.rot[s]
@@ -291,6 +380,25 @@ class Placer:
                 d = self.part_cost([r, s]) - before
                 if d > 0 and rng.random() > math.exp(-d / t):
                     self.set(r, x, y, rot), self.set(s, u, v, rs)
+                else:
+                    cost += d
+                continue
+            if rng.random() < 0.12:   # move a whole job box
+                g = GROUP_OF[r]
+                ms = self.members[g]
+                step = 0.5 + 10.0 * t / t0
+                dx, dy = round(rng.gauss(0, step) * 4) / 4, round(rng.gauss(0, step) * 4) / 4
+                old = {m: (self.pos[m], self.rot[m]) for m in ms}
+                nb = {m: self.boxat(m, old[m][0][0] + dx, old[m][0][1] + dy, old[m][1]) for m in ms}
+                if not all(self.free(nb[m], tuple(ms), m) for m in ms):
+                    continue
+                before = self.part_cost(ms)
+                for m in ms:
+                    self.set(m, old[m][0][0] + dx, old[m][0][1] + dy, old[m][1])
+                d = self.part_cost(ms) - before
+                if d > 0 and rng.random() > math.exp(-d / t):
+                    for m in ms:
+                        self.set(m, old[m][0][0], old[m][0][1], old[m][1])
                 else:
                     cost += d
                 continue
@@ -341,33 +449,252 @@ def diamond(b, x, y, r, layer, filled=False):
     b.Add(s)
 
 
+def line(b, x0, y0, x1, y1, layer=K.F_SilkS, w=0.15):
+    s = K.PCB_SHAPE(b)
+    s.SetShape(K.SHAPE_T_SEGMENT), s.SetLayer(layer), s.SetWidth(K.FromMM(w))
+    s.SetStart(kpt(x0, y0)), s.SetEnd(kpt(x1, y1))
+    b.Add(s)
+
+
+def logo_points(cx, cy, k=1.0, mirror=False):
+    """the pg logo (same curve as the face print, _Tools/pg_generate.py): flat line, growing wave, one loop, flat line"""
+    ctrl = [(-25, 0), (-19, 0)]
+    for i in range(1, 13):
+        t = i / 12
+        ctrl.append((-19 + 17.5 * t, (1 if i % 2 else -1) * (0.5 + 2.4 * t ** 1.2)))
+    ctrl += [(0.6, 0.2), (2.6, 3.4), (3.9, 6.4), (3.1, 8.6), (1.1, 9.1), (-0.4, 7.4),
+             (0.2, 4.6), (2.6, 1.7), (5.6, 0.25), (9.0, 0), (25, 0)]
+    pts, P = [], [ctrl[0]] + ctrl + [ctrl[-1]]
+    for i in range(1, len(P) - 2):
+        p0, p1, p2, p3 = P[i - 1], P[i], P[i + 1], P[i + 2]
+        for n in range(8):
+            t = n / 8
+            pts.append(tuple(0.5 * (2 * p1[j] + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t * t
+                                    + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t ** 3) for j in (0, 1)))
+    pts.append(ctrl[-1])
+    return [(cx + (-x if mirror else x) * k, cy + y * k) for x, y in pts]
+
+
 def artwork(b):
-    """the printing: IN / OUT halves split by a row of diamonds, every jack named with (IN) or (OUT), the pg-1 mark.
-    Returns the parts-side texts (the parts keep off them)."""
-    words = [(t.GetLayer(), fbox(t.GetBoundingBox())) for t in b.Drawings() if isinstance(t, K.PCB_TEXT)]
-    for layer in (K.B_SilkS, K.F_SilkS):   # the divider (it steps around the header names)
-        y = 28.9
-        while y < TOP - 0.6:
-            if not any(l == layer and w[0] - 0.8 < DIVIDE < w[2] + 0.8 and w[1] - 0.8 < y < w[3] + 0.8 for l, w in words):
-                diamond(b, DIVIDE, y, 0.45, layer)
-            y += 2.0
-    # parts side (bottom, faces the lid)
-    out = [text(b, JACK_NAME[r], x, 50.7, 1.0) for r, x in JACKS.items()]
-    out += [text(b, "IN", DIVIDE - 3.6, 67.9, 1.8), text(b, "OUT", -4.0, 67.9, 1.8),
-            text(b, "pg-1", 45.0, 47.3, 3.0), text(b, "carrier v2", 45.0, 44.3, 0.9)]
-    for dx in (-6.4, 6.4):
-        diamond(b, 45.0 + dx, 47.3, 0.9, K.B_SilkS, True)
-    # jack side (top, faces the screen): names under the jacks, IN / OUT and the mark on the tongue
+    """the fixed printing on the parts side: each jack's name with (IN) or (OUT), small IN / OUT at the top of the
+    divider, and which side of the barrier is which. The pg logo goes in a corner of the other side. Returns the texts
+    (the parts keep off them) and the jack names' boxes (the arrows start / end there)."""
     F = K.F_SilkS
-    for r, x in JACKS.items():
-        text(b, JACK_NAME[r], x, 44.9, 1.1, F)
-    text(b, "9v (IN)", -21.0, 44.9, 1.1, F)
-    text(b, "IN", -23.3, 38.6, 4.0, F), text(b, "line in  9v  seed3", -23.3, 34.4, 0.9, F)
-    text(b, "OUT", -3.0, 38.6, 4.0, F), text(b, "line out  no amp  phones", -2.0, 34.4, 0.9, F)
-    text(b, "pg-1", 16.5, 38.6, 6.0, F), text(b, "carrier  v2", 16.5, 32.7, 1.1, F)
-    for dx in (-11.2, 11.2):
-        diamond(b, 16.5 + dx, 38.6, 1.2, F, True)
-    return out
+    # each jack's name up the board's side edge, beside it (its pins and the pot headers keep the rest busy)
+    out = [text(b, JACK_NAME[r], STRIP[0] + 1.6 if x < 0 else STRIP[2] - 1.6, 57.0, 0.9, F, 90) for r, x in JACKS.items()]
+    labels = {r: fbox(t.GetBoundingBox()) for r, t in zip(JACKS, out)}
+    out += [text(b, "IN", DIVIDE - 2.2, TOP - 1.3, 1.0, F),
+            text(b, "OUT", DIVIDE + 2.6, TOP - 1.3, 1.0, F),
+            text(b, "isolated", TONGUE[0] + 3.4, BARRIER[1] + 1.0, 0.8, F),
+            text(b, "pedal", TONGUE[0] + 3.0, BARRIER[0] - 1.0, 0.8, F)]
+    pts = logo_points(-18.0, 16.5, 0.46, mirror=True)   # on the back of the pedal side; read from the lid side: mirrored
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        line(b, x0, y0, x1, y1, K.B_SilkS, 0.3)
+    return out, labels
+
+
+def barrier_and_divider(b, boxes):
+    """dashes along the barrier, and the IN | OUT row of diamonds up the isolated side (both step round the boxes)"""
+    F = K.F_SilkS
+    words = [fbox(t.GetBoundingBox()) for t in b.Drawings() if isinstance(t, K.PCB_TEXT) and t.GetLayer() == F]
+    keep_off = words + list(boxes.values())
+    pads = []
+    for fp in b.GetFootprints():
+        for p in fp.Pads():
+            px, py = face(p.GetPosition())
+            pads.append((px - 1.2, py - 1.2, px + 1.2, py + 1.2))
+    hit = lambda x, y, m: any(w[0] - m < x < w[2] + m and w[1] - m < y < w[3] + m for w in keep_off + pads)
+    y, x = sum(BARRIER) / 2, TONGUE[0] + 1.0
+    while x < TONGUE[2] - 1.0:   # the barrier: short dashes
+        if not hit(x, y, 0.2) and not hit(x + 0.8, y, 0.2):
+            line(b, x, y, x + 0.8, y, F, 0.15)
+        x += 1.6
+    y = STRIP[1] + 0.8
+    while y < TOP - 2.4:   # the IN | OUT divider
+        if not hit(DIVIDE, y, 0.5):
+            diamond(b, DIVIDE, y, 0.35, F)
+        y += 1.8
+
+
+def route_arrow(blocked, src, dst, cell=0.5):
+    """a right-angled path from box src to box dst on a 0.5 mm grid, round everything in blocked (cells), fewest
+    turns first; returns its corner points"""
+    import heapq
+    def cells_of(r):
+        return {(i, j) for i in range(math.floor(r[0] / cell), math.ceil(r[2] / cell) + 1)
+                for j in range(math.floor(r[1] / cell), math.ceil(r[3] / cell) + 1)}
+    sc, dc = cells_of(src), cells_of(dst)
+    ring = lambda cs: {(i + di, j + dj) for i, j in cs for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1))} - cs
+    starts, goals = ring(sc) - blocked, ring(dc) - blocked
+    if not starts or not goals:
+        return None
+    gx = sum(i for i, _ in goals) / len(goals)
+    gy = sum(j for _, j in goals) / len(goals)
+    pq, seen, parent = [], {}, {}
+    for c in starts:
+        heapq.heappush(pq, (0.0, 0.0, c, None, None))
+    while pq:
+        f, g, c, d, par = heapq.heappop(pq)
+        if seen.get((c, d), 1e9) <= g:
+            continue
+        seen[(c, d)] = g
+        parent[(c, d)] = par
+        if c in goals:
+            path, k = [], (c, d)
+            while k:
+                path.append(k[0])
+                k = parent[k]
+            path.reverse()
+            pts = [path[0]]
+            for k in range(1, len(path) - 1):
+                if (path[k][0] - path[k - 1][0], path[k][1] - path[k - 1][1]) != (path[k + 1][0] - path[k][0], path[k + 1][1] - path[k][1]):
+                    pts.append(path[k])
+            pts.append(path[-1])
+            return [(i * cell, j * cell) for i, j in pts]
+        for nd in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (c[0] + nd[0], c[1] + nd[1])
+            if n in blocked or n in sc:
+                continue
+            ng = g + 1 + (12 if d and nd != d else 0)
+            if seen.get((n, nd), 1e9) > ng:
+                heapq.heappush(pq, (ng + abs(n[0] - gx) + abs(n[1] - gy), ng, n, nd, (c, d)))
+    return None
+
+
+def draw_groups(b, pl, nodes):
+    """a thin box round each job's parts with its name on top, and the arrows of the signal's path"""
+    F = K.F_SilkS
+    boxes = dict(nodes)
+    for g, _, _, _ in GROUPS:
+        x0, y0, x1, y1 = pl.gbox(g)
+        fy = y1 - BOX_TITLE + 0.15   # the frame's top line; the name sits just above it
+        for p, q in (((x0, y0), (x1, y0)), ((x1, y0), (x1, fy)), ((x1, fy), (x0, fy)), ((x0, fy), (x0, y0))):
+            line(b, *p, *q, F, 0.12)
+        text(b, g, x0 + 0.2, fy + 0.85, 0.8, F, 0, -1)
+        boxes[g] = (x0, y0, x1, y1)
+    cell = 0.5
+    def grow(r, m):
+        return (r[0] - m, r[1] - m, r[2] + m, r[3] + m)
+    def cells_of(r):
+        return {(i, j) for i in range(math.floor(r[0] / cell), math.ceil(r[2] / cell) + 1)
+                for j in range(math.floor(r[1] / cell), math.ceil(r[3] / cell) + 1)}
+    # what the arrows keep off: the board's outside, every box and name, every exposed pad
+    allc = cells_of((STRIP[0], TONGUE[1], STRIP[2], TOP))
+    inside = cells_of(grow(STRIP, -0.6)) | cells_of(grow(TONGUE, -0.6))
+    fixed = set(allc - inside)
+    for fp in b.GetFootprints():
+        if fp.GetReference() not in GROUP_OF:   # jack bodies, headers
+            fp.BuildCourtyardCaches()
+            fixed |= cells_of(fbox(fp.GetCourtyard(K.F_CrtYd).BBox()))
+        for p in fp.Pads():
+            px, py = face(p.GetPosition())
+            fixed |= cells_of((px - 0.8, py - 0.8, px + 0.8, py + 0.8))
+    for t in b.Drawings():
+        if isinstance(t, K.PCB_TEXT) and t.GetLayer() == F:
+            fixed |= cells_of(grow(fbox(t.GetBoundingBox()), 0.1))
+    used = set()
+    def head(xa, ya, xb, yb):   # an arrow head at (xb, yb), pointing from (xa, ya)
+        n = math.hypot(xb - xa, yb - ya) or 1.0
+        ux, uy = (xb - xa) / n, (yb - ya) / n
+        hl = min(0.9, n * 0.4)   # short arrows get small heads (two heads must not meet)
+        for sgn in (1, -1):
+            c, s_ = math.cos(math.radians(25)), sgn * math.sin(math.radians(25))
+            hx, hy = -(ux * c - uy * s_), -(ux * s_ + uy * c)
+            line(b, xb, yb, xb + hl * hx, yb + hl * hy, F, 0.15)
+    walls = [w for w in (fbox(t.GetBoundingBox()) for t in b.Drawings() if isinstance(t, K.PCB_TEXT) and t.GetLayer() == F)]
+    walls += [(STRIP[0], -1e3, TONGUE[0], STRIP[1]), (TONGUE[2], -1e3, STRIP[2], STRIP[1])]   # off the board
+    for fp in b.GetFootprints():   # and never across a pad
+        for p in fp.Pads():
+            px, py = face(p.GetPosition())
+            walls.append((px - 0.9, py - 0.9, px + 0.9, py + 0.9))
+    def straight(a, c):
+        """a short straight arrow across the gap between two neighbouring boxes, if nothing else is in the way"""
+        g = 0.25
+        ox = min(a[2], c[2]) - max(a[0], c[0])
+        oy = min(a[3], c[3]) - max(a[1], c[1])
+        segs = []   # every straight line across the gap, middle first
+        if ox > 1.0 and (a[3] <= c[1] or c[3] <= a[1]):
+            lo, hi = max(a[0], c[0]) + 0.5, min(a[2], c[2]) - 0.5
+            for k in range(int((hi - lo) / 0.5) + 1):
+                x = (lo + hi) / 2 + (0.5 * ((k + 1) // 2)) * (1 if k % 2 else -1)
+                if lo <= x <= hi:
+                    segs.append((x, a[3] + g, x, c[1] - g) if a[3] <= c[1] else (x, a[1] - g, x, c[3] + g))
+        elif oy > 1.0 and (a[2] <= c[0] or c[2] <= a[0]):
+            lo, hi = max(a[1], c[1]) + 0.5, min(a[3], c[3]) - 0.5
+            for k in range(int((hi - lo) / 0.5) + 1):
+                y = (lo + hi) / 2 + (0.5 * ((k + 1) // 2)) * (1 if k % 2 else -1)
+                if lo <= y <= hi:
+                    segs.append((a[2] + g, y, c[0] - g, y) if a[2] <= c[0] else (a[0] - g, y, c[2] + g, y))
+        for x0, y0, x1, y1 in segs:
+            if math.hypot(x1 - x0, y1 - y0) < 0.6:
+                continue
+            lo_x, hi_x, lo_y, hi_y = min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)
+            if any(lo_x < r[2] and r[0] < hi_x and lo_y < r[3] and r[1] < hi_y
+                   for r in list(boxes.values()) + walls if r is not a and r is not c):
+                continue
+            return [(x0, y0), (x1, y1)]
+        return None
+    for u, v, both in FLOW:
+        pts = straight(boxes[u], boxes[v])
+        if pts:
+            line(b, *pts[0], *pts[1], F, 0.15)
+            head(*pts[0], *pts[1])
+            if both:
+                head(*pts[1], *pts[0])
+            continue
+        blocked = (fixed | used | set().union(*(cells_of(grow(r, 0.15)) for k, r in boxes.items() if k not in (u, v))))
+        blocked -= cells_of(grow(boxes[u], 0.6)) | cells_of(grow(boxes[v], 0.6))
+        pts = route_arrow(blocked, grow(boxes[u], 0.3), grow(boxes[v], 0.3))
+        if not pts:
+            print(f"  (no room for the arrow {u} -> {v})", flush=True)
+            continue
+        for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+            line(b, xa, ya, xb, yb, F, 0.15)
+            used |= cells_of(grow((min(xa, xb), min(ya, yb), max(xa, xb), max(ya, yb)), 0.3))
+        head(*pts[-2], *pts[-1])
+        if both:
+            head(*pts[1], *pts[0])
+    barrier_and_divider(b, boxes)
+
+
+def clip_silk_at_pads(b, m=0.25):
+    """no printing on solder pads: every straight printed line (box sides, arrows, dashes) is cut where it crosses one"""
+    pads = []
+    for fp in b.GetFootprints():
+        for p in fp.Pads():
+            pads.append(fbox(p.GetBoundingBox()))
+    for s in [d for d in b.Drawings() if isinstance(d, K.PCB_SHAPE) and d.GetShape() == K.SHAPE_T_SEGMENT
+              and d.GetLayer() == K.F_SilkS]:
+        (x0, y0), (x1, y1) = face(s.GetStart()), face(s.GetEnd())
+        horiz, vert = abs(y1 - y0) < 1e-6, abs(x1 - x0) < 1e-6
+        if not (horiz or vert):
+            continue
+        a0, a1 = (min(x0, x1), max(x0, x1)) if horiz else (min(y0, y1), max(y0, y1))
+        cuts = []
+        for q in pads:
+            lo, hi = (q[1] - m, q[3] + m) if horiz else (q[0] - m, q[2] + m)
+            c = y0 if horiz else x0
+            if lo < c < hi:
+                cuts.append(((q[0] - m, q[2] + m) if horiz else (q[1] - m, q[3] + m)))
+        if not any(c0 < a1 and a0 < c1 for c0, c1 in cuts):
+            continue
+        pieces, start = [], a0
+        for c0, c1 in sorted(cuts):
+            if c1 <= start or c0 >= a1:
+                continue
+            if c0 > start:
+                pieces.append((start, c0))
+            start = max(start, c1)
+        if start < a1:
+            pieces.append((start, a1))
+        w = s.GetWidth()
+        b.Remove(s)
+        for p0, p1 in pieces:
+            if p1 - p0 > 0.2:
+                n = K.PCB_SHAPE(b)
+                n.SetShape(K.SHAPE_T_SEGMENT), n.SetLayer(K.F_SilkS), n.SetWidth(w)
+                n.SetStart(kpt(p0, y0) if horiz else kpt(x0, p0)), n.SetEnd(kpt(p1, y0) if horiz else kpt(x0, p1))
+                b.Add(n)
 
 
 def set_font(pcb):
@@ -401,16 +728,49 @@ def edge_keepout(b, width=0.5):
         b.Add(z)
 
 
-def zone(b, net, layer):
+def clip_y(poly, y0, y1):
+    """the part of a polygon between y0 and y1 (Sutherland-Hodgman, two horizontal cuts)"""
+    def cut(pts, y, keep_above):
+        out = []
+        for i in range(len(pts)):
+            (ax, ay), (bx, by) = pts[i - 1], pts[i]
+            ina, inb = (ay >= y) == keep_above, (by >= y) == keep_above
+            if inb:
+                if not ina:
+                    out.append((ax + (bx - ax) * (y - ay) / (by - ay), y))
+                out.append((bx, by))
+            elif ina:
+                out.append((ax + (bx - ax) * (y - ay) / (by - ay), y))
+        return out
+    return cut(cut(poly, y0, True), y1, False)
+
+
+def barrier_keepout(b):
+    """the no-copper strip between the two worlds: no tracks, no vias, no pour (the barrier parts' pads are allowed)"""
+    z = K.ZONE(b)
+    z.SetIsRuleArea(True)
+    z.SetDoNotAllowTracks(True), z.SetDoNotAllowVias(True), z.SetDoNotAllowPads(False), z.SetDoNotAllowFootprints(False)
+    (z.SetDoNotAllowZoneFills if hasattr(z, "SetDoNotAllowZoneFills") else z.SetDoNotAllowCopperPour)(True)
+    ls = K.LSET()
+    ls.AddLayer(K.F_Cu), ls.AddLayer(K.B_Cu)
+    z.SetLayerSet(ls)
+    ol = z.Outline()
+    ol.NewOutline()
+    for px, py in ((TONGUE[0] - 1, BARRIER[0]), (TONGUE[2] + 1, BARRIER[0]), (TONGUE[2] + 1, BARRIER[1]), (TONGUE[0] - 1, BARRIER[1])):
+        ol.Append(kpt(px, py))
+    b.Add(z)
+
+
+def zone(b, net, layer, y0=-1e3, y1=1e3):
     z = K.ZONE(b)
     z.SetLayer(layer), z.SetNet(net), z.SetIsRuleArea(False)
     ol = z.Outline()
     ol.NewOutline()
-    for x, y in OUTLINE:
+    for x, y in clip_y(OUTLINE, y0, y1):
         ol.Append(kpt(x, y))
     z.SetLocalClearance(K.FromMM(0.3)), z.SetMinThickness(K.FromMM(0.25))
     z.SetThermalReliefGap(K.FromMM(0.3)), z.SetThermalReliefSpokeWidth(K.FromMM(0.45))
-    z.SetPadConnection(K.ZONE_CONNECTION_THT_THERMAL)   # solid to SMD pads (a fine-pitch pad only fits one spoke)
+    z.SetPadConnection(K.ZONE_CONNECTION_FULL)   # solid joins (pads at the barrier only have the pour on one side)
     b.Add(z)
     return z
 
@@ -418,9 +778,10 @@ def zone(b, net, layer):
 def write_project(pcb):
     """kicad-cli's DRC takes its rules from the .kicad_pro next to the board"""
     import json
-    rules = {"min_track_width": 0.15, "min_clearance": CLEAR, "min_copper_edge_clearance": 0.4,
+    # the check uses JLCPCB's real limits (5 mil); the router aims wider (CLEAR) everywhere it can
+    rules = {"min_track_width": 0.127, "min_clearance": 0.127, "min_copper_edge_clearance": 0.4,
              "min_via_diameter": VIA, "min_through_hole_diameter": DRILL, "min_text_height": 0.7}
-    nc = {"name": "Default", "track_width": TRACK, "clearance": CLEAR, "via_diameter": VIA, "via_drill": DRILL}
+    nc = {"name": "Default", "track_width": TRACK, "clearance": 0.127, "via_diameter": VIA, "via_drill": DRILL}
     json.dump({"board": {"design_settings": {"rules": rules}}, "net_settings": {"classes": [nc], "meta": {"version": 3}},
                "meta": {"filename": os.path.basename(pcb)[:-10] + ".kicad_pro", "version": 1}},
               open(pcb[:-10] + ".kicad_pro", "w"), indent=2)
@@ -436,60 +797,97 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--moves", type=int, default=150000)
     ap.add_argument("--passes", type=int, default=40)
+    ap.add_argument("--place-only", action="store_true", help="stop after placing (quick look: build/placed.png)")
     a = ap.parse_args()
     os.makedirs(BUILD, exist_ok=True), os.makedirs(OUT, exist_ok=True)
     b, fps = make_board()
 
-    # 1. fixed parts
-    obstacles, fixed_pads = [], {}
+    # 1. fixed parts: the jacks (their bodies), the headers (their pin names)
+    obstacles, fixed_pads, nodes = [], {}, {}
     for ref, x in JACKS.items():
-        put(fps[ref], x + JACK_T[0], WALL_IN - JACK_T[1], 90, "F")
-        for g in fps[ref].GraphicalItems():   # its outline runs past the board edge (the ferrule): keep it off the print
+        fp = fps[ref]
+        put(fp, x + JACK_T[0], WALL_IN - JACK_T[1], 90, "F")
+        for g in fp.GraphicalItems():   # its outline runs past the board edge (the ferrule): keep it off the print
             if g.GetLayer() == K.F_SilkS:
                 g.SetLayer(K.F_Fab)
+        fp.BuildCourtyardCaches()
+        nodes[ref] = fbox(fp.GetCourtyard(K.F_CrtYd).BBox())
+        obstacles.append(nodes[ref])
     for ref, (x, y, side) in HEADERS.items():
         fp = fps[ref]
-        put(fp, x, y, fixed_rot(fp, side, "down"), side)
+        rot = fixed_rot(fp, side, "down")
+        n = len(HEADER_PINS[ref])
+        put(fp, x, y, rot, side)
+        if min(face(p.GetPosition())[0] for p in fp.Pads()) < x - 0.1:   # pins run right to left: keep the span at x ..
+            put(fp, x + 2.54 * (n - 1), y, rot, side)
+        pin_x = {p.GetNumber(): face(p.GetPosition())[0] for p in fp.Pads()}
         fp.BuildCourtyardCaches()
-        x0, y0, x1, y1 = fbox(fp.GetCourtyard(K.B_CrtYd).BBox())
+        x0, y0, x1, y1 = fbox(fp.GetCourtyard(K.F_CrtYd).BBox())
         for g in fp.GraphicalItems():   # its own outline crosses the edge and the labels: the square pad marks pin 1
             if g.GetLayer() in (K.F_SilkS, K.B_SilkS):
-                g.SetLayer(K.B_Fab)
+                g.SetLayer(K.F_Fab)
         top = y + 0.85 + 0.45   # just past the pads
         for k, lab in enumerate(HEADER_PINS[ref]):   # the pin names, reading up from each pin
-            t = text(b, lab, x + 2.54 * k, top + 2, 0.8, K.B_SilkS, 90)
+            t = text(b, lab, pin_x[str(k + 1)], top + 2, 0.8, K.F_SilkS, 90)
             t.Move(K.VECTOR2I(0, -K.FromMM(top - fbox(t.GetBoundingBox())[1])))
-            top_k = fbox(t.GetBoundingBox())[3]
-            y1 = max(y1, top_k)
-        t = text(b, HEADER_TITLE[ref], x + 2.54 * (len(HEADER_PINS[ref]) - 1) / 2, y1 + 1.2, 0.9)
-        obstacles.append((x0 - 0.3, y0, x1 + 0.3, fbox(t.GetBoundingBox())[3] + 0.3))
+            y1 = max(y1, fbox(t.GetBoundingBox())[3])
+        t = text(b, HEADER_TITLE[ref], x + 2.54 * (len(HEADER_PINS[ref]) - 1) / 2, y1 + 1.2, 0.9, K.F_SilkS)
+        nodes[ref] = (x0 - 0.3, y - 1.0, x1 + 0.3, fbox(t.GetBoundingBox())[3] + 0.3)   # (not the pins off the edge)
+        obstacles.append(nodes[ref])
+    extra = {}   # the barrier parts: fixed across the barrier, the side with pedal nets down
+    for ref, x in BARRIER_PARTS.items():
+        fp, best = fps[ref], None
+        for rot in (0, 90, 180, 270):
+            put(fp, 0, 0, rot, "F")
+            ped = [face(p.GetPosition())[1] for p in fp.Pads() if p.GetNetname() and p.GetNetname() not in ISOLATED]
+            iso = [face(p.GetPosition())[1] for p in fp.Pads() if p.GetNetname() in ISOLATED]
+            if best is None or min(iso) - max(ped) > best[0]:
+                best = (min(iso) - max(ped), rot, (max(ped) + min(iso)) / 2)
+        put(fp, x, sum(BARRIER) / 2 - best[2], best[1], "F")
+        fp.BuildCourtyardCaches()
+        cb = fbox(fp.GetCourtyard(K.F_CrtYd).BBox())
+        obstacles.append(cb)
+        extra.setdefault(GROUP_OF[ref], []).append(cb)
     for ref, fp in fps.items():
-        if ref in JACKS or ref in HEADERS:
+        if ref in JACKS or ref in HEADERS or ref in BARRIER_PARTS:
             for p in fp.Pads():
                 px, py = face(p.GetPosition())
                 fixed_pads[(ref, p.GetNumber())] = (px, py)
                 sz = K.ToMM(p.GetSize(K.F_Cu).x) / 2 + 0.35 if hasattr(p, "GetSize") else 1.5
                 obstacles.append((px - sz, py - sz, px + sz, py + sz))
-    for t in artwork(b):
+    words, labels = artwork(b)
+    fixed_boxes = [nodes[h] for h in HEADERS]
+    for t in words:
         bx = fbox(t.GetBoundingBox())   # the parts keep off the printing
         obstacles.append((bx[0] - 0.5, bx[1] - 0.4, bx[2] + 0.5, bx[3] + 0.4))
+        fixed_boxes.append(obstacles[-1])
 
-    # 2. everything else on the bottom
-    movable = [r for r in fps if r not in JACKS and r not in HEADERS]
-    geo = {r: geometry(fps[r], "B") for r in movable}
+    # 2. everything else on the top too, in its job's box
+    movable = [r for r in fps if r not in JACKS and r not in HEADERS and r not in BARRIER_PARTS]
+    geo = {r: geometry(fps[r], "F") for r in movable}
     pl = Placer(geo, fixed_pads, obstacles, nets(), random.Random(a.seed))
-    pl.seed(movable)
+    pl.fixed_boxes = fixed_boxes
+    pl.extra = extra
+    size = lambda r: (geo[r][0][0][2] - geo[r][0][0][0]) * (geo[r][0][0][3] - geo[r][0][0][1])
+    pl.seed(sorted(movable, key=lambda r: ([g for g, _, _, _ in GROUPS].index(GROUP_OF[r]), -size(r))))
     c0 = pl.total()
     c1 = pl.anneal(a.moves)
-    print(f"placement: wire estimate {c0:.0f} -> {c1:.0f}")
+    print(f"placement: wire estimate {c0:.0f} -> {c1:.0f}, boxes overlap {pl.overlap():.1f} mm2")
     for r in movable:
         x, y = pl.pos[r]
-        put(fps[r], x, y, pl.rot[r], "B")
+        put(fps[r], x, y, pl.rot[r], "F")
+    draw_groups(b, pl, nodes)
+    clip_silk_at_pads(b)
 
     edge_keepout(b)
+    barrier_keepout(b)
     pcb = os.path.join(BUILD, NAME + ".kicad_pcb")
     write_project(pcb)
     K.SaveBoard(pcb, b)
+    if a.place_only:
+        run(["kicad-cli", "pcb", "render", "--side", "top", "--width", "1800", "--height", "1100", "--quality", "basic",
+             "-o", os.path.join(BUILD, "placed.png"), pcb], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return
 
     # 3. route
     dsn, ses = os.path.join(BUILD, NAME + ".dsn"), os.path.join(BUILD, NAME + ".ses")
@@ -502,12 +900,16 @@ def main():
     if not os.path.exists(ses):
         sys.exit("freerouting wrote no session (see build/freerouting.log)")
     K.ImportSpecctraSES(b, ses)
-    agnd = b.FindNet("AGND")
-    zs = [zone(b, agnd, K.F_Cu), zone(b, agnd, K.B_Cu)]
+    for t in b.GetTracks():   # the router necks a few stubs below JLCPCB's 0.127 mm: widen them back (DRC checks spacing)
+        if t.GetClass() != "PCB_VIA" and t.GetWidth() < K.FromMM(0.127):
+            t.SetWidth(K.FromMM(0.127))
+    ignd, gnd = b.FindNet("IGND"), b.FindNet("GND")
+    zs = [zone(b, ignd, L, BARRIER[1] + 0.3, 1e3) for L in (K.F_Cu, K.B_Cu)] + \
+         [zone(b, gnd, L, -1e3, BARRIER[0] - 0.3) for L in (K.F_Cu, K.B_Cu)]
     K.ZONE_FILLER(b).Fill(b.Zones())
     K.SaveBoard(pcb, b)
     set_font(pcb)
-    print(f"zones: {len(zs)} AGND pours")
+    print(f"zones: {len(zs)} ground pours (IGND above the barrier, GND below)")
 
     # 4. check + export
     drc = os.path.join(BUILD, "drc.json")

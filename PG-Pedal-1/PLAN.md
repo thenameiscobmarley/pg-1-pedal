@@ -66,6 +66,37 @@ Steps:
 - [x] d. carrier PCB (budget version): circuit (12-Carrier-Board/DESIGN.md, carrier.py), board made by make_board.py
         (KiCad 10 + Freerouting: all parts on the bottom, fully routed, 0 DRC errors), PCBWay files in 12-Carrier-Board/pcbway/
         (Gerbers zip, BOM, CPL); ~$55-80 for 2 assembled boards. Next: user orders (jacks: send to PCBWay or fit later)
+- [x] f. v3 carrier = ISOLATED CODEC (decided 2026-10-08, replaces the 4-jack analog board; resume here).
+        DONE: carrier.py netlist (87 parts, barrier check), PG1:DCDC_SIP4_B0505S footprint, firmware (src/isoaudio.*:
+        codec + ADS1015 drivers, SAI2 + I2C1, pins moved, touch polled, auto-ranging + too-hot mute, health checks
+        C_HOT / C_CODEC; builds), face print (in / 9v / out, pg-line = input gain -12..+24), WIRING.md v3 note,
+        plugin 3D model (3 holes, black plastic jack noses; NOT rebuilt yet). make_board.py adapted (two domains,
+        barrier keepout, per-domain pours, groups / flow arrows); placement run in progress.
+        CHANGED (user wants safety analog, not software): pg-hp is now a REAL analog pot in the isolated output
+        (codec LOL/LOR -> 4.7 uF -> pot -> TPA6139A2 x-2 -> jack; J19 6-pin header on the iso side under the in jack);
+        firmware: IWDG watchdog (2 s), codec DAC auto-mute on DC, fixed unity digital output gain.
+        CHANGED AGAIN (user): NO auto-ranging. Both knobs analog: inverting OPA1652 stages with centre-detent dual 10k
+        LINEAR pots (Alps RK09L1240015, Mouser): pg-line -33..0..+33 dB (220R ends), pg-hp -21..0..+21 dB (1k ends);
+        centre click = unity. ADS1015 + mic path removed; J20 (pg-line) + J19 (pg-hp) 6-pin headers on the iso side
+        under the in / out jacks. Firmware: fixed gains (kInGain/kOutGain), no knob reading. Face: pink centre dot = unity.
+        Board: groups have fixed areas (make_board.py GROUPS), barrier at y 29.5, all parts top side.
+        DONE 2026-10-08: routed 100 %, DRC clean at JLCPCB limits (5 mil), check_isolation.py OK; jlcpcb/ files made;
+        Tayda drill 36341 + UV 34248 uploaded; plugin rebuilt. NEXT: user orders (JLCPCB Standard, Top side) + Mouser pots.
+        TODO: finish layout + route + DRC, make_jlc.py / make_bom.py for the new parts, DESIGN.md rewrite, Tayda
+        upload (drill + UV), plugin rebuild, export + push, memory.
+        - jacks: ONE stereo IN (left) + ONE stereo OUT (right), both isolated, Neutrik NMJ6HFD2 (plastic nose, C368491),
+          plus the 9v panel jack. Top wall: in / 9v / out. Face print, drill, 3D model follow.
+        - iso side: TLV320AIC3204 (C24109, QFN-32) does mic preamp (0..47.5 dB) / line / hot-amp input (2nd attenuated
+          input path + clamps), headphone (16-600 ohm) or line output; own power: B0505S (C512048) -> LDO 3.3 V.
+        - barrier: ISO7741 (C571196: BCLK, WCLK, DIN -> codec; DOUT <- codec) + ISO1540 (C179739, I2C).
+        - pedal side: 5 V LDO for the B0505S, 3.3 V for the isolators, ADS1015-type I2C ADC reads the 2 pots
+          (pg-hp = output level, pg-line = input gain; no audio through the pots).
+        - Seed3 pins: SAI2 32 SD B (rx), 33 SD A (tx), 34 FS, 35 SCK; I2C1 12 SCL / 13 SDA; LCD_DC -> 37, LCD_RESET ->
+          pin 1 (D0), T_DO -> 36, T_IRQ dropped (touch polled). Seed's own codec (16-19) unused.
+        - firmware: SAI2 + codec init over I2C, auto-ranging input + safety (clip -> range switch + mute + warning),
+          output level from pg-hp, input gain from pg-line.
+        - board: groups in printed boxes + flow arrows (make_board.py GROUPS/FLOW, already written), small text,
+          logo on the back corner, all parts on top, inputs left. Then JLCPCB files (make_jlc.py), Standard/Economic top side.
 - [~] e. plugin 3D model done (Seed3 right, 5 jacks, small knobs, pink caps); docs + BOM/budget for the carrier board still to do
 
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages

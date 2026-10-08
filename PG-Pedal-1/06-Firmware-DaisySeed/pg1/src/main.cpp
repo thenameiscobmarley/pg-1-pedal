@@ -14,8 +14,10 @@
 // Pin map matches 05-Wiring-and-Schematics/WIRING.md. Change it in ONE place: the pins block.
 #include "daisy_seed.h"
 #include "ili9341.h"
+#include "isoaudio.h"
 #include "../core/PgCore.h"
 #include "util/PersistentStorage.h"
+#include <cmath>
 #include <cstring>
 
 using namespace daisy;
@@ -31,9 +33,12 @@ constexpr Pin kPg3A = seed::D13, kPg3B = seed::D14, kPg3Sw = seed::D15;
 constexpr Pin kPg4A = seed::D19, kPg4B = seed::D20, kPg4Sw = seed::D21;
 constexpr Pin kFs1 = seed::D17, kFs2 = seed::D18, kFs3 = seed::D9;
 constexpr Pin kLcdCs = seed::D7, kLcdSck = seed::D8, kLcdMosi = seed::D10;
-constexpr Pin kLcdDc = seed::D11, kLcdRst = seed::D12, kLcdLed = seed::D16;
-// XPT2046 touch (screen pins 10-14), bit-banged so it never fights the screen's SPI
-constexpr Pin kTClk = seed::D22, kTCs = seed::D23, kTDin = seed::D24, kTDout = seed::D25, kTIrq = seed::D26;
+constexpr Pin kLcdDc = seed::D30, kLcdRst = seed::D0, kLcdLed = seed::D16;
+// XPT2046 touch (screen pins 10-13), bit-banged so it never fights the screen's SPI; polled (no IRQ wire)
+constexpr Pin kTClk = seed::D22, kTCs = seed::D23, kTDin = seed::D24, kTDout = seed::D29;
+// v3 carrier board: I2C1 (codec through the ISO1540 + the knob ADC) and SAI2 (I2S through the ISO7741)
+constexpr Pin kScl = seed::D11, kSda = seed::D12;
+constexpr Pin kSaiFs = seed::D27, kSaiSck = seed::D28, kSaiTx = seed::D26, kSaiRx = seed::D25, kSaiMclk = seed::D24;
 } // namespace pins
 
 constexpr bool kFlipScreen     = false; // set true if the picture is upside down
@@ -42,12 +47,28 @@ constexpr bool kReverseEncoder = false; // set true if turning right makes value
 // flip these (swap first, then the flips) until the bar follows your finger.
 constexpr bool kTouchSwapXY = true, kTouchFlipX = false, kTouchFlipY = false;
 constexpr int  kTouchRawMin = 300, kTouchRawMax = 3800;
+constexpr int  kTouchZMin   = 150; // pressure (Z1) above this = a finger is down
+
+// ------------------------------------------------------------------ levels (v3 isolated carrier board)
+// The core works in "pedal units": 1.0 = 2.0 V peak at a jack, in and out. Path sensitivity from the board:
+//   in:  jack x0.5 (1M / 1M) -> buffer -> pg-line stage (x1 at its centre click, and it inverts) -> x1/3 (20k / 10k)
+//        -> codec IN2 through 20k (-6 dB) -> ADC (0 dBFS = 0.707 V peak at 10k): ADC = -V_jack * 0.118
+//   out: DAC 0 dBFS -> about 1.41 V peak on the line outputs -> pg-hp stage (x1 at its centre click, inverting) ->
+//        TPA6139A2 x-2: out jack = DAC * 2.82 V peak
+// So with both knobs on their centre clicks, what comes out is as loud as what went in, processed. The firmware's two
+// gains below are FIXED (no auto-ranging): measure once on the real board and correct them here if needed.
+constexpr float kInGain  = -1.f / (2.0f * 0.118f); // ADC -> pedal units (1.0 = 2 V peak); the minus undoes the inversion
+constexpr float kOutGain = 2.0f / (2.0f * 1.41f);   // pedal units -> DAC, for unity through pg-hp (x1) and the TPA (x2)
 
 DaisySeed hw;
 Encoder   enc[pg::kKnobs];
 Switch    fs[3];
 Ili9341   lcd;
 pg::Core  core;
+I2CHandle    i2c;
+pg::IsoCodec codec;
+// set by the main loop, used by the audio callback
+static volatile float g_in = kInGain, g_out = 0.f, in_peak = 0.f; // g_out stays 0 (silent) until the codec is up
 // the screen picture the core draws into: 150 KB, in the Seed3's 64 MB SDRAM (plain array, no
 // constructor, so it is safe to place there; SDRAM is ready after hw.Init())
 static uint16_t DSY_SDRAM_BSS framebuffer[pg::Canvas::kW * pg::Canvas::kH];
@@ -86,13 +107,52 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
         if(fs[i].FallingEdge())
             core.Footswitch(i, false, now);
     }
-    core.Process(in, out, size, now);
+    // in: the codec's raw samples -> pedal units (the range and the input-gain knob are undone / applied here)
+    static float  ibuf[2][48];
+    const float   gi = g_in;
+    float         pk = 0.f;
+    const size_t  n  = size > 48 ? 48 : size;
+    for(size_t c = 0; c < 2; c++)
+        for(size_t i = 0; i < n; i++)
+        {
+            const float x = in[c][i];
+            pk            = fabsf(x) > pk ? fabsf(x) : pk;
+            ibuf[c][i]    = x * gi;
+        }
+    if(pk > in_peak)
+        in_peak = pk;
+    const float* ip[2] = {ibuf[0], ibuf[1]};
+    core.Process(ip, out, n, now);
+    // out: pedal units -> DAC, with the output-level knob; glided per block (no zipper), never past full scale
+    static float go = 0.f;
+    const float  gt = g_out, g0 = go;
+    go += (gt - go) * 0.2f;
+    for(size_t c = 0; c < 2; c++)
+        for(size_t i = 0; i < n; i++)
+        {
+            const float y = out[c][i] * (g0 + (go - g0) * float(i) / float(n));
+            out[c][i]     = y > 1.f ? 1.f : (y < -1.f ? -1.f : y);
+        }
     // health: how much of the block's time the work took (1.0 = none left)
     core.ReportLoad(float(System::GetUs() - t0) * hw.AudioSampleRate() / (1e6f * float(size)));
 }
 
+// ------------------------------------------------------------------ watchdog
+// The STM32's independent watchdog runs on its own clock: if the firmware ever hangs, it resets the Seed3 in ~2 s.
+// (The output is safe meanwhile: the codec mutes itself when the digital audio stops, and pg-hp is analog.)
+static void WatchdogStart()
+{
+    IWDG1->KR  = 0xCCCC; // start
+    IWDG1->KR  = 0x5555; // unlock the settings
+    IWDG1->PR  = 4;      // 32 kHz / 64 = 2 ms per count
+    IWDG1->RLR = 1000;   // 2 s
+    while(IWDG1->SR) {}
+    IWDG1->KR = 0xAAAA;
+}
+static inline void WatchdogKick() { IWDG1->KR = 0xAAAA; }
+
 // ------------------------------------------------------------------ touch (XPT2046)
-GPIO t_clk, t_cs, t_din, t_dout, t_irq;
+GPIO t_clk, t_cs, t_din, t_dout;
 
 void TouchInit()
 {
@@ -100,7 +160,6 @@ void TouchInit()
     t_cs.Init(pins::kTCs, GPIO::Mode::OUTPUT);
     t_din.Init(pins::kTDin, GPIO::Mode::OUTPUT);
     t_dout.Init(pins::kTDout, GPIO::Mode::INPUT);
-    t_irq.Init(pins::kTIrq, GPIO::Mode::INPUT, GPIO::Pull::PULLUP);
     t_cs.Write(true);
     t_clk.Write(false);
 }
@@ -137,10 +196,10 @@ int TouchRaw(uint8_t cmd)
 // Returns true while touched, with screen pixel coordinates.
 bool TouchRead(int& x, int& y)
 {
-    if(t_irq.Read()) // high = not touched
+    if(TouchRaw(0xB0) < kTouchZMin) // pressure (Z1): no finger
         return false;
     int a = TouchRaw(0xD0), b = TouchRaw(0x90); // 12-bit X and Y channels
-    if(t_irq.Read())
+    if(TouchRaw(0xB0) < kTouchZMin)
         return false; // released while reading
     if(kTouchSwapXY)
     {
@@ -167,8 +226,36 @@ int main(void)
         pc.Spi123ClockSelection     = RCC_SPI123CLKSOURCE_PLL;
         HAL_RCCEx_PeriphCLKConfig(&pc);
     }
-    hw.SetAudioBlockSize(48);
-    hw.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
+    // audio: SAI2 (I2S to the isolated codec), 48 kHz, 48-sample blocks. The Seed3's own codec (SAI1) isn't used.
+    {
+        SaiHandle::Config sc;
+        sc.periph          = SaiHandle::Config::Peripheral::SAI_2;
+        sc.sr              = SaiHandle::Config::SampleRate::SAI_48KHZ;
+        sc.bit_depth       = SaiHandle::Config::BitDepth::SAI_24BIT;
+        sc.a_sync          = SaiHandle::Config::Sync::MASTER;
+        sc.b_sync          = SaiHandle::Config::Sync::SLAVE;
+        sc.a_dir           = SaiHandle::Config::Direction::TRANSMIT;
+        sc.b_dir           = SaiHandle::Config::Direction::RECEIVE;
+        sc.pin_config.fs   = pins::kSaiFs;
+        sc.pin_config.sck  = pins::kSaiSck;
+        sc.pin_config.sa   = pins::kSaiTx;
+        sc.pin_config.sb   = pins::kSaiRx;
+        sc.pin_config.mclk = pins::kSaiMclk; // not wired (the codec makes its clock from BCLK); TouchInit takes the pin back
+        SaiHandle sai2;
+        sai2.Init(sc);
+        AudioHandle::Config ac;
+        ac.blocksize  = 48;
+        ac.samplerate = SaiHandle::Config::SampleRate::SAI_48KHZ;
+        ac.postgain   = 1.f;
+        hw.audio_handle.Init(ac, sai2);
+        I2CHandle::Config ic;
+        ic.periph         = I2CHandle::Config::Peripheral::I2C_1;
+        ic.speed          = I2CHandle::Config::Speed::I2C_400KHZ;
+        ic.mode           = I2CHandle::Config::Mode::I2C_MASTER;
+        ic.pin_config.scl = pins::kScl;
+        ic.pin_config.sda = pins::kSda;
+        i2c.Init(ic);
+    }
 
     enc[0].Init(pins::kPg1A, pins::kPg1B, pins::kPg1Sw);
     enc[1].Init(pins::kPg2A, pins::kPg2B, pins::kPg2Sw);
@@ -188,7 +275,12 @@ int main(void)
     lcd.Init({pins::kLcdCs, pins::kLcdDc, pins::kLcdRst, pins::kLcdLed, pins::kLcdSck, pins::kLcdMosi}, kFlipScreen, core.ScreenFast());
     lcd.Backlight(false); // dark until the first real frame is on the glass (no flash of garbage)
 
-    hw.StartAudio(AudioCallback);
+    hw.StartAudio(AudioCallback); // the bit clock is running now: the codec's PLL can lock on it
+    bool codec_ok = codec.Init(&i2c);
+    if(!codec_ok)
+        core.ReportCodecFault();
+    const uint32_t audio_t0 = System::GetNow();
+    WatchdogStart();
 
     const Ili9341::Pins lcd_pins = {pins::kLcdCs, pins::kLcdDc, pins::kLcdRst, pins::kLcdLed, pins::kLcdSck, pins::kLcdMosi};
     uint32_t            last_touch = 0, last_refresh = 0, last_repush = 0;
@@ -208,6 +300,7 @@ int main(void)
             System::ResetToBootloader(); // STM32 DFU
 #endif
         }
+        WatchdogKick();
         const uint32_t now = System::GetNow();
         // ---- display safety
         if(lcd.Faulted() || core.ScreenFast() != screen_fast) // SPI failing, or fast / safe changed: start over
@@ -235,6 +328,23 @@ int main(void)
             int        x = 0, y = 0;
             const bool down = TouchRead(x, y);
             core.Touch(down, x, y, now);
+        }
+        // ---- isolated audio: nothing here sets a level. Both knobs are analog gain stages on the carrier board
+        // (centre click = unity); the codec runs at one fixed gain. The firmware only unmutes once after power-up.
+        static uint32_t last_alive = 0;
+        static bool     unmuted    = false;
+        if(!unmuted && codec_ok && now - audio_t0 > 600) // the headphone amp's own power-up mute is over
+            unmuted = codec.SetMute(false), g_out = kOutGain;
+        if(now - last_alive >= 1000) // the codec must keep answering; if it stops, set it up again
+        {
+            last_alive = now;
+            if(!codec.Alive())
+            {
+                core.ReportCodecFault();
+                codec_ok = codec.Init(&i2c), unmuted = false;
+            }
+            else if(!codec_ok)
+                codec_ok = codec.Init(&i2c);
         }
         if(core.WantsSave(now)) // 4 s after the last change: write it to the flash (only if it differs)
         {

@@ -41,10 +41,10 @@ FOOTSW = [(PG + "a", -36.0), (PG + "b", 0.0), (PG + "c", 36.0)]   # pg-c (right)
 FS_JOB = {PG + "a": "bypass", PG + "b": "next", PG + "c": "a/b"}  # printed next to each name, smaller
 FS_CAP = "pink"                        # KN2310 aluminium caps (A-2599) on the PBS-24 footswitches
 # two small analog pots left of the screen (10k log dual, A-6980, 14 mm white ripple knobs A-8567), wired to the carrier board
-SMALL_X = -40.7   # centred between the border's inner line (x -54.5) and the screen's outer line (x -26.9)
+SMALL_X = -40.95  # centred between the border line (x -56.0) and the screen's line (x -25.9)
 SMALL_POTS = [  # label, x, y, bare hole, what it does
-    (PG + "hp", SMALL_X, 35.0, 7.5, "headphone volume (silent .. +12 dB)"),
-    (PG + "line", SMALL_X, 12.5, 7.5, "line-out level"),
+    (PG + "hp", SMALL_X, 32.5, 7.5, "output gain, analog: -21 .. 0 (centre click) .. +21 dB"),
+    (PG + "line", SMALL_X, 10.5, 7.5, "input gain, analog: -33 .. 0 (centre click) .. +33 dB"),
 ]
 SMALL_KNOB_D = 14.0
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
@@ -61,15 +61,13 @@ SCREWS = [(-30.74, 39.75), (36.52, 39.75), (-30.74, 3.03), (36.52, 3.03)]
 SCREW_HOLE = 3.2
 
 # Side B (top edge). All on Y=0 (middle of the wall) so the +Y direction never matters.
-SIDE_B = [  # label, x, bare hole, part. The 4 audio jacks are PCB-mount and hold the carrier board up by their nuts.
-    ("line in", -42.0, 11.4, "6.35mm TRS jack Neutrik NMJ6HCD2 (fitted on the carrier board)"),    # input on the LEFT
+SIDE_B = [  # label, x, bare hole, part. The 2 audio jacks are PCB-mount and hold the carrier board up by their nuts.
+    ("in", -42.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"),
     ("9v", -21.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
-    ("line out", 0.0, 11.4, "6.35mm TRS jack Neutrik NMJ6HCD2 (fitted on the carrier board)"),
-    ("no amp", 21.0, 11.4, "6.35mm TRS jack Neutrik NMJ6HCD2: processed, same loudness as came in"),
-    ("phones", 42.0, 11.4, "6.35mm TRS jack Neutrik NMJ6HCD2: headphone amp"),
+    ("out", 42.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated output"),
 ]
 
-IO_DIVIDE = -10.5                      # face x between the inputs (line in, 9v) and the outputs (line out, no amp, phones)
+IO_DIVIDE = 10.5                       # face x between the inputs (in, 9v) and the output (out)
 
 # Seed3 CARTRIDGE: the Seed3 stands on its side in a window in side C (left wall), component side OUT, and plugs
 # into 2 x 20-pin female headers on a small socket board screwed inside the wall. USB-C points toward the
@@ -251,7 +249,6 @@ def build_face_art():
     # small diamond tucked into each corner
     bw, bh = ART_W - 5.0, ART_H - 5.0
     A.stroke(rrect_path(0, 0, bw, bh, BOX_R), 0.9)
-    A.stroke(rrect_path(0, 0, bw - 3.0, bh - 3.0, BOX_R - 1.5), 0.22)
     for sx in (-1, 1):
         for sy in (-1, 1):
             A.fill(diamond(sx * (bw / 2 - 4.4), sy * (bh / 2 - 4.4), 0.85), PINK)
@@ -259,7 +256,6 @@ def build_face_art():
     # screen: same 5 mm corners, a fine second line 1 mm outside it
     ww, wh = LCD_WIN[0] + PC, LCD_WIN[1] + PC
     A.stroke(rrect_path(0, LCD_CY, ww + 4.0, wh + 4.0, BOX_R), 0.45)
-    A.stroke(rrect_path(0, LCD_CY, ww + 6.0, wh + 6.0, BOX_R + 1.0), 0.18)
 
     # divider between the screen and the knobs: hairlines out from a centre diamond
     dy = -2.6
@@ -290,13 +286,23 @@ def build_face_art():
         for i in range(11):
             a = math.radians(240 - i * 30)
             rr = 0.5 if i in (0, 10) else 0.24
-            A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), rr), PINK if i == 10 else INK)
-        A.fill(mono.outline(name, x, y - r - 3.2, 3.0))
+            A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), 0.62 if i == 5 else rr), PINK if i == 5 else INK)
+        A.fill(mono.outline(name, x, y - r - 3.0, 3.0))
+        # the gain at a few dots, in dB. Both knobs are centre-detent linear pots in an inverting stage between two
+        # end resistors (pg-hp 1k, pg-line 220R): gain = (Re + R t) / (Re + R (1 - t)); the pink top dot = the click = 0 dB
+        re = 1000.0 if name.endswith("hp") else 220.0
+        for i in (0, 2, 8, 10):
+            f = i / 10
+            db = f"{20 * math.log10((re + 10e3 * f) / (re + 10e3 * (1 - f))):+.0f}"
+            a = math.radians(240 - i * 30)
+            rl = r + (2.3 if i in (2, 8) else 0.0)   # the end dots: the number sits level with the dot, beside it
+            lx, ly = x + rl * math.cos(a), y + rl * math.sin(a)
+            dx, dy = (0.6, -0.5) if i in (2, 8) else (0.9, 1.3)   # the end ones higher: clear of the screw heads
+            A.fill(mono.outline(db, lx + (-dx if i < 5 else dx), ly + dy, 1.5, anchor="end" if i < 5 else "start"))
 
     # footswitches: a ring with a hairline ring inside it, and 4 small ticks at the quarters
     for name, x in FOOTSW:
         A.stroke(circle_path(x, FS_Y, 10.0), 0.45)
-        A.stroke(circle_path(x, FS_Y, 11.0), 0.18)
         for deg in (45, 135, 225, 315):
             A.stroke(tick(x, FS_Y, 11.6, 12.4, deg), 0.3)
         # "pg-a bypass": the name, then what it does in the plain mono letters, centred together
@@ -341,10 +347,11 @@ def check_clearances():
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
             [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS]
-    # a small knob next to a screen screw: the 14 mm knob must clear the screw head (5.5 mm) by 1 mm
+    # a small knob next to a screen screw: the 14 mm knob must clear the screw head (5.5 mm) by 2.5 mm, so a cap
+    # with a wider skirt still fits and turns freely
     for _, x, y, _, _ in SMALL_POTS:
         for sx, sy in SCREWS:
-            if math.hypot(x - sx, y - sy) < SMALL_KNOB_D / 2 + 2.75 + 1.0:
+            if math.hypot(x - sx, y - sy) < SMALL_KNOB_D / 2 + 2.75 + 2.5:
                 raise SystemExit(f"small knob {(x, y)} too close to the screen screw {(sx, sy)}")
     for (x1, y1, r1) in holes:
         for (x2, y2, r2) in holes:

@@ -13,7 +13,8 @@ LCSC = {  # (value, footprint name) -> JLCPCB part
     ("100", "R_0603_1608Metric"): "C22775", ("22k", "R_0603_1608Metric"): "C31850",
     ("1", "R_0603_1608Metric"): "C22936",
     ("11.5k 1%", "R_0603_1608Metric"): "C25949", ("470k", "R_0603_1608Metric"): "C23178",
-    ("0", "R_0603_1608Metric"): "C21189",
+    ("0", "R_0603_1608Metric"): "C21189", ("1M", "R_0603_1608Metric"): "C22935",
+    ("47nF C0G", "C_1206_3216Metric"): "C5451690", ("OPA1652", "SOIC-8_3.9x4.9mm_P1.27mm"): "C30025",
     ("100nF", "C_0603_1608Metric"): "C14663", ("1uF", "C_0603_1608Metric"): "C15849",
     ("10nF", "C_0603_1608Metric"): "C57112", ("100pF C0G", "C_0603_1608Metric"): "C14858",
     ("47pF C0G", "C_0603_1608Metric"): "C1671", ("4.7uF", "C_0805_2012Metric"): "C1779",
@@ -23,7 +24,7 @@ LCSC = {  # (value, footprint name) -> JLCPCB part
     ("1N4148W", "D_SOD-123"): "C81598", ("PESD15VL2BT", "SOT-23"): "C38838",
     ("LP2985-33", "SOT-23-5"): "C95414", ("TLV7031", "SOT-23-5"): "C2869832",
     ("NE5532", "SOIC-8_3.9x4.9mm_P1.27mm"): "C7426", ("TPA6139A2", "TSSOP-14_4.4x5mm_P0.65mm"): "C2870791",
-    ("seed3 in + power", "PinHeader_1x05_P2.54mm_Horizontal"): "C32713264",
+    ("9v + seed3 in", "PinHeader_1x07_P2.54mm_Horizontal"): "C32713266",
     ("seed3 out", "PinHeader_1x02_P2.54mm_Horizontal"): "C32713261",
     ("pg-hp", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
     ("pg-line", "PinHeader_1x06_P2.54mm_Horizontal"): "C32713265",
@@ -31,8 +32,19 @@ LCSC = {  # (value, footprint name) -> JLCPCB part
     ("line out", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
     ("no amp", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
     ("phones", "Jack_6.35mm_Neutrik_NMJ6HCD2_Horizontal"): "C368502",
-    ("9V in", "PinHeader_1x02_P2.54mm_Horizontal"): "C32713261",
 }
+LCSC.update({   # v3 (isolated codec board)
+    ("seed3 + 9v", "PinHeader_1x10_P2.54mm_Horizontal"): "C42453959",
+    ("pg-hp", "PinHeader_1x03_P2.54mm_Horizontal"): "C32713262", ("pg-line", "PinHeader_1x03_P2.54mm_Horizontal"): "C32713262",
+    ("AMS1117-5.0", "SOT-223-3_TabPin2"): "C6187", ("AMS1117-3.3", "SOT-223-3_TabPin2"): "C6186",
+    ("ADS1015", "MSOP-10_3x3mm_P0.5mm"): "C193969", ("4.7k", "R_0603_1608Metric"): "C23162",
+    ("B0505S-1WR3", "DCDC_SIP4_B0505S"): "C512048", ("ISO7741", "SOIC-16W_7.5x10.3mm_P1.27mm"): "C571196",
+    ("ISO1540", "SOIC-8_3.9x4.9mm_P1.27mm"): "C179739", ("10", "R_0603_1608Metric"): "C22859",
+    ("TLV320AIC3204", "Texas_RHB0032E_VQFN-32-1EP_5x5mm_P0.5mm_EP3.45x3.45mm"): "C24109",
+    ("33", "R_0603_1608Metric"): "C23140", ("1k", "R_1206_3216Metric"): "C4410",
+    ("100uF 6.3V", "C_1206_3216Metric"): "C15008", ("B5819W", "D_SOD-123"): "C8598", ("220", "R_0603_1608Metric"): "C22962",
+    ("in", "Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal"): "C368491", ("out", "Jack_6.35mm_Neutrik_NMJ6HFD2_Horizontal"): "C368491",
+})
 SKIP = set()   # everything is fitted, the jacks too
 
 

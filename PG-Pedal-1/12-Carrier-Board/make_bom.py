@@ -5,7 +5,10 @@ from carrier import parts
 
 MAKER = {"NE5532DR": "Texas Instruments", "TPA6139A2PWR": "Texas Instruments", "LP2985-33DBVR": "Texas Instruments",
          "TLV7031DBVR": "Texas Instruments", "PESD15VL2BT": "Nexperia", "BAT54": "Nexperia", "MF-NSMF030X-2": "Bourns",
-         "SMAJ12A": "Littelfuse", "SS34": "onsemi", "NMJ6HCD2": "Neutrik", "EEE-1EA470WP": "Panasonic",
+         "SMAJ12A": "Littelfuse", "SS34": "onsemi", "NMJ6HCD2": "Neutrik", "NMJ6HFD2": "Neutrik", "TLV320AIC3204IRHBR": "Texas Instruments",
+         "ISO7741DWR": "Texas Instruments", "ISO1540DR": "Texas Instruments", "ADS1015IDGSR": "Texas Instruments",
+         "OPA1652AIDR": "Texas Instruments", "B0505S-1WR3": "Mornsun", "AMS1117-5.0": "AMS", "AMS1117-3.3": "AMS",
+         "1206L030/24NR": "Littelfuse", "EEE-1EA470WP": "Panasonic",
          "EEE-1CA470WR": "Panasonic", "EEE-1EA100SR": "Panasonic"}
 groups = collections.OrderedDict()
 for ref, value, fp, mpn, pins, note in parts:
@@ -31,11 +34,11 @@ with open("carrier-bom.csv", "w", newline="") as f:
     w.writerow(["Item #", "Designator", "Qty", "Manufacturer", "Mfg Part #", "Description / Value", "Package/Footprint",
                 "Type", "Your Instructions / Notes"])
     for i, ((value, pkg, mpn), refs) in enumerate(groups.items(), 1):
-        tht = pkg.startswith("PinHeader") or "Jack" in pkg
+        tht = pkg.startswith(("PinHeader", "DCDC")) or "Jack" in pkg
         note = ("please fit and solder" if "Jack" in pkg else
                 "2.54 mm male header, any brand: please fit and solder" if tht else
                 "any brand with the same value and package" if not mpn else "")
         w.writerow([i, ",".join(refs), len(refs), MAKER.get(mpn, "any" if not mpn else ""), mpn or "", describe(value, pkg),
                     pkg, "THT" if tht else "SMD", note])
-smt = sum(len(r) for (v, p, m), r in groups.items() if not (p.startswith("PinHeader") or "Jack" in p))
+smt = sum(len(r) for (v, p, m), r in groups.items() if not (p.startswith(("PinHeader", "DCDC")) or "Jack" in p))
 print(f"{len(groups)} part kinds, {sum(len(r) for r in groups.values())} parts ({smt} SMT)")
