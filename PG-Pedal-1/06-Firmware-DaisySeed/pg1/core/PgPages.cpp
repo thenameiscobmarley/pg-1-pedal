@@ -1,5 +1,5 @@
 // PG-1 pages: the graph / visualizer, the live strip and the 4 knob boxes of every tab.
-// Layout of a page: title 0-19, graph 22-157, grey panel from 160 (strip 164-181, knob boxes 186-237).
+// Layout of a page: title 0-19, graph 22-157, grey panel from 160 (strip 162-177, page dots 180, knob boxes 186-237).
 #include "PgCore.h"
 #include "PgUi.h"
 #include <cmath>
@@ -43,7 +43,56 @@ static int YGain(float db) // eq curves: +-18 dB around the middle
     return y < kGy ? kGy : (y >= kGy + kGh ? kGy + kGh - 1 : y);
 }
 
-Core::Rect Core::ParamRect(int k) const { return {4 + k * 79, 186, 76, 52}; }
+Core::Rect Core::ParamRect(int k) const { return {4 + k * 79 + box_dx_, 186, 76, 52}; }
+
+void Core::RoundRect(int x, int y, int w, int h, uint16_t c, int r, int bg)
+{
+    const uint16_t kGrey = bg < 0 ? ui::kGrey : uint16_t(bg); // (the colour the corners are cut back to)
+    FillRect(x, y, w, h, c);
+    if(r < 2 || w < 2 * r || h < 2 * r)
+        return;
+    for(int i = 0; i < r; i++) // cut each corner along a small quarter circle, back to the panel colour
+    {
+        const int cut = r - int(sqrtf(float(r * r - (r - i) * (r - i))) + 0.5f);
+        if(cut <= 0)
+            continue;
+        FillRect(x, y + i, cut, 1, kGrey), FillRect(x + w - cut, y + i, cut, 1, kGrey);
+        FillRect(x, y + h - 1 - i, cut, 1, kGrey), FillRect(x + w - cut, y + h - 1 - i, cut, 1, kGrey);
+    }
+}
+
+// the page dots between the live numbers and the boxes (only on tabs with a second page; tap them to flip)
+void Core::DrawDots()
+{
+    FillRect(120, 178, 80, 7, kGrey);
+    const int n = PageCount();
+    if(n > 1)
+        for(int i = 0; i < n; i++)
+        {
+            const bool cur = i == page_;
+            RoundRect(160 - n * 9 + i * 18 + (cur ? 0 : 3), 179, cur ? 16 : 10, 4, cur ? kBlue : kDimText, 2);
+        }
+    Dirty(120, 178, 80, 7);
+}
+
+// one frame of the boxes sliding to the other page: the old page leaves, the new one comes in behind it
+void Core::SlideFrame(uint32_t now)
+{
+    const float t = Clampf(float(now - slide_.t0) / 240.f, 0.f, 1.f), e = 1.f - (1.f - t) * (1.f - t) * (1.f - t); // ease out
+    const int   shift = int(e * float(Canvas::kW));
+    FillRect(0, 186, Canvas::kW, 52, kGrey);
+    const int to = page_;
+    page_ = slide_.from, box_dx_ = -slide_.dir * shift;
+    for(int k = 0; k < kKnobs; k++)
+        DrawParamBox(k, now);
+    page_ = to, box_dx_ = slide_.dir * (Canvas::kW - shift);
+    for(int k = 0; k < kKnobs; k++)
+        DrawParamBox(k, now);
+    box_dx_ = 0;
+    Dirty(0, 186, Canvas::kW, 52);
+    if(t >= 1.f)
+        slide_.on = false, redraw_panel_ = true, DrawDots();
+}
 
 int Core::NodeAt(int x, int y) const
 {
@@ -274,7 +323,11 @@ void Core::DrawGraph(uint32_t now)
     }
     pad_dirty_ = true; // (the d-pad sits on top of the graph)
     if(tab_ != T_SAFETY && tab_ != T_VIS && tab_ != T_HEALTH && tab_ != T_CONFIG && !StageOn(tab_))
-        TextFb(kGx + kGw - 6 * 13 - 4, kGy + kGh - 10, "off (hold fs-2)", Font_6x8, kYellow);
+    {
+        char off[24];
+        snprintf(off, sizeof(off), "off (hold %s)", ui::FootName(1));
+        TextFb(kGx + kGw - TextW(off, Font_6x8) - 4, kGy + kGh - 10, off, Font_6x8, kYellow);
+    }
     Dirty(kGx, kGy, kGw, kGh);
 }
 
@@ -286,18 +339,19 @@ void Core::DrawStrip(uint32_t now)
     {
         for(int b = 0; b < kBands; b++) // band chips
         {
-            const Rect r = {4 + b * 79, 164, 76, 18};
-            FillRect(r.x, r.y, r.w, r.h, b == band_ ? kBlue : kGreyDark);
-            FillRect(r.x + 3, r.y + 5, 8, 8, kBandCol[b]);
+            const Rect r = {4 + b * 79, 162, 76, 16};
+            RoundRect(r.x, r.y, r.w, r.h, b == band_ ? kBlue : kGreyDark);
+            FillRect(r.x + 4, r.y + 4, 8, 8, kBandCol[b]);
             char buf[16], f[10];
             Format(ParamIndex(b, B_FREQ), f, sizeof(f));
             snprintf(buf, sizeof(buf), "%d  %s", b + 1, f);
-            TextFb(r.x + 15, r.y + 5, buf, Font_6x8, b == band_ ? kYellow : kGrey);
+            TextFb(r.x + 16, r.y + 4, buf, Font_6x8, b == band_ ? kYellow : kGrey);
             if(b == band_)
                 PearlBorder(r, now);
         }
         drawn_band_ = band_;
         Dirty(0, kPanelY, Canvas::kW, 24);
+        DrawDots();
         return;
     }
     char cell[4][20] = {};
@@ -435,11 +489,12 @@ void Core::DrawStrip(uint32_t now)
     }
     for(int k = 0; k < 4; k++)
     {
-        const Rect r = {4 + k * 79, 164, 76, 18};
-        FillRect(r.x, r.y, r.w, r.h, kGreyDark);
-        TextFb(r.x + 4, r.y + 5, cell[k], Font_6x8, kCream);
+        const Rect r = {4 + k * 79, 162, 76, 16};
+        RoundRect(r.x, r.y, r.w, r.h, kGreyDark);
+        TextFb(r.x + 5, r.y + 4, cell[k], Font_6x8, kCream);
     }
     Dirty(0, kPanelY, Canvas::kW, 24);
+    DrawDots();
 }
 
 // ------------------------------------------------------------------ knob boxes
@@ -448,17 +503,24 @@ void Core::DrawParamBox(int k, uint32_t now)
     (void)now;
     const Rect r = ParamRect(k);
     const int  p = KnobParam(k);
-    if(p < 0)
+    if(p < 0) // nothing on this knob on this page: a quiet empty slot
+    {
+        RoundRect(r.x, r.y, r.w, r.h, kGreyDark, 4);
+        RoundRect(r.x + 1, r.y + 1, r.w - 2, r.h - 2, kGrey, 4);
+        FillRect(r.x + 3, r.y + 2, 9, 10, kDimText);
+        TextFb(r.x + 5, r.y + 3, ui::KnobName(k) + 3, Font_6x8, kGrey);
+        Dirty(r.x, r.y, r.w, r.h);
         return;
+    }
     const Param& pr = params_[p];
-    FillRect(r.x, r.y, r.w, r.h, kBlue);
-    FrameRect(r.x, r.y, r.w, r.h, kGrey);
+    RoundRect(r.x, r.y, r.w, r.h, kBlue, 4);
+    FillRect(r.x + 4, r.y + 1, r.w - 8, 1, kLtBlue); // a thin light edge along the top: a little depth
     char lab[20], val[16];
     const bool q_held = ((tab_ == T_EQ || tab_ == T_CLARITY) && k == 0 && knob_down_[0]) || (tab_ == T_CONFIG && k == 3 && knob_down_[3]) ||
                         (tab_ == T_PID && k == 3 && knob_down_[3]) || (tab_ == T_CLARITY && k == 2 && knob_down_[2]);
     // knob number as a cream chip (matches pg-1..pg-4 under the knobs), then what it does
     FillRect(r.x + 3, r.y + 2, 9, 10, q_held ? kYellow : kCream);
-    snprintf(lab, sizeof(lab), "%d", k + 1);
+    snprintf(lab, sizeof(lab), "%s", ui::KnobName(k) + strlen(ui::kCtrlPrefix)); // (the number part of the knob's name)
     TextFb(r.x + 5, r.y + 3, lab, Font_6x8, kBlue);
     TextFb(r.x + 15, r.y + 3, pr.name, Font_6x8, q_held ? kYellow : kGrey);
     Format(p, val, sizeof(val));
@@ -468,7 +530,7 @@ void Core::DrawParamBox(int k, uint32_t now)
         TextFb(xe + 2, r.y + 21, pr.unit, Font_6x8, kDimText);
 
     const int bx = r.x + 4, bw = r.w - 8, by = r.y + r.h - 6;
-    if(tab_ == T_EQ && (k == 2 || k == 3))
+    if(page_ == 0 && tab_ == T_EQ && (k == 2 || k == 3))
     {
         const int b = band_;
         if(k == 2) // thresh: the band's live level, lit where it is over the threshold
@@ -501,14 +563,14 @@ void Core::DrawParamBox(int k, uint32_t now)
     }
     else
     {
-        if(tab_ == T_CONFIG && k == 2) // the theme box also shows the screen speed (hold pg-3 + turn)
+        if(page_ == 0 && tab_ == T_CONFIG && k == 2) // the theme box also shows the screen speed (hold pg-3 + turn)
             TextFb(bx, by - 13, ScreenFast() ? "screen fast" : "screen safe", Font_6x8, knob_down_[2] ? kYellow : kDimText);
-        if(tab_ == T_CONFIG && k == 3) // the knobs box also shows the d-pad switch (hold pg-4 + turn)
+        if(page_ == 0 && tab_ == T_CONFIG && k == 3) // the knobs box also shows the d-pad switch (hold pg-4 + turn)
         {
             const bool on = params_[P_DPAD].value != 0;
             TextFb(bx, by - 13, on ? "d-pad on" : "d-pad off", Font_6x8, q_held ? kYellow : kDimText);
         }
-        if(tab_ == T_PID && k == 3) // the group box: is that group steered? (held: the target tilt)
+        if(page_ == 0 && tab_ == T_PID && k == 3) // the group box: is that group steered? (held: the target tilt)
         {
             const bool st = (params_[P_PID_MASK].value >> params_[P_PID_GROUP].value) & 1;
             if(q_held)
@@ -516,7 +578,7 @@ void Core::DrawParamBox(int k, uint32_t now)
             else
                 TextFb(bx, by - 13, st ? "steered" : "push: steer", Font_6x8, st ? kCyan : kDimText);
         }
-        if(tab_ == T_CLARITY && k == 2) // the clarity box also shows how many bands (hold pg-3 + turn)
+        if(page_ == 0 && tab_ == T_CLARITY && k == 2) // the clarity box also shows how many bands (hold pg-3 + turn)
         {
             char t[24], m[12];
             Format(P_CLARITY, m, sizeof(m));
@@ -526,14 +588,14 @@ void Core::DrawParamBox(int k, uint32_t now)
                 snprintf(t, sizeof(t), "%d bands", params_[P_CL_BANDS].value);
             TextFb(bx, by - 13, t, Font_6x8, q_held ? kYellow : kDimText);
         }
-        if(tab_ == T_CLARITY && k == 0) // the thump box also shows the mode (hold pg-1 + turn)
+        if(page_ == 0 && tab_ == T_CLARITY && k == 0) // the thump box also shows the mode (hold pg-1 + turn)
         {
             static const char* const shortm[3] = {"dyn", "add", "norm"};
             char                     t[24];
             snprintf(t, sizeof(t), q_held ? "%s" : "mode %s", shortm[params_[P_CL_MODE].value % 3]);
             TextFb(bx, by - 13, t, Font_6x8, q_held ? kYellow : kDimText);
         }
-        if(tab_ == T_EQ && k == 0) // the freq box also shows the width
+        if(page_ == 0 && tab_ == T_EQ && k == 0) // the freq box also shows the width
         {
             char q[12], t[20];
             Format(q_held ? ParamIndex(band_, B_FREQ) : ParamIndex(band_, B_Q), q, sizeof(q));
@@ -1154,8 +1216,11 @@ void Core::GraphConfig(uint32_t now)
         TextFb(kGx + 100, y, slots_[k].used ? "saved" : "empty", Font_6x8, slots_[k].used ? kCyan : kGrid);
     }
     const int tx = kGx + 162;
-    TextFb(tx, kGy + 6, "push pg-1: load", Font_6x8, kCream);
-    TextFb(tx, kGy + 18, "push pg-2 twice: save", Font_6x8, kCream);
+    char a1[32], a2[32];
+    snprintf(a1, sizeof(a1), "push %s: load", ui::KnobName(0));
+    snprintf(a2, sizeof(a2), "push %s twice: save", ui::KnobName(1));
+    TextFb(tx, kGy + 6, a1, Font_6x8, kCream);
+    TextFb(tx, kGy + 18, a2, Font_6x8, kCream);
     TextFb(tx, kGy + 34, "a config = every sound", Font_6x8, kDimText);
     TextFb(tx, kGy + 44, "setting + stages on/off", Font_6x8, kDimText);
     TextFb(tx, kGy + 58, "everything is kept over", Font_6x8, kDimText);

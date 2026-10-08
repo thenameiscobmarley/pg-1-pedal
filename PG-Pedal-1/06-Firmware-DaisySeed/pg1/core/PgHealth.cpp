@@ -48,7 +48,7 @@ static const CheckDef kDefs[Core::kChecks] = {
     {"audio glitch", "the audio went wrong: muted and reset",
      "if it happens again, note what you were doing and tell me. Check the 9 V adapter and ground wires.", S_FAULT, 0.f},
     {"processor", "the processor is close to its limit",
-     "switch off a stage you don't need (hold fs-2 on its tab).", S_WARN, 2.f},
+     "switch off a stage you don't need (hold the middle footswitch on its tab).", S_WARN, 2.f},
     {"dropouts", "the sound stuttered (audio dropouts)",
      "the processor or the host is overloaded. In Carla, raise the buffer size.", S_WARN, 0.f},
     {"knob stuck", "a knob's push switch reads pressed all the time",
@@ -210,7 +210,9 @@ void Core::DrawFooter(uint32_t now)
     else
     {
         const int page = focus_ / 8, pages = (kTabs + 7) / 8;
-        TextFb(8, 226, "turn: move  push/tap: open  hold fs-2: on/off", Font_6x8, kBlue);
+        char hint[64];
+        snprintf(hint, sizeof(hint), "turn: move  push/tap: open  hold %s: on/off", ui::FootName(1));
+        TextFb(8, 226, hint, Font_6x8, kBlue);
         for(int pg = 0; pg < pages; pg++) // page dots (tap them to switch)
         {
             const int x = Canvas::kW - 8 - (pages - pg) * 10;

@@ -20,6 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(os.path.dirname(HERE), "PG-Pedal-1")
 FONT_LABEL = os.path.join(HERE, "fonts", "Nunito-Bold.ttf")
 FONT_TAG = os.path.join(HERE, "fonts", "Nunito-SemiBold.ttf")
+FONT_MONO = os.path.join(HERE, "fonts", "IBMPlexMono-Medium.ttf")   # the plain, terminal-like lowercase for small words
 
 # ---------------------------------------------------------------- geometry
 FACE_W, FACE_H = 121.1, 145.5          # 1590XX face A, full outer size (Tayda origin = its centre)
@@ -35,8 +36,17 @@ KNOBS = [  # label, x, kind, bare hole (before powder coat)
     ("pg-3", 13.5, "enc", 7.2),
     ("pg-4", 40.5, "enc", 7.2),
 ]
-FOOTSW = [("fs-1", -36.0), ("fs-2", 0.0), ("fs-3", 36.0)]   # fs-3 (right) = fair A/B compare
-FS_JOB = {"fs-1": "bypass", "fs-2": "next", "fs-3": "a/b"}  # printed next to each name, smaller
+PG = "pg-"                             # every control's name starts with this (knobs, footswitches, small pots)
+FOOTSW = [(PG + "a", -36.0), (PG + "b", 0.0), (PG + "c", 36.0)]   # pg-c (right) = fair A/B compare
+FS_JOB = {PG + "a": "bypass", PG + "b": "next", PG + "c": "a/b"}  # printed next to each name, smaller
+FS_CAP = "pink"                        # KN2310 aluminium caps (A-2599) on the PBS-24 footswitches
+# two small analog pots left of the screen (10k log dual, A-6980, 14 mm white ripple knobs A-8567), wired to the carrier board
+SMALL_POTS = [  # label, x, y, bare hole, what it does
+    (PG + "hp", -45.5, 36.0, 7.5, "headphone volume (silent .. +12 dB)"),
+    (PG + "line", -45.5, 13.0, 7.5, "line-out level"),
+]
+SMALL_KNOB_D = 14.0
+CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
 FS_HOLE = 12.2
 
 # 2.4" MSP2402 module, landscape, 14-pin header on the RIGHT.
@@ -50,18 +60,21 @@ SCREWS = [(-30.74, 39.75), (36.52, 39.75), (-30.74, 3.03), (36.52, 3.03)]
 SCREW_HOLE = 3.2
 
 # Side B (top edge). All on Y=0 (middle of the wall) so the +Y direction never matters.
-SIDE_B = [  # label, x, bare hole, part
-    ("in", -40.0, 9.5, "6.35mm TRS jack A-1121 (3/8\"-32 thread)"),     # input on the LEFT
-    ("9v", -13.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
-    ("exp", 13.0, 9.5, "spare 6.35mm TRS jack A-1121 (expression pedal / extra input later)"),
-    ("out", 40.0, 9.5, "6.35mm TRS jack A-1121 (3/8\"-32 thread)"),    # output on the RIGHT
+SIDE_B = [  # label, x, bare hole, part. The 4 audio jacks are PCB-mount and hold the carrier board up by their nuts.
+    ("line in", -42.0, 9.5, "6.35mm TRS PCB jack A-1122 (on the carrier board)"),    # input on the LEFT
+    ("9v", -21.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
+    ("line out", 0.0, 9.5, "6.35mm TRS PCB jack A-1122 (on the carrier board)"),
+    ("no amp", 21.0, 9.5, "6.35mm TRS PCB jack A-1122: processed, same loudness as came in"),
+    ("phones", 42.0, 9.5, "6.35mm TRS PCB jack A-1122: headphone amp"),
 ]
 
 # Seed3 CARTRIDGE: the Seed3 stands on its side in a window in side C (left wall), component side OUT, and plugs
 # into 2 x 20-pin female headers on a small socket board screwed inside the wall. USB-C points toward the
 # footswitches (-y), BOOT/RESET face outward, so it is plugged in, pressed and swapped from outside, no soldering.
 # Side C coordinates: X = across the wall height (0 = middle of the 36.1 wall), Y = same as the face.
-SEED_Y = 15.5                          # window centre along Y (clear of the pg-1 encoder and the IN jack)
+SEED_SIDE = "E"                        # the Seed3 cartridge is in the RIGHT wall (side E): the left is for the small pots
+SEED_X_SIGN = 1                        # +1 = right wall, -1 = left wall (face x of the wall it's in)
+SEED_Y = 15.5                          # window centre along Y (beside the screen)
 SEED_WIN = (19.0, 52.0)                # final opening (X across the wall, Y along it); Seed3 is 18 x 51, +PC added
 WALL = 2.3                             # 1590XX side wall
 INNER_X = -FACE_W / 2 + WALL           # inside of the left wall in face coordinates (-58.25)
@@ -86,16 +99,23 @@ def seed_stack():
 
 
 # ---------------------------------------------------------------- drawing model
+INK = (0.0, 0.0, 0.0, 1.0)             # CMYK: black
+PINK = (0.0, 0.58, 0.20, 0.0)          # CMYK: the accent pink (close to the KN2310 pink caps)
+def cmyk_hex(c):
+    r, g, b = (round(255 * (1 - c[i]) * (1 - c[3])) for i in range(3))
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
 class Art:
     """Records vector items in mm (y up). Emits PDF and SVG."""
     def __init__(self):
-        self.items = []     # (kind, subpaths, width)  kind: fill | stroke
+        self.items = []     # (kind, subpaths, width, cmyk)  kind: fill | stroke
 
-    def fill(self, subpaths):
-        self.items.append(("fill", subpaths, 0))
+    def fill(self, subpaths, color=INK):
+        self.items.append(("fill", subpaths, 0, color))
 
-    def stroke(self, subpaths, w):
-        self.items.append(("stroke", subpaths, w))
+    def stroke(self, subpaths, w, color=INK):
+        self.items.append(("stroke", subpaths, w, color))
 
 
 def circle_path(cx, cy, r):
@@ -222,6 +242,7 @@ def build_face_art():
     A = Art()
     lab = Font(FONT_LABEL)
     tag = Font(FONT_TAG)
+    mono = Font(FONT_MONO)
 
     # border: a bold line with the box's own 5 mm corners, a hairline just inside it (concentric), and a
     # small diamond tucked into each corner
@@ -230,7 +251,7 @@ def build_face_art():
     A.stroke(rrect_path(0, 0, bw - 3.0, bh - 3.0, BOX_R - 1.5), 0.22)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            A.fill(diamond(sx * (bw / 2 - 4.4), sy * (bh / 2 - 4.4), 0.85))
+            A.fill(diamond(sx * (bw / 2 - 4.4), sy * (bh / 2 - 4.4), 0.85), PINK)
 
     # screen: same 5 mm corners, a fine second line 1 mm outside it
     ww, wh = LCD_WIN[0] + PC, LCD_WIN[1] + PC
@@ -241,7 +262,7 @@ def build_face_art():
     dy = -2.6
     A.stroke(poly_path([(-49.0, dy), (-3.2, dy)]), 0.22)
     A.stroke(poly_path([(3.2, dy), (49.0, dy)]), 0.22)
-    A.fill(diamond(0, dy, 1.4))
+    A.fill(diamond(0, dy, 1.4), PINK)
     A.fill(diamond(-50.6, dy, 0.6))
     A.fill(diamond(50.6, dy, 0.6))
 
@@ -251,7 +272,7 @@ def build_face_art():
             for i in range(20):
                 a = math.radians(90 - i * 18)
                 rr = 0.62 if i == 0 else (0.45 if i % 5 == 0 else 0.28)
-                A.fill(circle_path(x + 12.0 * math.cos(a), KNOB_Y + 12.0 * math.sin(a), rr))
+                A.fill(circle_path(x + 12.0 * math.cos(a), KNOB_Y + 12.0 * math.sin(a), rr), PINK if i == 0 else INK)
         else:
             for i in range(11):
                 deg = 240 - i * 30          # 7 o'clock -> 5 o'clock clockwise
@@ -260,28 +281,35 @@ def build_face_art():
             A.fill(lab.outline("+40", x + 10.0, KNOB_Y - 11.6, 2.4))
         A.fill(lab.outline(name, x, KNOB_Y - 18.2, 4.3))
 
+    # the two small pots left of the screen: 11 dots over the 300 degree turn (silent .. loudest, the top one pink)
+    for name, x, y, _, _ in SMALL_POTS:
+        r = SMALL_KNOB_D / 2 + 2.0
+        for i in range(11):
+            a = math.radians(240 - i * 30)
+            rr = 0.5 if i in (0, 10) else 0.24
+            A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), rr), PINK if i == 10 else INK)
+        A.fill(lab.outline(name, x, y - r - 3.2, 3.0))
+
     # footswitches: a ring with a hairline ring inside it, and 4 small ticks at the quarters
     for name, x in FOOTSW:
         A.stroke(circle_path(x, FS_Y, 10.0), 0.45)
         A.stroke(circle_path(x, FS_Y, 11.0), 0.18)
         for deg in (45, 135, 225, 315):
             A.stroke(tick(x, FS_Y, 11.6, 12.4, deg), 0.3)
-        # "fs-1 bypass": the name, then what it does in smaller letters, centred together
+        # "pg-a bypass": the name, then what it does in the plain mono letters, centred together
         job = FS_JOB[name]
-        tag_ = Font(FONT_TAG)
-        w1, w2, gap = lab.width(name, 4.3), tag_.width(job, 3.0, 0.1), 1.3
+        w1, w2, gap = lab.width(name, 4.3), mono.width(job, 2.7), 1.4
         x0 = x - (w1 + gap + w2) / 2
         A.fill(lab.outline(name, x0, FS_Y - 15.0, 4.3, anchor="start"))
-        A.fill(tag_.outline(job, x0 + w1 + gap, FS_Y - 15.0, 3.0, anchor="start", track=0.1))
+        A.fill(mono.outline(job, x0 + w1 + gap, FS_Y - 15.0, 2.7, anchor="start"))
 
     # jack labels along the top edge (match side B holes)
+    # (one row, high enough to clear the logo's loop; every audio jack is stereo trs)
     for name, x, _, _ in SIDE_B:
-        A.fill(lab.outline(name, x, 59.6, 3.9))
-        A.stroke(poly_path([(x - 1.5, 63.6), (x, 65.0), (x + 1.5, 63.6)]), 0.45)
-        if name in ("in", "out"):
-            A.fill(lab.outline("trs l+r", x, 55.6, 2.5))
+        A.fill(mono.outline(name, x, 61.0, 3.0))
+        A.stroke(poly_path([(x - 1.2, 64.4), (x, 65.5), (x + 1.2, 64.4)]), 0.4)
         if name == "9v": # centre-negative polarity mark: minus - ( . ) - plus
-            px, py = x, 56.3
+            px, py = x, 57.6
             A.stroke(poly_path([(px - 4.6, py), (px - 3.6, py)]), 0.3)          # minus
             A.stroke(poly_path([(px - 3.0, py), (px - 0.25, py)]), 0.3)         # lead to the centre pin
             A.fill(circle_path(px, py, 0.45))                                   # centre pin
@@ -290,12 +318,8 @@ def build_face_art():
             A.stroke(poly_path([(px + 1.25, py), (px + 3.4, py)]), 0.3)         # lead from the sleeve
             A.stroke(poly_path([(px + 3.9, py), (px + 5.1, py)]), 0.3)          # plus
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
-        if name == "exp":
-            A.fill(lab.outline("trs", x, 55.6, 2.5))
-    # Seed3 cartridge in the left side: label written up the left edge, level with the window,
-    # no arrow (it would hit the pg-1 dots)
-    uy = SEED_Y
-    A.fill(rot90(lab.outline("usb-c \u00b7 seed3", 0, 0, 3.2), -50.6, uy))   # reads upward: "usb-c" at the USB end
+    # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
+    A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
     # logo + tagline, the logo's flat ends finished with small diamonds
     A.stroke([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(logo_points(0, 51.0))], 0.75)
@@ -308,7 +332,8 @@ def build_face_art():
 def check_clearances():
     """Make sure no printed item sits on a hole (cheap sanity check)."""
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
-            [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS]
+            [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
+            [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS]
     for (x1, y1, r1) in holes:
         for (x2, y2, r2) in holes:
             if (x1, y1) < (x2, y2) and math.hypot(x1 - x2, y1 - y2) < r1 + r2 + (2 if max(r1, r2) <= 1.0 else 8):
@@ -322,8 +347,9 @@ MM2PT = 72 / 25.4
 def to_pdf_ops(A, ox, oy):
     """ox, oy = mm offset to move the origin to the page's lower-left."""
     f = lambda v: f"{v:.3f}"
-    out = ["0 0 0 1 k", "0 0 0 1 K", "1 J", "1 j"]
-    for kind, sp, w in A.items:
+    out = ["1 J", "1 j"]
+    for kind, sp, w, col in A.items:
+        out.append("%.3f %.3f %.3f %.3f k %.3f %.3f %.3f %.3f K" % (col + col))
         for seg in sp:
             if seg[0] == "Z":
                 out.append("h"); continue
@@ -373,11 +399,12 @@ def svg_d(sp):
 
 def art_svg_group(A, color="#000"):
     g = []
-    for kind, sp, w in A.items:
+    for kind, sp, w, col in A.items:
+        c = color if col == INK else cmyk_hex(col)
         if kind == "fill":
-            g.append(f'<path d="{svg_d(sp)}" fill="{color}"/>')
+            g.append(f'<path d="{svg_d(sp)}" fill="{c}"/>')
         else:
-            g.append(f'<path d="{svg_d(sp)}" fill="none" stroke="{color}" stroke-width="{w}" '
+            g.append(f'<path d="{svg_d(sp)}" fill="none" stroke="{c}" stroke-width="{w}" '
                      f'stroke-linecap="round" stroke-linejoin="round"/>')
     return "\n".join(g)
 
@@ -403,13 +430,15 @@ def holes_table():
         rows.append(("A", "hole", name, x, KNOB_Y, round(d + PC, 2), "", "", part))
     for name, x in FOOTSW:
         rows.append(("A", "hole", name, x, FS_Y, round(FS_HOLE + PC, 2), "", "", "soft-touch footswitch A-1091 PBS24B4 (M12)"))
+    for name, x, y, d, what in SMALL_POTS:
+        rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k log dual pot A-6980 (9 mm, round shaft): " + what))
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
     for name, x, d, part in SIDE_B:
         rows.append(("B", "hole", name, x, 0.0, round(d + PC, 2), "", "", part))
-    rows.append(("C", "rectangle", "seed3 window", 0.0, SEED_Y, "", round(SEED_WIN[0] + PC, 2), round(SEED_WIN[1] + PC, 2),
+    rows.append((SEED_SIDE, "rectangle", "seed3 window", 0.0, SEED_Y, "", round(SEED_WIN[0] + PC, 2), round(SEED_WIN[1] + PC, 2),
                  "Daisy Seed3 cartridge (glued jumper-end socket)"))
     return rows
 
@@ -430,16 +459,16 @@ def write_drill(rows):
     body.append(f'<rect x="{-FACE_W/2}" y="{-(sbcy+SIDE_H/2)}" width="{FACE_W}" height="{SIDE_H}" fill="none" stroke="#000" stroke-width="0.3"/>')
     body.append(f'<rect x="{-FACE_W/2}" y="{-FACE_H/2}" width="{FACE_W}" height="{FACE_H}" rx="4" fill="none" stroke="#000" stroke-width="0.3"/>')
     body.append(text(0, sbcy + SIDE_H / 2 + 2, "SIDE B (top edge, jacks) - centre = its own (0,0)", 2.6))
-    scx = -(FACE_W / 2 + SIDE_H / 2)
+    scx = SEED_X_SIGN * (FACE_W / 2 + SIDE_H / 2)   # the side with the Seed3 window, drawn beside the face
     body.append(f'<rect x="{scx-SIDE_H/2}" y="{-FACE_H/2}" width="{SIDE_H}" height="{FACE_H}" fill="none" stroke="#000" stroke-width="0.3"/>')
-    body.append(f'<text x="{scx}" y="{FACE_H/2+5}" font-family="DejaVu Sans" font-size="2.6" text-anchor="middle">SIDE C (left)</text>')
+    body.append(f'<text x="{scx}" y="{FACE_H/2+5}" font-family="DejaVu Sans" font-size="2.6" text-anchor="middle">SIDE {SEED_SIDE} ({"right" if SEED_X_SIGN > 0 else "left"})</text>')
     body.append(text(0, -FACE_H / 2 - 4.5, "SIDE A (face) - 1590XX 121.1 x 145.5 mm - print at 100% / actual size", 2.6))
     for cx, cy in ((0, 0), (0, sbcy), (scx, 0)):
         body.append(f'<path d="M{cx-3},{-cy} h6 M{cx},{-cy-3} v6" stroke="#888" stroke-width="0.2"/>')
     for side, typ, name, x, y, dia, ww, hh, part in rows:
-        yy = y if side in ("A", "C") else sbcy + y
+        yy = y if side in ("A", SEED_SIDE) else sbcy + y
         x0 = x
-        x = x + (scx if side == "C" else 0)
+        x = x + (scx if side == SEED_SIDE else 0)
         if typ == "hole":
             r = dia / 2
             body.append(f'<circle cx="{x}" cy="{-yy}" r="{r}" fill="none" stroke="#c00" stroke-width="0.3"/>')
@@ -454,7 +483,7 @@ def write_drill(rows):
     body.append(f'<path d="M{-FACE_W/2},{FACE_H/2+9} h50" stroke="#000" stroke-width="0.4"/>')
     body.append(text(-FACE_W / 2 + 25, -FACE_H / 2 - 12.8, "this bar must measure exactly 50 mm", 2.2))
     W, H = 190, FACE_H + SIDE_H + 30
-    vb = (-115, -(FACE_H / 2 + SIDE_H + 12), W, H)
+    vb = (-80 if SEED_X_SIGN > 0 else -115, -(FACE_H / 2 + SIDE_H + 12), W, H)
     open(os.path.join(d, "pg1-drill-template-1to1.svg"), "w").write(svg_doc(W, H, "\n".join(body), vb, "#fff"))
 
 
@@ -467,6 +496,7 @@ def write_art(A):
     p = []
     p.append('<defs><radialGradient id="kn" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#4a4a4a"/>'
              '<stop offset="1" stop-color="#0b0b0b"/></radialGradient>'
+             '<radialGradient id="pk" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffb3d9"/><stop offset="1" stop-color="#e0559c"/></radialGradient>'
              '<radialGradient id="fs" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#f4f4f4"/>'
              '<stop offset="1" stop-color="#9a9a9a"/></radialGradient>'
              '<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0.6" dy="1.2" stdDeviation="1.2" flood-opacity="0.35"/></filter></defs>')
@@ -475,8 +505,9 @@ def write_art(A):
     for name, x, dd, _ in SIDE_B:
         p.append(f'<rect x="{x-dd/2-1.5}" y="{-FACE_H/2-3.2}" width="{dd+3}" height="3.4" rx="0.8" fill="#8d8d8d"/>')
     st = seed_stack()   # the Seed3 cartridge standing out of the left wall (seen from above: its edge)
-    p.append(f'<rect x="{-FACE_W/2-st["parts"]}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" rx="0.6" fill="#2a2a2a"/>')
-    p.append(f'<rect x="{-FACE_W/2-st["parts"]+0.3}" y="{-(SEED_Y-25.5)}" width="3.0" height="1.6" fill="#b5b5b5"/>')
+    sx0 = FACE_W / 2 + st["pcb0"] if SEED_X_SIGN > 0 else -FACE_W / 2 - st["parts"]   # the Seed3 sticking out of its wall
+    p.append(f'<rect x="{sx0}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" rx="0.6" fill="#2a2a2a"/>')
+    p.append(f'<rect x="{sx0+0.3}" y="{-(SEED_Y-25.5)}" width="3.0" height="1.6" fill="#b5b5b5"/>')
     p.append(art_svg_group(A, "#111"))
     # screen
     ww, wh = LCD_WIN[0] + PC, LCD_WIN[1] + PC
@@ -500,7 +531,15 @@ def write_art(A):
     for name, x in FOOTSW:
         hexpts = " ".join(f"{x+8.2*math.cos(math.radians(30+60*i)):.2f},{-FS_Y+8.2*math.sin(math.radians(30+60*i)):.2f}" for i in range(6))
         p.append(f'<polygon points="{hexpts}" fill="url(#fs)" stroke="#888" stroke-width="0.3" filter="url(#sh)"/>')
-        p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="4.4" fill="#d6d6d6" stroke="#9b9b9b" stroke-width="0.4"/>')
+        # the pink KN2310 aluminium cap (23 mm) on the plunger
+        p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="11.5" fill="url(#pk)" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
+        p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="9.6" fill="none" stroke="#ffd1e8" stroke-width="0.5" stroke-opacity="0.7"/>')
+    for name, x, y, _, _ in SMALL_POTS: # 14 mm white ripple knobs
+        p.append(f'<circle cx="{x}" cy="{-y}" r="{SMALL_KNOB_D/2}" fill="#f1f1ef" stroke="#c9c9c6" stroke-width="0.4" filter="url(#sh)"/>')
+        for k in range(24):
+            a = math.radians(k * 15)
+            p.append(f'<path d="M{x+5.6*math.cos(a):.2f},{-y+5.6*math.sin(a):.2f} L{x+7*math.cos(a):.2f},{-y+7*math.sin(a):.2f}" stroke="#c6c6c3" stroke-width="0.35"/>')
+        p.append(f'<path d="M{x},{-y-5.4} v2.4" stroke="#222" stroke-width="0.6" stroke-linecap="round"/>')
     open(os.path.join(d, "pg1-face-preview.svg"), "w").write(
         svg_doc(FACE_W + 10, FACE_H + 14, "\n".join(p), (-(FACE_W + 10) / 2, -(FACE_H + 14) / 2 - 1, FACE_W + 10, FACE_H + 14), "#e9e7e2"))
 
@@ -510,29 +549,40 @@ def write_interior():
     p = []
     p.append(f'<rect x="{-FACE_W/2}" y="{-FACE_H/2}" width="{FACE_W}" height="{FACE_H}" rx="5" fill="#fff" stroke="#000" stroke-width="0.4"/>')
     p.append(f'<rect x="{-FACE_W/2+2.6}" y="{-FACE_H/2+2.6}" width="{FACE_W-5.2}" height="{FACE_H-5.2}" rx="3" fill="none" stroke="#aaa" stroke-width="0.25" stroke-dasharray="1 1"/>')
+    # the carrier board (dashed): it hangs from the 4 audio jacks' nuts along the top wall
+    p.append(f'<rect x="{-FACE_W/2+4}" y="{-(FACE_H/2-2.5)}" width="{FACE_W-8}" height="{CARRIER_H}" rx="1.5" fill="#cfe9cf" fill-opacity="0.5" stroke="#1f9d3a" stroke-width="0.35" stroke-dasharray="1.5 1"/>')
+    p.append(text(0, FACE_H / 2 - 2.5 - CARRIER_H + 1.6, "carrier board (pcbway): amp, buffers, protection, pin headers", 1.9, color="#1f6d2a"))
     # jacks bodies (inside, from the top wall)
     for name, x, dd, _ in SIDE_B:
-        depth = {"out": 26.6, "in": 26.6, "9v": 16.0, "exp": 26.6}[name]
-        wdt = {"out": 15.8, "in": 15.8, "9v": 9.5, "exp": 15.8}[name]
+        depth, wdt = (16.0, 9.5) if name == "9v" else (21.0, 13.0)
         p.append(f'<rect x="{x-wdt/2}" y="{-FACE_H/2+2.5}" width="{wdt}" height="{depth}" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>')
-        p.append(text(x, FACE_H / 2 - 2.5 - depth / 2, name, 2.4))
+        p.append(text(x, FACE_H / 2 - 2.5 - depth / 2, name, 2.2))
+    # the two small pots (9 mm body) left of the screen
+    for name, x, y, _, _ in SMALL_POTS:
+        p.append(f'<rect x="{x-4.75}" y="{-(y+4.75)}" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>')
+        p.append(text(x, y - 7.6, name, 2.2))
     lw, lh = LCD_PCB
     p.append(f'<rect x="{LCD_CX-lw/2}" y="{-(LCD_CY+lh/2)}" width="{lw}" height="{lh}" fill="#bcd3f5" fill-opacity="0.55" stroke="#36c" stroke-width="0.4"/>')
     p.append(f'<rect x="{LCD_CX+lw/2-4.6}" y="{-(LCD_CY+lh/2-4.8)}" width="2.6" height="{33.02+2.5}" fill="#36c"/>')
     p.append(text(LCD_CX + lw / 2 - 8, LCD_CY + 15, "14-pin header", 1.9, "end", "#36c"))
     p.append(text(0, LCD_CY + 2, "2.4in screen module (top layer)", 2.3, color="#235"))
+    # the Seed3 cartridge, drawn as for the left wall and mirrored when it's in the right one
     st = seed_stack()
-    ox = -FACE_W / 2                                    # outside of the left wall
-    X = lambda d: ox - d                                # distance outward from the wall -> face x
-    p.append(f'<rect x="{X(JMP_OUT)}" y="{-(SEED_Y+25.4)}" width="{JMP_L}" height="50.8" fill="#222"/>')    # the glued jumper-end block
-    p.append(f'<rect x="{X(st["parts"])}" y="{-(SEED_Y+25.5)}" width="{st["parts"]-st["pcb0"]}" height="51" fill="#333" stroke="#000" stroke-width="0.3"/>')
-    p.append(f'<rect x="{X(st["parts"])-1.55}" y="{-(SEED_Y-25.5)}" width="3.25" height="1.6" fill="#bbb"/>')
-    p.append(f'<rect x="{X(st["pcb0"])}" y="{-(SEED_Y+25.5)}" width="2.5" height="51" fill="#555"/>')   # Seed3 pin spacer
-    p.append(f'<rect x="{X(JMP_OUT-JMP_L)}" y="{-(SEED_Y+25.4)}" width="10" height="50.8" fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"/>')
+    ox = -FACE_W / 2
+    X = lambda d: ox - d
+    M = lambda x, w: -(x + w) if SEED_X_SIGN > 0 else x   # a rect's left edge after mirroring
+    T = lambda x: -x if SEED_X_SIGN > 0 else x
+    def box(x, w, y, h, style):
+        p.append(f'<rect x="{M(x, w)}" y="{y}" width="{w}" height="{h}" {style}/>')
+    box(X(JMP_OUT), JMP_L, -(SEED_Y + 25.4), 50.8, 'fill="#222"')                      # the glued jumper-end block
+    box(X(st["parts"]), st["parts"] - st["pcb0"], -(SEED_Y + 25.5), 51, 'fill="#333" stroke="#000" stroke-width="0.3"')
+    box(X(st["parts"]) - 1.55, 3.25, -(SEED_Y - 25.5), 1.6, 'fill="#bbb"')
+    box(X(st["pcb0"]), 2.5, -(SEED_Y + 25.5), 51, 'fill="#555"')                        # Seed3 pin spacer
+    box(X(JMP_OUT - JMP_L), 10, -(SEED_Y + 25.4), 50.8, 'fill="none" stroke="#1f9d3a" stroke-width="0.3" stroke-dasharray="1 0.8"')
     for k_, (t_, c_) in enumerate([("Seed3", "#fff"), ("plugs into", "#fff"), ("its jumper", "#fff"), ("ends, hot-", "#fff"), ("glued into", "#fff"), ("a block", "#fff")]):
-        p.append(text(X(JMP_OUT - JMP_L / 2), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
-    p.append(text(X(JMP_OUT - JMP_L - 5), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
-    p.append(text(X(st["parts"]) + 1, SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
+        p.append(text(T(X(JMP_OUT - JMP_L / 2)), SEED_Y + 8 - k_ * 2.5, t_, 1.7, color=c_))
+    p.append(text(T(X(JMP_OUT - JMP_L - 5)), SEED_Y + 3, "wires", 1.8, color="#1f6d2a"))
+    p.append(text(T(X(st["parts"]) + 1), SEED_Y - 25.5 - 3.2, "USB-C", 1.9, color="#000"))
     for x, y in SCREWS:
         p.append(f'<circle cx="{x}" cy="{-y}" r="2.6" fill="#fff" stroke="#000" stroke-width="0.4"/><circle cx="{x}" cy="{-y}" r="1.5" fill="#000"/>')
     for name, x, kind, _ in KNOBS:
@@ -544,7 +594,7 @@ def write_interior():
         p.append(text(x, FS_Y - 10, name, 2.4))
     p.append(text(0, -FACE_H / 2 - 5, "INTERIOR TOP VIEW (looking down through the face) - 1:1", 2.6))
     p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window", 2.2))
-    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the left wall: keep the green dashed zone free for the wires", 2.2, color="#a00"))
+    p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the right wall: keep the green dashed zones free for the wires", 2.2, color="#a00"))
     W, H = FACE_W + 32, FACE_H + 30
     open(os.path.join(d, "interior-layout.svg"), "w").write(svg_doc(W, H, "\n".join(p), (-W / 2, -FACE_H / 2 - 8, W, H), "#fff"))
 
@@ -557,7 +607,7 @@ DEPTHS = [  # item, from mm, to mm  (0 = outside of the face, 36.1 = open edge w
     ("screen parts / M3 nut + screw tip", 9.6, 12.6),
     ("encoders + pins + solder", 3.0, 15.5),
     ("TRS jacks (top wall zone only)", 10.2, 26.0),
-    ("Seed3 window in the left wall", 18.05 - (SEED_WIN[0] + PC) / 2, 18.05 + (SEED_WIN[0] + PC) / 2),
+    ("Seed3 window in the right wall", 18.05 - (SEED_WIN[0] + PC) / 2, 18.05 + (SEED_WIN[0] + PC) / 2),
     ("Seed3 jumper-end block (in the window)", 18.05 - 8.9, 18.05 + 8.9),
     ("footswitch body + lugs (bottom zone only)", 3.0, 33.0),
     ("lid", 36.1, 39.3),

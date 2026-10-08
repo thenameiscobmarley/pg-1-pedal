@@ -18,6 +18,11 @@ enum Theme
     THEME_BIOS   // the classic BIOS blue on grey
 };
 void SetTheme(int theme);
+// Every control's name comes from this one rule: the prefix, then a number for the knobs (pg-1 .. pg-4)
+// and a letter for the footswitches (pg-a .. pg-c). Nothing else on the screen spells a control's name out.
+constexpr const char* kCtrlPrefix = "pg-";
+const char* KnobName(int k); // 0 -> "pg-1"
+const char* FootName(int f); // 0 -> "pg-a"
 constexpr uint16_t kBandCol[4] = {Canvas::Rgb(255, 150, 220), Canvas::Rgb(200, 165, 255), Canvas::Rgb(120, 205, 255),
                                   Canvas::Rgb(140, 255, 215)};
 

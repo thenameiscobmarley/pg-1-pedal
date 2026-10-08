@@ -289,9 +289,15 @@ class Core
     void Meter(int x, int y, int w, int h, float db, float lo, float hi, float limit, uint16_t c, const char* label);
     Rect TabRect(int i) const;
     Rect ParamRect(int knob) const;
+    // settings pages: a tab can have more than 4 settings; the 4 boxes show one page, swipe / dots for the next
+    int  PageCount() const;
+    void GoPage(int page, uint32_t now);
+    void DrawDots();
+    void SlideFrame(uint32_t now);
+    void RoundRect(int x, int y, int w, int h, uint16_t c, int r = 3, int bg = -1); // filled; corners cut to bg (-1 = panel grey)
 
     // ---- helpers
-    int   KnobParam(int knob) const; // which parameter a knob moves right now
+    int   KnobParam(int knob) const; // which parameter a knob moves right now (-1 = none on this page)
     float FreqHz(int band) const;
     float QOf(int band) const;
     float Pf(int p) const { return float(params_[p].value); }
@@ -452,8 +458,16 @@ class Core
         uint32_t t0   = 0;
         int      node = -1;
         bool     moved = false;
+        int      mode = 0, box = -1, last_y = 0; // 0 undecided, 1 swipe the pages, 2 drag a box's value
     } ts_;
     uint32_t last_tap_time_ = 0;
+    int      page_ = 0, box_dx_ = 0; // settings page shown; boxes' sideways offset while sliding
+    struct Slide
+    {
+        bool     on = false;
+        uint32_t t0 = 0;
+        int      from = 0, dir = 1;
+    } slide_;
     int      last_tap_node_ = -1;
 };
 } // namespace pg

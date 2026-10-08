@@ -23,78 +23,78 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
     static const int freq_def[kBands] = {28, 52, 84, 104}; // 100 Hz, 400 Hz, 2.5 kHz, 8 kHz
     for(int b = 0; b < kBands; b++)
     {
-        params_[ParamIndex(b, B_FREQ)]   = {"freq", "hz", "pg-1 freq: where the band sits. hold+turn = q", F_FREQ, freq_def[b], 0, 119, 1, 1, freq_def[b]};
-        params_[ParamIndex(b, B_GAIN)]   = {"gain", "db", "pg-2 gain: always lifts (+) or cuts (-) the band", F_STENTH, 0, -150, 150, 5, 1, 0};
+        params_[ParamIndex(b, B_FREQ)]   = {"freq", "hz", "freq: where the band sits. hold+turn = q", F_FREQ, freq_def[b], 0, 119, 1, 1, freq_def[b]};
+        params_[ParamIndex(b, B_GAIN)]   = {"gain", "db", "gain: always lifts (+) or cuts (-) the band", F_STENTH, 0, -150, 150, 5, 1, 0};
         params_[ParamIndex(b, B_Q)]      = {"q", "", "q (hold pg-1 + turn): low = wide, high = narrow", F_Q, 13, 0, 40, 1, 1, 13};
-        params_[ParamIndex(b, B_THRESH)] = {"thresh", "db", "pg-3 thresh: band level where it starts to act", F_SINT, -24, -60, 0, 1, 1, -24};
-        params_[ParamIndex(b, B_RANGE)]  = {"range", "db", "pg-4 range: most it moves when loud. - cut + lift", F_STENTH, -60, -240, 120, 5, 1, -60};
+        params_[ParamIndex(b, B_THRESH)] = {"thresh", "db", "thresh: band level where it starts to act", F_SINT, -24, -60, 0, 1, 1, -24};
+        params_[ParamIndex(b, B_RANGE)]  = {"range", "db", "range: most it moves when loud. - cut + lift", F_STENTH, -60, -240, 120, 5, 1, -60};
     }
     const Param rest[] = {
-        {"mode", "", "pg-1 mode: auto, 50, 60, learned (push it to learn)", F_MAINS, 0, 0, 3, 1, 1, 0},
-        {"hum", "db", "pg-2 hum: how deep the hum notches may go", F_INT, 18, 0, 40, 1, 1, 18},
-        {"hiss", "db", "pg-3 hiss: how far hiss drops in quiet parts", F_INT, 6, 0, 40, 1, 1, 6},
-        {"hiss thr", "db", "pg-4 hiss thr: top end under this = hiss", F_SINT, -60, -90, -30, 1, 1, -60},
-        {"thresh", "db", "pg-1 thresh: level where it starts to squeeze", F_SINT, -18, -40, 0, 1, 1, -18},
-        {"ratio", ":1", "pg-2 ratio: how hard it squeezes above thresh", F_RATIO, 25, 10, 100, 1, 1, 25},
-        {"attack", "ms", "pg-3 attack: how fast it grabs. slow = punchy", F_ATTACK, 27, 0, 40, 1, 1, 27},
-        {"release", "ms", "pg-4 release: how fast it lets go. 0 = auto", F_RELEASE, 0, 0, 40, 1, 1, 0},
-        {"thump", "db", "pg-1 thump: most it lifts the lows on each hit", F_STENTH, 24, 0, 60, 5, 1, 24},
-        {"detail", "", "pg-2 detail: bass harmonics, heard anywhere", F_STENTH, 21, 0, 60, 5, 1, 21},
-        {"clarity", "db", "pg-3 clarity: most each band may cut/lift. hold = bands", F_STENTH, 20, 0, 60, 5, 1, 20},
-        {"warmth", "db", "pg-4 warmth: fuller lows (a steady low lift)", F_STENTH, 10, 0, 40, 5, 1, 10},
-        {"drive", "db", "pg-1 drive: how hard it hits the tape curve", F_STENTH, 40, 0, 180, 5, 1, 40},
-        {"even", "%", "pg-2 even: tube-like even harmonics (warmer)", F_PCT, 30, 0, 100, 2, 1, 30},
-        {"tone", "%", "pg-3 tone: top end of the drive. low = darker", F_PCT, 70, 0, 100, 2, 1, 70},
-        {"mix", "%", "pg-4 mix: blend of driven and clean", F_PCT, 100, 0, 100, 2, 1, 100},
-        {"depth", "db", "pg-1 depth: most it cuts one harsh spot", F_INT, 6, 0, 12, 1, 1, 6},
-        {"sens", "%", "pg-2 sens: how easily a spot counts as harsh", F_PCT, 50, 0, 100, 2, 1, 50},
-        {"speed", "%", "pg-3 speed: how fast cuts let go again", F_PCT, 50, 0, 100, 2, 1, 50},
-        {"comfort", "%", "pg-4 comfort: softer 3k as it gets loud", F_PCT, 50, 0, 100, 2, 1, 50},
-        {"ceiling", "db", "pg-1 ceiling: peaks never go above this", F_STENTH, -10, -120, -3, 1, 1, -10},
-        {"ears", "db", "pg-2 ears: max loudness over ~3 s, eases down", F_SINT, -10, -30, -3, 1, 1, -10},
-        {"woofer", "db", "pg-3 woofer: max steady bass power (cool coil)", F_SINT, -9, -30, 0, 1, 1, -9},
-        {"tweeter", "db", "pg-4 tweeter: max steady treble power", F_SINT, -20, -40, -6, 1, 1, -20},
-        {"view", "", "pg-1 view: spectrum, waterfall, stereo, levels, scope..", F_VMODE, 0, 0, 6, 1, 1, 0},
-        {"fall", "", "pg-2 fall: how fast the display drops back", F_INT, 5, 1, 10, 1, 1, 5},
-        {"range", "db", "pg-3 range: db shown from top to bottom", F_INT, 90, 30, 120, 10, 10, 90},
-        {"source", "", "pg-4 source: input, output or both", F_VSRC, 2, 0, 2, 1, 1, 2},
-        {"target", "db", "pg-1 target: level every source is brought to", F_SINT, -18, -30, -10, 1, 1, -18},
-        {"boost", "db", "pg-2 boost: most it lifts a quiet source", F_INT, 12, 0, 24, 1, 1, 12},
-        {"cut", "db", "pg-3 cut: most it turns down a hot source", F_INT, 12, 0, 24, 1, 1, 12},
-        {"speed", "%", "pg-4 speed: how fast it follows level changes", F_PCT, 30, 0, 100, 2, 1, 30},
-        {"check", "", "pg-1 check: pick one to read what it means", F_ROW, 0, 0, kChecks - 1, 1, 1, 0},
-        {"sens", "", "pg-2 sens: strict = flag even a little weird", F_SENS, 2, 0, 2, 1, 1, 2},
-        {"pop-ups", "", "pg-3 pop-ups: show a line when something's off", F_ONOFF, 1, 0, 1, 1, 1, 1},
-        {"view", "", "pg-4 view: now, or how often since power-on", F_HVIEW, 0, 0, 1, 1, 1, 0},
-        {"margin", "db", "pg-4 margin: how far above the learned hiss it opens", F_INT, 4, 0, 12, 1, 1, 4},
+        {"mode", "", "mode: auto, 50, 60, learned (push it to learn)", F_MAINS, 0, 0, 3, 1, 1, 0},
+        {"hum", "db", "hum: how deep the hum notches may go", F_INT, 18, 0, 40, 1, 1, 18},
+        {"hiss", "db", "hiss: how far hiss drops in quiet parts", F_INT, 6, 0, 40, 1, 1, 6},
+        {"hiss thr", "db", "hiss thr: top end under this = hiss", F_SINT, -60, -90, -30, 1, 1, -60},
+        {"thresh", "db", "thresh: level where it starts to squeeze", F_SINT, -18, -40, 0, 1, 1, -18},
+        {"ratio", ":1", "ratio: how hard it squeezes above thresh", F_RATIO, 25, 10, 100, 1, 1, 25},
+        {"attack", "ms", "attack: how fast it grabs. slow = punchy", F_ATTACK, 27, 0, 40, 1, 1, 27},
+        {"release", "ms", "release: how fast it lets go. 0 = auto", F_RELEASE, 0, 0, 40, 1, 1, 0},
+        {"thump", "db", "thump: most it lifts the lows on each hit", F_STENTH, 24, 0, 60, 5, 1, 24},
+        {"detail", "", "detail: bass harmonics, heard anywhere", F_STENTH, 21, 0, 60, 5, 1, 21},
+        {"clarity", "db", "clarity: most each band may cut/lift. hold = bands", F_STENTH, 20, 0, 60, 5, 1, 20},
+        {"warmth", "db", "warmth: fuller lows (a steady low lift)", F_STENTH, 10, 0, 40, 5, 1, 10},
+        {"drive", "db", "drive: how hard it hits the tape curve", F_STENTH, 40, 0, 180, 5, 1, 40},
+        {"even", "%", "even: tube-like even harmonics (warmer)", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"tone", "%", "tone: top end of the drive. low = darker", F_PCT, 70, 0, 100, 2, 1, 70},
+        {"mix", "%", "mix: blend of driven and clean", F_PCT, 100, 0, 100, 2, 1, 100},
+        {"depth", "db", "depth: most it cuts one harsh spot", F_INT, 6, 0, 12, 1, 1, 6},
+        {"sens", "%", "sens: how easily a spot counts as harsh", F_PCT, 50, 0, 100, 2, 1, 50},
+        {"speed", "%", "speed: how fast cuts let go again", F_PCT, 50, 0, 100, 2, 1, 50},
+        {"comfort", "%", "comfort: softer 3k as it gets loud", F_PCT, 50, 0, 100, 2, 1, 50},
+        {"ceiling", "db", "ceiling: peaks never go above this", F_STENTH, -10, -120, -3, 1, 1, -10},
+        {"ears", "db", "ears: max loudness over ~3 s, eases down", F_SINT, -10, -30, -3, 1, 1, -10},
+        {"woofer", "db", "woofer: max steady bass power (cool coil)", F_SINT, -9, -30, 0, 1, 1, -9},
+        {"tweeter", "db", "tweeter: max steady treble power", F_SINT, -20, -40, -6, 1, 1, -20},
+        {"view", "", "view: spectrum, waterfall, stereo, levels, scope..", F_VMODE, 0, 0, 6, 1, 1, 0},
+        {"fall", "", "fall: how fast the display drops back", F_INT, 5, 1, 10, 1, 1, 5},
+        {"range", "db", "range: db shown from top to bottom", F_INT, 90, 30, 120, 10, 10, 90},
+        {"source", "", "source: input, output or both", F_VSRC, 2, 0, 2, 1, 1, 2},
+        {"target", "db", "target: level every source is brought to", F_SINT, -18, -30, -10, 1, 1, -18},
+        {"boost", "db", "boost: most it lifts a quiet source", F_INT, 12, 0, 24, 1, 1, 12},
+        {"cut", "db", "cut: most it turns down a hot source", F_INT, 12, 0, 24, 1, 1, 12},
+        {"speed", "%", "speed: how fast it follows level changes", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"check", "", "check: pick one to read what it means", F_ROW, 0, 0, kChecks - 1, 1, 1, 0},
+        {"sens", "", "sens: strict = flag even a little weird", F_SENS, 2, 0, 2, 1, 1, 2},
+        {"pop-ups", "", "pop-ups: show a line when something's off", F_ONOFF, 1, 0, 1, 1, 1, 1},
+        {"view", "", "view: now, or how often since power-on", F_HVIEW, 0, 0, 1, 1, 1, 0},
+        {"margin", "db", "margin: how far above the learned hiss it opens", F_INT, 4, 0, 12, 1, 1, 4},
         {"mode", "", "mode (hold pg-1 + turn): dynamic, add, normalise", F_CLMODE, 0, 0, 2, 1, 1, 0},
-        {"punch", "%", "pg-1 punch: gives back the hits comp/limit squashed", F_PCT, 50, 0, 100, 2, 1, 50},
-        {"detail", "%", "pg-2 detail: lifts quiet details that got buried", F_PCT, 40, 0, 100, 2, 1, 40},
-        {"air", "%", "pg-3 air: gives back top end that went missing", F_PCT, 50, 0, 100, 2, 1, 50},
-        {"space", "%", "pg-4 space: gives back stereo width that shrank", F_PCT, 40, 0, 100, 2, 1, 40},
-        {"width", "%", "pg-1 width: 100 = as is, more = wider, less = narrower", F_PCT, 130, 0, 200, 5, 1, 130},
-        {"bass mono", "hz", "pg-2 bass mono: bass below this stays centred", F_HZOFF, 120, 0, 300, 10, 10, 120},
-        {"air", "db", "pg-3 air: a little sparkle on the sides", F_INT, 2, 0, 6, 1, 1, 2},
-        {"guard", "", "pg-4 guard: eases width off if mono would lose sound", F_ONOFF, 1, 0, 1, 1, 1, 1},
-        {"listen", "phon", "pg-1 listen: how loud you listen (40 quiet, 90 loud)", F_INT, 70, 40, 90, 1, 1, 70},
-        {"bass", "%", "pg-2 bass: how much bass comes back at low volume", F_PCT, 60, 0, 100, 2, 1, 60},
-        {"treble", "%", "pg-3 treble: how much treble comes back at low volume", F_PCT, 40, 0, 100, 2, 1, 40},
-        {"follow", "", "pg-4 follow: quiet passages get a bit more too", F_ONOFF, 1, 0, 1, 1, 1, 1},
-        {"config", "", "pg-1 config: pick 1-8. push = load it", F_SLOT, 0, 0, kSlots - 1, 1, 1, 0},
-        {"save", "", "pg-2 save: push twice to save into this config", F_SAVE, 0, 0, 0, 1, 1, 0},
-        {"theme", "", "pg-3 theme: pearl (light) or classic bios", F_THEME, 0, 0, 1, 1, 1, 0},
-        {"knobs", "", "pg-4 knobs: flip if turning right goes down", F_KNOBS, 0, 0, 1, 1, 1, 0},
+        {"punch", "%", "punch: gives back the hits comp/limit squashed", F_PCT, 50, 0, 100, 2, 1, 50},
+        {"detail", "%", "detail: lifts quiet details that got buried", F_PCT, 40, 0, 100, 2, 1, 40},
+        {"air", "%", "air: gives back top end that went missing", F_PCT, 50, 0, 100, 2, 1, 50},
+        {"space", "%", "space: gives back stereo width that shrank", F_PCT, 40, 0, 100, 2, 1, 40},
+        {"width", "%", "width: 100 = as is, more = wider, less = narrower", F_PCT, 130, 0, 200, 5, 1, 130},
+        {"bass mono", "hz", "bass mono: bass below this stays centred", F_HZOFF, 120, 0, 300, 10, 10, 120},
+        {"air", "db", "air: a little sparkle on the sides", F_INT, 2, 0, 6, 1, 1, 2},
+        {"guard", "", "guard: eases width off if mono would lose sound", F_ONOFF, 1, 0, 1, 1, 1, 1},
+        {"listen", "phon", "listen: how loud you listen (40 quiet, 90 loud)", F_INT, 70, 40, 90, 1, 1, 70},
+        {"bass", "%", "bass: how much bass comes back at low volume", F_PCT, 60, 0, 100, 2, 1, 60},
+        {"treble", "%", "treble: how much treble comes back at low volume", F_PCT, 40, 0, 100, 2, 1, 40},
+        {"follow", "", "follow: quiet passages get a bit more too", F_ONOFF, 1, 0, 1, 1, 1, 1},
+        {"config", "", "config: pick 1-8. push = load it", F_SLOT, 0, 0, kSlots - 1, 1, 1, 0},
+        {"save", "", "save: push twice to save into this config", F_SAVE, 0, 0, 0, 1, 1, 0},
+        {"theme", "", "theme: pearl (light) or classic bios", F_THEME, 0, 0, 1, 1, 1, 0},
+        {"knobs", "", "knobs: flip if turning right goes down", F_KNOBS, 0, 0, 1, 1, 1, 0},
         {"tour", "", "", F_INT, 0, 0, 1, 1, 1, 0},
-        {"bass", "%", "pg-1 bass: how firmly boomy bass peaks are held", F_PCT, 30, 0, 100, 2, 1, 30},
-        {"low mids", "%", "pg-2 low mids: holds back muddy / boxy bursts", F_PCT, 30, 0, 100, 2, 1, 30},
-        {"high mids", "%", "pg-3 high mids: holds back harsh, shouty hits", F_PCT, 30, 0, 100, 2, 1, 30},
-        {"highs", "%", "pg-4 highs: holds back sharp s's and cymbals", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"bass", "%", "bass: how firmly boomy bass peaks are held", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"low mids", "%", "low mids: holds back muddy / boxy bursts", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"high mids", "%", "high mids: holds back harsh, shouty hits", F_PCT, 30, 0, 100, 2, 1, 30},
+        {"highs", "%", "highs: holds back sharp s's and cymbals", F_PCT, 30, 0, 100, 2, 1, 30},
         {"d-pad", "", "hold pg-4 + turn: the touch d-pad on / off", F_ONOFF, 0, 0, 1, 1, 1, 0},
         {"screen", "", "hold pg-3 + turn: screen fast (60 fps) or safe", F_ONOFF, 1, 0, 1, 1, 1, 1},
-        {"p", "", "pg-1 p: pushes harder the further off it is. 0 = off", F_HUND, 50, 0, 500, 5, 1, 50},
-        {"i", "/s", "pg-2 i: slowly clears what p leaves over. 0 = off", F_HUND, 20, 0, 500, 5, 1, 20},
-        {"d", "s", "pg-3 d: brakes fast swings (less overshoot). 0 = off", F_HUND, 0, 0, 500, 5, 1, 0},
-        {"group", "", "pg-4 group: pick one, push = steer it or not", F_PIDGRP, 0, 0, 5, 1, 1, 0},
+        {"p", "", "p: pushes harder the further off it is. 0 = off", F_HUND, 50, 0, 500, 5, 1, 50},
+        {"i", "/s", "i: slowly clears what p leaves over. 0 = off", F_HUND, 20, 0, 500, 5, 1, 20},
+        {"d", "s", "d: brakes fast swings (less overshoot). 0 = off", F_HUND, 0, 0, 500, 5, 1, 0},
+        {"group", "", "group: pick one, push = steer it or not", F_PIDGRP, 0, 0, 5, 1, 1, 0},
         {"groups", "", "", F_INT, 3, 0, 63, 1, 1, 3},
         {"tilt", "db/oct", "hold pg-4 + turn: target balance. - = darker", F_STENTH, -20, -60, 20, 5, 1, -20},
         {"bands", "", "hold pg-3 + turn: how many bands clarity may use", F_INT, 6, 1, 10, 1, 1, 6},
@@ -171,10 +171,48 @@ void Core::SetStageOn(int tab, bool on)
 float Core::FreqHz(int band) const { return 20.f * powf(2.f, float(params_[ParamIndex(band, B_FREQ)].value) / 12.f); }
 float Core::QOf(int band) const { return 0.3f * powf(2.f, float(params_[ParamIndex(band, B_Q)].value) / 8.f); }
 
+// the second page of settings on the tabs that have more than 4 (-1 = an empty box)
+static const int kPage2[kTabs][kKnobs] = {
+    {P_LRN_MARGIN, -1, -1, -1},   // hum
+    {-2, -1, -1, -1},             // dyn eq (-2: the band's q)
+    {-1, -1, -1, -1},             // comp
+    {P_CL_MODE, P_CL_BANDS, -1, -1}, // clarity
+    {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, // saturate, de-harsh, safety, visual
+    {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, // input, health, takeback, width
+    {-1, -1, -1, -1},             // loudness
+    {P_DPAD, P_SCR_FAST, -1, -1}, // config
+    {-1, -1, -1, -1},             // multiband
+    {P_PID_TILT, -1, -1, -1},     // pid
+};
+
+int Core::PageCount() const
+{
+    if(screen_ != PAGE)
+        return 1;
+    for(int k = 0; k < kKnobs; k++)
+        if(kPage2[tab_][k] != -1)
+            return 2;
+    return 1;
+}
+
+void Core::GoPage(int page, uint32_t now)
+{
+    page = page < 0 ? 0 : (page >= PageCount() ? PageCount() - 1 : page);
+    if(page == page_)
+        return;
+    slide_.on = true, slide_.t0 = now, slide_.from = page_, slide_.dir = page > page_ ? 1 : -1;
+    page_ = page;
+}
+
 int Core::KnobParam(int k) const
 {
     if(screen_ != PAGE || k < 0 || k >= kKnobs)
         return -1;
+    if(page_ == 1 && !knob_down_[k]) // the second page (a held knob still reaches its shortcut below)
+    {
+        const int p = kPage2[tab_][k];
+        return p == -2 ? ParamIndex(band_, B_Q) : p;
+    }
     if(tab_ == T_EQ)
     {
         static const int map[kKnobs] = {B_FREQ, B_GAIN, B_THRESH, B_RANGE};
@@ -243,6 +281,8 @@ void Core::KnobTurn(int i, int inc, uint32_t now)
     else
     {
         const int  p      = KnobParam(i);
+        if(p < 0) // an empty box on this page
+            return;
         const bool q_mode = (tab_ == T_EQ || tab_ == T_CLARITY) && i == 0 && knob_down_[0];
         SetParam(p, params_[p].value + inc * StepFor(p, now - last_detent_[i], knob_down_[i] && !q_mode));
         pending_flash_kind_  = 1;
@@ -287,18 +327,20 @@ void Core::KnobPress(int i, bool down, uint32_t now)
         return;
     }
     const int p = KnobParam(i);
-    if(tab_ == T_CONFIG && (i == 0 || i == 1)) // config: push pg-1 = load, push pg-2 twice = save
+    if(p < 0)
+        return;
+    if(tab_ == T_CONFIG && page_ == 0 && (i == 0 || i == 1)) // config: push the 1st knob = load, the 2nd twice = save
     {
         if(i == 0)
             pending_load_ = true;
         else if(now - save_arm_t_ < 3000)
             pending_save_ = true, save_arm_t_ = 0;
         else
-            save_arm_t_ = now, cfg_msg_ = "push pg-2 again to save here", cfg_msg_t0_ = now;
+            save_arm_t_ = now, cfg_msg_ = "push the same knob again to save", cfg_msg_t0_ = now;
         pending_flash_kind_ = 1, pending_flash_index_ = i;
         return;
     }
-    if(tab_ == T_PID && i == 3) // pid: push pg-4 = steer the group it points at, or stop steering it
+    if(tab_ == T_PID && i == 3 && page_ == 0) // pid: push the 4th knob = steer the group it points at, or stop steering it
     {
         SetParam(P_PID_MASK, params_[P_PID_MASK].value ^ (1 << params_[P_PID_GROUP].value));
         param_changed_ |= 1u << 3;
@@ -393,6 +435,7 @@ void Core::OpenTab(int i, uint32_t now)
     const Rect from = screen_ == HOME ? TabRect(i) : Rect{0, 0, Canvas::kW, 20};
     focus_ = tab_ = i;
     screen_       = PAGE;
+    page_ = 0, slide_.on = false, box_dx_ = 0;
     StartWipe(from, {0, 0, Canvas::kW, Canvas::kH}, now);
     a_box_.on   = false;
     redraw_all_ = true;
@@ -1043,9 +1086,12 @@ void Core::DrawPad(uint32_t now)
 // ------------------------------------------------------------------ first power-up tour
 void Core::DrawTour(uint32_t now)
 {
-    static const char* const lines[4][2] = {
+    char foot[48], hold[48];
+    snprintf(foot, sizeof(foot), "%s bypass  %s next  %s a/b", ui::FootName(0), ui::FootName(1), ui::FootName(2));
+    snprintf(hold, sizeof(hold), "hold %s on a tab to switch it on/off", ui::FootName(1));
+    const char* const lines[4][2] = {
         {"welcome to your pg-1", "turn any knob to move, push it to open"},
-        {"fs-1 bypass  fs-2 next  fs-3 a/b", "hold fs-2 on a tab to switch it on/off"},
+        {foot, hold},
         {"more tabs on page 2", "turn past the last tab, or tap the dots"},
         {"you're set: it saves itself", "a '!' in the title = something to check"},
     };
@@ -1256,9 +1302,9 @@ void Core::DrawTab(int i, uint32_t now)
     const Rect r     = TabRect(i);
     const bool focus = i == focus_;
     const bool on    = StageOn(i);
-    FillRect(r.x, r.y, r.w, r.h, ui::kBlue);
-    FrameRect(r.x, r.y, r.w, r.h, ui::kGrey);
-    FrameRect(r.x + 2, r.y + 2, r.w - 4, r.h - 4, focus ? ui::kYellow : ui::kLtBlue);
+    RoundRect(r.x, r.y, r.w, r.h, ui::kBlue, 6);                                        // a rounded tile
+    RoundRect(r.x + 3, r.y + 3, r.w - 6, r.h - 6, focus ? ui::kYellow : ui::kLtBlue, 4, ui::kBlue);
+    RoundRect(r.x + 4, r.y + 4, r.w - 8, r.h - 8, ui::kBlue, 3, focus ? ui::kYellow : ui::kLtBlue); // (a 1 px rounded inner line)
     DrawIcon(i, r.x + r.w / 2, r.y + 34, focus ? ui::kYellow : (on ? ui::kCyan : ui::kDimText));
     const char* name = ui::kTabNames[i];
     TextFb(r.x + (r.w - TextW(name, Font_7x10)) / 2, r.y + 60, name, Font_7x10, focus ? ui::kYellow : ui::kWhite);
@@ -1452,7 +1498,9 @@ int Core::DrawUi(Canvas& c, uint32_t now)
                         DrawParamBox(2, now), DrawParamBox(3, now); // live level / movement in the boxes
                 }
             }
-            if(redraw_panel_ || drawn_band_ != band_)
+            if(slide_.on) // the boxes slide to the other settings page
+                SlideFrame(now);
+            else if(redraw_panel_ || drawn_band_ != band_)
             {
                 redraw_panel_ = false, param_changed_ = 0;
                 DrawStrip(now);
@@ -1537,6 +1585,26 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
         ts_.x = x, ts_.y = y;
         if(abs(x - ts_.x0) > 4 || abs(y - ts_.y0) > 4)
             ts_.moved = true;
+        // on the knob boxes: sideways = swipe to the other page, up / down = change that box's value
+        if(screen_ == PAGE && ts_.node < 0 && ts_.y0 >= ui::kPanelY && ts_.mode == 0)
+        {
+            const int dx = x - ts_.x0, dy = y - ts_.y0;
+            if(abs(dx) > 14 && abs(dx) > 2 * abs(dy))
+                ts_.mode = 1;
+            else if(abs(dy) > 8 && abs(dy) > abs(dx) && ts_.y0 >= 186)
+                ts_.mode = 2, ts_.box = (ts_.x0 - 4) / 79, ts_.last_y = ts_.y0;
+        }
+        if(ts_.mode == 2 && ts_.box >= 0 && ts_.box < kKnobs)
+        {
+            const int p = KnobParam(ts_.box), steps = (ts_.last_y - y) / 7; // 7 px per step, up = more
+            if(p >= 0 && steps != 0)
+            {
+                SetParam(p, params_[p].value + steps * params_[p].step);
+                ts_.last_y -= steps * 7;
+                pending_flash_kind_ = 1, pending_flash_index_ = ts_.box;
+            }
+            return;
+        }
         if(ts_.node >= 0 && ts_.moved)
         {
             const float hz   = FX(x < ui::kGx ? ui::kGx : (x >= ui::kGx + ui::kGw ? ui::kGx + ui::kGw - 1 : x), 20.f, 3.f);
@@ -1551,8 +1619,18 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
     if(!touching && ts_.down) // finger up
     {
         ts_.down = false;
+        if(ts_.mode == 1 && abs(x - ts_.x0) > 40) // a swipe: left = the next page, right = back
+        {
+            GoPage(page_ + (x < ts_.x0 ? 1 : -1), now);
+            return;
+        }
         if(ts_.moved)
             return;
+        if(screen_ == PAGE && PageCount() > 1 && y >= 176 && y < 186 && x >= 130 && x < 190) // the page dots
+        {
+            GoPage(page_ ? 0 : 1, now);
+            return;
+        }
         if(alert_chip_.w > 0 && y < 20 && x >= alert_chip_.x && x < alert_chip_.x + alert_chip_.w) // "! n": what's wrong?
         {
             for(int k = 0; k < kChecks; k++)
@@ -1612,7 +1690,7 @@ void Core::Touch(bool touching, int x, int y, uint32_t now)
                 last_tap_node_ = ts_.node, last_tap_time_ = now;
             return;
         }
-        if(tab_ == T_EQ && y >= 164 && y < 182) // band chips
+        if(tab_ == T_EQ && y >= 162 && y < 178) // band chips
         {
             const int b = (x - 4) / 79;
             if(b >= 0 && b < kBands)

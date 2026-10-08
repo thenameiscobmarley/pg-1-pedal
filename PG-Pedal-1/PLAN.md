@@ -43,5 +43,29 @@ Room + safety (2026-10-07)
 - [x] 38. Clarity: up to 10 self-placing bands (own freq / q / gain, cut or lift, 20 detectors, detrended); anti-duck everywhere (bass-free detectors, bass-first safety limiter, false infrasonic mute fixed, final duck guard): onset dips 7-12 dB -> <= 0.3 dB
 - [x] 39. Seed3 load checked on an emulated Cortex-M7 (_Tools/seed3-bench): was 102-153 % worst case, optimised to ~59 % (defaults ~51 %); plugin runs the core at 48 kHz / 48-sample blocks and reports the Seed3 load
 - [ ] 40. (decide) carrier PCB: line/instrument input buffers, headphone amp, ESD/over-voltage protection, pin headers (PCBWay/JLCPCB assembly)
+## v2 redesign (decided 2026-10-08, in progress) - resume here
+Decisions from the user (question rounds):
+- Carrier PCB, made + assembled by PCBWay from files we generate (Tayda doesn't make custom PCBs). Hangs from the top-wall jack nuts
+  (PCB-mount 1/4" TRS jacks, e.g. Tayda A-1122 / REAN NYS216): no extra screws.
+- Top edge jacks (all 1/4" TRS): line-in, line-out, headphones, no-amp, + 9V. The exp jack is dropped.
+- no-amp = the processed sound at the same loudness that came in (unity gain), through a clean buffer that can drive a headset.
+- Headphone amp: very low noise, drives 50 ohm now and 200 ohm later, max +12 dB over line (~4 V rms) -> needs more than a 9 V single
+  supply (plan: charge-pump -9 V, filtered, OPA1622-class amp).
+- Two small knobs LEFT of the screen: top = headphone volume (analog, silent .. +12 dB), below = line-out level (analog).
+  They need the left wall free -> the Seed3 cartridge moves to the right wall.
+- Footswitches renamed pg-a, pg-b, pg-c (every control starts with "pg-", from one naming rule); pink footswitch caps;
+  the 4 knobs stay white knurled aluminium.
+- Plain monospace, terminal-like lowercase font for some text (my choice where); keep the diamonds, don't overdo shapes / black ink,
+  pink accents allowed if they don't look out of place.
+- Screen: fancier, more spacious, touch-smart; tabs can have more than 4 settings: swipe the 4 boxes sideways as a page, with page dots
+  (knobs always work the boxes you see).
+Steps:
+- [x] a. parts: A-6980 10k log dual pots, A-8567 14 mm white ripple knobs, A-1122 PCB jacks, A-2599 pink KN2310 caps (fit PBS-24)
+- [x] b. layout: Seed3 window on the right wall (side E - CHECK in Tayda's preview), pg-hp / pg-line pots left of the screen, 5 top-edge holes; face print with IBM Plex Mono small words + pink accents (not uploaded to Tayda yet)
+- [x] c. firmware/UI: names from one rule (ui::KnobName / FootName), 2nd settings page (swipe the boxes, tap the dots, slide animation), drag a box up/down to change it, rounded boxes / tiles / strip (more polish possible)
+- [ ] d. carrier PCB: schematic (input buffer + protection, line driver, no-amp buffer, headphone amp + volume, line-out level,
+        -9 V charge pump + filtering, pin headers), then board files for PCBWay (needs KiCad installed)
+- [ ] e. plugin 3D model + docs + BOM/budget, push
+
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda

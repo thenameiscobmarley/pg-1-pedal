@@ -2,12 +2,28 @@
 // royal-blue boxes with white text, and deep navy behind the graphs so every word and line stands out.
 // "bios" is the original BIOS blue on grey.
 #include "PgUi.h"
+#include <cstdio>
 
 namespace pg
 {
 namespace ui
 {
 uint16_t kBlue, kBlueDeep, kGrey, kGreyDark, kWhite, kYellow, kCyan, kLtBlue, kDimText, kGrid, kSpecFill, kPink, kCream;
+
+const char* KnobName(int k)
+{
+    static char n[4][8];
+    k = k < 0 ? 0 : (k > 3 ? 3 : k);
+    snprintf(n[k], sizeof(n[k]), "%s%d", kCtrlPrefix, k + 1);
+    return n[k];
+}
+const char* FootName(int f)
+{
+    static char n[3][8];
+    f = f < 0 ? 0 : (f > 2 ? 2 : f);
+    snprintf(n[f], sizeof(n[f]), "%s%c", kCtrlPrefix, 'a' + f);
+    return n[f];
+}
 
 void SetTheme(int theme)
 {
