@@ -28,6 +28,8 @@ namespace dims
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
     constexpr float seedZ = -0.155f;
+    // the expansion bay: a 4.0 x 11.9 mm slot in the LEFT wall (face y 17 mm) holding 4 glued jumper ends (carrier J21)
+    constexpr float bayZ = -0.17f;
     constexpr float printX0 = -0.585f, printZ0 = -0.705f, printW = 1.17f, printH = 1.41f;
 }
 
@@ -163,6 +165,8 @@ void PedalView::newOpenGLContextCreated()
     // its own black pin spacer (2.5 mm), its 1.6 mm PCB, then its parts.
     constexpr float out = 0.07f;                       // how far the jumper ends stick out of the wall
     meshSeedWin.upload (geo::box ({ -0.0045f, -0.097f, -0.262f }, { -0.001f, 0.097f, 0.262f }));
+    meshBayWin.upload (geo::box ({ -0.0045f, -0.020f, -0.0595f }, { -0.001f, 0.020f, 0.0595f }));
+    meshBayHdr.upload (geo::box ({ -0.0035f, -0.0125f, -0.051f }, { 0.0f, 0.0125f, 0.051f }));   // the 4 jumper ends, flush
     {
         MeshData hdr;
         for (int pin = 1; pin <= 40; ++pin)
@@ -239,7 +243,7 @@ void PedalView::openGLContextClosing()
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
                      &meshThread, &meshPlunger, &meshCap, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
-                     &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn })
+                     &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn, &meshBayWin, &meshBayHdr })
         m->release();
     for (auto& k : knobParts)
         k->gpu.release();
@@ -365,6 +369,9 @@ void PedalView::renderOpenGL()
     use (*progRecess);
     progRecess->set ("uParams", 0.02f, 0.0f, 0.0f, 0.0f);
     draw (*progRecess, meshSeedWin, seedAt, { 0.05f, 0.05f, 0.06f });
+    const Mat4 bayAt = Mat4::translation ({ -seedSide * W * 0.5f, jackY, bayZ }) * Mat4::scale (seedSide, 1.f, 1.f); // the other wall
+    draw (*progRecess, meshBayWin, bayAt, { 0.05f, 0.05f, 0.06f });
+    draw (*progPlastic, meshBayHdr, bayAt, black);
     for (auto& j : sideB)
         draw (*progRecess, meshJackHole, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, { 0.02f, 0.02f, 0.02f });
 
