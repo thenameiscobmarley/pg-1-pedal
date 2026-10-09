@@ -58,7 +58,7 @@ LCSC.update({   # the analog effect + expansion header
 })
 LCSC.update({   # the analog leveller (2026-10-09)
     ("10uF", "C_0402_1005Metric"): "C15525", ("100", "R_0402_1005Metric"): "C25076", ("MMBT3904", "SOT-23"): "C20526",
-    ("MCP4725", "SOT-23-6"): "C144198", ("TLV9062", "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"): "C2058009",
+    ("MCP4725", "SOT-23-6"): "C144198", ("3.3k", "R_0402_1005Metric"): "C25890", ("470k", "R_0402_1005Metric"): "C25790", ("1N4148WS", "D_SOD-323"): "C2128", ("TLV9062", "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"): "C2058009",
 })
 LCSC.update({("PSM712", "SOT-23"): "C32677"})   # basic part: no extended fee
 LCSC.update({("fx loop", "PinHeader_2x04_P2.54mm_Vertical"): "C32713277"})
@@ -90,10 +90,15 @@ def main():
     import pcbnew as K
     os.makedirs(OUT, exist_ok=True)
     groups = {}
+    # the footprint ACTUALLY on the routed board decides the part (and carrier.py has to agree with it)
+    bd = K.LoadBoard(os.path.join(HERE, "build", "pg1-carrier.kicad_pcb"))
+    on_board = {f.GetReference(): (f.GetFPID().GetLibItemName().wx_str(), f.GetValue()) for f in bd.GetFootprints()}
     for ref, value, fp, mpn, pins, note in parts:
         if ref in SKIP:
             continue
         pkg = fp.split(":")[-1]
+        if ref not in on_board or on_board[ref] != (pkg, value):
+            raise SystemExit(f"{ref}: carrier.py says {value} {pkg}, the board has {on_board.get(ref)}")
         code = LCSC.get((value, pkg))
         if not code:
             raise SystemExit(f"no JLCPCB part for {ref} {value} {pkg}")

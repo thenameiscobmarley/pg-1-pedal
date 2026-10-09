@@ -358,6 +358,8 @@ void BoardSim::Impl::build(const std::vector<Wire>& w)
             add(CAP, {P("1"), P("2")}, {ParseValue(val, 'F')}, ref);
         else if(val == "PTC 300mA")
             add(RES, {P("1"), P("2")}, {1.7, 1.0 /* = PTC */}, ref);
+        else if(val == "1N4148WS") // pin 2 anode, pin 1 cathode
+            add(DIODE, {P("2"), P("1")}, {0.6, 5.0}, ref);
         else if(val == "B5819W") // pin 2 anode, pin 1 cathode
             add(DIODE, {P("2"), P("1")}, {0.32, 0.15}, ref);
         else if(val == "PSM712") // lines 1 and 2 to the common pin 3: +12 V stand-off one way, 7 V the other
@@ -899,7 +901,7 @@ void BoardSim::Impl::currents(const Elem& e, const double* v, double* i, double 
         {
             const double vdd = v[2] - v[3];
             const double on  = Sg(p0[2] - p0[3] - 2.75, 0.2);
-            const double un  = Sg(p0[4] - p0[3] - 1.2, 0.2);
+            const double un  = Sg(p0[4] - p0[3] - 1.2, 0.03); // (HP_ON is a logic input: muted or not)
             const double lim = std::max(0.05, vdd - 0.3);
             const double vt  = v[3] + un * Clamp(-2.0 * (v[0] - v[3]), -lim, lim, 0.02);
             const double io  = on * (vt - v[1]) / e.p[1];
@@ -1211,7 +1213,7 @@ bool BoardSim::Impl::solveStep(double h)
             return true;
         if(it % 8 == 7) // stalled close to balance (tens of uA at most): good enough, the next steps refine it
         {
-            if(f0 < 1e-8 && f0 > 0.99 * fCheck)
+            if(f0 < 1e-11 && f0 > 0.99 * fCheck)
                 return true;
             fCheck = f0;
         }

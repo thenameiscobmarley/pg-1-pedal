@@ -196,3 +196,11 @@ Steps:
       1.3 mA -12 dB, 7.8 mA -21 dB, DC at the jack < 5 mV. Firmware: pg::AnalogLeveller, V = 0.65 + 0.1 x mA, dark 10 s.
       JLC: +2 extended parts (C144198, C2058009) ~ +$6 fees + ~$5 parts. Tayda cart 21 lines (breadboard parts dropped).
 - [ ] 50. Board simulator in the plugin (board view + wiring editor), fast power-up: see 42.
+- [x] 51. 2026-10-09 evening: power switch = A-8233 (RS16 2P4T) + 2nd pink chicken head at face (-47, 2), "0 / 1",
+      in the dc + wire (pos 1 off, 2-4 on); logo/name shrunk into y 17-33; Tayda re-uploaded (18 holes), cart 22 lines.
+      Header holes re-centred (no press-fit offset), "pg-line"/"pg-hp" silk -> "in gain knob"/"out gain knob".
+      Scenario sims (scratchpad simt/scen*.cpp) found 3 things, all value-only fixes + one new part:
+      R33/R43 1M->470k (input clean to 3.4 V rms), R34/R44 20k->4.7k (ADC range used; kInGain 0.1883),
+      D63 1N4148WS + R70 1M (quick off/on thump 1.1 V -> 2 mV). Sim: Newton stall tolerance 1e-8 -> 1e-11 (1e-8 let a
+      0.25 V false DC through at 250 ohm; 1e-14 too slow). Tried R6 3.3k (bias 2.48 V): solver can't settle it -> kept 10k.
+      make_jlc now checks every footprint against the routed board. Plugin: power knob (click = off: silence, dark).

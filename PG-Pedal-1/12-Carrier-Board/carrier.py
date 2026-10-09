@@ -118,7 +118,7 @@ P("J20", "pg-line", HDR_RA(6), "", {1: "GIN_A_L", 2: "GIN_W_L", 3: "GIN_B_L", 4:
 
 # ---------------------------------------------------------------- the input, per channel
 # jack -> 1k (1206: survives an amp's speaker output with the TVS) -> IN_A (1M to ground: ~670k input, guitar-friendly)
-#   line / guitar / headphone-out path: 47 nF C0G -> 1M / 1M (x0.5 round 1.65 V) -> follower -> 20k / 10k (x1/3) ->
+#   line / guitar / headphone-out path: 100 nF -> 1M / 470k (x0.32 round 1.65 V) -> follower -> 20k / 10k (x1/3) ->
 #     1 uF -> codec IN2 (clean up to ~1.9 V rms at the jack)
 # then pg-line (analog gain, centre = unity) -> 20k / 10k (x1/3) -> 1 uF -> codec IN2 (fixed gain: no software leveling)
 for k, ch in enumerate("LR"):
@@ -128,10 +128,12 @@ for k, ch in enumerate("LR"):
     P(f"R{b+1}", "1M", R0603, "", {1: n("IN_A"), 2: "IGND"}, "no pop when a cable goes in")
     P(f"C{b}", "100nF", C0603, "", {1: n("IN_A"), 2: n("IN_B")}, "tiny signal across it at 1M load: no distortion")
     P(f"R{b+2}", "1M", R0603, "", {1: n("IN_B"), 2: n("IN_C")})
-    P(f"R{b+3}", "1M", R0603, "", {1: n("IN_C"), 2: "IBIAS"})
+    P(f"R{b+3}", "470k", "Resistor_SMD:R_0402_1005Metric", "", {1: n("IN_C"), 2: "IBIAS"},
+      "x0.32 into the buffer (was 1M = x0.5: it clipped at 2.1 V rms; now clean to ~3.3 V rms, found by the simulation)")
     P(f"C{b+1}", "100pF C0G", C0603, "", {1: n("IN_C"), 2: "IBIAS"},
       "NOT FITTED (DNP in make_jlc / make_bom): on the 500 k divider it was a 3.2 kHz low-pass (found by the simulation)")
-    P(f"R{b+4}", "20k", R0603, "", {1: n("IN_G"), 2: n("IN_E")})
+    P(f"R{b+4}", "4.7k", R0603, "", {1: n("IN_G"), 2: n("IN_E")},
+      "x0.68 to the codec (was 20k = x1/3: the ADC's top 8 dB went unused; now pg-line's stage clips just before full scale)")
     P(f"R{b+5}", "10k", R0603, "", {1: n("IN_E"), 2: "IGND"})
     P(f"C{b+2}", "1uF", C0603, "", {1: n("IN_E"), 2: n("CIN2")})
     # pg-line: inverting stage, the pot between 220-ohm ends: gain = (220 + R_bw) / (220 + R_aw): -33 dB .. 0 (centre) .. +33 dB
@@ -192,8 +194,11 @@ P("U10", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR",
 P("C70", "1uF", C0603, "", {1: "HP_CP", 2: "HP_CN"}, "charge-pump flying cap")
 P("C71", "1uF", C0603, "", {1: "IGND", 2: "HP_VSS"}, "charge-pump hold cap")
 P("C72", "1uF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "at the TPA6139A2")
-P("R70", "470k", R0603, "", {1: "ISO3V3", 2: "HP_ON"}, "stays muted ~0.5 s after power-up: no thump")
+P("R70", "1M", R0603, "", {1: "ISO3V3", 2: "HP_ON"}, "stays muted ~1 s after power-up (~0.45 s after a quick off / on): no thump")
 P("C73", "1uF", C0603, "", {1: "HP_ON", 2: "IGND"})
+P("D63", "1N4148WS", "Diode_SMD:D_SOD-323", "1N4148WS", {1: "ISO3V3", 2: "HP_ON"},
+  "empties C73 the moment the power goes: switched off and straight back on, the amp mutes again (without it: a ~1 V thump"
+  " in the headphones, found by the simulation of the power switch). Cathode (pin 1, the band) to 3.3 V")
 
 # ---------------------------------------------------------------- jacks (PCB-mount, their nuts hold the board)
 P("J1", "in", JACK, "NMJ6HFD2", {"T": "JIN_L", "R": "JIN_R", "S": "IGND"}, "isolated input: mic, guitar, line, headphone out")
@@ -205,7 +210,7 @@ P("D62", "PSM712", "Package_TO_SOT_SMD:SOT-23", "PSM712-LF-T7", {1: "JOUT_L", 2:
 # small resistors and capacitors in 0402 (JLCPCB basic parts; the board shrank to clear the box's corner posts),
 # except the two values JLCPCB only stocks as basic parts in 0603
 R0402, C0402 = "Resistor_SMD:R_0402_1005Metric", "Capacitor_SMD:C_0402_1005Metric"
-parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") else C0402 if fp == C0603 else fp), m, pins, n)
+parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") and r != "R70" else C0402 if fp == C0603 else fp), m, pins, n)
             for r, v, fp, m, pins, n in parts]
 
 NET_ALIASES = {}

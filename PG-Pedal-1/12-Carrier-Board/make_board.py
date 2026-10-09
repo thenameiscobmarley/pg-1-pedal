@@ -91,7 +91,7 @@ HEADER_PINS = {   # printed beside each pin
     "J20": ["3 l", "2 l", "1 l", "3 r", "2 r", "1 r"],
     "J21": ["3v3", "gnd", "scl", "sda"],
 }
-HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "pg-hp", "J20": "pg-line", "J21": "expansion"}
+HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "out gain knob", "J20": "in gain knob", "J21": "expansion"}
 JACK_NAME = {"J1": "in (IN)", "J2": "out (OUT)"}
 JACK_NAME_X = {"J1": -36.6, "J2": 51.2}   # moved off the pot headers that sit under the jacks
 

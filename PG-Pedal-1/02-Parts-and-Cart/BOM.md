@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **22 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -26,11 +26,12 @@ You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridg
 | A-199 | 1 | $0.17 | $0.17 | 40 pin 2.54mm right-angle single-row male pin header | carrier board: snap into 10 + 6 + 6 + 4 (J10, J20, J19, J21) |
 | A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
 | A-8626 | 1 | $1.21 | $1.21 | Mini rotary switch 1 pole 8 position RS16 (9 mm hole, 6 mm spline shaft) | the page selector (settings page 1-8 of the open tab) |
-| A-6623 | 1 | $0.49 | $0.49 | Chicken head knob, pink | on the page selector |
+| A-6623 | 2 | $0.49 | $0.98 | Chicken head knob, pink | on the page selector and the power switch |
+| A-8233 | 1 | $1.09 | $1.09 | Mini rotary switch 2 pole 4 position RS16 (9 mm hole, 6 mm spline shaft, 16 V 0.3 A) | the power switch: 0 = off, 1 = on (both poles together) |
 | A-5800 | 4 | $0.28 | $1.12 | LDR 10-15k (5 mm) | analog leveller: the light sensors, OC1 / OC2 on the board's lid side (2 spare) |
 | A-8041 | 4 | $0.04 | $0.16 | LED 3 mm red, flat top (3.85 mm head) | analog leveller: one pressed on each LDR (2 spare) |
 | A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a 15 mm light-tight sleeve over each LED + LDR pair |
-| | | | **$52.25** | **Tayda subtotal** | |
+| | | | **$53.83** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 

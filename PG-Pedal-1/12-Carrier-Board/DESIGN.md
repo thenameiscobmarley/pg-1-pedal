@@ -94,3 +94,13 @@ Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 mak
 
 ## Old versions
 `carrier_v2.py` = the 4-jack analog board (line in, line out, no amp, phones), not isolated.
+
+## Changed after the scenario simulations (2026-10-09, values only, no re-route)
+- **R33 / R43 1M -> 470k** (C25790, preferred part): the input divider is x0.32, not x0.5; clean input up to ~3.4 V rms
+  (was 2.1 V rms: a +10 dBu pre-amped source clipped).
+- **R34 / R44 20k -> 4.7k**: x0.68 to the codec, not x1/3; the ADC's top 8 dB were never used (more hiss). Now
+  pg-line's stage clips just before the ADC's full scale. Firmware kInGain = codec volts per jack volt = 0.1883.
+- **D63 (1N4148WS, C2128) + R70 470k -> 1M**: with the power switch, off then quickly on left C73 charged and the
+  headphone amp un-muted at once: a ~1 V thump. D63 empties C73 when the power goes; the jack now moves < 1 mV.
+- Header holes re-centred in their pads (the press-fit offset is gone: the headers are soldered).
+

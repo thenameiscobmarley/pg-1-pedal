@@ -54,6 +54,10 @@ SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "h
 # the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
 SELECTOR = (8.0, 50.0, 9.0)
+# the power switch: a mini rotary switch (Tayda A-8233, 2 pole 4 position, 16 V 0.3 A, the same 9 mm hole / 6 mm spline
+# shaft as the page selector) with a pink chicken head: position 1 = 0 (off), the rest = 1 (on). Left of the screen,
+# below the sideways logo; behind the face it clears the pg-1 encoder, the screen module and the expansion bay.
+POWER = (-47.0, 2.0, 9.0)
 SELECTOR_TABS = ["1", "2", "3", "4", "5", "6", "7", "8"]   # the settings PAGE of the open tab (the closest one it has)
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
 FS_HOLE = 12.2
@@ -275,10 +279,10 @@ def build_face_art():
 
     # divider between the screen and the knobs: hairlines out from a centre diamond
     dy = -2.6
-    A.stroke(poly_path([(-49.0, dy), (-3.2, dy)]), 0.22)
+    A.stroke(poly_path([(-37.0, dy), (-3.2, dy)]), 0.22)   # (stops short of the power knob)
     A.stroke(poly_path([(3.2, dy), (49.0, dy)]), 0.22)
     A.fill(diamond(0, dy, 1.4), PINK)
-    A.fill(diamond(-50.6, dy, 0.6), PINK)
+    A.fill(diamond(-38.6, dy, 0.6), PINK)
     A.fill(diamond(50.6, dy, 0.6), PINK)
 
     # endless encoders: 20 detent dots, every 5th one a little larger
@@ -363,13 +367,20 @@ def build_face_art():
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
+    # the power switch: "0" (off, fully left) and "1" (on), 30 degrees apart either side of straight up
+    px_, py_, _ = POWER
+    for i, t in enumerate(("0", "1")):
+        a = math.radians(105 - i * 30)
+        A.fill(circle_path(px_ + 10.2 * math.cos(a), py_ + 10.2 * math.sin(a), 0.5), PINK if i == 0 else INK)
+        A.fill(mono.outline(t, px_ + 13.0 * math.cos(a), py_ + 13.0 * math.sin(a) - 0.9, 2.6))
+    A.fill(mono.outline("power", px_ + 9.6, py_ - 0.8, 1.9), PINK)
     # logo + name, smaller and sideways left of the screen (tilt the pedal to read it), the logo's ends in pink diamonds
-    k, lx, ly = 0.5, -42.5, 15.0
+    k, lx, ly = 0.29, -42.5, 24.6
     pts = [((px) * k, (py - 51.0) * k) for px, py in logo_points(0, 51.0)]
     A.stroke(rot90([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(pts)], lx, ly), 0.6)
     A.fill(diamond(lx, ly - 26.4 * k, 0.6), PINK)
     A.fill(diamond(lx, ly + 26.4 * k, 0.6), PINK)
-    A.fill(rot90(mono.outline("pg audio \u00b7 pg-1", 0, 0, 2.8), -50.0, ly), PINK)
+    A.fill(rot90(mono.outline("pg audio \u00b7 pg-1", 0, 0, 1.75), -50.2, ly), PINK)
     return A
 
 
@@ -377,7 +388,7 @@ def check_clearances():
     """Make sure no printed item sits on a hole (cheap sanity check)."""
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
-            [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS] + [(SELECTOR[0], SELECTOR[1], SELECTOR[2] / 2 + PC / 2)]
+            [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS] + [(SELECTOR[0], SELECTOR[1], SELECTOR[2] / 2 + PC / 2)] + [(POWER[0], POWER[1], POWER[2] / 2 + PC / 2)]
     # a small knob next to a screen screw: the 14 mm knob must clear the screw head (5.5 mm) by 2.5 mm, so a cap
     # with a wider skirt still fits and turns freely
     for _, x, y, _, _ in SMALL_POTS:
@@ -488,6 +499,8 @@ def holes_table():
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",
                  "8-way mini rotary switch A-8626 (RS16, 9 mm bushing) + chicken-head knob"))
+    rows.append(("A", "hole", "power switch", POWER[0], POWER[1], round(POWER[2] + PC, 2), "", "",
+                 "power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + chicken-head knob"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
     for name, x, d, part in SIDE_B:
@@ -604,11 +617,11 @@ def write_art(A):
             a = math.radians(k * 15)
             p.append(f'<path d="M{x+5.6*math.cos(a):.2f},{-y+5.6*math.sin(a):.2f} L{x+7*math.cos(a):.2f},{-y+7*math.sin(a):.2f}" stroke="#c6c6c3" stroke-width="0.35"/>')
         p.append(f'<path d="M{x},{-y-5.4} v2.4" stroke="#222" stroke-width="0.6" stroke-linecap="round"/>')
-    sx, sy, _ = SELECTOR   # the pink chicken-head knob, pointing at its first position
-    p.append(f'<circle cx="{sx}" cy="{-sy}" r="6.2" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
-    tip = math.radians(90 + 105)
-    p.append(f'<path d="M{sx-2.2*math.sin(tip):.2f},{-sy-2.2*math.cos(tip):.2f} L{sx+10*math.cos(tip):.2f},{-sy-10*math.sin(tip):.2f} '
-             f'L{sx+2.2*math.sin(tip):.2f},{-sy+2.2*math.cos(tip):.2f} Z" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4"/>')
+    for (sx, sy, _), tipdeg in ((POWER, 105), (SELECTOR, 195)):   # pink chicken heads: power at 0, the selector at 1
+        p.append(f'<circle cx="{sx}" cy="{-sy}" r="6.2" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
+        tip = math.radians(tipdeg)
+        p.append(f'<path d="M{sx-2.2*math.sin(tip):.2f},{-sy-2.2*math.cos(tip):.2f} L{sx+10*math.cos(tip):.2f},{-sy-10*math.sin(tip):.2f} '
+                 f'L{sx+2.2*math.sin(tip):.2f},{-sy+2.2*math.cos(tip):.2f} Z" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4"/>')
     open(os.path.join(d, "pg1-face-preview.svg"), "w").write(
         svg_doc(FACE_W + 10, FACE_H + 14, "\n".join(p), (-(FACE_W + 10) / 2, -(FACE_H + 14) / 2 - 1, FACE_W + 10, FACE_H + 14), "#e9e7e2"))
 

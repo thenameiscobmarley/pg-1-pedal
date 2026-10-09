@@ -68,6 +68,10 @@
 <path d="M1.7999999999999998,-50.0 h12.4 M8.0,-56.2 v12.4" stroke="#c00" stroke-width="0.15"/>
 <text x="8.00" y="-55.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">page selector  Ø9.4</text>
 <text x="8.00" y="-42.70" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(8, 50)</text>
+<circle cx="-47.0" cy="-2.0" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-53.2,-2.0 h12.4 M-47.0,-8.2 v12.4" stroke="#c00" stroke-width="0.15"/>
+<text x="-47.00" y="-7.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">power switch  Ø9.4</text>
+<text x="-47.00" y="5.30" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-47, 2)</text>
 <rect x="-23.9" y="-39.14" width="47.8" height="35.5" fill="none" stroke="#c00" stroke-width="0.3"/>
 <text x="0.00" y="-22.39" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#c00" font-weight="normal">screen window 47.8 x 35.5</text>
 <text x="0.00" y="-18.79" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal">centre (0, 21.39)</text>

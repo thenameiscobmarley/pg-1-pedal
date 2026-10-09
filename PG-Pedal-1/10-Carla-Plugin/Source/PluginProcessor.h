@@ -37,6 +37,7 @@ public:
     void setStateInformation (const void*, int) override;
 
     pg::Core& core() noexcept { return pedal; }
+    std::atomic<bool> powered { true };   // the pedal's power switch (0 = off: silence, dark screen)
     /** the Seed3's audio load with the stages that are on now (1.0 = no time left), from Seed3Costs.h */
     float seed3Load() const noexcept
     {

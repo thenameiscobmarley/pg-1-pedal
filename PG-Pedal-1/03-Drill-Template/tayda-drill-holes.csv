@@ -13,6 +13,7 @@ A,hole,screen screw 2,36.52,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 3,-30.74,3.03,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 4,36.52,3.03,3.6,,,M3 screw for 2.4in screen + board
 A,hole,page selector,8.00,50.00,9.4,,,"8-way mini rotary switch A-8626 (RS16, 9 mm bushing) + chicken-head knob"
+A,hole,power switch,-47.00,2.00,9.4,,,"power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + chicken-head knob"
 A,rectangle,screen window,0.00,21.39,,47.8,35.5,2.4in ILI9341 A-8180 visible area
 B,hole,in,-34.00,0.00,11.6,,,"6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"
 B,hole,9v,-13.00,0.00,12.4,,,DC jack A-2237 (12mm cut-out)

@@ -25,6 +25,7 @@ namespace dims
     constexpr float sideB[3][2] = { { -0.34f, 0 }, { -0.13f, 1 }, { 0.34f, 0 } }; // in, 9v, out (1 = DC jack); v3 isolated board
     constexpr float smallKnobs[2][2] = { { 0.48f, -0.52f }, { -0.48f, -0.52f } };   // pg-hp (under "out"), pg-line (under "in") (x, z = -face y)
     constexpr float selX = 0.08f, selZ = -0.50f;   // the page selector (8-way rotary switch, pink chicken head)
+    constexpr float powX = -0.47f, powZ = -0.02f;  // the power switch (pink chicken head: 0 = off, 1 = on)
     inline float selAngle (int pos) { return (195.0f - 30.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..8
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
@@ -410,6 +411,7 @@ void PedalView::renderOpenGL()
     for (auto& s : smallKnobs)   // the small pots' nuts
         draw (*progChrome, meshNutSmall, Mat4::translation ({ s[0], 0.0f, s[1] }), steel);
     draw (*progChrome, meshNutSmall, Mat4::translation ({ selX, 0.0f, selZ }), steel);
+    draw (*progChrome, meshNutSmall, Mat4::translation ({ powX, 0.0f, powZ }), steel);
 
     // the four knobs (white knurled aluminium), turned by their encoders
     use (*progPlastic);
@@ -438,6 +440,10 @@ void PedalView::renderOpenGL()
         const Mat4 at = Mat4::translation ({ selX, 0.02f, selZ }) * Mat4::rotationY (selAngle (selPos.load()));   // (rotationY (a) turns +x to face angle a: x, -z)
         draw (*progPlastic, meshChicken, at, { 1.0f, 0.55f, 0.78f });
         draw (*progPlastic, meshChickenLine, at, { 0.55f, 0.16f, 0.36f });
+        const float pa = (isOn() ? 75.0f : 105.0f) * geo::kPi / 180.0f;   // "0" at 105 degrees, "1" at 75
+        const Mat4 pw = Mat4::translation ({ powX, 0.02f, powZ }) * Mat4::rotationY (pa);
+        draw (*progPlastic, meshChicken, pw, { 1.0f, 0.55f, 0.78f });
+        draw (*progPlastic, meshChickenLine, pw, { 0.55f, 0.16f, 0.36f });
     }
 }
 
@@ -497,6 +503,11 @@ PedalView::Target PedalView::hitTest (juce::Point<float> m) const
         if (m.getDistanceFrom (c) < c.getDistanceFrom (e))
             return { Hit::selector, 0 };
     }
+    {
+        const auto c = toPixels ({ powX, 0.08f, powZ }), e = toPixels ({ powX + 0.12f, 0.08f, powZ });
+        if (m.getDistanceFrom (c) < c.getDistanceFrom (e))
+            return { Hit::power, 0 };
+    }
     int x, y;
     if (screenPixel (m, x, y, false))
         return { Hit::screen, 0 };
@@ -529,7 +540,7 @@ void PedalView::mouseDown (const juce::MouseEvent& e)
             touching = screenPixel (e.position, touchX, touchY, true);
             core.Touch (true, touchX, touchY, now);
             break;
-        case Hit::smallKnob: case Hit::selector: case Hit::none: break;
+        case Hit::smallKnob: case Hit::selector: case Hit::power: case Hit::none: break;
     }
 }
 
@@ -631,6 +642,15 @@ void PedalView::mouseUp (const juce::MouseEvent& e)
             if (! dragMoved)   // a click = one click round (8 wraps to 1)
                 setSelector (selPos.load() % 8 + 1);
             break;
+        case Hit::power:   // a click flips it: 0 <-> 1
+            if (power != nullptr)
+            {
+                power->store (! power->load());
+                if (power->load())
+                    core.ForceRedraw();   // (it comes back up like the pedal does)
+                needsRepaint = true;
+            }
+            break;
         case Hit::smallKnob:
             if (! dragMoved && e.getNumberOfClicks() > 1)
                 smallKnob[(size_t) drag.index] = 0.5f;   // double-click: back to the 0 dB click
@@ -699,13 +719,13 @@ void PedalView::timerCallback()
     const auto now = juce::Time::getMillisecondCounter();
     if (touching)
         core.Touch (true, touchX, touchY, now);   // keeps long-press timing going while held still
-    const bool pushed = core.DrawUi (canvas, now) > 0, backlight = core.BacklightOn();
+    const bool pushed = core.DrawUi (canvas, now) > 0, backlight = core.BacklightOn() && isOn();
     if (pushed || backlight != lastBacklight)
     {
         lastBacklight = backlight;
         const juce::SpinLock::ScopedLockType l (frameLock);
         frameCopy = canvas.px;
-        if (! core.BacklightOn())   // display rest: backlight off after 20 idle minutes
+        if (! backlight)   // switched off, or display rest (backlight off after 20 idle minutes)
             frameCopy.fill (0);
         frameDirty = true;
     }

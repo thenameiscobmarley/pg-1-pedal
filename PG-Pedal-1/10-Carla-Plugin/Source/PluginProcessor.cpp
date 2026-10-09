@@ -78,6 +78,11 @@ void PG1Processor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuf
     // Seed3Costs.h), not this computer's, so the cpu check warns exactly when the real pedal would be short of time
     pedal.ReportLoad (seed3Load());
     const int n = buffer.getNumSamples(), inCh = getTotalNumInputChannels(), outCh = buffer.getNumChannels();
+    if (! powered.load())   // switched off at the power knob: nothing comes out
+    {
+        buffer.clear();
+        return;
+    }
     if (scratch.getNumSamples() < n)
         scratch.setSize (2, n, false, false, true), outScratch.setSize (2, n, false, false, true);
 

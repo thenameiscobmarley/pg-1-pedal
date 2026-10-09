@@ -37,7 +37,7 @@ private:
     void openGLContextClosing() override;
     void timerCallback() override;
 
-    enum class Hit { none, knob, footswitch, screen, smallKnob, selector };
+    enum class Hit { none, knob, footswitch, screen, smallKnob, selector, power };
     struct Target { Hit kind = Hit::none; int index = -1; };
     Target hitTest (juce::Point<float>) const;
     hwk::gfx::Mat4 viewProj (float w, float h) const;
@@ -67,6 +67,8 @@ private:
 public:
     std::array<std::atomic<float>, 2> smallKnob { { 0.5f, 0.5f } };   // pg-hp, pg-line: 0..1, 0.5 = the 0 dB click
     int selectorPosition() const { return selPos.load(); }
+    std::atomic<bool>* power = nullptr;   // the power switch (the processor silences the audio when it's off)
+    bool isOn() const { return power == nullptr || power->load(); }
 private:
     Target drag;
     float dragAccum = 0.0f;
