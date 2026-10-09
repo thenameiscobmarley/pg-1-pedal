@@ -6,12 +6,13 @@ A,hole,pg-4,40.50,-18.50,7.6,,,encoder A-6331 (M7 bushing)
 A,hole,pg-a,-36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
 A,hole,pg-b,0.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
 A,hole,pg-c,36.00,-50.00,12.6,,,soft-touch footswitch A-1091 PBS24B4 (M12)
-A,hole,pg-hp,-40.95,32.50,7.9,,,"10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): output gain, analog: -21 .. 0 (centre click) .. +21 dB"
-A,hole,pg-line,-40.95,10.50,7.9,,,"10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): input gain, analog: -33 .. 0 (centre click) .. +33 dB"
+A,hole,pg-hp,48.00,52.00,7.9,,,"10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): output gain, analog: -21 .. 0 (centre click) .. +21 dB"
+A,hole,pg-line,-48.00,52.00,7.9,,,"10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): input gain, analog: -33 .. 0 (centre click) .. +33 dB"
 A,hole,screen screw 1,-30.74,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 2,36.52,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 3,-30.74,3.03,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 4,36.52,3.03,3.6,,,M3 screw for 2.4in screen + board
+A,hole,page selector,8.00,50.00,9.4,,,"8-way mini rotary switch A-8626 (RS16, 9 mm bushing) + chicken-head knob"
 A,rectangle,screen window,0.00,21.39,,47.8,35.5,2.4in ILI9341 A-8180 visible area
 B,hole,in,-34.00,0.00,11.6,,,"6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"
 B,hole,9v,-13.00,0.00,12.4,,,DC jack A-2237 (12mm cut-out)

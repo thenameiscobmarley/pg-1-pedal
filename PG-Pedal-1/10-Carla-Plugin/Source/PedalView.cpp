@@ -23,7 +23,9 @@ namespace dims
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
     constexpr float sideB[3][2] = { { -0.34f, 0 }, { -0.13f, 1 }, { 0.34f, 0 } }; // in, 9v, out (1 = DC jack); v3 isolated board
-    constexpr float smallKnobs[2][2] = { { -0.4095f, -0.325f }, { -0.4095f, -0.105f } };   // pg-hp, pg-line (x, z = -face y)
+    constexpr float smallKnobs[2][2] = { { 0.48f, -0.52f }, { -0.48f, -0.52f } };   // pg-hp (under "out"), pg-line (under "in") (x, z = -face y)
+    constexpr float selX = 0.08f, selZ = -0.50f;   // the page selector (8-way rotary switch, pink chicken head)
+    inline float selAngle (int pos) { return (195.0f - 30.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..8
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
@@ -89,6 +91,7 @@ PedalView::PedalView (pg::Core& c) : core (c)
     gl.setRenderer (this);
     gl.setContinuousRepainting (false);
     gl.attachTo (*this);
+    core.PageSelector (selPos.load(), juce::Time::getMillisecondCounter());   // the selector always sits on a position
     core.ForceRedraw();
     startTimerHz (50);
 }
@@ -159,6 +162,17 @@ void PedalView::newOpenGLContextCreated()
     meshJackNut.upload (geo::sweptPolygon (6, 0.07f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
     meshJackHole.upload (geo::lathe (0.034f, { { 0.0f, 0.0221f }, { 0.0f, 0.0224f } }, 32, true));
     meshDcNut.upload (geo::sweptPolygon (6, 0.075f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
+    {   // the chicken head (A-6623): a round skirt + a pointed body, built pointing along +x
+        MeshData ch = geo::lathe (0.075f, { { 0.0f, 0.0f }, { 0.0f, 0.03f }, { -0.006f, 0.036f } }, 48, true);
+        for (int i = 0; i < 24; ++i)   // the pointed body: narrows (and dips) toward the tip
+        {
+            const float x0 = -0.045f + 0.0068f * (float) i, x1 = x0 + 0.0068f, t = (float) i / 23.0f;
+            const float hw = 0.03f - 0.02f * t, top = 0.082f - 0.016f * t;
+            ch.append (geo::box ({ x0, 0.03f, -hw }, { x1, top, hw }));
+        }
+        meshChicken.upload (ch);
+        meshChickenLine.upload (geo::box ({ 0.0f, 0.0745f, -0.003f }, { 0.118f, 0.0755f, 0.003f }));
+    }
     // Seed3 cartridge parts, in the wall's frame (x = 0 is the outside of the left wall, -x = further out).
     // Socket = the female ends of the jumper wires, one per used Seed3 pin, in 2 rows. They stick halfway (7 mm)
     // out of the window and are hot-glued around the outside. The Seed3 plugs onto their outer ends:
@@ -243,7 +257,7 @@ void PedalView::openGLContextClosing()
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
                      &meshThread, &meshPlunger, &meshCap, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
-                     &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn, &meshBayWin, &meshBayHdr })
+                     &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn, &meshBayWin, &meshBayHdr, &meshChicken, &meshChickenLine })
         m->release();
     for (auto& k : knobParts)
         k->gpu.release();
@@ -395,6 +409,7 @@ void PedalView::renderOpenGL()
     draw (*progChrome, meshSeedUsb, seedAt, { 0.80f, 0.81f, 0.83f });
     for (auto& s : smallKnobs)   // the small pots' nuts
         draw (*progChrome, meshNutSmall, Mat4::translation ({ s[0], 0.0f, s[1] }), steel);
+    draw (*progChrome, meshNutSmall, Mat4::translation ({ selX, 0.0f, selZ }), steel);
 
     // the four knobs (white knurled aluminium), turned by their encoders
     use (*progPlastic);
@@ -412,11 +427,17 @@ void PedalView::renderOpenGL()
     }
     for (int i = 0; i < kFs; ++i)   // the pink anodised KN2310 caps (satin, so the plastic shader)
         draw (*progPlastic, meshCap, Mat4::translation ({ fsX[i], 0.052f - 0.016f * fsTravel[(size_t) i].load(), fsZ }), { 1.0f, 0.50f, 0.76f });
-    for (auto& s : smallKnobs)   // pg-hp, pg-line: 14 mm white knobs on the analog pots (set by hand, not by the core)
+    for (int j = 0; j < 2; ++j)   // pg-hp, pg-line: 14 mm white knobs on the analog pots (set by hand, not by the core)
     {
-        const Mat4 base = Mat4::translation ({ s[0], 0.02f, s[1] }) * Mat4::scale (0.7f, 0.85f, 0.7f);
+        const Mat4 base = Mat4::translation ({ smallKnobs[j][0], 0.02f, smallKnobs[j][1] }) * Mat4::scale (0.7f, 0.85f, 0.7f);
+        const Mat4 turned = base * Mat4::rotationY (-(smallKnob[(size_t) j].load() - 0.5f) * geo::kPi * 5.0f / 3.0f);
         for (auto& k : knobParts)
-            draw (*progPlastic, k->gpu, base, k->role == hwk::models::Role::pointer ? Vec3 { 0.12f, 0.12f, 0.13f } : Vec3 { 0.93f, 0.93f, 0.91f });
+            draw (*progPlastic, k->gpu, k->rotates ? turned : base, k->role == hwk::models::Role::pointer ? Vec3 { 0.12f, 0.12f, 0.13f } : Vec3 { 0.93f, 0.93f, 0.91f });
+    }
+    {   // the page selector's pink chicken head, pointing at its position
+        const Mat4 at = Mat4::translation ({ selX, 0.02f, selZ }) * Mat4::rotationY (selAngle (selPos.load()));   // (rotationY (a) turns +x to face angle a: x, -z)
+        draw (*progPlastic, meshChicken, at, { 1.0f, 0.55f, 0.78f });
+        draw (*progPlastic, meshChickenLine, at, { 0.55f, 0.16f, 0.36f });
     }
 }
 
@@ -465,6 +486,17 @@ PedalView::Target PedalView::hitTest (juce::Point<float> m) const
         if (m.getDistanceFrom (c) < c.getDistanceFrom (e))
             return { Hit::knob, i };
     }
+    for (int j = 0; j < 2; ++j)
+    {
+        const auto c = toPixels ({ smallKnobs[j][0], 0.06f, smallKnobs[j][1] }), e = toPixels ({ smallKnobs[j][0] + 0.09f, 0.06f, smallKnobs[j][1] });
+        if (m.getDistanceFrom (c) < c.getDistanceFrom (e))
+            return { Hit::smallKnob, j };
+    }
+    {
+        const auto c = toPixels ({ selX, 0.08f, selZ }), e = toPixels ({ selX + 0.12f, 0.08f, selZ });
+        if (m.getDistanceFrom (c) < c.getDistanceFrom (e))
+            return { Hit::selector, 0 };
+    }
     int x, y;
     if (screenPixel (m, x, y, false))
         return { Hit::screen, 0 };
@@ -497,8 +529,18 @@ void PedalView::mouseDown (const juce::MouseEvent& e)
             touching = screenPixel (e.position, touchX, touchY, true);
             core.Touch (true, touchX, touchY, now);
             break;
-        case Hit::none: break;
+        case Hit::smallKnob: case Hit::selector: case Hit::none: break;
     }
+}
+
+void PedalView::setSelector (int pos)
+{
+    pos = juce::jlimit (1, 8, pos);
+    if (pos == selPos.load())
+        return;
+    selPos = pos;
+    core.PageSelector (pos, juce::Time::getMillisecondCounter());
+    needsRepaint = true;
 }
 
 void PedalView::mouseDrag (const juce::MouseEvent& e)
@@ -527,6 +569,33 @@ void PedalView::mouseDrag (const juce::MouseEvent& e)
             screenPixel (e.position, touchX, touchY, true);
             core.Touch (true, touchX, touchY, now);
             break;
+        case Hit::smallKnob:   // up / right = more; the centre click (0 dB) is sticky
+        {
+            auto& v = smallKnob[(size_t) drag.index];
+            float nv = juce::jlimit (0.0f, 1.0f, v.load() + (-d.y + d.x * 0.5f) * 0.004f);
+            if (std::abs (nv - 0.5f) < 0.02f)
+                nv = 0.5f;
+            v = nv;
+            needsRepaint = true;
+            break;
+        }
+        case Hit::selector:   // drag round: the position nearest the pointer
+        {
+            const auto c = toPixels ({ dims::selX, 0.08f, dims::selZ });
+            const auto px = toPixels ({ dims::selX + 0.1f, 0.08f, dims::selZ }), pz = toPixels ({ dims::selX, 0.08f, dims::selZ - 0.1f });
+            // the mouse in face coordinates (x right, y toward the jacks), through the projected axes
+            const auto ax = px - c, ay = pz - c, dm = e.position - c;
+            const float det = ax.x * ay.y - ax.y * ay.x;
+            if (std::abs (det) > 1.0e-6f && dm.getDistanceFromOrigin() > 4.0f)
+            {
+                const float fx = (dm.x * ay.y - dm.y * ay.x) / det, fy = (ax.x * dm.y - ax.y * dm.x) / det;
+                float deg = std::atan2 (fy, fx) * 180.0f / geo::kPi;
+                if (deg < -90.0f)
+                    deg += 360.0f;   // position 1 is at 195 degrees, 8 at -15
+                setSelector ((int) std::lround ((195.0f - deg) / 30.0f) + 1);
+            }
+            break;
+        }
         case Hit::none:
             yaw = yaw.load() - d.x * 0.008f;
             pitch = juce::jlimit (0.12f, 1.52f, pitch.load() + d.y * 0.006f);
@@ -536,7 +605,7 @@ void PedalView::mouseDrag (const juce::MouseEvent& e)
     }
 }
 
-void PedalView::mouseUp (const juce::MouseEvent&)
+void PedalView::mouseUp (const juce::MouseEvent& e)
 {
     const auto now = juce::Time::getMillisecondCounter();
     switch (drag.kind)
@@ -557,6 +626,14 @@ void PedalView::mouseUp (const juce::MouseEvent&)
         case Hit::screen:
             touching = false;
             core.Touch (false, touchX, touchY, now);
+            break;
+        case Hit::selector:
+            if (! dragMoved)   // a click = one click round (8 wraps to 1)
+                setSelector (selPos.load() % 8 + 1);
+            break;
+        case Hit::smallKnob:
+            if (! dragMoved && e.getNumberOfClicks() > 1)
+                smallKnob[(size_t) drag.index] = 0.5f;   // double-click: back to the 0 dB click
             break;
         case Hit::none: break;
     }
@@ -592,6 +669,24 @@ void PedalView::mouseWheelMove (const juce::MouseEvent& e, const juce::MouseWhee
             knobAngle[(size_t) t.index] = knobAngle[(size_t) t.index].load() + (float) detents * geo::kPi / 10.0f;
             needsRepaint = true;
         }
+        return;
+    }
+    if (t.kind == Hit::selector)
+    {
+        static float acc = 0.0f;
+        acc += w.deltaY * 4.0f;
+        if (std::abs (acc) >= 1.0f)
+        {
+            setSelector (selPos.load() + (acc < 0 ? 1 : -1));   // wheel down = clockwise
+            acc = 0.0f;
+        }
+        return;
+    }
+    if (t.kind == Hit::smallKnob)
+    {
+        auto& v = smallKnob[(size_t) t.index];
+        v = juce::jlimit (0.0f, 1.0f, v.load() + w.deltaY * 0.15f);
+        needsRepaint = true;
         return;
     }
     distance = juce::jlimit (1.2f, 7.0f, distance.load() * (1.0f - w.deltaY * 0.35f));

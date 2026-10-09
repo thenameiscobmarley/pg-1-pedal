@@ -71,6 +71,49 @@ pg::Core  core;
 I2CHandle    i2c;
 pg::IsoCodec codec;
 pg::AnalogFx afx; // the board's analog level + filter (unity / open unless the DSP asks)
+
+// The page selector: an 8-way rotary switch on a PCF8574 I/O board on the expansion header (Seed3 I2C, pins 12/13).
+// Switch position k (1..8) -> PCF8574 pin P(k-1), the switch's common -> GND; the PCF8574's own pull-ups hold the
+// others high, so the selected position reads low. Any of its 16 addresses is found by itself.
+struct PageSelectorIn
+{
+    uint8_t addr = 0, last = 0xFF;
+    int     pos  = 0;
+    void    Find(I2CHandle& bus)
+    {
+        for(uint8_t a : {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F})
+        {
+            uint8_t all_in = 0xFF; // writing 1s makes every pin an input (with its weak pull-up)
+            if(bus.TransmitBlocking(a, &all_in, 1, 2) == I2CHandle::Result::OK)
+            {
+                addr = a;
+                return;
+            }
+        }
+    }
+    // the switch position 1..8, 0 while between positions / nothing fitted
+    int Read(I2CHandle& bus)
+    {
+        if(!addr)
+            return 0;
+        uint8_t v = 0xFF;
+        if(bus.ReceiveBlocking(addr, &v, 1, 2) != I2CHandle::Result::OK)
+            return pos;
+        const uint8_t low = uint8_t(~v);
+        if(v == last && low && !(low & (low - 1))) // exactly one pin low, the same twice in a row: settled
+        {
+            int k = 0;
+            while(!(low & (1u << k)))
+                k++;
+            pos = k + 1;
+        }
+        last = v;
+        return pos;
+    }
+};
+PageSelectorIn page_sel;
+pg::AnalogLeveller leveller;          // the analog leveller add-on in the fx loop (if plugged in)
+static volatile float out_ms = 0.f;   // the output's mean square (DAC units), for the leveller
 // set by the main loop, used by the audio callback
 static volatile float g_in = kInGain, g_out = 0.f, in_peak = 0.f; // g_out stays 0 (silent) until the codec is up
 // the screen picture the core draws into: 150 KB, in the Seed3's 64 MB SDRAM (plain array, no
@@ -137,6 +180,10 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
             const float y = out[c][i] * (g0 + (go - g0) * float(i) / float(n));
             out[c][i]     = y > 1.f ? 1.f : (y < -1.f ? -1.f : y);
         }
+    float ms = 0.f; // what's leaving, for the analog leveller (one cheap pass)
+    for(size_t i = 0; i < n; i++)
+        ms += 0.5f * (out[0][i] * out[0][i] + out[1][i] * out[1][i]);
+    out_ms = out_ms + (ms / float(n) - out_ms) * 0.05f;
     // health: how much of the block's time the work took (1.0 = none left)
     core.ReportLoad(float(System::GetUs() - t0) * hw.AudioSampleRate() / (1e6f * float(size)));
 }
@@ -284,6 +331,9 @@ int main(void)
     if(!codec_ok)
         core.ReportCodecFault();
     afx.Init(&i2c); // only answers if an add-on board with an MCP4461 sits in the fx loop (J22); harmless if not
+    page_sel.Find(i2c);   // the page selector's PCF8574 (if it's plugged in)
+    leveller.Init(&i2c);  // the analog leveller add-on (if it's plugged in)
+    uint32_t last_sel = 0;
     const uint32_t audio_t0 = System::GetNow();
     WatchdogStart();
 
@@ -306,6 +356,16 @@ int main(void)
 #endif
         }
         WatchdogKick();
+        if(System::GetNow() - last_sel >= 30) // the page selector, ~33 times a second
+        {
+            last_sel = System::GetNow();
+            core.PageSelector(page_sel.Read(i2c), last_sel);
+            if(leveller.Present()) // gentle 2:1 above -14 dBFS rms: the LDRs ride the level in the analog path
+            {
+                const float db = 10.f * log10f(out_ms + 1e-12f);
+                leveller.SetCut(db > -14.f ? (db + 14.f) * 0.5f : 0.f);
+            }
+        }
         const uint32_t now = System::GetNow();
         // ---- display safety
         if(lcd.Faulted() || core.ScreenFast() != screen_fast) // SPI failing, or fast / safe changed: start over

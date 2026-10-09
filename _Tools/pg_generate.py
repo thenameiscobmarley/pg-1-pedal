@@ -41,12 +41,20 @@ FOOTSW = [(PG + "a", -36.0), (PG + "b", 0.0), (PG + "c", 36.0)]   # pg-c (right)
 FS_JOB = {PG + "a": "bypass", PG + "b": "next", PG + "c": "a/b"}  # printed next to each name, smaller
 FS_CAP = "pink"                        # KN2310 aluminium caps (A-2599) on the PBS-24 footswitches
 # two small analog pots left of the screen (10k log dual, A-6980, 14 mm white ripple knobs A-8567), wired to the carrier board
-SMALL_X = -40.95  # centred between the border line (x -56.0) and the screen's line (x -25.9)
+# the gain knobs sit under their jacks: input under "in", output under "out". At x +-48 they clear the Neutrik
+# jack bodies behind the face (|x| <= 42.7 from y 46), the lid-screw posts (+-51, +-63) and, on the right, the Seed3
+# window (y <= 41.7); their 9 mm pots are ~19 mm deep, above the carrier board (26 mm down).
+SMALL_X = 48.0
 SMALL_POTS = [  # label, x, y, bare hole, what it does
-    (PG + "hp", SMALL_X, 32.5, 7.5, "output gain, analog: -21 .. 0 (centre click) .. +21 dB"),
-    (PG + "line", SMALL_X, 10.5, 7.5, "input gain, analog: -33 .. 0 (centre click) .. +33 dB"),
+    (PG + "hp", SMALL_X, 52.0, 7.5, "output gain, analog: -21 .. 0 (centre click) .. +21 dB"),
+    (PG + "line", -SMALL_X, 52.0, 7.5, "input gain, analog: -33 .. 0 (centre click) .. +33 dB"),
 ]
 SMALL_KNOB_D = 14.0
+SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
+# the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
+# knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
+SELECTOR = (8.0, 50.0, 9.0)
+SELECTOR_TABS = ["1", "2", "3", "4", "5", "6", "7", "8"]   # the settings PAGE of the open tab (the closest one it has)
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
 FS_HOLE = 12.2
 
@@ -270,8 +278,8 @@ def build_face_art():
     A.stroke(poly_path([(-49.0, dy), (-3.2, dy)]), 0.22)
     A.stroke(poly_path([(3.2, dy), (49.0, dy)]), 0.22)
     A.fill(diamond(0, dy, 1.4), PINK)
-    A.fill(diamond(-50.6, dy, 0.6))
-    A.fill(diamond(50.6, dy, 0.6))
+    A.fill(diamond(-50.6, dy, 0.6), PINK)
+    A.fill(diamond(50.6, dy, 0.6), PINK)
 
     # endless encoders: 20 detent dots, every 5th one a little larger
     for name, x, kind, _ in KNOBS:
@@ -290,23 +298,31 @@ def build_face_art():
 
     # the two small pots left of the screen: 11 dots over the 300 degree turn (silent .. loudest, the top one pink)
     for name, x, y, _, _ in SMALL_POTS:
-        r = SMALL_KNOB_D / 2 + 2.0
+        r = SMALL_KNOB_D / 2 + 0.9   # tight round the knob: it sits close to the border
         for i in range(11):
+            if i in (2, 8):   # (the 9 and 3 o'clock dots would touch the border)
+                continue
             a = math.radians(240 - i * 30)
-            rr = 0.5 if i in (0, 10) else 0.24
-            A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), 0.62 if i == 5 else rr), PINK if i == 5 else INK)
-        A.fill(mono.outline(name, x, y - r - 3.0, 3.0))
-        # the gain at a few dots, in dB. Both knobs are centre-detent linear pots in an inverting stage between two
-        # end resistors (pg-hp 1k, pg-line 220R): gain = (Re + R t) / (Re + R (1 - t)); the pink top dot = the click = 0 dB
+            rr = 0.45 if i in (0, 10) else 0.22
+            A.fill(circle_path(x + r * math.cos(a), y + r * math.sin(a), 0.6 if i == 5 else rr), PINK if i == 5 else INK)
+        # the gain at the two ends, under them (the pink top dot = the click = 0 dB). Both knobs are centre-detent
+        # linear pots in an inverting stage between two end resistors (pg-hp 1k, pg-line 220R):
+        # gain = (Re + R t) / (Re + R (1 - t))
         re = 1000.0 if name.endswith("hp") else 220.0
-        for i in (0, 2, 8, 10):
+        for i in (0, 10):
             f = i / 10
             db = f"{20 * math.log10((re + 10e3 * f) / (re + 10e3 * (1 - f))):+.0f}"
             a = math.radians(240 - i * 30)
-            rl = r + (2.3 if i in (2, 8) else 0.0)   # the end dots: the number sits level with the dot, beside it
-            lx, ly = x + rl * math.cos(a), y + rl * math.sin(a)
-            dx, dy = (0.6, -0.5) if i in (2, 8) else (0.9, 1.3)   # the end ones higher: clear of the screw heads
-            A.fill(mono.outline(db, lx + (-dx if i < 5 else dx), ly + dy, 1.5, anchor="end" if i < 5 else "start"))
+            A.fill(mono.outline(db, x + r * math.cos(a), y + r * math.sin(a) - 2.4, 1.5))
+        # what it is, under the knob, kept between the screen screw and the border
+        w1, w2 = SMALL_WORDS[name]
+        lines = [(w1, 1.8, INK)] + [(w, 1.5, PINK) for w in w2.split("|")]
+        sx = SCREWS[0][0] if x < 0 else SCREWS[1][0]
+        for k, (t, sz, col) in enumerate(lines):
+            w = mono.width(t, sz)
+            lo, hi = (-55.0, sx - 3.8) if x < 0 else (sx + 3.8, 55.0)   # (screw head 2.75 + 1 mm)
+            cx = min(max(x, lo + w / 2), hi - w / 2)
+            A.fill(mono.outline(t, cx, y - r - 5.6 - k * 2.3, sz), col)
 
     # footswitches: a ring with a hairline ring inside it, and 4 small ticks at the quarters
     for name, x in FOOTSW:
@@ -323,9 +339,10 @@ def build_face_art():
     # jack labels along the top edge (match side B holes)
     # (one row, high enough to clear the logo's loop; every audio jack is stereo trs)
     for name, x, _, _ in SIDE_B:
+        if name != "9v":   # the jacks: their gain knob underneath says input / output
+            A.fill(mono.outline("in" if x < 0 else "out", x, 64.6, 3.0))
+            continue
         A.fill(mono.outline(name, x, 61.0, 3.0))
-        # inputs on the left, outputs on the right: each says which, in pink, right under its hole
-        A.fill(mono.outline("(IN)" if x < IO_DIVIDE else "(OUT)", x, 63.9, 2.2), PINK)
         if name == "9v": # centre-negative polarity mark: minus - ( . ) - plus
             px, py = x, 57.6
             A.stroke(poly_path([(px - 4.6, py), (px - 3.6, py)]), 0.3)          # minus
@@ -336,17 +353,23 @@ def build_face_art():
             A.stroke(poly_path([(px + 1.25, py), (px + 3.4, py)]), 0.3)         # lead from the sleeve
             A.stroke(poly_path([(px + 3.9, py), (px + 5.1, py)]), 0.3)          # plus
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
-    # the IN | OUT divider between the 9v jack and line out: a short column of pink diamonds
-    for dy in (55.0, 58.5, 62.0, 65.5):
-        A.fill(diamond(IO_DIVIDE, dy, 0.55), PINK)
+    # the page selector: a dot per position (the first pink) and its page number; "page" under the knob
+    sx, sy, _ = SELECTOR
+    A.fill(mono.outline("page", sx + 20.5, sy - 4.6, 2.0), PINK)
+    for i, t in enumerate(SELECTOR_TABS):
+        a = math.radians(90 + 105 - i * 30)          # 8 positions, 30 degrees apart, centred on the top
+        A.fill(circle_path(sx + 11.0 * math.cos(a), sy + 11.0 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
+        A.fill(mono.outline(t, sx + 13.8 * math.cos(a), sy + 13.8 * math.sin(a) - 0.9, 2.4))
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
-    # logo + tagline, the logo's flat ends finished with small diamonds
-    A.stroke([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(logo_points(0, 51.0))], 0.75)
-    A.fill(diamond(-26.4, 51.0, 0.75))
-    A.fill(diamond(26.4, 51.0, 0.75))
-    A.fill(mono.outline("pg audio \u00b7 pg-1", 0, 44.0, 3.6))   # brand + model, as on the screen
+    # logo + name, smaller and sideways left of the screen (tilt the pedal to read it), the logo's ends in pink diamonds
+    k, lx, ly = 0.5, -42.5, 15.0
+    pts = [((px) * k, (py - 51.0) * k) for px, py in logo_points(0, 51.0)]
+    A.stroke(rot90([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(pts)], lx, ly), 0.6)
+    A.fill(diamond(lx, ly - 26.4 * k, 0.6), PINK)
+    A.fill(diamond(lx, ly + 26.4 * k, 0.6), PINK)
+    A.fill(rot90(mono.outline("pg audio \u00b7 pg-1", 0, 0, 2.8), -50.0, ly), PINK)
     return A
 
 
@@ -354,7 +377,7 @@ def check_clearances():
     """Make sure no printed item sits on a hole (cheap sanity check)."""
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
-            [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS]
+            [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS] + [(SELECTOR[0], SELECTOR[1], SELECTOR[2] / 2 + PC / 2)]
     # a small knob next to a screen screw: the 14 mm knob must clear the screw head (5.5 mm) by 2.5 mm, so a cap
     # with a wider skirt still fits and turns freely
     for _, x, y, _, _ in SMALL_POTS:
@@ -463,6 +486,8 @@ def holes_table():
         rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): " + what))
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
+    rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",
+                 "8-way mini rotary switch A-8626 (RS16, 9 mm bushing) + chicken-head knob"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
     for name, x, d, part in SIDE_B:
@@ -579,6 +604,11 @@ def write_art(A):
             a = math.radians(k * 15)
             p.append(f'<path d="M{x+5.6*math.cos(a):.2f},{-y+5.6*math.sin(a):.2f} L{x+7*math.cos(a):.2f},{-y+7*math.sin(a):.2f}" stroke="#c6c6c3" stroke-width="0.35"/>')
         p.append(f'<path d="M{x},{-y-5.4} v2.4" stroke="#222" stroke-width="0.6" stroke-linecap="round"/>')
+    sx, sy, _ = SELECTOR   # the pink chicken-head knob, pointing at its first position
+    p.append(f'<circle cx="{sx}" cy="{-sy}" r="6.2" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
+    tip = math.radians(90 + 105)
+    p.append(f'<path d="M{sx-2.2*math.sin(tip):.2f},{-sy-2.2*math.cos(tip):.2f} L{sx+10*math.cos(tip):.2f},{-sy-10*math.sin(tip):.2f} '
+             f'L{sx+2.2*math.sin(tip):.2f},{-sy+2.2*math.cos(tip):.2f} Z" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4"/>')
     open(os.path.join(d, "pg1-face-preview.svg"), "w").write(
         svg_doc(FACE_W + 10, FACE_H + 14, "\n".join(p), (-(FACE_W + 10) / 2, -(FACE_H + 14) / 2 - 1, FACE_W + 10, FACE_H + 14), "#e9e7e2"))
 

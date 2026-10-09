@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **15 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **28 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -25,7 +25,19 @@ You should end up with **15 lines**, exact quantities. The Seed3 is a **cartridg
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
 | A-199 | 1 | $0.17 | $0.17 | 40 pin 2.54mm right-angle single-row male pin header | carrier board: snap into 10 + 6 + 6 + 4 (J10, J20, J19, J21) |
 | A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
-| | | | **$40.96** | **Tayda subtotal** | |
+| A-8626 | 1 | $1.21 | $1.21 | Mini rotary switch 1 pole 8 position RS16 (9 mm hole, 6 mm spline shaft) | the page selector (settings page 1-8 of the open tab) |
+| A-6623 | 1 | $0.49 | $0.49 | Chicken head knob, pink | on the page selector |
+| A-6162 | 1 | $0.75 | $0.75 | MCP6002-I/P op-amp (DIP-8, 3.3 V rail-to-rail) | analog leveller add-on: the buffers |
+| A-5800 | 2 | $0.28 | $0.56 | LDR 10-15k, 650 nm | analog leveller: the light-dependent resistors |
+| A-706 | 2 | $0.02 | $0.04 | LED 5 mm red | analog leveller: the light, one per LDR |
+| A-2310 | 10 | $0.015 | $0.15 | 4.7k 1/4 W metal film | analog leveller |
+| A-2247 | 10 | $0.015 | $0.15 | 470 ohm 1/4 W metal film | analog leveller (LED current) |
+| A-960 | 4 | $0.02 | $0.08 | 10 uF 50 V electrolytic | analog leveller |
+| A-553 | 4 | $0.01 | $0.04 | 100 nF ceramic | analog leveller (supply bypass) |
+| A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a light-tight sleeve over each LED + LDR pair |
+| A-1454 | 1 | $0.55 | $0.55 | 170-point mini breadboard, black (47 x 35 mm) | analog leveller add-on (plugs into the fx loop) |
+| A-7890 | 1 | $0.99 | $0.99 | U-shape breadboard jumper wire kit (140 pcs) | flat, neat links on the mini breadboard |
+| | | | **$46.11** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
@@ -69,3 +81,10 @@ Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill o
 
 (Headers come from Tayda: A-199 + A-198. The fx loop is closed with 2 short female/female jumper wires from the
 A-3482 pack: "s l" to "r l" and "s r" to "r r". No sound without them.)
+
+## Amazon (Prime): small ready-made boards, pins already soldered
+| Qty | Part | For |
+|---|---|---|
+| 1 | **PCF8574 I/O expansion board** (I2C, 3.3 V ok; most have an input and a pass-through header) | reads the 8-way page selector, plugs onto the expansion header |
+| 1 | **MCP4725 DAC board** (I2C) | the analog leveller: sets the LEDs' brightness |
+| 1 | **B0505S-1WR3** (pins in order GND, Vin, 0 V, +Vo) | the carrier board's isolated power (or with the Mouser order) |

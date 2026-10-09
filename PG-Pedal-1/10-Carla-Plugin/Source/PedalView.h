@@ -37,7 +37,7 @@ private:
     void openGLContextClosing() override;
     void timerCallback() override;
 
-    enum class Hit { none, knob, footswitch, screen };
+    enum class Hit { none, knob, footswitch, screen, smallKnob, selector };
     struct Target { Hit kind = Hit::none; int index = -1; };
     Target hitTest (juce::Point<float>) const;
     hwk::gfx::Mat4 viewProj (float w, float h) const;
@@ -62,6 +62,12 @@ private:
     std::array<std::atomic<float>, 4> knobAngle {};
     std::array<std::atomic<float>, 3> fsTravel {};
     std::array<bool, 3> fsHeld {};
+    std::atomic<int> selPos { 1 };                       // the page selector, 1..8
+    void setSelector (int pos);
+public:
+    std::array<std::atomic<float>, 2> smallKnob { { 0.5f, 0.5f } };   // pg-hp, pg-line: 0..1, 0.5 = the 0 dB click
+    int selectorPosition() const { return selPos.load(); }
+private:
     Target drag;
     float dragAccum = 0.0f;
     bool dragMoved = false, shiftHold = false;
@@ -78,7 +84,7 @@ private:
                       meshNutSmall, meshNutBig, meshThread, meshPlunger, meshCap, meshScrew, meshJackNut, meshJackHole,
                       meshDcNut,
                       meshSeedWin, meshSeedHdr, meshSeedGlue, meshSeedPcb, meshSeedChips, meshSeedUsb, meshSeedBtn,
-                      meshBayWin, meshBayHdr;
+                      meshBayWin, meshBayHdr, meshChicken, meshChickenLine;
     std::vector<std::unique_ptr<KnobPart>> knobParts;
     hwk::gfx::Texture2D texPrint, texLcd;
     std::vector<juce::uint8> lcdRgba;

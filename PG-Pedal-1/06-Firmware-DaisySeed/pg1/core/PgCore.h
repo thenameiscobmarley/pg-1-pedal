@@ -134,6 +134,11 @@ class Core
     void KnobTurn(int knob, int detents, uint32_t now_ms); // speed-sensitive; held knob = fine (eq pg-1: q)
     void KnobPress(int knob, bool down, uint32_t now_ms);  // click / double-click / long-press decided on release
     void Footswitch(int index, bool down, uint32_t now_ms); // 0 = fs-1, 1 = fs-2, 2 = fs-3
+    // the page selector (8-way chicken-head switch): 1..8 = the settings page every tab opens on and switches to
+    // (the closest page it has); 0 = not fitted / unknown (pages are swiped / pg-b'd as before)
+    void PageSelector(int position, uint32_t now_ms);
+    int  PageSelectorPos() const { return sel_page_; }
+    int  OpenPage() const { return screen_ == PAGE ? page_ : -1; } // the settings page shown (-1 = home / other)
     void Touch(bool down, int x, int y, uint32_t now_ms); // call ~50x a second while running
 
     // ---- audio (non-interleaved stereo)
@@ -354,6 +359,7 @@ class Core
     // animations (outline overlays)
     Anim              a_tab_, a_box_, a_wipe_, a_boot_;
     Outline           prev_ol_[16];
+    int               sel_page_ = 0; // the page selector's position (0 = none)
     int               n_prev_ol_ = 0;
     uint32_t          ol_clock_ = 0; // colour flow
     volatile int      pending_flash_kind_ = -1, pending_flash_index_ = 0;

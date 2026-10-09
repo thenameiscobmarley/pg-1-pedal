@@ -439,9 +439,23 @@ void Core::OpenTab(int i, uint32_t now)
     focus_ = tab_ = i;
     screen_       = PAGE;
     page_ = 0, slide_.on = false, box_dx_ = 0;
+    if(sel_page_ > 0) // the page selector says which settings page to open on (the closest one this tab has)
+        page_ = (sel_page_ - 1 < PageCount() - 1) ? sel_page_ - 1 : PageCount() - 1;
     StartWipe(from, {0, 0, Canvas::kW, Canvas::kH}, now);
     a_box_.on   = false;
     redraw_all_ = true;
+}
+
+void Core::PageSelector(int position, uint32_t now)
+{
+    if(position == sel_page_)
+        return;
+    sel_page_ = position;
+    if(position <= 0 || screen_ != PAGE)
+        return;
+    Waking(now);
+    const int want = position - 1 < PageCount() - 1 ? position - 1 : PageCount() - 1; // the closest page there is
+    GoPage(want, now);
 }
 
 void Core::GoHome(uint32_t now)

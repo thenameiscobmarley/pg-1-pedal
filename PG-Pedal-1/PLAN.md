@@ -181,3 +181,13 @@ Steps:
 - [x] 47. 2026-10-09: UI back to square edges, aurora 3 px in the strong middle of the pearl palette, liquid page move
       reverted (straight slide, kWipeMs 420, settings slide 150 ms). BUILD-GUIDE.md written (current wiring; WIRING.md
       had stale bits: Seed3 window is RIGHT wall, key with pin 16 not pin 1, no audio ground chain, no exp jack).
+- [x] 48. 2026-10-09 face redesign: gain pots under the jacks (x +-48, y 52; "Input Gain dB / any level, not too hot",
+      "Output Gain dB / phones or line in"), PAGE SELECTOR (A-8626 1P8T + pink A-6623 chicken head at (8, 50), print 1..8 +
+      "page"): it picks the SETTINGS PAGE of whatever tab is open (closest page it has), NOT the tab (user's correction).
+      Core: Core::PageSelector(pos) / OpenPage(); firmware: PCF8574 on the Seed I2C (expansion header J21), position k ->
+      P(k-1), common -> GND. Logo + name sideways left of the screen, all diamonds pink. Plugin: draggable gain knobs and
+      chicken head (click / drag / wheel). Tayda drill + UV re-uploaded (17 holes).
+- [x] 49. Analog leveller add-on (fx loop): MCP4725 -> 470R -> red LED on an LDR (A-5800) shunting each channel after
+      4.7k (10 uF to ground), MCP6002 followers back into r l / r r. Firmware: pg::AnalogLeveller (isoaudio.*), 2:1 above
+      -14 dBFS rms. Breadboard hole-by-hole table in BUILD-GUIDE.md 6c. Tayda cart now 28 lines; Amazon: PCF8574, MCP4725.
+- [ ] 50. Board simulator in the plugin (board view + wiring editor), fast power-up: see 42.

@@ -149,4 +149,41 @@ bool AnalogFx::SetCutoff(int side, float hz)
     return W(kCutReg[side & 1], uint16_t(code < 0.f ? 0.f : code + 0.5f));
 }
 
+// ------------------------------------------------------------------ the analog leveller add-on (MCP4725)
+bool AnalogLeveller::Init(I2CHandle* i2c)
+{
+    i2c_ = i2c;
+    for(uint8_t a = 0x60; a <= 0x67; a++)
+    {
+        uint8_t off[2] = {0x00, 0x00}; // fast write: 0 V (LEDs off = full level)
+        if(i2c_->TransmitBlocking(a, off, 2, kI2cMs) == I2CHandle::Result::OK)
+        {
+            addr_ = a, last_ = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+void AnalogLeveller::SetCut(float db)
+{
+    if(!addr_)
+        return;
+    db = db < 0.f ? 0.f : (db > 20.f ? 20.f : db);
+    // the LDR needed for that cut (4.7k in series, the LDR to ground): R = 4.7k * g / (1 - g)
+    const float g  = powf(10.f, -db / 20.f);
+    const float r  = db < 0.05f ? 1e7f : 4700.f * g / (1.f - g);
+    // a typical LDR in a sealed LED pair: ~2k at 1 mA, R ~ I^-0.75 -> the LED current, then the DAC volts (470R + ~1.8 V)
+    float       ma = powf(2000.f / r, 1.f / 0.75f);
+    ma             = ma > 3.f ? 3.f : ma;
+    const float v  = db < 0.05f ? 0.f : 1.8f + ma * 0.47f;
+    uint16_t    code = uint16_t(v / 3.3f * 4095.f + 0.5f);
+    code             = code > 4095 ? 4095 : code;
+    if(code == last_)
+        return;
+    last_       = code;
+    uint8_t d[2] = {uint8_t(code >> 8), uint8_t(code)}; // fast write (power-down bits 0)
+    i2c_->TransmitBlocking(addr_, d, 2, kI2cMs);
+}
+
 } // namespace pg
