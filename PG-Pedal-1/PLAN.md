@@ -137,3 +137,10 @@ Steps:
 
 - [ ] 34. (after hardware test) SPI DMA so rendering overlaps sending: solid 60 on graph pages
 - [ ] 27. Try it all on the real Seed3 (bootloader, flash saving, CPU load) and re-upload drill + print to Tayda
+- [x] 41. Rounded aurora: pearl edge + outline animations follow the tiles' rounded corners (EdgeInset in PgCore.cpp;
+      Outline.rad: tabs 6, param boxes 4, band chips 3, boot/tour square). Page open/close move is now LIQUID
+      (Outline.kind 1 + LiquidField SDF: melt + drips, falling drops, gooey neck, springy settle; kWipeMs 800).
+      Native frame test: scratchpad liq/t.cpp. Plugin + firmware rebuilt.
+- [ ] 42. (asked) plugin emulates the carrier board's ELECTRONICS from the real PCB netlist (currents, shorts, miswiring
+      -> no sound). Scope agreed with user? (see chat) 
+- [ ] 43. (asked) UI more intuitive: waiting for what's confusing

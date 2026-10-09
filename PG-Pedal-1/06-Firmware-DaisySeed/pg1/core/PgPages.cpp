@@ -347,7 +347,7 @@ void Core::DrawStrip(uint32_t now)
             snprintf(buf, sizeof(buf), "%d  %s", b + 1, f);
             TextFb(r.x + 16, r.y + 4, buf, Font_6x8, b == band_ ? kYellow : kGrey);
             if(b == band_)
-                PearlBorder(r, now);
+                PearlBorder(r, now, 3); // the chip's own corner radius
         }
         drawn_band_ = band_;
         Dirty(0, kPanelY, Canvas::kW, 24);

@@ -9,7 +9,7 @@
 
 namespace pg
 {
-static constexpr uint32_t kTabAnimMs = 700, kBoxAnimMs = 520, kWipeMs = 650, kBootMs = 2300;
+static constexpr uint32_t kTabAnimMs = 700, kBoxAnimMs = 520, kWipeMs = 800, kBootMs = 2300;
 static constexpr uint32_t kRestMs = 5u * 60u * 1000u, kDarkMs = 20u * 60u * 1000u;
 
 // which parameter each knob moves on a page (eq: per band, see KnobParam)
@@ -765,25 +765,65 @@ uint16_t Core::Heat(float v)
     return Canvas::Rgb(mix(0), mix(1), mix(2));
 }
 
-// A slow pearl shimmer around a focused box: 2 px of the palette, drifting around the edge.
-void Core::PearlBorder(const Rect& r, uint32_t now)
+// How far pixel (x, y) sits inside the edge of rounded rect r (0 = on the outer edge; negative = outside, in a
+// cut corner), and its position clockwise from the top-left (0 .. 2 * (w + h)). Shared by the pearl edge and the
+// outline animations so both follow the same rounded corners as the tiles.
+static float EdgeInset(const Core::Rect& r, int rad, int x, int y, float& p)
+{
+    const float fx = float(x), fy = float(y);
+    float       inset;
+    const int   ix = x - r.x, iy = y - r.y, jx = r.x + r.w - 1 - x, jy = r.y + r.h - 1 - y;
+    if(rad > 0 && (ix < rad || jx < rad) && (iy < rad || jy < rad)) // in a corner square: distance to the arc
+    {
+        const float cx = ix < rad ? float(r.x) - 0.5f + float(rad) : float(r.x + r.w) - 0.5f - float(rad);
+        const float cy = iy < rad ? float(r.y) - 0.5f + float(rad) : float(r.y + r.h) - 0.5f - float(rad);
+        inset          = float(rad) - sqrtf((fx - cx) * (fx - cx) + (fy - cy) * (fy - cy)) - 0.5f;
+    }
+    else
+    {
+        int m = ix < iy ? ix : iy;
+        m     = m < jx ? m : jx;
+        inset = float(m < jy ? m : jy);
+    }
+    const int top = iy, right = jx, bottom = jy, left = ix; // nearest side decides the position along the edge
+    int       mn  = top;
+    if(right < mn)
+        mn = right;
+    if(bottom < mn)
+        mn = bottom;
+    if(left < mn)
+        mn = left;
+    if(mn == top)
+        p = float(ix);
+    else if(mn == right)
+        p = float(r.w) + float(iy);
+    else if(mn == bottom)
+        p = float(r.w + r.h) + float(jx);
+    else
+        p = float(2 * r.w + r.h) + float(jy);
+    return inset;
+}
+
+// A slow pearl shimmer around a focused box: 2 px of the palette, drifting around the (rounded) edge.
+void Core::PearlBorder(const Rect& r, uint32_t now, int rad)
 {
     const int   per = 2 * (r.w + r.h);
     const float t   = float(now % 4000) / 4000.f;
-    auto        put = [&](int x, int y, int k) {
-        const uint16_t c = Pearl(float(k) / float(per) + t);
-        Px(x, y, c);
-        Px(x + (x == r.x ? 1 : x == r.x + r.w - 1 ? -1 : 0), y + (y == r.y ? 1 : y == r.y + r.h - 1 ? -1 : 0), c);
-    };
-    int k = 0;
-    for(int x = r.x; x < r.x + r.w; x++)
-        put(x, r.y, k++);
+    const int   band = rad > 2 ? rad : 2; // rows / columns that can hold edge pixels
     for(int y = r.y; y < r.y + r.h; y++)
-        put(r.x + r.w - 1, y, k++);
-    for(int x = r.x + r.w - 1; x >= r.x; x--)
-        put(x, r.y + r.h - 1, k++);
-    for(int y = r.y + r.h - 1; y >= r.y; y--)
-        put(r.x, y, k++);
+    {
+        const bool edgeRow = y < r.y + band || y >= r.y + r.h - band;
+        for(int x = r.x; x < r.x + r.w; x++)
+        {
+            if(!edgeRow && x == r.x + band)
+                x = r.x + r.w - band; // skip the inside of the row
+            float     p;
+            const float in = EdgeInset(r, rad, x, y, p);
+            if(in < 0.f || in >= 2.f)
+                continue;
+            Px(x, y, Pearl(p / float(per) + t));
+        }
+    }
 }
 
 // ------------------------------------------------------------------ outline animations
@@ -837,7 +877,7 @@ int Core::CollectOutlines(Outline* o, uint32_t now) const
     {
         const float tb = float(now - a_boot_.t0) / float(a_boot_.ms);
         if(Timeline(tb, c0, c1))
-            o[n++] = {{0, 0, Canvas::kW, Canvas::kH}, 3, c0, c1};
+            o[n++] = {{0, 0, Canvas::kW, Canvas::kH}, 3, c0, c1, 0};
         if(screen_ == HOME)
             for(int i = 0; i < 8; i++) // page 1
             {
@@ -852,20 +892,23 @@ int Core::CollectOutlines(Outline* o, uint32_t now) const
         const float t = float(now - a_wipe_.t0) / float(a_wipe_.ms);
         if(t < 1.f)
         {
-            const float e  = EaseOut(t / 0.7f);
-            auto        lp = [e](int a, int b) { return a + int(float(b - a) * e + 0.5f); };
-            const Rect  r  = {lp(a_wipe_.from.x, a_wipe_.to.x), lp(a_wipe_.from.y, a_wipe_.to.y), lp(a_wipe_.from.w, a_wipe_.to.w),
-                              lp(a_wipe_.from.h, a_wipe_.to.h)};
-            c1             = EaseOut(t / 0.25f);
-            c0             = t > 0.7f ? EaseIn((t - 0.7f) / 0.3f) : 0.f;
-            if(c1 > c0)
-                o[n++] = {r, 4, c0, c1};
+            // the liquid move: the outline melts, drips across and settles into the new box (see LiquidStroke)
+            const Rect& f = a_wipe_.from;
+            const Rect& g = a_wipe_.to;
+            int         x0 = f.x < g.x ? f.x : g.x, y0 = f.y < g.y ? f.y : g.y;
+            int         x1 = f.x + f.w > g.x + g.w ? f.x + f.w : g.x + g.w, y1 = f.y + f.h > g.y + g.h ? f.y + f.h : g.y + g.h;
+            x0 = x0 - 16 < 0 ? 0 : x0 - 16, y0 = y0 - 16 < 0 ? 0 : y0 - 16;
+            x1 = x1 + 16 > Canvas::kW ? Canvas::kW : x1 + 16, y1 = y1 + 16 > Canvas::kH ? Canvas::kH : y1 + 16;
+            Outline lo;
+            lo.r = {x0, y0, x1 - x0, y1 - y0}, lo.thick = 3, lo.c0 = 0.f, lo.c1 = 1.f, lo.rad = 6;
+            lo.kind = 1, lo.a = f, lo.b = g, lo.t = t;
+            o[n++] = lo;
         }
     }
     if(a_tab_.on && screen_ == HOME && a_tab_.index / 8 == focus_ / 8 && Timeline(float(now - a_tab_.t0) / float(a_tab_.ms), c0, c1))
         o[n++] = {TabRect(a_tab_.index), 3, c0, c1};
     if(a_box_.on && screen_ == PAGE && Timeline(float(now - a_box_.t0) / float(a_box_.ms), c0, c1))
-        o[n++] = {ParamRect(a_box_.index), 3, c0, c1};
+        o[n++] = {ParamRect(a_box_.index), 3, c0, c1, 4};
     return n;
 }
 
@@ -885,10 +928,18 @@ void Core::AnimFrame(uint32_t now)
     // re-push where the outlines were (fb_ underneath is clean) and where they are now
     auto strips = [this](const Outline& o) {
         const Rect& r = o.r;
+        if(o.kind == 1) // the liquid can be anywhere in its area
+        {
+            Dirty(r.x, r.y, r.w, r.h);
+            return;
+        }
         Dirty(r.x, r.y, r.w, o.thick);
         Dirty(r.x, r.y + r.h - o.thick, r.w, o.thick);
         Dirty(r.x, r.y + o.thick, o.thick, r.h - 2 * o.thick);
         Dirty(r.x + r.w - o.thick, r.y + o.thick, o.thick, r.h - 2 * o.thick);
+        if(o.rad > o.thick) // a rounded corner's arc reaches a little further in
+            Dirty(r.x, r.y, o.rad, o.rad), Dirty(r.x + r.w - o.rad, r.y, o.rad, o.rad), Dirty(r.x, r.y + r.h - o.rad, o.rad, o.rad),
+                Dirty(r.x + r.w - o.rad, r.y + r.h - o.rad, o.rad, o.rad);
     };
     for(int i = 0; i < n_prev_ol_; i++)
         strips(prev_ol_[i]);
@@ -897,6 +948,103 @@ void Core::AnimFrame(uint32_t now)
     n_prev_ol_ = n;
     ol_clock_  = now;
     last_anim_ = now;
+}
+
+// ------------------------------------------------------------------ the liquid move (signed distance field)
+// Negative inside the shape. Everything is in pixels; the stroke is drawn just inside the edge, hard-edged.
+static float SdBox(float px, float py, float cx, float cy, float hw, float hh, float rad)
+{
+    rad            = rad < hw ? (rad < hh ? rad : hh) : (hw < hh ? hw : hh);
+    const float qx = fabsf(px - cx) - hw + rad, qy = fabsf(py - cy) - hh + rad;
+    const float ox = qx > 0.f ? qx : 0.f, oy = qy > 0.f ? qy : 0.f;
+    const float in = qx > qy ? qx : qy;
+    return sqrtf(ox * ox + oy * oy) + (in < 0.f ? in : 0.f) - rad;
+}
+static float SMin(float a, float b, float k) // gooey union: shapes reach for each other before they touch
+{
+    float hh = 0.5f + 0.5f * (b - a) / k;
+    hh       = hh < 0.f ? 0.f : (hh > 1.f ? 1.f : hh);
+    return b + (a - b) * hh - k * hh * (1.f - hh);
+}
+static float SdSeg(float px, float py, float ax, float ay, float bx, float by, float r)
+{
+    const float vx = bx - ax, vy = by - ay, wx = px - ax, wy = py - ay;
+    float       hh = (wx * vx + wy * vy) / (vx * vx + vy * vy + 1e-6f);
+    hh             = hh < 0.f ? 0.f : (hh > 1.f ? 1.f : hh);
+    const float dx = wx - vx * hh, dy = wy - vy * hh;
+    return sqrtf(dx * dx + dy * dy) - r;
+}
+
+// the liquid shape at time t: box a melts (its far edge droops into drips along the way to b), drops fall
+// towards b speeding up like gravity, a gooey neck joins them and snaps, and b wobbles into place
+static float LiquidField(const Core::Outline& o, float px, float py)
+{
+    const float t   = o.t;
+    const float acx = float(o.a.x) + float(o.a.w) * 0.5f, acy = float(o.a.y) + float(o.a.h) * 0.5f;
+    const float bcx = float(o.b.x) + float(o.b.w) * 0.5f, bcy = float(o.b.y) + float(o.b.h) * 0.5f;
+    float       gx = bcx - acx, gy = bcy - acy; // "down" = towards the new box (straight down if they share a centre)
+    float       gl = sqrtf(gx * gx + gy * gy);
+    if(gl < 4.f)
+        gx = 0.f, gy = 1.f, gl = 1.f;
+    else
+        gx /= gl, gy /= gl;
+    const float nx = -gy, ny = gx; // across the fall
+    float       d  = 1e9f;
+    const float ahw = float(o.a.w) * 0.5f, ahh = float(o.a.h) * 0.5f;
+    // how far the old box reaches along the fall (where its drips hang from)
+    const float reach = fabsf(gx) * ahw + fabsf(gy) * ahh;
+    // the old box: melts, its far edge sagging into long narrow drips, and shrinks away
+    if(t < 0.62f)
+    {
+        const float u    = t / 0.62f;
+        const float mu   = t < 0.45f ? t / 0.45f : 1.f;
+        const float melt = 34.f * mu * sqrtf(mu);                        // drips grow first, then hang
+        const float s    = (px - acx) * nx + (py - acy) * ny;            // position across the fall
+        float       wv   = 0.5f + 0.5f * sinf(s * 0.17f + 1.3f);
+        wv               = wv * wv * wv * wv * wv * wv;                  // narrow drips, flat in between
+        const float along = (px - acx) * gx + (py - acy) * gy;           // only the far half sags
+        const float far   = along > 0.f ? (along / (reach + 1.f) < 1.f ? along / (reach + 1.f) : 1.f) : 0.f;
+        const float sh   = melt * (0.15f + 1.4f * wv) * far;
+        const float qx   = px - gx * sh, qy = py - gy * sh;
+        const float k    = 1.f - 0.45f * u * u;
+        d = SdBox(qx, qy, acx, acy, ahw * k, ahh * k, 6.f);
+    }
+    // the new shape: starts as the melting blob and springs out to the new box (overshoots, wobbles, settles)
+    float       ncx = acx, ncy = acy;
+    const float bu  = (t - 0.38f) / 0.62f;
+    if(bu > 0.f)
+    {
+        const float u  = bu > 1.f ? 1.f : bu;
+        const float sp = 1.f - expf(-4.f * u) * cosf(7.f * u);           // 0 -> overshoot -> 1
+        ncx            = acx + (bcx - acx) * sp, ncy = acy + (bcy - acy) * sp;
+        const float hw = ahw + (float(o.b.w) * 0.5f - ahw) * sp, hh = ahh + (float(o.b.h) * 0.5f - ahh) * sp;
+        if(hw > 1.f && hh > 1.f)
+            d = SMin(d, SdBox(px, py, ncx, ncy, hw, hh, float(o.rad)), 14.f * (1.f - u) + 0.01f);
+    }
+    // the neck between what's left of the old box and the moving shape: stretches, thins, snaps
+    const float nu = (t - 0.3f) / 0.4f;
+    if(nu > 0.f && nu < 1.f)
+    {
+        const float r = 9.f * sinf(3.14159f * nu) * (1.f - nu * 0.5f);
+        if(r > 0.6f)
+            d = SMin(d, SdSeg(px, py, acx, acy, ncx, ncy, r), 12.f);
+    }
+    // four drops let go of the drip tips and fall towards the new box, faster and faster
+    for(int i = 0; i < 4; i++)
+    {
+        const float u = (t - 0.14f - 0.08f * float(i)) / 0.42f;
+        if(u <= 0.f || u >= 1.f)
+            continue;
+        const float f   = u * u;                                          // gravity: speeds up
+        const float off = (float(i) - 1.5f) * (ahw > 30.f ? 14.f : ahw * 0.4f);
+        const float sx  = acx + gx * (reach + 6.f) + nx * off, sy = acy + gy * (reach + 6.f) + ny * off; // a drip tip
+        const float wb  = 2.5f * sinf(u * 10.f + float(i) * 2.1f) * (1.f - u);
+        const float cx  = sx + (bcx - sx) * f + nx * wb, cy = sy + (bcy - sy) * f + ny * wb;
+        const float r   = 6.f - 3.f * u;
+        const float dx  = px - cx, dy = py - cy;
+        d               = SMin(d, sqrtf(dx * dx + dy * dy) - r, 9.f);
+    }
+    return d;
 }
 
 void Core::Compose(uint16_t* dst, int x, int y, int w, int h) const
@@ -909,29 +1057,41 @@ void Core::Compose(uint16_t* dst, int x, int y, int w, int h) const
         const int      ix1 = (x + w < r.x + r.w ? x + w : r.x + r.w), iy1 = (y + h < r.y + r.h ? y + h : r.y + r.h);
         if(ix0 >= ix1 || iy0 >= iy1)
             continue;
+        if(o.kind == 1) // the liquid move: a hard-edged pearl line just inside the shape's edge
+        {
+            const float thick = o.t < 0.86f ? 3.f : 3.f * (1.f - (o.t - 0.86f) / 0.14f); // thins away at the end
+            if(thick <= 0.f)
+                continue;
+            const float cx = float(o.b.x) + float(o.b.w) * 0.5f, cy = float(o.b.y) + float(o.b.h) * 0.5f;
+            for(int yy = iy0; yy < iy1; yy++)
+                for(int xx = ix0; xx < ix1; xx++)
+                {
+                    const float d = LiquidField(o, float(xx), float(yy));
+                    if(d > 0.f || d <= -thick)
+                        continue;
+                    const float ang = atan2f(float(yy) - cy, float(xx) - cx) * 0.159155f; // -0.5..0.5 around the new box
+                    dst[(yy - y) * w + (xx - x)] = Pearl(ang * 1.5f + o.t * 2.f);
+                }
+            continue;
+        }
         const int   per  = 2 * (r.w + r.h);
         const float half = float(per) * 0.5f, pc = float(r.w) * 0.5f;
         const float flow = float(ol_clock_ % 6000) / 6000.f;
+        const int   band = o.rad > o.thick ? o.rad : o.thick; // rows / columns that can hold edge pixels
         for(int yy = iy0; yy < iy1; yy++)
         {
-            const bool top = yy < r.y + o.thick, bottom = yy >= r.y + r.h - o.thick;
+            const bool edgeRow = yy < r.y + band || yy >= r.y + r.h - band;
             for(int xx = ix0; xx < ix1; xx++)
             {
-                const bool left = xx < r.x + o.thick, right = xx >= r.x + r.w - o.thick;
-                if(!(top || bottom || left || right))
+                if(!edgeRow && xx >= r.x + band && xx < r.x + r.w - band)
                 {
-                    xx = r.x + r.w - o.thick - 1; // skip the inside of the row
+                    xx = r.x + r.w - band - 1; // skip the inside of the row
                     continue;
                 }
-                float p; // position clockwise from the top-left corner
-                if(top)
-                    p = float(xx - r.x);
-                else if(bottom)
-                    p = float(r.w + r.h) + float(r.x + r.w - 1 - xx);
-                else if(right)
-                    p = float(r.w) + float(yy - r.y);
-                else
-                    p = float(2 * r.w + r.h) + float(r.y + r.h - 1 - yy);
+                float       p;
+                const float in = EdgeInset(r, o.rad, xx, yy, p);
+                if(in < 0.f || in >= float(o.thick))
+                    continue;
                 float dd = fabsf(p - pc);
                 if(dd > half)
                     dd = float(per) - dd;
@@ -1104,7 +1264,7 @@ void Core::DrawTour(uint32_t now)
     const Rect r = {16, 90, Canvas::kW - 32, 58};
     FillRect(r.x, r.y, r.w, r.h, ui::kBlueDeep);
     FrameRect(r.x, r.y, r.w, r.h, ui::kCream);
-    PearlBorder({r.x + 2, r.y + 2, r.w - 4, r.h - 4}, now);
+    PearlBorder({r.x + 2, r.y + 2, r.w - 4, r.h - 4}, now, 0); // the tour card is square
     TextFb(r.x + (r.w - TextW(lines[step][0], Font_7x10)) / 2, r.y + 12, lines[step][0], Font_7x10, ui::kWhite);
     TextFb(r.x + (r.w - TextW(lines[step][1], Font_6x8)) / 2, r.y + 30, lines[step][1], Font_6x8, ui::kCream);
     for(int k = 0; k < 4; k++) // which card of 4
@@ -1479,7 +1639,7 @@ int Core::DrawUi(Canvas& c, uint32_t now)
                 const Rect r = TabRect(focus_);
                 PearlBorder(r, now);
                 pad_dirty_ = true;
-                Dirty(r.x, r.y, r.w, 2), Dirty(r.x, r.y + r.h - 2, r.w, 2), Dirty(r.x, r.y, 2, r.h), Dirty(r.x + r.w - 2, r.y, 2, r.h);
+                Dirty(r.x, r.y, r.w, 6), Dirty(r.x, r.y + r.h - 6, r.w, 6), Dirty(r.x, r.y, 6, r.h), Dirty(r.x + r.w - 6, r.y, 6, r.h);
             }
         }
         else
