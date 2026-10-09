@@ -58,7 +58,10 @@ LCSC.update({   # the analog effect + expansion header
 })
 LCSC.update({("PSM712", "SOT-23"): "C32677"})   # basic part: no extended fee
 LCSC.update({("fx loop", "PinHeader_2x04_P2.54mm_Vertical"): "C32713277"})
-SKIP = set()   # everything fitted by JLCPCB, the jacks and headers too: nothing to solder
+LCSC.update({("TLV9062", "SOIC-8_3.9x4.9mm_P1.27mm"): "C398355", ("XC6206P332MR", "SOT-23"): "C5446"})
+# through-hole parts you solder yourself (big pins, easy): left off the JLCPCB order to save their part-type fees and
+# the hand-soldering / manual-assembly charges. Buy them with the pots (see BOM.md).
+SKIP = {"J1", "J2", "J10", "J19", "J20", "J21", "J22", "U3"}
 
 
 def rotation_fix(fp_name):
@@ -120,7 +123,7 @@ def main():
                         f"{(rot + dr) % 360:.1f}"])
     shutil.copy(os.path.join(HERE, "pcbway", "pg1-carrier-gerbers.zip"), os.path.join(OUT, "pg1-carrier-gerbers.zip"))
     n = sum(len(r[2]) for r in groups.values())
-    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (everything fitted)")
+    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (through-hole parts left for you: {", ".join(sorted(SKIP))})")
 
 
 if __name__ == "__main__":

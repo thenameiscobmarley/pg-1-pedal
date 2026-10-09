@@ -51,10 +51,9 @@ P("C1", "22uF 25V", C1206, "CL31A226KAHNNNE", {1: "+9V", 2: "GND"})
 SOT223 = "Package_TO_SOT_SMD:SOT-223-3_TabPin2"
 P("U1", "AMS1117-5.0", SOT223, "AMS1117-5.0", {1: "GND", 2: "+5V", 3: "+9V"}, "5 V for the isolated supply")
 P("C2", "22uF 25V", C1206, "CL31A226KAHNNNE", {1: "+5V", 2: "GND"})
-P("U2", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR", {1: "+5V", 2: "GND", 3: "+5V", 4: "PBYP", 5: "+3V3"},
+P("U2", "XC6206P332MR", "Package_TO_SOT_SMD:SOT-23", "XC6206P332MR-G", {1: "GND", 2: "+3V3", 3: "+5V"},
   "3.3 V for the isolators' pedal halves (~10 mA)")
 P("C3", "4.7uF", C0805, "CL21A475KAQNNNE", {1: "+3V3", 2: "GND"})
-P("C5", "10nF", C0603, "", {1: "PBYP", 2: "GND"})
 P("R3", "4.7k", R0603, "", {1: "+3V3", 2: "SEED_SCL"}, "I2C pull-ups, pedal side")
 P("R4", "4.7k", R0603, "", {1: "+3V3", 2: "SEED_SDA"})
 
@@ -75,9 +74,8 @@ P("C11", "100nF", C0603, "", {1: "+3V3", 2: "GND"}, "ISO1540 side 1")
 P("C12", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "ISO1540 side 2")
 
 # ================================================================ ISOLATED SIDE (ground: IGND)
-P("U7", "LP2985-33", "Package_TO_SOT_SMD:SOT-23-5", "LP2985-33DBVR",
-  {1: "ISO5V_RAW", 2: "IGND", 3: "ISO5V_RAW", 4: "IBYP", 5: "ISO3V3"}, "quiet 3.3 V for the codec (30 uV noise)")
-P("C13", "10nF", C0603, "", {1: "IBYP", 2: "IGND"})
+P("U7", "XC6206P332MR", "Package_TO_SOT_SMD:SOT-23", "XC6206P332MR-G",
+  {1: "IGND", 2: "ISO3V3", 3: "ISO5V_RAW"}, "3.3 V for the codec (its own internal regulator cleans the analog supply)")
 P("C14", "4.7uF", C0805, "CL21A475KAQNNNE", {1: "ISO3V3", 2: "IGND"})
 P("C15", "1uF", C0603, "", {1: "ISO5V_RAW", 2: "IGND"})
 P("R5", "10", R0603, "", {1: "ISO5V_RAW", 2: "ISO5V"}, "filters the converter's ripple off the input buffer's supply")
@@ -105,16 +103,16 @@ P("R9", "4.7k", R0603, "", {1: "ISO3V3", 2: "ISCL"}, "I2C pull-ups, isolated sid
 P("R10", "4.7k", R0603, "", {1: "ISO3V3", 2: "ISDA"})
 for ref, a, b in (("R11", "BCLK_X", "BCLK"), ("R12", "WCLK_X", "WCLK"), ("R13", "DIN_X", "DIN"), ("R14", "DOUT", "DOUT_X")):
     P(ref, "33", R0603, "", {1: a, 2: b}, "series resistor: clean clock / data edges")
-# input buffer: OPA1652 (FET-quiet, rail-to-rail out) on the filtered isolated 5 V
-P("U8", "OPA1652", SOIC8, "OPA1652AIDR",
+# input buffer: TLV9062 (CMOS input: quiet into the 1M divider, rail-to-rail) on the filtered isolated 5 V
+P("U8", "TLV9062", SOIC8, "TLV9062IDR",
   {1: "IN_D_L", 2: "IN_D_L", 3: "IN_C_L", 4: "IGND", 5: "IN_C_R", 6: "IN_D_R", 7: "IN_D_R", 8: "ISO5V"}, "input followers")
-P("C26", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
-P("U11", "OPA1652", SOIC8, "OPA1652AIDR",
+P("C26", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the TLV9062")
+P("U11", "TLV9062", SOIC8, "TLV9062IDR",
   {1: "IN_G_L", 2: "GIN_W_L", 3: "IBIAS", 4: "IGND", 5: "IBIAS", 6: "GIN_W_R", 7: "IN_G_R", 8: "ISO5V"}, "pg-line gain stages")
-P("C27", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
-P("U12", "OPA1652", SOIC8, "OPA1652AIDR",
+P("C27", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the TLV9062")
+P("U12", "TLV9062", SOIC8, "TLV9062IDR",
   {1: "OUT_G_L", 2: "GOUT_W_L", 3: "IBIAS", 4: "IGND", 5: "IBIAS", 6: "GOUT_W_R", 7: "OUT_G_R", 8: "ISO5V"}, "pg-hp gain stages")
-P("C28", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the OPA1652")
+P("C28", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the TLV9062")
 P("J20", "pg-line", HDR_RA(6), "", {1: "GIN_A_L", 2: "GIN_W_L", 3: "GIN_B_L", 4: "GIN_A_R", 5: "GIN_W_R", 6: "GIN_B_R"},
   "isolated side: pg-line, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
 
@@ -182,7 +180,7 @@ parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") else C0402 i
             for r, v, fp, m, pins, n in parts]
 
 NET_ALIASES = {}
-ISOLATED = {"HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBYP", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
+ISOLATED = {"HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
             "BCLK", "WCLK", "DIN", "DOUT", "BCLK_X", "WCLK_X", "DIN_X", "DOUT_X"} | \
            {f"{s}_{c}" for s in ("JIN", "IN_A", "IN_B", "IN_C", "IN_D", "IN_E", "IN_G", "GIN_A", "GIN_W", "GIN_B", "CIN2", "LO", "FXR",
                                  "OUT_A", "GOUT_A", "GOUT_W", "GOUT_B", "OUT_G", "HPIN", "HPO", "JOUT")

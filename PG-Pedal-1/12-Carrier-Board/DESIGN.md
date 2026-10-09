@@ -8,7 +8,7 @@ the other jack's gear through the pedal's power), not even ground. The audio cro
 
 ```
             ISOLATED SIDE (its own power, ground IGND)                   |  PEDAL SIDE (9 V, ground GND)
-in jack ─ TVS ─ 1k ─ 100 nF ─ 1M/1M ÷2 ─ OPA1652 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
+in jack ─ TVS ─ 1k ─ 100 nF ─ 1M/1M ÷2 ─ TLV9062 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
                                      TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
                                                          ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
 codec line out ─ fx loop (J22: 2 jumper caps, or an add-on) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
@@ -55,8 +55,11 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
 - **All parts on the top side** (with the jacks): JLCPCB assembles one side.
 
-## Nothing to solder
-JLCPCB fits every part, the jacks, headers and power block too. You only push 2 jumper caps onto the fx loop header.
+## You solder 8 through-hole parts (big pins, easy: ~50 joints)
+JLCPCB fits every small part. You solder the 2 jacks (Neutrik NMJ6HFD2), the B0505S-1WR3 power block (4 pins), the
+right-angle headers (10 + 6 + 6 + 4 pins: snap them off a 2.54 mm right-angle male strip) and the 2 x 4 straight
+header (fx loop), all from the printed (top) side, then push 2 jumper caps onto the fx loop. Leaving them off the
+order saves their per-part-type fees and the hand-soldering charges.
 
 ## Ordering at JLCPCB
 Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 make_jlc.py`). At https://cart.jlcpcb.com/quote:

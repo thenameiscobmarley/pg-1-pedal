@@ -57,12 +57,12 @@ GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its ti
     ("fx loop", [(8.4, 36.4, 29.8, 47.1)], (19.5, 41.5), "J22"),
     ("output", [(6.0, 47.7, 23.4, 69.9)], (15.0, 58.0),
      "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 U10 C70 C71 C72 R70 C73 D62"),
-    ("iso power", [(-9.0, 35.8, 8.0, 46.0)], (0.0, 41.0), "U7 C13 C14 C15 R5 C16 R6 R7 C17"),
+    ("iso power", [(-9.0, 35.8, 8.0, 46.0)], (0.0, 41.0), "U7 C14 C15 R5 C16 R6 R7 C17"),
     # the barrier parts (fixed) and their caps + the I2C pull-ups, both sides of it (its box is drawn round all of them)
     ("isolation", [(-12.0, 30.35, 29.5, 33.2), (9.6, 30.35, 29.5, 35.0), (-6.0, 22.6, 29.5, 28.65)], (6.0, 29.5),
      "U3 U4 U5 C7 C8 C9 C10 C11 C12 R3 R4"),
     # pedal side (the tongue below the barrier)
-    ("power", [(-33.5, 12.2, -9.0, 28.4), (-33.5, 21.0, -2.8, 27.2)], (-21.0, 21.0), "F1 D1 D2 C1 U1 C2 U2 C3 C5"),
+    ("power", [(-33.5, 12.2, -9.0, 28.4), (-33.5, 21.0, -2.8, 27.2)], (-21.0, 21.0), "F1 D1 D2 C1 U1 C2 U2 C3"),
 ]
 GROUP_OF = {r: g for g, _, _, rs in GROUPS for r in rs.split()}
 # the signal's path, drawn as arrows: (from, to, both ways); a name is a group, a J-number a jack or header
@@ -101,7 +101,7 @@ GAP = 0.3                             # extra room around each part's courtyard 
 EDGE = 0.2                             # courtyard to board edge / the barrier (the job areas keep the boxes in)
 NET_W = {"IGND": 0.12, "GND": 0.12, "ISO3V3": 0.5, "+3V3": 0.5, "+5V": 0.6, "+9V": 0.6, "IBIAS": 0.7}
 STICK = {"C26": "U8", "C24": "U9", "C23": "U9", "C19": "U9", "C20": "U9", "C21": "U9", "C22": "U9", "C18": "U9",
-         "C4": "U6", "C9": "U4", "C10": "U4", "C11": "U5", "C12": "U5", "C13": "U7", "C14": "U7", "C15": "U7",
+         "C4": "U6", "C9": "U4", "C10": "U4", "C11": "U5", "C12": "U5", "C14": "U7", "C15": "U7",
          "C2": "U1", "C3": "U2", "C7": "U3", "C8": "U3", "C70": "U10", "C71": "U10", "C72": "U10"}   # keep these right at their chip
 
 

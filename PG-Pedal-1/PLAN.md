@@ -98,6 +98,10 @@ Steps:
         driver kept for an add-on); J22 "fx loop" 2x4 vertical header (LO -> FXR, jumper caps; iso 3v3/gnd/scl/sda)
         for add-on boards; PSM712 (basic C32677) for D2/D61/D62; C30/C40 -> 100nF 0402 basic; THT parts (J1 J2 J10
         J19 J20 J21 J22 U3) first skipped, then user said NO soldering: all fitted again (J22 = C32713277). Re-route + DRC, make_jlc, tell user (cheap shipping: Global Standard Direct Line, watch tariff).
+        COST CUT 2 (user: ~$50 total incl. shipping, slight IEM hiss OK): OPA1652 x3 -> TLV9062IDR (C398355, same
+        pinout, RRIO, CMOS input); LP2985 x2 -> XC6206P332MR (basic C5446, SOT-23: 1 GND 2 OUT 3 IN; bypass caps
+        C5/C13 removed); THT parts SKIPPED again (user solders 8: jacks, headers, B0505S). Estimate ~$50 + $8.47.
+        IL300 through-hole redesign was costed and dropped (~$65-70, hissier, may not fit).
 - [x] f. v3 carrier = ISOLATED CODEC (decided 2026-10-08, replaces the 4-jack analog board; resume here).
         DONE: carrier.py netlist (87 parts, barrier check), PG1:DCDC_SIP4_B0505S footprint, firmware (src/isoaudio.*:
         codec + ADS1015 drivers, SAI2 + I2C1, pins moved, touch polled, auto-ranging + too-hot mute, health checks

@@ -58,3 +58,12 @@ Shopping list with Amazon search words: `AMAZON-LIST.md`.
 
 ## Tools
 Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).
+
+## Carrier board: through-hole parts you solder (buy with the pots, e.g. Mouser)
+| Qty | Part | For |
+|---|---|---|
+| 2 | Neutrik NMJ6HFD2 (1/4" stereo PCB jack, plastic nose) | in + out jacks (J1, J2) |
+| 1 | Mornsun B0505S-1WR3 (isolated 5 V, SIP-4) | isolated power (U3) |
+| 1 | 2.54 mm right-angle male header strip, 40 pins (snap to 10 + 6 + 6 + 4) | J10, J20, J19, J21 |
+| 1 | 2.54 mm 2 x 4 straight male header | fx loop (J22) |
+| 2 | 2.54 mm jumper caps (shunts) | close the fx loop (no sound without them) |
