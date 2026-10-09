@@ -57,7 +57,10 @@ constexpr int  kTouchZMin   = 150; // pressure (Z1) above this = a finger is dow
 //        TPA6139A2 x-2: out jack = DAC * 2.82 V peak
 // So with both knobs on their centre clicks, what comes out is as loud as what went in, processed. The firmware's two
 // gains below are FIXED (no auto-ranging): measure once on the real board and correct them here if needed.
-constexpr float kInGain  = -1.f / (2.0f * 0.118f); // ADC -> pedal units (1.0 = 2 V peak); the minus undoes the inversion
+// ADC -> pedal units (1.0 = 2 V peak at the jack); the minus undoes the inversion. 0.0895 = codec volts per jack volt
+// at the pg-line centre click, from the board simulation (the codec's own 20k input loads the 20k / 10k divider;
+// 10-Carla-Plugin/Source/sim AC analysis: flat -2.4 dB vs the 1/6 first assumed, so 0.118 -> 0.0895)
+constexpr float kInGain  = -1.f / (2.0f * 0.0895f);
 constexpr float kOutGain = 2.0f / (2.0f * 1.41f);   // pedal units -> DAC, for unity through pg-hp (x1) and the TPA (x2)
 
 DaisySeed hw;

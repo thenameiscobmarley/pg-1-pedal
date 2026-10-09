@@ -172,3 +172,9 @@ Steps:
 - [x] 45. Press-fit ("locking") header holes on J10 J19 J20 J21 J22: each other HOLE offset 0.127 mm (pad copper kept in
       place via pad offset, DRC clean), so header strips jam in without solder (+ hot glue). Gerbers regenerated.
       Backup of the unstaggered board: 12-Carrier-Board/build/pg1-carrier.before-lock.kicad_pcb.
+- [x] 46. 2026-10-09 (buy day): silk labels with part names + U3 "PIN 1" (regen_outputs.py, no re-route); headers
+      to be SOLDERED (press-fit holes still solder fine). AC analysis added to BoardSim (acResponse): found the
+      C31/C41 3.2 kHz low-pass -> DNP (make_jlc / make_bom / BoardSim kNotFitted). Firmware kInGain 0.118 -> 0.0895
+      (codec's 20k input loads the divider). Plugin face texture was stale (export only rebuilt the copy) ->
+      pg_generate.py now writes 10-Carla-Plugin/assets/face-print.png; plugin rebuilt. Wrong-wiring battery:
+      scratchpad simt/ww.cpp; bench: simt/ac.cpp.

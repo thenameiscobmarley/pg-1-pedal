@@ -23,9 +23,9 @@ Item #,Designator,Qty,Manufacturer,Mfg Part #,Description / Value,Package/Footpr
 22,J20,1,any,,pg-line,PinHeader_1x06_P2.54mm_Horizontal,THT,"2.54 mm male header, any brand: please fit and solder"
 23,"R30,R40",2,any,,resistor 1k 1% 1206,R_1206_3216Metric,SMD,any brand with the same value and package
 24,"R31,R32,R33,R41,R42,R43",6,any,,resistor 1M 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
-25,"C31,C33,C41,C43,C52,C62",6,any,,"ceramic capacitor 100pF C0G 0402, 25 V or more",C_0402_1005Metric,SMD,any brand with the same value and package
-26,"R34,R44",2,any,,resistor 20k 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
-27,"R36,R37,R46,R47",4,any,,resistor 220 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
+25,"R34,R44",2,any,,resistor 20k 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
+26,"R36,R37,R46,R47",4,any,,resistor 220 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
+27,"C33,C43,C52,C62",4,any,,"ceramic capacitor 100pF C0G 0402, 25 V or more",C_0402_1005Metric,SMD,any brand with the same value and package
 28,"R51,R52,R61,R62",4,any,,resistor 1k 1% 0402,R_0402_1005Metric,SMD,any brand with the same value and package
 29,"R50,R60",2,any,,resistor 1 1% 0603,R_0603_1608Metric,SMD,any brand with the same value and package
 30,J22,1,any,,fx loop,PinHeader_2x04_P2.54mm_Vertical,THT,"2.54 mm male header, any brand: please fit and solder"

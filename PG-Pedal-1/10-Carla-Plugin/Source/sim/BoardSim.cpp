@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <complex>
 #include <functional>
 #include <cstdlib>
 #include <map>
@@ -34,6 +35,10 @@ std::vector<Wire> DefaultWiring()
     return w;
 }
 
+// parts on the board that are NOT fitted (found by the simulation: C31 / C41, 100 pF on the 500 k bias divider, made a
+// 3.2 kHz low-pass on the input). Must match make_jlc.py / make_bom.py DNP.
+static const char* const kNotFitted[] = {"C31", "C41"};
+
 // ======================================================================= the circuit
 enum Type
 {
@@ -52,6 +57,7 @@ struct Elem
     double      vS = 0, vF = 0, iF = 0; // capacitor history: slow (backward Euler), fast (trapezoid)
     double      i = 0, w = 0;            // last slow current / heat
     double      heat = 0;                // PTC: running average current
+    double      dv0 = 0, vt0 = 0, vn0 = 0;   // op-amps: their resting input difference / output target (AC analysis)
 };
 
 static double ParseValue(const std::string& v, char unit)
@@ -277,6 +283,11 @@ struct BoardSim::Impl
     std::vector<double> Vstart, Ven; // step-start voltages; what the chips' enables see
     bool                relaxEn = false;
     double              gPseudo = 0;
+    double              testIn[2] = {0, 0}, testDac[2] = {0, 0}; // test signals for the whole-board solver
+    bool                noCaps = false;
+    double              opGain = 200.0; // op-amp gain in the whole-board solver (the AC analysis uses the real 1e5)
+    bool                acMode = false;
+    std::vector<std::complex<double>> ac(int src, double hz) const;
     void residual(const std::vector<double>& v, double h, std::vector<double>& F, std::vector<double>* Jm) const;
     double hLast = 1e-4, rampT = 0;
     bool   needOp = true;
@@ -328,6 +339,8 @@ void BoardSim::Impl::build(const std::vector<Wire>& w)
     {
         const BPart&      bp  = kBParts[k];
         const std::string ref = bp.ref, val = bp.value;
+        if(std::find(std::begin(kNotFitted), std::end(kNotFitted), ref) != std::end(kNotFitted))
+            continue; // its pads stay empty
         auto              P   = [&](const char* num) { return pin(bp.ref, num); };
         if(ref[0] == 'R' && ref != "R")
             add(RES, {P("1"), P("2")}, {std::max(0.05, ParseValue(val, 'R'))}, ref);
@@ -831,7 +844,7 @@ void BoardSim::Impl::currents(const Elem& e, const double* v, double* i, double 
             i[0] = (v[0] - v[1]) / r, i[1] = -i[0];
             break;
         }
-        case CAP: i[0] = e.p[0] / h * ((v[0] - v[1]) - e.vS), i[1] = -i[0]; break;
+        case CAP: i[0] = noCaps ? 0.0 : e.p[0] / h * ((v[0] - v[1]) - e.vS), i[1] = -i[0]; break;
         case DIODE:
         {
             const double vd = v[0] - v[1];
@@ -842,7 +855,9 @@ void BoardSim::Impl::currents(const Elem& e, const double* v, double* i, double 
         {
             const double on = Sg(p0[3] - p0[4] - 1.65, 0.2);
             const double lo = v[4] + 0.03, hi = lo + 0.05 + Sp(v[3] - v[4] - 0.11, 0.05); // (smoothly above lo while rails rise)
-            const double vt = Clamp(200.0 * (v[0] - v[1]) + v[4], lo, hi, 0.02 + 0.05 * Sg(hi - lo - 0.5, 0.2)); // (gain 200)
+            // (gain 200 in the whole-board solver; the AC analysis uses the real gain around the resting point)
+            const double x  = acMode ? e.vt0 + opGain * ((v[0] - v[1]) - e.dv0) + (v[4] - e.vn0) : opGain * (v[0] - v[1]) + v[4];
+            const double vt = Clamp(x, lo, hi, 0.02 + 0.05 * Sg(hi - lo - 0.5, 0.2));
             const double io = on * (vt - v[2]) / e.p[1]; // into the output node
             const double iq = on * 5.5e-4 / 3.3 * (v[3] - v[4]);
             i[2]            = -io;
@@ -930,11 +945,11 @@ void BoardSim::Impl::currents(const Elem& e, const double* v, double* i, double 
         case DAC: // out 0, supply 1, gnd 2: at its common mode while powered (the slow solve has no audio)
         {
             const double on = Sg(p0[1] - p0[2] - 2.7, 0.2);
-            const double io = on * ((v[2] + e.p[0]) - v[0]) / e.p[1];
+            const double io = on * ((v[2] + e.p[0] + 1.41 * testDac[e.ch]) - v[0]) / e.p[1]; // (full scale = 1.41 V peak)
             i[0] = -io, i[1] = io;
             break;
         }
-        case JACKIN: i[0] = (v[0] - v[1]) / e.p[0], i[1] = -i[0]; break; // nothing playing in the slow solve
+        case JACKIN: i[0] = (v[0] - v[1] - 2.0 * testIn[e.ch]) / e.p[0], i[1] = -i[0]; break; // (1.0 = 2 V peak)
         case SEEDLOAD: // VIN 0, GND 1, its 3V3 2
         {
             const double vv = v[0] - v[1];
@@ -1272,6 +1287,89 @@ void BoardSim::Impl::afterSlow(double dt)
     }
 }
 
+// ----------------------------------------------------------------------- small-signal (AC) analysis
+// Linearised at the present operating point: (G + j w C) dV = -dF/dsource. src 0/1 = the input jack L/R (per unit of
+// testIn), 2/3 = the codec's DAC L/R (per unit of testDac). Returns dV for every node (index = node).
+std::vector<std::complex<double>> BoardSim::Impl::ac(int src, double hz) const
+{
+    auto&     self = const_cast<Impl&>(*this);
+    const int n    = nodes - 1;
+    std::vector<double> G((size_t) n * n), F0((size_t) n), F1((size_t) n);
+    const double gpSave = self.gPseudo;
+    for(auto& e : self.el) // the op-amps' resting points (as the whole-board solver found them)
+        if(e.t == OPAMP)
+        {
+            e.dv0 = V[(size_t) e.n[0]] - V[(size_t) e.n[1]];
+            e.vn0 = V[(size_t) e.n[4]];
+            e.vt0 = 200.0 * e.dv0 + e.vn0;
+        }
+    self.gPseudo        = 1e-12; // no pretend capacitors
+    self.noCaps         = true;
+    self.opGain         = 1e5;
+    self.acMode         = true;
+    self.Vstart = V, self.Ven = V;
+    self.residual(V, 1.0, F0, &G);
+    double* t = src < 2 ? &self.testIn[src] : &self.testDac[src - 2];
+    const double t0 = *t;
+    *t              = t0 + 1e-3;
+    self.residual(V, 1.0, F1, nullptr);
+    *t           = t0;
+    self.noCaps  = false;
+    self.opGain  = 200.0;
+    self.acMode  = false;
+    self.gPseudo = gpSave;
+    const double w = 2.0 * 3.14159265358979 * hz;
+    using C = std::complex<double>;
+    std::vector<C> A((size_t) n * n), b((size_t) n);
+    for(size_t k = 0; k < A.size(); k++)
+        A[k] = G[k];
+    for(const auto& e : el) // the capacitors' admittance
+        if(e.t == CAP)
+        {
+            const int a = e.n[0] - 1, c = e.n[1] - 1;
+            const C   y(0.0, w * e.p[0]);
+            if(a >= 0)
+                A[(size_t) a * n + a] += y;
+            if(c >= 0)
+                A[(size_t) c * n + c] += y;
+            if(a >= 0 && c >= 0)
+                A[(size_t) a * n + c] -= y, A[(size_t) c * n + a] -= y;
+        }
+    for(int k = 0; k < n; k++)
+        b[(size_t) k] = -(F1[(size_t) k] - F0[(size_t) k]) / 1e-3;
+    for(int k = 0; k < n; k++) // Gaussian elimination with partial pivoting
+    {
+        int p = k;
+        for(int r = k + 1; r < n; r++)
+            if(std::abs(A[(size_t) r * n + k]) > std::abs(A[(size_t) p * n + k]))
+                p = r;
+        if(p != k)
+        {
+            for(int c = 0; c < n; c++)
+                std::swap(A[(size_t) k * n + c], A[(size_t) p * n + c]);
+            std::swap(b[(size_t) k], b[(size_t) p]);
+        }
+        for(int r = k + 1; r < n; r++)
+        {
+            const C f = A[(size_t) r * n + k] / A[(size_t) k * n + k];
+            if(f == C(0))
+                continue;
+            for(int c = k; c < n; c++)
+                A[(size_t) r * n + c] -= f * A[(size_t) k * n + c];
+            b[(size_t) r] -= f * b[(size_t) k];
+        }
+    }
+    std::vector<C> x((size_t) nodes, C(0));
+    for(int k = n - 1; k >= 0; k--)
+    {
+        C sum = b[(size_t) k];
+        for(int c = k + 1; c < n; c++)
+            sum -= A[(size_t) k * n + c] * x[(size_t) c + 1];
+        x[(size_t) k + 1] = sum / A[(size_t) k * n + k];
+    }
+    return x;
+}
+
 // ----------------------------------------------------------------------- what works and what's wrong
 void BoardSim::Impl::checks()
 {
@@ -1324,7 +1422,8 @@ void BoardSim::Impl::checks()
         if(e.t == DIODE && std::fabs(e.i) > (e.ref == "SEED3" ? 0.02 : 1.0))
             F(2, e.ref, e.ref == "SEED3" ? "a Seed3 pin is being pushed past its supply: that pin can die - check its wire"
                                          : "a protection clamp is carrying a big current");
-        if(e.t == OPAMP && (e.st == 1 || e.st == 2))
+        const double vo = V[(size_t) e.n[2]], vhi = V[(size_t) e.n[3]], vlo = V[(size_t) e.n[4]];
+        if(e.t == OPAMP && vhi - vlo > 1.8 && (vo > vhi - 0.1 || vo < vlo + 0.1)) // its output really at a rail
         {
             const char* hint = e.ref == "U11" ? "pg-line stage stuck at its rail: check pg-line's 6 wires"
                                : e.ref == "U12" ? "pg-hp stage stuck at its rail: check pg-hp's 6 wires and the fx loop bridges"
@@ -1416,6 +1515,28 @@ void BoardSim::setKnobs(float a, float b)
     std::lock_guard<std::mutex> l(d_->mx);
     if(a != d_->knob[0] || b != d_->knob[1])
         d_->knob[0] = a, d_->knob[1] = b, d_->knobVer++;
+}
+void BoardSim::setTestSignals(double inL, double inR, double dacL, double dacR)
+{
+    std::lock_guard<std::mutex> l(d_->mx);
+    d_->testIn[0] = inL, d_->testIn[1] = inR, d_->testDac[0] = dacL, d_->testDac[1] = dacR;
+}
+std::vector<std::complex<double>> BoardSim::acResponse(int src, double hz) const
+{
+    std::lock_guard<std::mutex> l(d_->mx);
+    auto                        x = d_->ac(src, hz);
+    std::vector<std::complex<double>> r(kNets);
+    for(int i = 0; i < kNets; i++)
+        r[(size_t) i] = x[(size_t) d_->netNode[(size_t) i]];
+    return r;
+}
+std::vector<double> BoardSim::nodeVolts() const
+{
+    std::lock_guard<std::mutex> l(d_->mx);
+    std::vector<double> r(kNets);
+    for(int i = 0; i < kNets; i++)
+        r[(size_t) i] = d_->V[(size_t) d_->netNode[(size_t) i]];
+    return r;
 }
 void BoardSim::setPower(bool on)
 {

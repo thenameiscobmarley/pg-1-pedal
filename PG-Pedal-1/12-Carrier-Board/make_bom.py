@@ -11,7 +11,10 @@ MAKER = {"NE5532DR": "Texas Instruments", "MCP4461-103E/ST": "Microchip", "PSM71
          "1206L030/24NR": "Littelfuse", "EEE-1EA470WP": "Panasonic",
          "EEE-1CA470WR": "Panasonic", "EEE-1EA100SR": "Panasonic"}
 groups = collections.OrderedDict()
+DNP = {"C31", "C41"}   # not fitted (see make_jlc.py)
 for ref, value, fp, mpn, pins, note in parts:
+    if ref in DNP:
+        continue
     key = ("6.35 mm stereo PCB jack" if "Jack" in fp else value, fp.split(":")[-1], mpn)
     groups.setdefault(key, []).append(ref)
 

@@ -129,7 +129,8 @@ for k, ch in enumerate("LR"):
     P(f"C{b}", "100nF", C0603, "", {1: n("IN_A"), 2: n("IN_B")}, "tiny signal across it at 1M load: no distortion")
     P(f"R{b+2}", "1M", R0603, "", {1: n("IN_B"), 2: n("IN_C")})
     P(f"R{b+3}", "1M", R0603, "", {1: n("IN_C"), 2: "IBIAS"})
-    P(f"C{b+1}", "100pF C0G", C0603, "", {1: n("IN_C"), 2: "IBIAS"}, "keeps radio out")
+    P(f"C{b+1}", "100pF C0G", C0603, "", {1: n("IN_C"), 2: "IBIAS"},
+      "NOT FITTED (DNP in make_jlc / make_bom): on the 500 k divider it was a 3.2 kHz low-pass (found by the simulation)")
     P(f"R{b+4}", "20k", R0603, "", {1: n("IN_G"), 2: n("IN_E")})
     P(f"R{b+5}", "10k", R0603, "", {1: n("IN_E"), 2: "IGND"})
     P(f"C{b+2}", "1uF", C0603, "", {1: n("IN_E"), 2: n("CIN2")})

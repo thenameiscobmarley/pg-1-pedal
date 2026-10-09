@@ -32,6 +32,13 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   hardware watchdog resets the Seed3 in ~2 s and the codec mutes itself when the digital audio stops. If the input is
   too hot for where pg-line is, the screen's health page says "input clip": turn pg-line left.
 
+## Checked by simulation (10-Carla-Plugin/Source/sim, the routed board's real netlist)
+- Powers up to +9V 8.22, +5V 5.00, +3V3 3.30, iso 5V 5.05, iso 3V3 3.30, bias 1.65 V; ~197 mA from the 9 V.
+- Input (centre click): flat 100 Hz - 20 kHz, clean up to ~2.2 V rms at the jack; pg-line -34 .. +29 dB.
+- Output (centre click): 0 dB, flat, ~1.9 V rms / 115 mW into 32 ohm, ~2 V rms into a mixer, ~1 mV DC; pg-hp +-20 dB.
+- **C31 / C41 are NOT fitted** (their pads stay empty): 100 pF on the input's 500 k bias divider made a 3.2 kHz
+  low-pass (-13 dB at 10 kHz). Found by the simulation; radio is still kept out at the jack.
+
 ## Levels
 - **In:** guitar (sees ~670 kΩ, like any pedal), a line output, a headphone output (up to ~2 V rms) or a mic (pg-line
   turned right). Mic quality is "works", not studio (the guitar-friendly input adds some hiss at full gain).

@@ -62,6 +62,10 @@ LCSC.update({("TLV9062", "SOIC-8_3.9x4.9mm_P1.27mm"): "C398355", ("XC6206P332MR"
 # through-hole parts you solder yourself (big pins, easy): left off the JLCPCB order to save their part-type fees and
 # the hand-soldering / manual-assembly charges. Buy them with the pots (see BOM.md).
 SKIP = {"J1", "J2", "J10", "J19", "J20", "J21", "J22", "U3"}
+# NOT FITTED at all (pads stay empty): C31 / C41, 100 pF on the input's 500 k bias divider, made a 3.2 kHz low-pass
+# (found by the board simulation, 10-Carla-Plugin/Source/sim). Radio is still kept out at the jack (1k + the clamp).
+DNP = {"C31", "C41"}
+SKIP |= DNP
 
 
 def rotation_fix(fp_name):
@@ -123,7 +127,7 @@ def main():
                         f"{(rot + dr) % 360:.1f}"])
     shutil.copy(os.path.join(HERE, "pcbway", "pg1-carrier-gerbers.zip"), os.path.join(OUT, "pg1-carrier-gerbers.zip"))
     n = sum(len(r[2]) for r in groups.values())
-    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (through-hole parts left for you: {", ".join(sorted(SKIP))})")
+    print(f"jlcpcb/: {len(groups)} part kinds, {n} parts (through-hole parts left for you: {", ".join(sorted(SKIP - DNP))}; not fitted: {", ".join(sorted(DNP))})")
 
 
 if __name__ == "__main__":

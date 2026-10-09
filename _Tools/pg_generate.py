@@ -12,7 +12,7 @@ Font:  Nunito (SIL OFL) instanced to SemiBold/Bold, in ../_Tools/fonts
 All units are millimetres. Face origin = centre of the face, +x right, +y toward
 the top edge (the edge with the jacks), looking down at the pedal.
 """
-import math, os, zlib, csv
+import math, os, subprocess, zlib, csv
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import RecordingPen
 
@@ -525,6 +525,11 @@ def write_art(A):
     d = os.path.join(ROOT, "04-Top-Artwork")
     write_pdf(os.path.join(d, "pg1-face-uv-print.pdf"), A, ART_W, ART_H, "PG-1 face UV print 1590XX side A")
     open(os.path.join(d, "pg1-face-artwork.svg"), "w").write(svg_doc(ART_W, ART_H, art_svg_group(A)))
+    try:  # the plugin's 3D face uses the same print (kept in step, so the plugin never shows an old layout)
+        subprocess.run(["rsvg-convert", "-w", "1170", "-h", "1410", "-b", "none", os.path.join(d, "pg1-face-artwork.svg"),
+                        "-o", os.path.join(ROOT, "10-Carla-Plugin", "assets", "face-print.png")], check=True)
+    except Exception as e:
+        print("(plugin face texture not updated:", e, ")")
 
     # realistic preview: white box, holes, knobs, screen, switches, jacks
     p = []
