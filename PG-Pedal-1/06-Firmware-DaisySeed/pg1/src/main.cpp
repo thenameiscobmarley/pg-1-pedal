@@ -61,7 +61,9 @@ constexpr int  kTouchZMin   = 150; // pressure (Z1) above this = a finger is dow
 // at the pg-line centre click, from the board simulation (the codec's own 20k input loads the 20k / 10k divider;
 // 10-Carla-Plugin/Source/sim AC analysis: flat -2.4 dB vs the 1/6 first assumed, so 0.118 -> 0.0895)
 constexpr float kInGain  = -1.f / (2.0f * 0.0895f);
-constexpr float kOutGain = 2.0f / (2.0f * 1.41f);   // pedal units -> DAC, for unity through pg-hp (x1) and the TPA (x2)
+// pedal units -> DAC, for unity through pg-hp (x1) and the TPA (x2); x1.046 = +0.39 dB for the analog leveller's
+// 4.7k into the 100k across each LDR (simulated on the routed board)
+constexpr float kOutGain = 2.0f / (2.0f * 1.41f) * 1.046f;
 
 DaisySeed hw;
 Encoder   enc[pg::kKnobs];
@@ -112,7 +114,7 @@ struct PageSelectorIn
     }
 };
 PageSelectorIn page_sel;
-pg::AnalogLeveller leveller;          // the analog leveller add-on in the fx loop (if plugged in)
+pg::AnalogLeveller leveller;          // the analog leveller on the carrier board (U15 DAC -> LEDs -> LDRs)
 static volatile float out_ms = 0.f;   // the output's mean square (DAC units), for the leveller
 // set by the main loop, used by the audio callback
 static volatile float g_in = kInGain, g_out = 0.f, in_peak = 0.f; // g_out stays 0 (silent) until the codec is up
@@ -332,7 +334,7 @@ int main(void)
         core.ReportCodecFault();
     afx.Init(&i2c); // only answers if an add-on board with an MCP4461 sits in the fx loop (J22); harmless if not
     page_sel.Find(i2c);   // the page selector's PCF8574 (if it's plugged in)
-    leveller.Init(&i2c);  // the analog leveller add-on (if it's plugged in)
+    leveller.Init(&i2c);  // the analog leveller (its DAC powers up at 0 V: LEDs dark, sound untouched)
     uint32_t last_sel = 0;
     const uint32_t audio_t0 = System::GetNow();
     WatchdogStart();
@@ -360,7 +362,9 @@ int main(void)
         {
             last_sel = System::GetNow();
             core.PageSelector(page_sel.Read(i2c), last_sel);
-            if(leveller.Present()) // gentle 2:1 above -14 dBFS rms: the LDRs ride the level in the analog path
+            // gentle 2:1 above -14 dBFS rms: the LDRs ride the level in the analog path. Dark for the first 10 s (its
+            // 10 uF capacitors finish charging through the LDRs' 100k: a squeeze before that would thump)
+            if(leveller.Present() && last_sel > 10000)
             {
                 const float db = 10.f * log10f(out_ms + 1e-12f);
                 leveller.SetCut(db > -14.f ? (db + 14.f) * 0.5f : 0.f);

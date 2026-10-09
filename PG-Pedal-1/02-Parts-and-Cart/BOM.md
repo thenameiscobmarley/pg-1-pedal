@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **28 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -17,7 +17,7 @@ You should end up with **28 lines**, exact quantities. The Seed3 is a **cartridg
 | A-8567 | 2 | $0.69 | $1.38 | White ripple knob 14 mm | the two small knobs |
 | A-2599 | 3 | $1.20 | $3.60 | KN2310 pink aluminium footswitch cap 23 mm (for PBS-24) | pink caps on pg-a, pg-b, pg-c |
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
-| A-3482 | 2 | $2.30 | $4.60 | Jumper wires female/female 200mm, pack of 40 | 34 for the Seed3 pins (their ends form the glued socket) + screen GND, 12 for the 2 pots to the carrier board, 2 short bridges on the fx loop, spares |
+| A-3482 | 2 | $2.30 | $4.60 | Jumper wires female/female 200mm, pack of 40 | 34 for the Seed3 pins (their ends form the glued socket) + screen GND, 12 for the 2 pots to the carrier board, spares |
 | A-8500 | 4 | $0.02 | $0.08 | Nylon standoff M3 x 5mm | screen spacers |
 | A-6395 | 4 | $0.11 | $0.44 | M3 x 12mm black socket screw | screen screws through the face |
 | A-1247 | 4 | $0.02 | $0.08 | M3 nut | screen nuts |
@@ -27,17 +27,10 @@ You should end up with **28 lines**, exact quantities. The Seed3 is a **cartridg
 | A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
 | A-8626 | 1 | $1.21 | $1.21 | Mini rotary switch 1 pole 8 position RS16 (9 mm hole, 6 mm spline shaft) | the page selector (settings page 1-8 of the open tab) |
 | A-6623 | 1 | $0.49 | $0.49 | Chicken head knob, pink | on the page selector |
-| A-6162 | 1 | $0.75 | $0.75 | MCP6002-I/P op-amp (DIP-8, 3.3 V rail-to-rail) | analog leveller add-on: the buffers |
-| A-5800 | 2 | $0.28 | $0.56 | LDR 10-15k, 650 nm | analog leveller: the light-dependent resistors |
-| A-706 | 2 | $0.02 | $0.04 | LED 5 mm red | analog leveller: the light, one per LDR |
-| A-2310 | 10 | $0.015 | $0.15 | 4.7k 1/4 W metal film | analog leveller |
-| A-2247 | 10 | $0.015 | $0.15 | 470 ohm 1/4 W metal film | analog leveller (LED current) |
-| A-960 | 4 | $0.02 | $0.08 | 10 uF 50 V electrolytic | analog leveller |
-| A-553 | 4 | $0.01 | $0.04 | 100 nF ceramic | analog leveller (supply bypass) |
-| A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a light-tight sleeve over each LED + LDR pair |
-| A-1454 | 1 | $0.55 | $0.55 | 170-point mini breadboard, black (47 x 35 mm) | analog leveller add-on (plugs into the fx loop) |
-| A-7890 | 1 | $0.99 | $0.99 | U-shape breadboard jumper wire kit (140 pcs) | flat, neat links on the mini breadboard |
-| | | | **$46.11** | **Tayda subtotal** | |
+| A-5800 | 4 | $0.28 | $1.12 | LDR 10-15k (5 mm) | analog leveller: the light sensors, OC1 / OC2 on the board's lid side (2 spare) |
+| A-8041 | 4 | $0.04 | $0.16 | LED 3 mm red, flat top (3.85 mm head) | analog leveller: one pressed on each LDR (2 spare) |
+| A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a 15 mm light-tight sleeve over each LED + LDR pair |
+| | | | **$52.25** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
@@ -86,5 +79,4 @@ A-3482 pack: "s l" to "r l" and "s r" to "r r". No sound without them.)
 | Qty | Part | For |
 |---|---|---|
 | 1 | **PCF8574 I/O expansion board** (I2C, 3.3 V ok; most have an input and a pass-through header) | reads the 8-way page selector, plugs onto the expansion header |
-| 1 | **MCP4725 DAC board** (I2C) | the analog leveller: sets the LEDs' brightness |
 | 1 | **B0505S-1WR3** (pins in order GND, Vin, 0 V, +Vo) | the carrier board's isolated power (or with the Mouser order) |

@@ -11,10 +11,10 @@ which were written before the carrier board existed. Pin numbers here come strai
 | Where | What |
 |---|---|
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes, Global Standard Direct Line shipping. Dry-ice cleaning yes, bake no, function test no. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 28 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the page selector + pink chicken head, the analog leveller parts + mini breadboard |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 21 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the page selector + pink chicken head, the leveller's LEDs + light sensors + black heat shrink |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
 | **Mouser** (or as noted) | 2 x Alps **RK09L1240015** (dual 10k linear, centre click), 2 x Neutrik **NMJ6HFD2** jacks, 1 x **B0505S-1WR3** (also sold on Amazon, often 2-packs; any brand with the same 4 pins: GND, Vin, 0 V, +Vo) |
-| **Amazon** | PCF8574 I/O board (page selector), MCP4725 DAC board (leveller), B0505S-1WR3 (if not from Mouser) |
+| **Amazon** | PCF8574 I/O board (page selector), B0505S-1WR3 (if not from Mouser) |
 | **Seed3** | Daisy Seed3 **with headers** |
 | **Tools** | soldering iron kit, **0.8 mm rosin-core solder** (right size for all of this), flush **wire cutters**, wire strippers, multimeter, hot glue gun, a little heat-shrink |
 
@@ -38,6 +38,7 @@ Iron on the pad + pin together 2 s, feed solder, a small shiny cone. Snip the le
    The module has its own pin-1 mark (a dot or "1" on the case): match them. Backwards would feed power into its output.
 3. **The 2 jacks** (in: left, out: right as you look at the printed side with the jacks at the top). They only fit one
    way. Solder all pins, they also hold the board.
+4. **The leveller's 2 light pairs (OC1, OC2)**: section 6c. These are the only parts that go in from the **back**.
 
 Check with the multimeter (beep mode): no beep between the header's **3v3** and **gnd** pins, and none between
 **vin** and **gnd** on the seed3 + 9v header.
@@ -88,8 +89,8 @@ Find the pot's pins 1 and 3 with the multimeter (ohms), knob turned fully LEFT:
 
 ## 6. The fx loop and the expansion port
 
-- **fx loop** (2 x 4): put 2 short female/female jumpers from **s l to r l** and from **s r to r r**.
-  **No sound without them** (or with the analog leveller, section 6c, in their place).
+- **fx loop** (2 x 4): **leave it empty, no jumpers.** The analog leveller on the board (6c) drives the returns now;
+  a bridge from s to r would short its output to the codec's. (The sound works with nothing on it.)
 - **expansion** (4 pins: 3v3, gnd, scl, sda): 4 jumpers to the **expansion bay** slot in the LEFT wall. Push their
   female ends into the slot from inside until flush, hot glue them on the inside (warm the wall with a hair dryer
   first). Note which colour is which pin. Modules plug onto them from outside later.
@@ -111,68 +112,31 @@ pages just shows its last one. Without the selector fitted, swiping / pg-b still
 - If the PCF8574 has a second (pass-through) header, run the 4 wires to the left-wall expansion bay from there instead.
 - Velcro the PCF8574 to the inside of the lid. The firmware finds it by itself (any address).
 
-## 6c. The analog leveller add-on (fx loop, mini breadboard)
+## 6c. The analog leveller (on the carrier board)
 
-What it does: the DSP measures what's leaving and, above about -14 dBFS, turns up two LEDs a little (2:1); each LED
-shines on a light-dependent resistor that gently pulls its channel's level down in the analog path (the classic
-smooth "opto" compressor). Dark LEDs = untouched sound. It replaces the 2 fx-loop bridges.
+What it does: the DSP measures what's leaving and, above about -14 dBFS, lights two small LEDs a little (2:1); each
+LED shines on a light sensor (LDR) that gently pulls its channel's level down **in the analog path**, before pg-hp:
+the classic smooth "opto" leveller. LEDs dark = the sound passes untouched (that's also how it powers up).
 
-**Parts:** MCP6002 (8-pin chip), 2 LDRs, 2 red LEDs, 2 x 4.7k, 2 x 470 ohm, 2 x 10 uF, 1 x 100 nF, black heat shrink,
-the MCP4725 board (Amazon), the 170-point mini breadboard, U-shape wires.
+JLCPCB fits everything except the two **light pairs**, OC1 (left channel) and OC2 (right), which you make:
+each is one **3 mm flat-top red LED** (A-8041) + one **LDR** (A-5800) + **15 mm of the black 6 mm heat shrink**.
 
-**Which way round:**
-- **MCP6002**: the notch (or dot) is pin 1's end. Put it across the middle gap with the **notch to the LEFT** (column 7):
-  then pins 1 2 3 4 are the bottom row (row f, columns 7-10) and pins 8 7 6 5 the top row (row e, columns 7-10).
-- **10 uF capacitors**: the **long leg (+)**, the stripe on the side is -. + goes where the table says +.
-- **LEDs**: the **long leg is +** (anode); the flat side of the rim is -.
-- Resistors, LDRs and the 100 nF: either way round.
+They sit on the **back** of the board (the lid side, plain except for their two printed outlines "LED / LDR"), next to
+the "in" jack. Each outline has 4 holes: 2 at the LED end (the square one marked **+**), 2 at the LDR end.
 
-The board: columns 1-17 left to right, rows **a-e** (top half) and **f-j** (bottom half); each column's 5 holes in a
-half are joined. Left channel on the bottom half, right channel on the top half.
+1. **LED**: the **long leg is +** (also: the flat spot on its rim is -). Bend both legs 90 degrees, 1 mm from the
+   body, so the LED lies flat along the outline with its flat top toward the LDR end. Long leg into the **+** (square)
+   hole. Push it in from the back until it lies on the board.
+2. **LDR**: either way round. Bend both legs 90 degrees, 1 mm from its body, so its face (the squiggly side) stands
+   up and faces the LED. Legs into the 2 LDR holes from the back.
+3. Slide the LED and LDR together until the LED's flat top **touches** the LDR's face. Slip the 15 mm heat shrink over
+   both (it covers the whole pair), shrink it with a hair dryer (or the side of the iron's barrel, not the tip).
+4. Turn the board over and solder the 4 pins on the printed side, then **snip the legs flush** (they sit under the
+   9 V jack, which is 2.3 mm above the board there).
+5. Same for the other pair.
 
-| part | from hole | to hole |
-|---|---|---|
-| MCP6002 (notch left) | pin 1 = f7 ... pin 4 = f10 | pin 8 = e7 ... pin 5 = e10 |
-| U-wire (left follower) | i7 | i8 |
-| U-wire (right follower) | c8 | c9 |
-| 4.7k (left) | h1 | h9 |
-| 4.7k (right) | b1 | b10 |
-| LDR (left) | i9 | i12 |
-| LDR (right) | c10 | c12 |
-| 10 uF (left) | **+ j12** | - j13 |
-| 10 uF (right) | **+ d12** | - d13 |
-| U-wire (ground) | g10 | g13 |
-| U-wire (ground across the gap) | e13 | f13 |
-| 100 nF | b7 | b13 |
-| LED (left) | **+ h15** | - h14 |
-| U-wire (left LED -) | i13 | i14 |
-| 470 ohm (left) | g15 | g17 |
-| LED (right) | **+ b15** | - b14 |
-| U-wire (right LED -) | a13 | a14 |
-| 470 ohm (right) | c15 | c17 |
-| U-wire (DAC to both 470s) | e17 | f17 |
-
-Jumpers (female/female):
-
-| from | to |
-|---|---|
-| fx loop **s l** | j1 |
-| fx loop **r l** | j7 |
-| fx loop **s r** | a1 |
-| fx loop **r r** | b8 |
-| fx loop **3v3** | a7 |
-| fx loop **gnd** | j10 |
-| fx loop **sda** / **scl** | MCP4725 SDA / SCL |
-| MCP4725 VCC | d7 |
-| MCP4725 GND | c13 |
-| MCP4725 VOUT | a17 |
-
-**The light-tight pairs:** bend each LED so its dome touches the face of its LDR (left LED -> left LDR at i9-i12,
-right LED -> right LDR at c10-c12), slide a 15 mm piece of the black heat shrink over LED + LDR together and shrink it
-(hair dryer or the iron's barrel, not the tip). No outside light may get in, or the level will drift.
-
-**Check before plugging into the pedal:** beep test: no beep between a7 (3v3) and j10 (gnd).
-With it plugged in, the sound should be exactly as with the bridges until it gets loud; then it eases down smoothly.
+Check before soldering the next one: multimeter on ohms across the LDR's two pins: sealed in the dark it reads
+**hundreds of kOhm or more**. If it reads low, light gets in: add a second layer of heat shrink.
 
 ## 7. The Seed3 socket (RIGHT wall window) and the controls
 
@@ -208,7 +172,7 @@ jacks' sleeves are on the carrier board's isolated ground and must **not** be co
 
 1. **Seed3 out**, carrier board wired. Plug in the 9 V adapter. Multimeter DC volts:
    - expansion header: **3v3 to gnd = 3.3 V**
-   - fx loop header: **3v3 to gnd = 3.3 V** (the isolated side)
+   - fx loop header: **3v3 to gnd = 3.3 V** (the isolated side). Nothing plugged onto the fx loop.
    - nothing warm. If anything is wrong, unplug and tell me what you measured.
 2. Unplug, put the Seed3 in, flash the firmware (USB-C on the right side, `06-Firmware-DaisySeed/README.md`).
 3. Power up: the screen starts, the **health** tab should say "all ok".
@@ -219,7 +183,14 @@ jacks' sleeves are on the carrier board's isolated ground and must **not** be co
 - Powers up to 9 V 8.2, 5 V 5.00, 3.3 V 3.30, isolated 5 V 5.05, isolated 3.3 V 3.30; draws ~200 mA.
 - Input at pg-line's click: flat 100 Hz - 20 kHz, clean up to ~2.2 V rms (headphone outs, hot line levels). pg-line
   -34 .. +29 dB (mics / quiet sources turned right, hot sources left). The DSP's input tab auto-levels on top.
-- Output at pg-hp's click: unity, ~1.9 V rms / 115 mW into 32 ohm headphones, ~2 V rms into a mixer, ~1 mV DC.
-- Wrong wiring: swapped data / clock / I2C wires, a missing fx loop bridge or a missing Seed3 ground just mean no sound
-  (nothing breaks); a reversed 9 V is blocked by D1; a short trips the fuse. **The one wiring mistake that can damage
+- Output at pg-hp's click: unity, ~1.8 V rms / 104 mW into 32 ohm headphones, ~1.9 V rms into a mixer, ~1 mV DC.
+- The analog leveller (re-simulated on the routed board): LEDs dark = the sound untouched (its 0.39 dB is made up in
+  the firmware); 1.3 mA = -12 dB,
+  3.8 mA = -17 dB, 7.8 mA (the firmware's limit) = -21 dB; both channels the same; no click at the jack (under 5 mV).
+  The firmware keeps it dark for the first 10 s after power-up (its capacitors charging). The isolated 5 V barely moves
+  (5.10 -> 5.08 V). Real LDRs differ a little from each other: expect up to ~1-2 dB between left and right when it's
+  squeezing hard.
+- Wrong wiring: swapped data / clock / I2C wires or a missing Seed3 ground just mean no sound
+  (nothing breaks); jumpers left on the fx loop are flagged (they'd short the leveller); a reversed 9 V is blocked by
+  D1; a short trips the fuse. **The one wiring mistake that can damage
   parts is 9 V landing on a signal pin**: check the vin wire goes to pin 39.

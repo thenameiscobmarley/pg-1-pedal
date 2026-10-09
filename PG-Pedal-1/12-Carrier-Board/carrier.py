@@ -151,11 +151,39 @@ for k, ch in enumerate("LR"):
     P(f"C{b+1}", "1uF", C0603, "", {1: n("OUT_G"), 2: n("HPIN")})
     P(f"R{b}", "1", R0603, "", {1: n("HPO"), 2: n("JOUT")})
 # ---------------------------------------------------------------- fx loop (for an add-on board later, no new order)
-# codec line out -> J22 -> back into the pg-hp stage. Two jumper wires or caps (1-2, 3-4) close the loop; an add-on board
-# (e.g. an analog filter / VCA) plugs in instead and gets the isolated 3.3 V, ground and the codec's I2C bus.
+# codec line out -> J22 -> back into the pg-hp stage. Since the analog leveller (below) went on the board, its followers
+# drive the returns: J22 stays OPEN (bridges would short a follower's output to the codec). Test points + iso I2C / 3.3 V.
 P("J22", "fx loop", "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical", "",
   {1: "LO_L", 2: "FXR_L", 3: "LO_R", 4: "FXR_R", 5: "ISO3V3", 6: "IGND", 7: "ISCL", 8: "ISDA"},
-  "isolated side: send l, return l, send r, return r, 3v3, gnd, scl, sda. Jumper caps on 1-2 and 3-4 = normal")
+  "isolated side: send l, return l, send r, return r, 3v3, gnd, scl, sda. LEAVE OPEN: the leveller drives the returns")
+# ---------------------------------------------------------------- the analog leveller (in the fx loop's place)
+# codec line out -> 4.7k -> [LDR to ground through 10 uF] -> TLV9062 follower -> the fx loop's return (FXR) -> pg-hp.
+# Each LDR is lit by its own LED (home-made vactrol, on the lid side); the two LEDs are in series (the same light for
+# both channels), their current set by the MCP4725 DAC (isolated I2C 0x60) through an NPN: I = (Vdac - 0.65 V) / 100.
+# Dark (LEDs off, the default and at power-up) the LDRs are megohms: the sound passes untouched. J22 stays OPEN now.
+LDRPAIR = "PG1:OPTO_PAIR_LED3_LDR5"
+for k, ch in enumerate("LR"):
+    n = lambda s: f"{s}_{ch}"
+    b = 80 + 5 * k
+    P(f"R{b}", "4.7k", R0603, "", {1: n("LO"), 2: n("LVA")}, "leveller: series resistor (the LDR pulls the level down after it)")
+    P(f"C{b}", "10uF", C0603, "CL05A106MQ5NUNC", {1: n("LVC"), 2: "IGND"}, "leveller: keeps the codec's DC off the LDR")
+    P(f"R{b + 1}", "100k", R0603, "", {1: n("LVA"), 2: n("LVC")},
+      "across the LDR: charges the 10 uF in ~1 s (dark the LDR alone took ~10 s: the first squeeze after power-up thumped,"
+      " found by the simulation); costs 0.4 dB")
+P("OC1", "LED+LDR", LDRPAIR, "", {1: "ISO5V_RAW", 2: "LED_M", 3: "LVA_L", 4: "LVC_L"},
+  "left channel vactrol: 3 mm flat-top red LED (A-8041) on a 5 mm LDR (A-5800) in black heat shrink, lid side")
+P("OC2", "LED+LDR", LDRPAIR, "", {1: "LED_M", 2: "LED_C", 3: "LVA_R", 4: "LVC_R"}, "right channel vactrol")
+P("U16", "TLV9062", "Package_SON:Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm", "TLV9062IDSGR",
+  {1: "FXR_L", 2: "FXR_L", 3: "LVA_L", 4: "IGND", 5: "LVA_R", 6: "FXR_R", 7: "FXR_R", 8: "ISO5V", 9: "IGND"},
+  "leveller followers (2 x 2 x 0.8 mm: fits under the DC jack, right at the LDRs; thermal pad to V-)")
+P("C83", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at U16")
+P("U15", "MCP4725", "Package_TO_SOT_SMD:SOT-23-6", "MCP4725A0T-E/CH",
+  {1: "LED_DAC", 2: "IGND", 3: "ISO3V3", 4: "ISDA", 5: "ISCL", 6: "IGND"}, "leveller: LED brightness DAC (I2C 0x60, 0 V at power-up)")
+P("C82", "100nF", C0603, "", {1: "ISO3V3", 2: "IGND"}, "at U15")
+P("Q1", "MMBT3904", "Package_TO_SOT_SMD:SOT-23", "MMBT3904", {1: "LED_B", 2: "LED_E", 3: "LED_C"}, "LED current sink")
+P("R82", "1k", R0603, "", {1: "LED_DAC", 2: "LED_B"})
+P("R83", "100", R0603, "", {1: "LED_E", 2: "IGND"}, "LED current = (Vdac - 0.65 V) / 100 ohm, ~8 mA at most (the LEDs' 5 V runs out)")
+
 P("J19", "pg-hp", HDR_RA(6), "", {1: "GOUT_A_L", 2: "GOUT_W_L", 3: "GOUT_B_L", 4: "GOUT_A_R", 5: "GOUT_W_R", 6: "GOUT_B_R"},
   "isolated side: pg-hp, centre-detent dual 10k LINEAR pot, pot pins 3 / 2 / 1 per gang on header pins 1 / 2 / 3 (clockwise end first: right = more)")
 P("U10", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR",
@@ -181,10 +209,10 @@ parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") else C0402 i
             for r, v, fp, m, pins, n in parts]
 
 NET_ALIASES = {}
-ISOLATED = {"HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
+ISOLATED = {"LED_M", "LED_C", "LED_B", "LED_E", "LED_DAC", "HP_ON", "HP_VSS", "HP_CN", "HP_CP", "IGND", "ISO5V_RAW", "ISO5V", "ISO3V3", "IBIAS", "REF", "AVDD", "DVDD", "CRESET", "ISCL", "ISDA",
             "BCLK", "WCLK", "DIN", "DOUT", "BCLK_X", "WCLK_X", "DIN_X", "DOUT_X"} | \
            {f"{s}_{c}" for s in ("JIN", "IN_A", "IN_B", "IN_C", "IN_D", "IN_E", "IN_G", "GIN_A", "GIN_W", "GIN_B", "CIN2", "LO", "FXR",
-                                 "OUT_A", "GOUT_A", "GOUT_W", "GOUT_B", "OUT_G", "HPIN", "HPO", "JOUT")
+                                 "OUT_A", "GOUT_A", "GOUT_W", "GOUT_B", "OUT_G", "HPIN", "HPO", "JOUT", "LVA", "LVC")
             for c in "LR"}
 
 

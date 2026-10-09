@@ -21,7 +21,7 @@ std::vector<Wire> DefaultWiring()
         {"J10.5", "SEED.12"},  {"J10.6", "SEED.13"},   // scl, sda
         {"J10.7", "SEED.35"},  {"J10.8", "SEED.34"},   // sck, fs
         {"J10.9", "SEED.33"},  {"J10.10", "SEED.32"},  // tx (Seed3 out -> codec), rx (codec -> Seed3 in)
-        {"J22.1", "J22.2"},    {"J22.3", "J22.4"},     // the fx loop's two bridges
+        // (J22, the fx loop, stays open: the analog leveller's followers drive its returns)
     };
     // the pots: pot pin 3 (clockwise end) on header pin 1, 2 on 2, 1 on 3; left gang then right gang
     for(const char* pot : {"PGLINE", "PGHP"})
@@ -42,8 +42,17 @@ static const char* const kNotFitted[] = {"C31", "C41"};
 // ======================================================================= the circuit
 enum Type
 {
-    RES, CAP, DIODE, OPAMP, TPA, VSS, REG, DCDC, VSRC, SINK, ADC, DAC, LDO, REFV, JACKIN, SEEDLOAD
+    RES, CAP, DIODE, OPAMP, TPA, VSS, REG, DCDC, VSRC, SINK, ADC, DAC, LDO, REFV, JACKIN, SEEDLOAD,
+    NPN,    // the leveller's LED driver: B n0, E n1, C n2
+    LDR,    // a light-dependent resistor n0-n1, lit by the LED n2 (anode) - n3 (cathode)
+    LEVDAC  // the leveller's MCP4725: out n0, VDD n1, GND n2; the level the firmware set (setLeveller)
 };
+// a home-made vactrol's LDR against the current in its LED: ~2k at 1 mA, R ~ I^-0.75, megohms dark
+static double LdrOhms(double ledAmps)
+{
+    const double ma = ledAmps * 1e3;
+    return ma < 1e-4 ? 1e6 : std::min(1e6, std::max(60.0, 2000.0 * std::pow(ma, -0.75)));
+}
 
 struct Elem
 {
@@ -284,6 +293,7 @@ struct BoardSim::Impl
     bool                relaxEn = false;
     double              gPseudo = 0;
     double              testIn[2] = {0, 0}, testDac[2] = {0, 0}; // test signals for the whole-board solver
+    double              levelV = 0.0;                            // the leveller DAC's output (volts)
     bool                noCaps = false;
     double              opGain = 200.0; // op-amp gain in the whole-board solver (the AC analysis uses the real 1e5)
     bool                acMode = false;
@@ -394,6 +404,19 @@ void BoardSim::Impl::build(const std::vector<Wire>& w)
             add(DAC, {P("22"), P("26"), P("28")}, {1.65, 1.0}, ref, 0);
             add(DAC, {P("23"), P("26"), P("28")}, {1.65, 1.0}, ref, 1);
         }
+        else if(val == "LED+LDR") // OC1 / OC2: 1 LED +, 2 LED -, 3 / 4 the LDR
+        {
+            add(DIODE, {P("1"), P("2")}, {1.80, 15.0}, ref); // a red LED
+            add(RES, {P("1"), P("2")}, {1e6, 0.0}, ref);      // (its leakage: keeps the nodes between dark LEDs defined)
+            add(LDR, {P("3"), P("4"), P("1"), P("2")}, {0.0}, ref);
+        }
+        else if(val == "MMBT3904") // 1 B, 2 E, 3 C
+            add(NPN, {P("1"), P("2"), P("3")}, {150.0}, ref);
+        else if(val == "MCP4725") // 1 VOUT, 2 VSS, 3 VDD
+        {
+            add(LEVDAC, {P("1"), P("3"), P("2")}, {}, ref);
+            add(SINK, {P("3"), P("2")}, {2e-4, 2.25}, ref, 1);
+        }
         else if(val == "in") // J1: the input jack: what's plugged in drives tip / ring against the sleeve
         {
             add(JACKIN, {P("T"), P("S")}, {100.0}, ref, 0);
@@ -449,6 +472,11 @@ void BoardSim::Impl::partition()
                     slowNode[(size_t) e.n[k]] = true;
                 break;
             case ADC: case DAC: slowNode[(size_t) e.n[1]] = slowNode[(size_t) e.n[2]] = true; break;
+            case NPN: case LEVDAC:
+                for(int k = 0; k < 3; k++)
+                    slowNode[(size_t) e.n[k]] = true;
+                break;
+            case LDR: slowNode[(size_t) e.n[2]] = slowNode[(size_t) e.n[3]] = true; break;
             case JACKIN: slowNode[(size_t) e.n[1]] = true; break;
             default: break;
         }
@@ -700,6 +728,8 @@ void BoardSim::Impl::stampElem(Stamp& s, Elem& e, bool fast, double dt, const do
             s.inj(e.n[1], e.n[0], {{e.n[1], G}, {e.n[0], -G}}, G * x);
             break;
         }
+        case LDR: s.g(e.n[0], e.n[1], 1.0 / LdrOhms(e.heat)); break; // (e.heat = its LED's current, slow solver)
+        case NPN: case LEVDAC: break; // (their nodes are held by the slow solver)
         case SEEDLOAD: // VIN n0, GND n1, its 3V3 n2: ~120 mA once there's 4 V, and it makes its own 3.3 V
             if(st)
             {
@@ -950,6 +980,27 @@ void BoardSim::Impl::currents(const Elem& e, const double* v, double* i, double 
             break;
         }
         case JACKIN: i[0] = (v[0] - v[1] - 2.0 * testIn[e.ch]) / e.p[0], i[1] = -i[0]; break; // (1.0 = 2 V peak)
+        case NPN: // B 0, E 1, C 2: beta x the base current, falling off as it saturates
+        {
+            const double ib = Sp(v[0] - v[1] - 0.62, 0.025) / 300.0 + 1e-9 * (v[0] - v[1]);
+            const double ic = e.p[0] * ib * std::tanh(Sp(v[2] - v[1], 0.02) / 0.08);
+            i[0] = ib, i[2] = ic, i[1] = -(ib + ic);
+            break;
+        }
+        case LDR: // the resistance follows its LED's current at the start of the step (an LDR is slow anyway)
+        {
+            const double il = Sp(p0[2] - p0[3] - 1.80, 0.02) / 15.0;
+            const double ii = (v[0] - v[1]) / LdrOhms(il);
+            i[0] = ii, i[1] = -ii;
+            break;
+        }
+        case LEVDAC: // out 0, VDD 1, GND 2: the set level (never above its supply), ~1 ohm out
+        {
+            const double on = Sg(p0[1] - p0[2] - 2.5, 0.2);
+            const double io = on * ((v[2] + std::min(levelV, std::max(0.0, p0[1] - p0[2]))) - v[0]) / 10.0 - (1.0 - on) * (v[0] - v[2]) * 1e-3;
+            i[0] = -io, i[2] = io;
+            break;
+        }
         case SEEDLOAD: // VIN 0, GND 1, its 3V3 2
         {
             const double vv = v[0] - v[1];
@@ -1277,6 +1328,8 @@ void BoardSim::Impl::afterSlow(double dt)
             e.i = -ii[0], e.w = 0, e.st = e.i > e.p[2] ? 1 : 0;
         if(e.t == REG)
             e.st = e.st == 0 ? 0 : (-ii[1] > e.p[2] ? 3 : e.st);
+        if(e.t == LDR) // remember its LED's current (the audio solver's LDR value)
+            e.heat = Sp(vv[2] - vv[3] - 1.80, 0.02) / 15.0;
         if(e.t == RES && e.p[1] == 1.0) // the PTC warms with the current through it (and trips when it's too much)
         {
             const double a = std::min(1.0, dt / 0.5);
@@ -1476,8 +1529,9 @@ void BoardSim::Impl::checks()
         if(e.t == TPA && e.st != 3 && e.st != 4)
             ampOn = true;
     // the fx loop
-    if(nd("LO_L") != nd("FXR_L") || nd("LO_R") != nd("FXR_R"))
-        F(1, "J22", "the fx loop is open: bridge s l - r l and s r - r r (or plug in an add-on board) - no sound until then");
+    if(nd("LO_L") == nd("FXR_L") || nd("LO_R") == nd("FXR_R"))
+        F(1, "J22", "the fx loop is bridged: take the jumpers off J22 (s l - r l, s r - r r) - the leveller drives the returns, "
+                    "a bridge shorts its output to the codec's");
     // isolation: is anything joining the two grounds (wires, not the barrier parts)?
     {
         std::vector<int> pr((size_t) nodes);
@@ -1515,6 +1569,11 @@ void BoardSim::setKnobs(float a, float b)
     std::lock_guard<std::mutex> l(d_->mx);
     if(a != d_->knob[0] || b != d_->knob[1])
         d_->knob[0] = a, d_->knob[1] = b, d_->knobVer++;
+}
+void BoardSim::setLeveller(double volts)
+{
+    std::lock_guard<std::mutex> l(d_->mx);
+    d_->levelV = std::max(0.0, std::min(2.0, volts)); // (the firmware stops at 1.45 V = 8 mA; past ~2 V the NPN saturates)
 }
 void BoardSim::setTestSignals(double inL, double inR, double dacL, double dacR)
 {

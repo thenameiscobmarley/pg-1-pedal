@@ -70,6 +70,8 @@ class BoardSim
     // test signals for the whole-board solver (stepSlow): what's played into the input jack (1.0 = 2 V peak) and what
     // the codec's DAC sends out (1.0 = full scale)
     void setTestSignals(double inL, double inR, double dacL, double dacR);
+    // the analog leveller: what the firmware wrote to its DAC (volts; 0 = LEDs dark = untouched)
+    void setLeveller(double volts);
     // small-signal (AC) analysis at the present operating point: each board net's response (volts) to 1 unit of a
     // source at hz: src 0/1 = input jack L/R (1 unit = 2 V peak), 2/3 = DAC L/R (1 unit = full scale)
     std::vector<std::complex<double>> acResponse(int src, double hz) const;

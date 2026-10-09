@@ -11,7 +11,7 @@ the other jack's gear through the pedal's power), not even ground. The audio cro
 in jack ─ TVS ─ 1k ─ 100 nF ─ 1M/1M ÷2 ─ TLV9062 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
                                      TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
                                                          ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
-codec line out ─ fx loop (J22: 2 jumper wires or caps, or an add-on) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
+codec line out ─ 4.7k ─ [LDR to ground, lit by the leveller's LED] ─ TLV9062 follower ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
 power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / headphone amp; filtered 5 V ─ buffer
 ```
 
@@ -24,10 +24,18 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   strip across the board), the overvoltage clamps on both jacks, the 1 kΩ current limit on the input, the output ceiling
   (~1.1 V rms: the output chips run on 3.3 V), the headphone amp's short-circuit / thermal shutdown, the fuse,
   reverse-polarity and surge protection on 9 V.
-- **fx loop (J22):** the codec's output goes out to J22 and comes back into the pg-hp stage. Two short female/female jumper wires or jumper caps (on
-  "s l"-"r l" and "s r"-"r r") close it: **without them there's no sound.** A future add-on board (an analog filter /
-  VCA, etc.) plugs in there instead and gets the isolated 3.3 V, ground and the codec's I2C, so adding to the pedal
-  never needs a new order of this board. The firmware already has a driver for an MCP4461 add-on (pg::AnalogFx).
+- **The analog leveller (2026-10-09):** between the codec's line out and pg-hp. Per channel: 4.7 kΩ in series, then an
+  LDR to ground (through 10 µF, so the codec's DC stays off it), then a TLV9062 follower (U16, 2 x 2 mm WSON: it fits
+  under the DC jack). Each LDR is lit by its own red LED (OC1 / OC2: a 3 mm flat-top LED pressed on a 5 mm LDR in black
+  heat shrink, on the lid side, the only parts you make). The two LEDs are in series from the isolated 5 V, so both
+  channels get the same light; an MCP4725 DAC (U15, isolated I2C 0x60) sets their current through an NPN (Q1):
+  I = (Vdac − 0.65 V) / 100 Ω, ~8 mA at most. The DAC powers up at 0 V: dark LDRs (megohms) = the sound untouched.
+  The firmware (pg::AnalogLeveller) rides it 2:1 above −14 dBFS rms. Added to the routed board by add_leveller.py
+  (+ place_extra.py / route_one.py for R81 / R86 and two links Freerouting gave up on).
+  100 kΩ across each LDR (R81 / R86): the 10 µF charges in ~1 s; with the LDR alone (~1 MΩ dark) it took ~10 s and the
+  first squeeze after power-up thumped (found by the simulation). The firmware also keeps it dark for 10 s.
+- **fx loop (J22):** stays on the board but **open**: the leveller's followers drive its returns (r l, r r), so a
+  bridge would short a follower's output to the codec's. Its 3v3 / gnd / scl / sda are still there for an add-on.
 - **Software:** only the codec's one-time set-up (fixed gain, no auto-ranging), an add-on board's settings (if any) and the DSP. If the firmware hangs, a
   hardware watchdog resets the Seed3 in ~2 s and the codec mutes itself when the digital audio stops. If the input is
   too hot for where pg-line is, the screen's health page says "input clip": turn pg-line left.
@@ -51,7 +59,7 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
 - **pg-line** (6, isolated side, under the in jack): printed 3 l, 2 l, 1 l, 3 r, 2 r, 1 r = the pot pin for each header pin, left gang then right.
 - **pg-hp** (6, isolated side, under the out jack): the same for pg-hp.
-- **fx loop** (2 x 4 straight, isolated side): s l, r l, s r, r r, 3v3, gnd, scl, sda. Jumper caps on s-r pairs.
+- **fx loop** (2 x 4 straight, isolated side): s l, r l, s r, r r, 3v3, gnd, scl, sda. Leave it open.
 - **expansion** (4, pedal side, left of seed3 + 9v): 3v3, gnd, scl, sda (the Seed3's I2C) for a module in the
   expansion bay (a slot in the left wall with 4 glued jumper ends).
 
@@ -62,16 +70,15 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
 - **All parts on the top side** (with the jacks): JLCPCB assembles one side.
 
-## Headers: press them in, no solder
+## Headers: soldered (the holes hold them straight first)
 The 5 header footprints have **press-fit ("locking") holes**: every other hole sits 0.127 mm off the line, so a
-plain 2.54 mm header strip jams in by friction and makes contact without solder. Push it in fully (pliers on the
-plastic, not the pins), then a dab of hot glue over the plastic so a tug on a jumper can't pull it out. (Soldering
-them still works too, if you ever want.)
+plain 2.54 mm header strip grips by friction and stays straight and flat while you solder it. They're soldered (your
+choice: the pedal gets moved and knocked around), not just pressed in.
 
-## You solder 3 through-hole parts (big pins, easy)
+## You solder the through-hole parts (big pins, easy)
 JLCPCB fits every small part. You solder the 2 jacks (Neutrik NMJ6HFD2) and the B0505S-1WR3 power block (4 pins),
-from the printed (top) side; the headers press in (above), then bridge the fx loop with 2 short female/female jumper wires (s l to r l, s r to r r). Leaving them off the
-order saves their per-part-type fees and the hand-soldering charges.
+from the printed (top) side, the headers, and the leveller's 2 LED + LDR pairs (from the back). The
+fx loop stays open. Leaving them off the order saves their per-part-type fees and the hand-soldering charges.
 
 ## Ordering at JLCPCB
 Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 make_jlc.py`). At https://cart.jlcpcb.com/quote:

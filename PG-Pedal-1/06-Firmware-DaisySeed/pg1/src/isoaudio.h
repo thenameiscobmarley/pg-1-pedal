@@ -51,13 +51,14 @@ class AnalogFx
     daisy::I2CHandle* i2c_ = nullptr;
 };
 
-// The analog leveller add-on (fx loop, breadboard): an MCP4725 DAC board on the isolated I2C bus sets two red LEDs'
-// brightness; each LED shines on an LDR that shunts its channel's signal (4.7k series, then an MCP6002 buffer).
-// Dark = full level; brighter = quieter. Opto "attack / release" smoothing comes from the LDRs themselves.
+// The analog leveller (on the carrier board, between the codec's line out and pg-hp): an MCP4725 DAC (U15, isolated
+// I2C 0x60) sets the current of two red LEDs in series through an NPN (I = (Vdac - 0.65 V) / 100 ohm); each LED
+// shines on an LDR that shunts its channel after a 4.7k (then a TLV9062 follower). Dark = full level; brighter =
+// quieter. The opto "attack / release" smoothing comes from the LDRs themselves.
 class AnalogLeveller
 {
   public:
-    bool Init(daisy::I2CHandle* i2c); // false: no add-on plugged in (then nothing happens)
+    bool Init(daisy::I2CHandle* i2c); // false: the DAC didn't answer (then nothing happens: dark LDRs = untouched)
     bool Present() const { return addr_ != 0; }
     void SetCut(float db);            // 0 = untouched, up to ~20 dB quieter
   private:

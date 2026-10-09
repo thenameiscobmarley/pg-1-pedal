@@ -149,7 +149,7 @@ bool AnalogFx::SetCutoff(int side, float hz)
     return W(kCutReg[side & 1], uint16_t(code < 0.f ? 0.f : code + 0.5f));
 }
 
-// ------------------------------------------------------------------ the analog leveller add-on (MCP4725)
+// ------------------------------------------------------------------ the analog leveller (MCP4725 U15)
 bool AnalogLeveller::Init(I2CHandle* i2c)
 {
     i2c_ = i2c;
@@ -173,10 +173,11 @@ void AnalogLeveller::SetCut(float db)
     // the LDR needed for that cut (4.7k in series, the LDR to ground): R = 4.7k * g / (1 - g)
     const float g  = powf(10.f, -db / 20.f);
     const float r  = db < 0.05f ? 1e7f : 4700.f * g / (1.f - g);
-    // a typical LDR in a sealed LED pair: ~2k at 1 mA, R ~ I^-0.75 -> the LED current, then the DAC volts (470R + ~1.8 V)
+    // a typical LDR pressed on a lit LED: ~2k at 1 mA, R ~ I^-0.75 -> the LED current (8 mA at most: the LEDs' 5 V
+    // runs out), then the DAC volts: the NPN's base-emitter drop + I x 100 ohm
     float       ma = powf(2000.f / r, 1.f / 0.75f);
-    ma             = ma > 3.f ? 3.f : ma;
-    const float v  = db < 0.05f ? 0.f : 1.8f + ma * 0.47f;
+    ma             = ma > 8.f ? 8.f : ma;
+    const float v  = db < 0.05f ? 0.f : 0.65f + ma * 0.1f;
     uint16_t    code = uint16_t(v / 3.3f * 4095.f + 0.5f);
     code             = code > 4095 ? 4095 : code;
     if(code == last_)

@@ -187,7 +187,12 @@ Steps:
       Core: Core::PageSelector(pos) / OpenPage(); firmware: PCF8574 on the Seed I2C (expansion header J21), position k ->
       P(k-1), common -> GND. Logo + name sideways left of the screen, all diamonds pink. Plugin: draggable gain knobs and
       chicken head (click / drag / wheel). Tayda drill + UV re-uploaded (17 holes).
-- [x] 49. Analog leveller add-on (fx loop): MCP4725 -> 470R -> red LED on an LDR (A-5800) shunting each channel after
-      4.7k (10 uF to ground), MCP6002 followers back into r l / r r. Firmware: pg::AnalogLeveller (isoaudio.*), 2:1 above
-      -14 dBFS rms. Breadboard hole-by-hole table in BUILD-GUIDE.md 6c. Tayda cart now 28 lines; Amazon: PCF8574, MCP4725.
+- [x] 49. Analog leveller ON THE CARRIER BOARD (user: "why a breadboard?", 2026-10-09): codec LO -> 4.7k (R80/R85) ->
+      LDR || 100k (R81/R86) -> 10 uF (C80/C85) to IGND; TLV9062 WSON-8 2x2 (U16, under the DC jack) followers -> FXR;
+      OC1/OC2 = home-made vactrols (3 mm flat-top LED A-8041 + LDR A-5800 in black heat shrink) on the LID side, pins
+      under the DC jack (clip flush); LEDs in series from ISO5V_RAW, NPN Q1 + 100R, MCP4725 U15 (iso I2C 0x60).
+      J22 stays OPEN now (sim flags bridges). Added to the routed board by add_leveller.py (+ place_extra.py,
+      route_one.py), old tracks untouched; DRC clean (3 accepted courtyard overlaps). Sim: dark 0.04 dB loss,
+      1.3 mA -12 dB, 7.8 mA -21 dB, DC at the jack < 5 mV. Firmware: pg::AnalogLeveller, V = 0.65 + 0.1 x mA, dark 10 s.
+      JLC: +2 extended parts (C144198, C2058009) ~ +$6 fees + ~$5 parts. Tayda cart 21 lines (breadboard parts dropped).
 - [ ] 50. Board simulator in the plugin (board view + wiring editor), fast power-up: see 42.
