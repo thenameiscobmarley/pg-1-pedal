@@ -10,7 +10,7 @@
 > - **expansion** header (4 pins, on the board left of "seed3 + 9v"): 3v3, gnd, scl, sda → 4 female jumper ends glued
 >   in a row into the expansion bay slot in the LEFT wall (side C). A plug-in module (button, switch, fader...) talks to
 >   the Seed3 over that I2C bus (same bus as the seed3 + 9v header's scl / sda).
-> - **fx loop** (2 x 4 header on the board, isolated side): put 2 jumper caps on s l-r l and s r-r r (no sound
+> - **fx loop** (2 x 4 header on the board, isolated side): bridge s l-r l and s r-r r with 2 short female/female jumper wires (no sound
 >   without them). Later an add-on board goes there instead.
 > - **screen**: RESET → 1 (D0), DC → 37 (D30); touch T_DO → 36 (D29); T_IRQ is not used (leave it empty).
 > - The IN / OUT / 9V rows in the table below are replaced by the carrier board.

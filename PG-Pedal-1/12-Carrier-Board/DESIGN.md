@@ -11,7 +11,7 @@ the other jack's gear through the pedal's power), not even ground. The audio cro
 in jack ─ TVS ─ 1k ─ 100 nF ─ 1M/1M ÷2 ─ TLV9062 buffer ─ pg-line stage (−33..0..+33 dB) ─ ÷3 ─► codec IN2 (fixed gain)
                                      TLV320AIC3204 codec ◄═ I2S ═╪═ ISO7741 ═╪═ Seed3 SAI2 (pins 32-35)
                                                          ◄═ I2C ═╪═ ISO1540 ═╪═ Seed3 I2C1 (pins 12, 13): set-up only
-codec line out ─ fx loop (J22: 2 jumper caps, or an add-on) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
+codec line out ─ fx loop (J22: 2 jumper wires or caps, or an add-on) ─ 4.7 µF ─ pg-hp stage (−21..0..+21 dB) ─ TPA6139A2 ×2 ─ 1 Ω ─ TVS ─ out jack
 power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / headphone amp; filtered 5 V ─ buffer
 ```
 
@@ -24,7 +24,7 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   strip across the board), the overvoltage clamps on both jacks, the 1 kΩ current limit on the input, the output ceiling
   (~1.1 V rms: the output chips run on 3.3 V), the headphone amp's short-circuit / thermal shutdown, the fuse,
   reverse-polarity and surge protection on 9 V.
-- **fx loop (J22):** the codec's output goes out to J22 and comes back into the pg-hp stage. Two jumper caps (on
+- **fx loop (J22):** the codec's output goes out to J22 and comes back into the pg-hp stage. Two short female/female jumper wires or jumper caps (on
   "s l"-"r l" and "s r"-"r r") close it: **without them there's no sound.** A future add-on board (an analog filter /
   VCA, etc.) plugs in there instead and gets the isolated 3.3 V, ground and the codec's I2C, so adding to the pedal
   never needs a new order of this board. The firmware already has a driver for an MCP4461 add-on (pg::AnalogFx).
@@ -58,7 +58,7 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
 ## You solder 8 through-hole parts (big pins, easy: ~50 joints)
 JLCPCB fits every small part. You solder the 2 jacks (Neutrik NMJ6HFD2), the B0505S-1WR3 power block (4 pins), the
 right-angle headers (10 + 6 + 6 + 4 pins: snap them off a 2.54 mm right-angle male strip) and the 2 x 4 straight
-header (fx loop), all from the printed (top) side, then push 2 jumper caps onto the fx loop. Leaving them off the
+header (fx loop), all from the printed (top) side, then bridge the fx loop with 2 short female/female jumper wires (s l to r l, s r to r r). Leaving them off the
 order saves their per-part-type fees and the hand-soldering charges.
 
 ## Ordering at JLCPCB

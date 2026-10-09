@@ -150,7 +150,7 @@ for k, ch in enumerate("LR"):
     P(f"C{b+1}", "1uF", C0603, "", {1: n("OUT_G"), 2: n("HPIN")})
     P(f"R{b}", "1", R0603, "", {1: n("HPO"), 2: n("JOUT")})
 # ---------------------------------------------------------------- fx loop (for an add-on board later, no new order)
-# codec line out -> J22 -> back into the pg-hp stage. Two jumper caps (1-2, 3-4) close the loop; an add-on board
+# codec line out -> J22 -> back into the pg-hp stage. Two jumper wires or caps (1-2, 3-4) close the loop; an add-on board
 # (e.g. an analog filter / VCA) plugs in instead and gets the isolated 3.3 V, ground and the codec's I2C bus.
 P("J22", "fx loop", "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical", "",
   {1: "LO_L", 2: "FXR_L", 3: "LO_R", 4: "FXR_R", 5: "ISO3V3", 6: "IGND", 7: "ISCL", 8: "ISDA"},

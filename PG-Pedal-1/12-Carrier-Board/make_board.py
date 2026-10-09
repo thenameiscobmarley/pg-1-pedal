@@ -53,7 +53,7 @@ GROUPS = [   # (name, the area(s) its parts stay in: x0, y0, x1, y1 incl. its ti
     ("input", [(-23.4, 46.6, -9.6, 69.9), (-33.5, 30.6, -9.6, 46.0)], (-20.0, 42.0),
      "R30 R31 R32 R33 R34 R35 R36 R37 C30 C31 C32 C33 R40 R41 R42 R43 R44 R45 R46 R47 C40 C41 C42 C43 U8 C26 U11 C27 D61"),
     ("codec", [(-8.4, 48.6, 5.4, 69.9)], (0.0, 58.0), "U9 C18 C19 C20 C21 C22 C23 C24 C25 R8 R9 R10 R11 R12 R13 R14"),
-    # fx loop: codec out -> J22 -> output stage (jumper caps close it; an add-on board plugs in instead)
+    # fx loop: codec out -> J22 -> output stage (2 jumper wires or caps close it; an add-on board plugs in instead)
     ("fx loop", [(8.4, 36.4, 29.8, 47.1)], (19.5, 41.5), "J22"),
     ("output", [(6.0, 47.7, 23.4, 69.9)], (15.0, 58.0),
      "C50 C51 C52 R50 R51 R52 C60 C61 C62 R60 R61 R62 U12 C28 U10 C70 C71 C72 R70 C73 D62"),

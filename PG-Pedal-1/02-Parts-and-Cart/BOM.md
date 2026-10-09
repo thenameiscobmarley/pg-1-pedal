@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **15 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -17,13 +17,15 @@ You should end up with **13 lines**, exact quantities. The Seed3 is a **cartridg
 | A-8567 | 2 | $0.69 | $1.38 | White ripple knob 14 mm | the two small knobs |
 | A-2599 | 3 | $1.20 | $3.60 | KN2310 pink aluminium footswitch cap 23 mm (for PBS-24) | pink caps on pg-a, pg-b, pg-c |
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
-| A-3482 | 1 | $2.30 | $2.30 | Jumper wires female/female 200mm, pack of 40 | 34 for the Seed3 pins (their ends form the glued socket) + screen GND + 5 spare |
+| A-3482 | 2 | $2.30 | $4.60 | Jumper wires female/female 200mm, pack of 40 | 34 for the Seed3 pins (their ends form the glued socket) + screen GND, 12 for the 2 pots to the carrier board, 2 short bridges on the fx loop, spares |
 | A-8500 | 4 | $0.02 | $0.08 | Nylon standoff M3 x 5mm | screen spacers |
 | A-6395 | 4 | $0.11 | $0.44 | M3 x 12mm black socket screw | screen screws through the face |
 | A-1247 | 4 | $0.02 | $0.08 | M3 nut | screen nuts |
 | A-8519 | 3 | $0.11 | $0.33 | AWG22 stranded wire BLACK 1ft | the ground chain between parts |
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
-| | | | **$38.28** | **Tayda subtotal** | |
+| A-199 | 1 | $0.17 | $0.17 | 40 pin 2.54mm right-angle single-row male pin header | carrier board: snap into 10 + 6 + 6 + 4 (J10, J20, J19, J21) |
+| A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
+| | | | **$40.96** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
@@ -59,11 +61,11 @@ Shopping list with Amazon search words: `AMAZON-LIST.md`.
 ## Tools
 Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).
 
-## Carrier board: through-hole parts you solder (buy with the pots, e.g. Mouser)
+## Carrier board: parts Tayda doesn't sell (buy with the pots at Mouser)
 | Qty | Part | For |
 |---|---|---|
 | 2 | Neutrik NMJ6HFD2 (1/4" stereo PCB jack, plastic nose) | in + out jacks (J1, J2) |
-| 1 | Mornsun B0505S-1WR3 (isolated 5 V, SIP-4) | isolated power (U3) |
-| 1 | 2.54 mm right-angle male header strip, 40 pins (snap to 10 + 6 + 6 + 4) | J10, J20, J19, J21 |
-| 1 | 2.54 mm 2 x 4 straight male header | fx loop (J22) |
-| 2 | 2.54 mm jumper caps (shunts) | close the fx loop (no sound without them) |
+| 1 | Mornsun B0505S-1WR3 (isolated 5 V, SIP-4). Same pins, if it's out of stock: Murata NME0505SC or Recom RB-0505S | isolated power (U3) |
+
+(Headers come from Tayda: A-199 + A-198. The fx loop is closed with 2 short female/female jumper wires from the
+A-3482 pack: "s l" to "r l" and "s r" to "r r". No sound without them.)
