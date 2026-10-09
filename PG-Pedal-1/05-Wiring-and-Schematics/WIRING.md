@@ -4,8 +4,9 @@
 > the audio, isolated. The Seed3's own audio pins (16-19) are no longer used. Wires that changed:
 > - **carrier board "seed3 + 9v" header** (10 pins): dc + / dc − = the 2 wires from the 9V jack; then jumpers to the
 >   Seed3: vin → 39, gnd → 40, scl → 12, sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
-> - **pg-line** and **pg-hp** headers (6 pins each, on the board under the in / out jacks): 1 l, 2 l, 3 l, 1 r, 2 r,
->   3 r = pins 1 / 2 / 3 of the pot's left gang, then its right gang. Both pots are centre-click dual 10k LINEAR
+> - **pg-line** and **pg-hp** headers (6 pins each, on the board under the in / out jacks): each header pin is
+>   labelled with the POT pin that goes on it: 3 l, 2 l, 1 l, 3 r, 2 r, 1 r (pot pin 3 = its clockwise end, on the
+>   header's square pin 1, so turning right = more). Left gang, then right gang. Both pots are centre-click dual 10k LINEAR
 >   (e.g. Alps RK09L1240015): analog gain controls, centre = unity.
 > - **expansion** header (4 pins, on the board left of "seed3 + 9v"): 3v3, gnd, scl, sda → 4 female jumper ends glued
 >   in a row into the expansion bay slot in the LEFT wall (side C). A plug-in module (button, switch, fader...) talks to

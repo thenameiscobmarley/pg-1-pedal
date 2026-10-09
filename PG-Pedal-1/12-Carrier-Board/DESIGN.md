@@ -37,12 +37,12 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   turned right). Mic quality is "works", not studio (the guitar-friendly input adds some hiss at full gain).
 - **Out:** headphones (16-600 Ω) or a line input.
 - **Pots:** dual 10k LINEAR with a centre detent, panel mount, e.g. Alps **RK09L1240015** (9 mm, Mouser) or Bourns
-  PTM902-125S-103B2. Both gangs used (left / right). Wire pins 1 / 2 / 3 of each gang to the header's 1 / 2 / 3.
+  PTM902-125S-103B2. Both gangs used (left / right). Each header pin is labelled with the pot pin that goes on it: pot pin 3 (the clockwise end) on header pin 1, so turning right = more.
 
 ## Headers (male, 2.54 mm, right-angle: they point off the board's edge so the jumpers lie flat)
 - **seed3 + 9v** (10, pedal side): dc +, dc − (from the panel DC jack), then vin → Seed3 39, gnd → 40, scl → 12,
   sda → 13, sck → 35, fs → 34, tx → 33, rx → 32.
-- **pg-line** (6, isolated side, under the in jack): 1 l, 2 l, 3 l, 1 r, 2 r, 3 r = its pot's pins, left gang then right.
+- **pg-line** (6, isolated side, under the in jack): printed 3 l, 2 l, 1 l, 3 r, 2 r, 1 r = the pot pin for each header pin, left gang then right.
 - **pg-hp** (6, isolated side, under the out jack): the same for pg-hp.
 - **fx loop** (2 x 4 straight, isolated side): s l, r l, s r, r r, 3v3, gnd, scl, sda. Jumper caps on s-r pairs.
 - **expansion** (4, pedal side, left of seed3 + 9v): 3v3, gnd, scl, sda (the Seed3's I2C) for a module in the

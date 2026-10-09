@@ -141,6 +141,19 @@ Steps:
       Outline.rad: tabs 6, param boxes 4, band chips 3, boot/tour square). Page open/close move is now LIQUID
       (Outline.kind 1 + LiquidField SDF: melt + drips, falling drops, gooey neck, springy settle; kWipeMs 800).
       Native frame test: scratchpad liq/t.cpp. Plugin + firmware rebuilt.
-- [ ] 42. (asked) plugin emulates the carrier board's ELECTRONICS from the real PCB netlist (currents, shorts, miswiring
-      -> no sound). Scope agreed with user? (see chat) 
-- [ ] 43. (asked) UI more intuitive: waiting for what's confusing
+- [ ] 42. BOARD SIMULATOR in the plugin (user chose FULL TRANSIENT). Steps:
+      a. _Tools/board_export.py (pcbnew): 12-Carrier-Board -> 10-Carla-Plugin/Source/BoardData.h (parts, pads, nets,
+         track/via geometry, copper islands per net from KiCad connectivity = opens/shorts from the REAL copper).
+      b. Source/sim/: MNA engine (dense LU, trapezoidal companions, Newton for diodes / op-amp rails), auto-partitioned:
+         power + slow nodes (rails, IBIAS) at ~2 kHz, audio islands (input + output analog per channel) at 48 kHz.
+         Models: R, C, diode/TVS/PSM712, PTC (I^2t heating), AMS1117/XC6206 (dropout, current limit), B0505S
+         (isolated, own ground), TLV9062 (GBW pole, rails, output R), TPA6139A2 (x-2, charge pump), codec ADC/DAC
+         (needs power + I2C config; DAC = DSP output), ISO7741/ISO1540 (pass only if both sides powered), jacks, pots.
+      c. Wiring: external jumpers (J10 <-> Seed3 pins, pots <-> J19/J20, DC jack, fx-loop bridges) as an editable map,
+         default = WIRING.md; wrong wiring -> the sim shows it (no sound, wrong level, smoke).
+      d. Board view (2D, in the plugin window): real copper, current-flow dots on traces, part heat, fault list.
+      e. Audio: plugin audio goes jack -> simulated input stage -> codec ADC -> core DSP -> DAC -> simulated output.
+- [x] 43. UI (finding things + navigation): home footer = what the focused tab is for (ui::kTabWhat); pg-b = "next": settings page 2 first, then the next tab; title shows 1/2 / 2/2.
+- [x] 44. BUG FOUND (while modelling the pots): pot pin 3 = clockwise end, so "1 l" on header pin 1 made the knobs work
+      BACKWARDS (right = less). Silk relabelled on the routed board (3 l, 2 l, 1 l, 3 r, 2 r, 1 r; make_board HEADER_PINS
+      too), gerbers / renders / JLC files regenerated (no copper change), docs updated. User must re-upload the gerbers zip.

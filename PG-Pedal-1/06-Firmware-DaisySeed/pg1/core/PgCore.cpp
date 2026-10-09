@@ -201,7 +201,8 @@ void Core::GoPage(int page, uint32_t now)
     if(page == page_)
         return;
     slide_.on = true, slide_.t0 = now, slide_.from = page_, slide_.dir = page > page_ ? 1 : -1;
-    page_ = page;
+    page_         = page;
+    redraw_title_ = true; // its "1/2" / "2/2"
 }
 
 int Core::KnobParam(int k) const
@@ -425,8 +426,10 @@ void Core::Footswitch(int i, bool down, uint32_t now)
             band_         = (band_ + 1) % kBands;
             redraw_panel_ = true;
         }
+        else if(page_ + 1 < PageCount()) // elsewhere: "next" - this tab's second settings page first...
+            GoPage(page_ + 1, now);
         else
-            pending_open_ = (tab_ + 1) % kTabs; // elsewhere: the next page
+            pending_open_ = (tab_ + 1) % kTabs; // ...then the next tab
     }
 }
 
@@ -1283,7 +1286,13 @@ void Core::DrawTitle(uint32_t)
     {
         TextFb(6, 5, "< home", Font_7x10, ui::kBlue);
         const char* t = ui::kTabTitles[tab_];
-        TextFb((Canvas::kW - TextW(t, Font_7x10)) / 2, 5, t, Font_7x10, ui::kBlue);
+        const int   tx = (Canvas::kW - TextW(t, Font_7x10)) / 2;
+        TextFb(tx, 5, t, Font_7x10, ui::kBlue);
+        if(PageCount() > 1) // there's more: say which settings page this is
+        {
+            snprintf(buf, sizeof(buf), "%d/2", page_ + 1);
+            TextFb(tx + TextW(t, Font_7x10) + 6, 6, buf, Font_6x8, ui::kDimText);
+        }
     }
     // right chip: on home the whole pedal, on a page this stage
     bool lit = effect_on_;
@@ -1593,7 +1602,11 @@ int Core::DrawUi(Canvas& c, uint32_t now)
     if(pending_flash_kind_ >= 0)
     {
         if(pending_flash_kind_ == 0)
+        {
             FlashTab(pending_flash_index_, now);
+            if(screen_ == HOME && !(alert_check_ >= 0 && now - alert_t0_ < 5000))
+                DrawFooter(now); // the footer says what the newly focused tab is for
+        }
         else
             FlashBox(pending_flash_index_, now);
         pending_flash_kind_ = -1;

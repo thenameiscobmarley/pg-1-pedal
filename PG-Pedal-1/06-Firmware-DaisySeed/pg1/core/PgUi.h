@@ -33,6 +33,17 @@ static const char* const kTabTitles[16] = {"hum + hiss",    "dynamic eq", "compr
                                            "health checks", "takeback",   "stereo width",         "quiet loudness", "configs",
                                            "multiband dynamics", "pid auto-adjust"};
 
+// one line each, shown at the bottom of the home screen for the focused tab (what it's for, in plain words)
+static const char* const kTabWhat[16] = {
+    "hum: removes mains hum + background hiss",     "dyn eq: 4 bands that act only when needed",
+    "comp: evens out loud and quiet parts",          "clarity: finds muddy / buried bands + fixes",
+    "saturate: warm analog-style drive",             "de-harsh: tames sharp, piercing highs",
+    "safety: protects your ears + speakers",         "visual: spectrum, scope + meters",
+    "input: levels whatever comes in",               "health: checks the pedal's wiring + sound",
+    "takeback: gives back punch, detail, air",       "width: wider or narrower stereo",
+    "loudness: fuller sound at low volume",          "config: save / load setups, screen, knobs",
+    "multiband: a compressor per frequency range",   "pid: auto-adjusts the sound to a target"};
+
 constexpr int kGx = 3, kGy = 22, kGw = 314, kGh = 136; // graph area on every page
 constexpr int kPanelY = 160;                          // grey panel: strip at 164, knob boxes at 186
 } // namespace ui

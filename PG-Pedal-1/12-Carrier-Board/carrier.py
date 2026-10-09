@@ -114,7 +114,7 @@ P("U12", "TLV9062", SOIC8, "TLV9062IDR",
   {1: "OUT_G_L", 2: "GOUT_W_L", 3: "IBIAS", 4: "IGND", 5: "IBIAS", 6: "GOUT_W_R", 7: "OUT_G_R", 8: "ISO5V"}, "pg-hp gain stages")
 P("C28", "100nF", C0603, "", {1: "ISO5V", 2: "IGND"}, "at the TLV9062")
 P("J20", "pg-line", HDR_RA(6), "", {1: "GIN_A_L", 2: "GIN_W_L", 3: "GIN_B_L", 4: "GIN_A_R", 5: "GIN_W_R", 6: "GIN_B_R"},
-  "isolated side: pg-line, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
+  "isolated side: pg-line, centre-detent dual 10k LINEAR pot, pot pins 3 / 2 / 1 per gang on header pins 1 / 2 / 3 (clockwise end first: right = more)")
 
 # ---------------------------------------------------------------- the input, per channel
 # jack -> 1k (1206: survives an amp's speaker output with the TVS) -> IN_A (1M to ground: ~670k input, guitar-friendly)
@@ -156,7 +156,7 @@ P("J22", "fx loop", "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical"
   {1: "LO_L", 2: "FXR_L", 3: "LO_R", 4: "FXR_R", 5: "ISO3V3", 6: "IGND", 7: "ISCL", 8: "ISDA"},
   "isolated side: send l, return l, send r, return r, 3v3, gnd, scl, sda. Jumper caps on 1-2 and 3-4 = normal")
 P("J19", "pg-hp", HDR_RA(6), "", {1: "GOUT_A_L", 2: "GOUT_W_L", 3: "GOUT_B_L", 4: "GOUT_A_R", 5: "GOUT_W_R", 6: "GOUT_B_R"},
-  "isolated side: pg-hp, centre-detent dual 10k LINEAR pot, pins 1 / 2 / 3 per gang (left gang, then right)")
+  "isolated side: pg-hp, centre-detent dual 10k LINEAR pot, pot pins 3 / 2 / 1 per gang on header pins 1 / 2 / 3 (clockwise end first: right = more)")
 P("U10", "TPA6139A2", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "TPA6139A2PWR",
   {1: "HPIN_L", 2: "HPO_L", 3: "IGND", 4: "HP_ON", 5: "HP_VSS", 6: "HP_CN", 9: "HP_CP", 10: "ISO3V3", 11: "IGND",
    12: "NC_GAIN", 13: "HPO_R", 14: "HPIN_R"}, "headphone / line driver, x-2 (gain pin open): +6 dB at the top of pg-hp")

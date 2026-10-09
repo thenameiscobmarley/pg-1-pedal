@@ -223,9 +223,7 @@ void Core::DrawFooter(uint32_t now)
     else
     {
         const int page = focus_ / 8, pages = (kTabs + 7) / 8;
-        char hint[64];
-        snprintf(hint, sizeof(hint), "turn: move  push/tap: open  hold %s: on/off", ui::FootName(1));
-        TextFb(8, 226, hint, Font_6x8, kBlue);
+        TextFb(8, 226, ui::kTabWhat[focus_ % kTabs], Font_6x8, kBlue); // what the focused tab is for
         for(int pg = 0; pg < pages; pg++) // page dots (tap them to switch)
         {
             const int x = Canvas::kW - 8 - (pages - pg) * 10;

@@ -87,8 +87,8 @@ HEADERS = {"J10": (3.5, 14.0, "F"),                                # pedal side,
            "J19": (40.8, 44.2, "F")}    # isolated side, under the out jack: pg-hp
 HEADER_PINS = {   # printed beside each pin
     "J10": ["dc +", "dc -", "vin", "gnd", "scl", "sda", "sck", "fs", "tx", "rx"],
-    "J19": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
-    "J20": ["1 l", "2 l", "3 l", "1 r", "2 r", "3 r"],
+    "J19": ["3 l", "2 l", "1 l", "3 r", "2 r", "1 r"],   # pot pin 3 (the clockwise end) on header pin 1: right = more
+    "J20": ["3 l", "2 l", "1 l", "3 r", "2 r", "1 r"],
     "J21": ["3v3", "gnd", "scl", "sda"],
 }
 HEADER_TITLE = {"J10": "seed3 + 9v (IN)", "J19": "pg-hp", "J20": "pg-line", "J21": "expansion"}
