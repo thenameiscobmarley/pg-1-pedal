@@ -78,7 +78,7 @@ void Core::DrawDots()
 // one frame of the boxes sliding to the other page: the old page leaves, the new one comes in behind it
 void Core::SlideFrame(uint32_t now)
 {
-    const float t = Clampf(float(now - slide_.t0) / 240.f, 0.f, 1.f), e = 1.f - (1.f - t) * (1.f - t) * (1.f - t); // ease out
+    const float t = Clampf(float(now - slide_.t0) / 150.f, 0.f, 1.f), e = 1.f - (1.f - t) * (1.f - t) * (1.f - t); // ease out
     const int   shift = int(e * float(Canvas::kW));
     FillRect(0, 186, Canvas::kW, 52, kGrey);
     const int to = page_;
@@ -347,7 +347,7 @@ void Core::DrawStrip(uint32_t now)
             snprintf(buf, sizeof(buf), "%d  %s", b + 1, f);
             TextFb(r.x + 16, r.y + 4, buf, Font_6x8, b == band_ ? kYellow : kGrey);
             if(b == band_)
-                PearlBorder(r, now, 3); // the chip's own corner radius
+                PearlBorder(r, now);
         }
         drawn_band_ = band_;
         Dirty(0, kPanelY, Canvas::kW, 24);

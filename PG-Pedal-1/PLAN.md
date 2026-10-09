@@ -178,3 +178,6 @@ Steps:
       (codec's 20k input loads the divider). Plugin face texture was stale (export only rebuilt the copy) ->
       pg_generate.py now writes 10-Carla-Plugin/assets/face-print.png; plugin rebuilt. Wrong-wiring battery:
       scratchpad simt/ww.cpp; bench: simt/ac.cpp.
+- [x] 47. 2026-10-09: UI back to square edges, aurora 3 px in the strong middle of the pearl palette, liquid page move
+      reverted (straight slide, kWipeMs 420, settings slide 150 ms). BUILD-GUIDE.md written (current wiring; WIRING.md
+      had stale bits: Seed3 window is RIGHT wall, key with pin 16 not pin 1, no audio ground chain, no exp jack).

@@ -1,5 +1,10 @@
 # PG-1 wiring (Seed3 cartridge, no extra parts)
 
+> **2026-10-09: follow `../BUILD-GUIDE.md` first.** It has the current carrier-board wiring, the Seed3 window in the
+> RIGHT wall, keying with pin 16 (pin 1 now drives the screen RESET), and the ground chain without the old audio chain.
+> This file is kept for the socket-block steps and part details; where they disagree, BUILD-GUIDE.md is right.
+
+
 > **v3 (isolated carrier board, `12-Carrier-Board`):** the board hangs from the 2 audio jacks (in, out) and does all
 > the audio, isolated. The Seed3's own audio pins (16-19) are no longer used. Wires that changed:
 > - **carrier board "seed3 + 9v" header** (10 pins): dc + / dc − = the 2 wires from the 9V jack; then jumpers to the

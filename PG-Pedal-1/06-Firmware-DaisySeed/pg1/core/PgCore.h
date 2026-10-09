@@ -218,10 +218,7 @@ class Core
         Rect  r;
         int   thick;
         float c0, c1;
-        int   rad = 6; // corner radius: follows the rounded tile it goes round (0 = square)
-        int   kind = 0; // 0 = a rounded box outline, 1 = the liquid move from box a to box b (r = the area it can reach)
-        Rect  a{}, b{};
-        float t = 0.f; // liquid: how far along (0..1)
+        int   rad = 0; // corner radius (0 = square)
     };
 
   private:
@@ -244,7 +241,7 @@ class Core
     int  TextW(const char* s, const FontDef& f) const;
     void Dirty(int x, int y, int w, int h);
     void DrawIcon(int i, int cx, int cy, uint16_t c);
-    void PearlBorder(const Rect& r, uint32_t now, int rad = 6); // rounded like the tile under it
+    void PearlBorder(const Rect& r, uint32_t now, int rad = 0); // square, 3 px
     static uint16_t Pearl(float h); // white / cream / pearl aurora palette
     static uint16_t Heat(float v);  // 0..1 -> deep blue .. cyan .. pearl .. white (waterfall)
 
