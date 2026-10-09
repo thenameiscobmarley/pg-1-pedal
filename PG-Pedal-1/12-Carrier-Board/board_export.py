@@ -83,17 +83,17 @@ def main():
          "struct BVia { float x, y, d; int net; };",
          f"constexpr int kNets = {len(nets)}, kParts = {len(parts)}, kPads = {len(padrows)}, kTracks = {len(tracks)}, "
          f"kVias = {len(vias)}, kIslands = {islands}, kCopperShorts = {len(shorts)};",
-         f"constexpr float kBoardX0 = {mm(edge.GetLeft())}f, kBoardY0 = {mm(edge.GetTop())}f, "
-         f"kBoardX1 = {mm(edge.GetRight())}f, kBoardY1 = {mm(edge.GetBottom())}f;",
+         f"constexpr float kBoardX0 = {mm(edge.GetLeft()):.3f}f, kBoardY0 = {mm(edge.GetTop()):.3f}f, "
+         f"kBoardX1 = {mm(edge.GetRight()):.3f}f, kBoardY1 = {mm(edge.GetBottom()):.3f}f;",
          "static const char* const kNetNames[kNets] = {" + ", ".join(q(n) for n in nets) + "};",
          "static const BPart kBParts[kParts] = {"]
-    L += ["    {%s, %s, %s, %gf, %gf, %gf, %gf, %gf, %gf, %gf, %d, %d}," % (q(r), q(v), q(f), *rest) for r, v, f, *rest in parts]
+    L += ["    {%s, %s, %s, %.3ff, %.3ff, %.3ff, %.3ff, %.3ff, %.3ff, %.3ff, %d, %d}," % (q(r), q(v), q(f), *rest) for r, v, f, *rest in parts]
     L += ["};", "static const BPad kBPads[kPads] = {"]
-    L += ["    {%s, %s, %d, %gf, %gf, %gf, %gf, %d, %d}," % (q(r), q(n), *rest) for r, n, *rest in padrows]
+    L += ["    {%s, %s, %d, %.3ff, %.3ff, %.3ff, %.3ff, %d, %d}," % (q(r), q(n), *rest) for r, n, *rest in padrows]
     L += ["};", "static const BTrack kBTracks[kTracks] = {"]
-    L += ["    {%gf, %gf, %gf, %gf, %gf, %d, %d}," % t for t in tracks]
+    L += ["    {%.3ff, %.3ff, %.3ff, %.3ff, %.3ff, %d, %d}," % t for t in tracks]
     L += ["};", "static const BVia kBVias[kVias > 0 ? kVias : 1] = {"]
-    L += ["    {%gf, %gf, %gf, %d}," % v for v in vias] or ["    {0, 0, 0, -1},"]
+    L += ["    {%.3ff, %.3ff, %.3ff, %d}," % v for v in vias] or ["    {0, 0, 0, -1},"]
     L += ["};", "} // namespace pgsim", ""]
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     open(OUT, "w").write("\n".join(L))

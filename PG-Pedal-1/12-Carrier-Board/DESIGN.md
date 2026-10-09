@@ -55,10 +55,15 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
   arrows show the signal's path, inputs on the left, output on the right (as you look at the pedal's face).
 - **All parts on the top side** (with the jacks): JLCPCB assembles one side.
 
-## You solder 8 through-hole parts (big pins, easy: ~50 joints)
-JLCPCB fits every small part. You solder the 2 jacks (Neutrik NMJ6HFD2), the B0505S-1WR3 power block (4 pins), the
-right-angle headers (10 + 6 + 6 + 4 pins: snap them off a 2.54 mm right-angle male strip) and the 2 x 4 straight
-header (fx loop), all from the printed (top) side, then bridge the fx loop with 2 short female/female jumper wires (s l to r l, s r to r r). Leaving them off the
+## Headers: press them in, no solder
+The 5 header footprints have **press-fit ("locking") holes**: every other hole sits 0.127 mm off the line, so a
+plain 2.54 mm header strip jams in by friction and makes contact without solder. Push it in fully (pliers on the
+plastic, not the pins), then a dab of hot glue over the plastic so a tug on a jumper can't pull it out. (Soldering
+them still works too, if you ever want.)
+
+## You solder 3 through-hole parts (big pins, easy)
+JLCPCB fits every small part. You solder the 2 jacks (Neutrik NMJ6HFD2) and the B0505S-1WR3 power block (4 pins),
+from the printed (top) side; the headers press in (above), then bridge the fx loop with 2 short female/female jumper wires (s l to r l, s r to r r). Leaving them off the
 order saves their per-part-type fees and the hand-soldering charges.
 
 ## Ordering at JLCPCB

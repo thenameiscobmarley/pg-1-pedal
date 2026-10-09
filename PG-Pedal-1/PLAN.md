@@ -141,7 +141,19 @@ Steps:
       Outline.rad: tabs 6, param boxes 4, band chips 3, boot/tour square). Page open/close move is now LIQUID
       (Outline.kind 1 + LiquidField SDF: melt + drips, falling drops, gooey neck, springy settle; kWipeMs 800).
       Native frame test: scratchpad liq/t.cpp. Plugin + firmware rebuilt.
-- [ ] 42. BOARD SIMULATOR in the plugin (user chose FULL TRANSIENT). Steps:
+- [~] 42. BOARD SIMULATOR in the plugin (user chose FULL TRANSIENT). STATUS 2026-10-09:
+      a. DONE: 12-Carrier-Board/board_export.py -> Source/sim/BoardData.h (real copper: islands, tracks, vias).
+      b. IN PROGRESS: Source/sim/BoardSim.{h,cpp} (not in CMake yet). Netlist from BoardData + wiring (DefaultWiring =
+         WIRING.md incl. pots pin3->header1). Slow solver = smooth models + Newton (numeric central-diff Jacobian,
+         line search with uniform step scaling, pseudo-cap per node, chip enables read from step-start voltages Ven).
+         Steady state WORKS and is fast (~1 ms per 30 ms tick): +9V 8.22, +5V 5.00, +3V3 3.30, ISO5V 5.05,
+         ISO3V3 3.30, IBIAS 1.65, 197 mA, HP_ON 0.5 s unmute. PROBLEM: power-up from 0 V is slow (~15 s compute):
+         operatingPoint() (pseudo-transient continuation) oscillates g 2 <-> 0.2. Ideas: gentler g schedule
+         (x0.5, fail x3), or start from a hand-built guess (rails at nominal). Native tests: scratchpad simt/
+         d2.cpp (timeline), d3.cpp (tick timing), t.cpp (gain + wrong-wiring cases). Debug env vars NDEBUG*.
+         Then: fault check for op-amps should use rail proximity of V (not PWL st); fast audio islands untested
+         since the slow-solver rewrite; then plugin integration (Seed3Runner hooks runInput/runOutput around
+         core.Process, small-knob params, slow thread), board view, wiring editor.
       a. _Tools/board_export.py (pcbnew): 12-Carrier-Board -> 10-Carla-Plugin/Source/BoardData.h (parts, pads, nets,
          track/via geometry, copper islands per net from KiCad connectivity = opens/shorts from the REAL copper).
       b. Source/sim/: MNA engine (dense LU, trapezoidal companions, Newton for diodes / op-amp rails), auto-partitioned:
@@ -157,3 +169,6 @@ Steps:
 - [x] 44. BUG FOUND (while modelling the pots): pot pin 3 = clockwise end, so "1 l" on header pin 1 made the knobs work
       BACKWARDS (right = less). Silk relabelled on the routed board (3 l, 2 l, 1 l, 3 r, 2 r, 1 r; make_board HEADER_PINS
       too), gerbers / renders / JLC files regenerated (no copper change), docs updated. User must re-upload the gerbers zip.
+- [x] 45. Press-fit ("locking") header holes on J10 J19 J20 J21 J22: each other HOLE offset 0.127 mm (pad copper kept in
+      place via pad offset, DRC clean), so header strips jam in without solder (+ hot glue). Gerbers regenerated.
+      Backup of the unstaggered board: 12-Carrier-Board/build/pg1-carrier.before-lock.kicad_pcb.
