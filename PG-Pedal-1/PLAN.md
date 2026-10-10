@@ -189,7 +189,7 @@ Steps:
       chicken head (click / drag / wheel). Tayda drill + UV re-uploaded (17 holes).
 - [x] 49. Analog leveller ON THE CARRIER BOARD (user: "why a breadboard?", 2026-10-09): codec LO -> 4.7k (R80/R85) ->
       LDR || 100k (R81/R86) -> 10 uF (C80/C85) to IGND; TLV9062 WSON-8 2x2 (U16, under the DC jack) followers -> FXR;
-      OC1/OC2 = home-made vactrols (3 mm flat-top LED A-8041 + LDR A-5800 in black heat shrink) on the LID side, pins
+      OC1/OC2 = home-made vactrols (3 mm flat-top LED A-8041 + LDR A-7629 in black heat shrink) on the LID side, pins
       under the DC jack (clip flush); LEDs in series from ISO5V_RAW, NPN Q1 + 100R, MCP4725 U15 (iso I2C 0x60).
       J22 stays OPEN now (sim flags bridges). Added to the routed board by add_leveller.py (+ place_extra.py,
       route_one.py), old tracks untouched; DRC clean (3 accepted courtyard overlaps). Sim: dark 0.04 dB loss,
@@ -223,3 +223,6 @@ Steps:
       PINK chicken heads back (A-6623, 32 x 19.5): power (-14, 56) "0" at 205 deg, page (14, 54) pages 1-4 from 125 deg;
       1.8 mm apart at the closest along their whole travel, every label on the face, pointers up to 6 mm past the top
       edge (above the face; the jack plugs are below it). Tayda re-uploaded; cart 22 lines $56.69.
+- [x] 55. 2026-10-10: knobs level (both y 56, x +-14; power "0" 205 deg, page 1 at 115 deg, 4.0 mm clear), thin arcs
+      along each dial's travel on the print, labels kept under the border. LDR A-5800 out of stock -> A-7629 (LXD5528A,
+      560 nm). XYG PCF8574 board out of stock -> any PCF8574 board (NOYITO / DEVMO / Comimark). Tayda re-uploaded.

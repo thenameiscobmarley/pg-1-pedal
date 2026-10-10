@@ -53,11 +53,11 @@ SMALL_KNOB_D = 14.0
 SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
 # the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
-SELECTOR = (14.0, 54.0, 9.0)
+SELECTOR = (14.0, 56.0, 9.0)
 # the power switch: a mini rotary switch (Tayda A-8233, 2 pole 4 position, 16 V 0.3 A, the same 9 mm hole / 6 mm spline
 # shaft as the page selector) with a pink chicken head: position 1 = 0 (off), the rest = 1 (on). Left of the screen,
 # below the sideways logo; behind the face it clears the pg-1 encoder, the screen module and the expansion bay.
-POWER = (-14.0, 56.0, 9.0)
+POWER = (-14.0, 56.0, 9.0)   # (level with the page selector)
 SELECTOR_TABS = ["1", "2", "3", "4"]   # the settings PAGE of the open tab (the closest one it has)
 # Both switches are Tayda A-8233 (RS16211-24: 2 pole x 4 positions, 45 degrees apart, 135 degrees end to end; body
 # 16 mm across, 10 mm deep + 4 mm pins) with PINK chicken heads A-6623 (32 long, 19.5 skirt, 14 tall: the pointer
@@ -65,7 +65,7 @@ SELECTOR_TABS = ["1", "2", "3", "4"]   # the settings PAGE of the open tab (the 
 # touch along their whole travel (check_knob_sweeps; 1.6 mm at the closest) and every label sits on the face. Pointing
 # up, a pointer hangs up to ~6 mm past the top edge
 # (above the face: the jack plugs in the top wall are below it).
-POWER_POS1, SELECTOR_POS1 = 205.0, 125.0
+POWER_POS1, SELECTOR_POS1 = 205.0, 115.0
 KNOB_SKIRT, KNOB_REACH, KNOB_HALFW, KNOB_TAIL, KNOB_TAILW = 9.75, 22.25, 3.5, 0.1, 0.1
 KNOB_OVERHANG = 6.5   # how far past the top edge a pointer may reach
 # the 9 V DC jack (A-2237, 12 mm hole) is in the LEFT wall (side C), low: between the pg-1 knob and the pg-a footswitch
@@ -369,11 +369,17 @@ def build_face_art():
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
     # the page selector: a dot per position (the first pink) just beyond the pointer, its page number outside it
     sx, sy, _ = SELECTOR
-    A.fill(mono.outline("page", sx + 10.5, sy - 11.0, 2.0), PINK)
+    A.fill(mono.outline("page", sx + 11.5, sy - 11.8, 2.0), PINK)
+    A.stroke(poly_path([(sx + 10.6 * math.cos(math.radians(SELECTOR_POS1 - d)), sy + 10.6 * math.sin(math.radians(SELECTOR_POS1 - d)))
+                        for d in range(0, 136, 3)]), 0.22)
     for i, t in enumerate(SELECTOR_TABS):
         a = math.radians(SELECTOR_POS1 - 45 * i)
         A.fill(circle_path(sx + 10.6 * math.cos(a), sy + 10.6 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
-        A.fill(mono.outline(t, sx + 12.6 * math.cos(a), sy + 12.6 * math.sin(a) - 0.9, 2.4))
+        lx_, ly_ = sx + 12.6 * math.cos(a), sy + 12.6 * math.sin(a)
+        if ly_ > 65.6:   # under the top border: slide it down and out along the dial
+            lx_ += (ly_ - 65.6) * (-1.6 if math.cos(a) < 0 else 1.6)
+            ly_ = 65.6
+        A.fill(mono.outline(t, lx_, ly_ - 0.9, 2.4))
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
@@ -384,7 +390,10 @@ def build_face_art():
         A.fill(circle_path(px_ + 10.6 * math.cos(a), py_ + 10.6 * math.sin(a), 0.5), PINK if i == 0 else INK)
         if i < 2:
             A.fill(mono.outline("0" if i == 0 else "1", px_ + 12.6 * math.cos(a), py_ + 12.6 * math.sin(a) - 0.9, 2.6))
-    A.fill(mono.outline("power", px_ + 2.0, py_ - 13.6, 1.9), PINK)
+    A.fill(mono.outline("power", px_ - 11.5, py_ - 11.8, 2.0), PINK)
+    # the dial's travel: a thin arc through its 4 clicks (so the print reads as a dial with no knob on)
+    A.stroke(poly_path([(px_ + 10.6 * math.cos(math.radians(POWER_POS1 - d)), py_ + 10.6 * math.sin(math.radians(POWER_POS1 - d)))
+                        for d in range(0, 136, 3)]), 0.22)
     # the 9 V jack's label, sideways on the left edge level with the jack (tilt the pedal to read it, like usb-c)
     A.fill(rot90(mono.outline("9v", 0, 0, 2.6), -51.4, DC_Y + 5.6))
     # centre-negative mark, drawn along the edge (reads bottom to top like the text): minus - ( . ) - plus

@@ -13,7 +13,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **2 Neutrik jacks and the B0505S** (in the files: no Mouser). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1, the band of D63, and that the jack noses point off the top edge. |
 | **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads, the leveller's LEDs + light sensors + black heat shrink |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
-| **Amazon** | PCF8574 I/O board (page selector): https://www.amazon.com/dp/B00DUO17J6 |
+| **Amazon** | a PCF8574 I/O board (page selector), any in stock: NOYITO B07D57NH9Q, DEVMO B09L4RLHX8, Comimark B07X3KWQZ7 (VCC / GND / SDA / SCL + P0-P7 pins); the 2 Neutrik NMJ6HFD2 jacks (B00FV23QH6) |
 | **Seed3** | Daisy Seed3 **with headers** |
 | **Tools** | soldering iron kit, **0.8 mm rosin-core solder** (right size for all of this), flush **wire cutters**, wire strippers, multimeter, hot glue gun, a little heat-shrink |
 
@@ -135,7 +135,7 @@ LED shines on a light sensor (LDR) that gently pulls its channel's level down **
 the classic smooth "opto" leveller. LEDs dark = the sound passes untouched (that's also how it powers up).
 
 JLCPCB fits everything except the two **light pairs**, OC1 (left channel) and OC2 (right), which you make:
-each is one **3 mm flat-top red LED** (A-8041) + one **LDR** (A-5800) + **15 mm of the black 6 mm heat shrink**.
+each is one **3 mm flat-top red LED** (A-8041) + one **LDR** (A-7629) + **15 mm of the black 6 mm heat shrink**.
 
 They sit on the **back** of the board (the lid side, plain except for their two printed outlines "LED / LDR"), next to
 the "in" jack. Each outline has 4 holes: 2 at the LED end (the square one marked **+**), 2 at the LDR end.

@@ -12,7 +12,7 @@ A,hole,screen screw 1,-30.74,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 2,36.52,39.75,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 3,-30.74,3.03,3.6,,,M3 screw for 2.4in screen + board
 A,hole,screen screw 4,36.52,3.03,3.6,,,M3 screw for 2.4in screen + board
-A,hole,page selector,14.00,54.00,9.4,,,"4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"
+A,hole,page selector,14.00,56.00,9.4,,,"4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"
 A,hole,power switch,-14.00,56.00,9.4,,,"power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"
 C,hole,9v,0.00,-34.00,12.4,,,"DC jack A-2237 (12mm cut-out), left wall"
 A,rectangle,screen window,0.00,21.39,,47.8,35.5,2.4in ILI9341 A-8180 visible area

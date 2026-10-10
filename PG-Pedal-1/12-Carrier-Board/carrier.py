@@ -176,7 +176,7 @@ for k, ch in enumerate("LR"):
       "across the LDR: charges the 10 uF in ~1 s (dark the LDR alone took ~10 s: the first squeeze after power-up thumped,"
       " found by the simulation); costs 0.4 dB")
 P("OC1", "LED+LDR", LDRPAIR, "", {1: "ISO5V_RAW", 2: "LED_M", 3: "LVA_L", 4: "LVC_L"},
-  "left channel vactrol: 3 mm flat-top red LED (A-8041) on a 5 mm LDR (A-5800) in black heat shrink, lid side")
+  "left channel vactrol: 3 mm flat-top red LED (A-8041) on a 5 mm LDR (A-7629) in black heat shrink, lid side")
 P("OC2", "LED+LDR", LDRPAIR, "", {1: "LED_M", 2: "LED_C", 3: "LVA_R", 4: "LVC_R"}, "right channel vactrol")
 P("U16", "TLV9062", "Package_SON:Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm", "TLV9062IDSGR",
   {1: "FXR_L", 2: "FXR_L", 3: "LVA_L", 4: "IGND", 5: "LVA_R", 6: "FXR_R", 7: "FXR_R", 8: "ISO5V", 9: "IGND"},
