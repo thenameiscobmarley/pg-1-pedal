@@ -121,6 +121,8 @@ enum
     P_PID_MASK, // pid: the groups it steers (bits: eq, comp, mband, clarity, deharsh, width)
     P_PID_TILT, // pid: the target balance, dB per octave in tenths (hold pg-4 + turn)
     P_CL_BANDS, // clarity: how many self-placing bands (1-10, hold pg-3 + turn)
+    P_LEV_ON,   // input tab, page 2: the carrier board's analog leveller on / off
+    P_LIGHTS,   // input tab, page 2: the in / out level lights on the face on / off
     P_COUNT // a new setting also needs a permanent name in PgState.cpp (kRestKeys); saves load by name, so order is free
 };
 
@@ -137,6 +139,12 @@ class Core
     // the page selector (8-way chicken-head switch): 1..8 = the settings page every tab opens on and switches to
     // (the closest page it has); 0 = not fitted / unknown (pages are swiped / pg-b'd as before)
     void PageSelector(int position, uint32_t now_ms);
+    // the analog leveller (main.cpp, every 30 ms): fitted?, how much it cuts now, the output level, the face lights
+    // (bits: 0 in signal, 1 in hot, 2 out signal, 3 out hot)
+    void ReportLeveller(bool present, float cut_db, float out_db, uint8_t lights);
+    bool LevellerOn() const { return params_[P_LEV_ON].value != 0; }
+    bool LightsOn() const { return params_[P_LIGHTS].value != 0; }
+    uint8_t LevelLights() const { return LightsOn() ? lev_lights_ : 0; } // what the face's lights show (plugin)
     int  PageSelectorPos() const { return sel_page_; }
     int  OpenPage() const { return screen_ == PAGE ? page_ : -1; } // the settings page shown (-1 = home / other)
     void Touch(bool down, int x, int y, uint32_t now_ms); // call ~50x a second while running
@@ -285,6 +293,7 @@ class Core
     void GraphSafety(uint32_t now);
     void GraphVis(uint32_t now);
     void GraphInput(uint32_t now);
+    void GraphLeveller(uint32_t now);
     void GraphHealth(uint32_t now);
     void GraphTakeback(uint32_t now);
     void GraphWidth(uint32_t now);
@@ -455,6 +464,10 @@ class Core
     int       n_dirty_ = 0;
     float     spec_a_[320] = {}, spec_b_[320] = {};
     float     gr_hist_[200] = {}, lv_in_[160] = {}, lv_out_[160] = {};
+    float     lev_cut_h_[160] = {}, lev_out_h_[160] = {}, lev_cut_ = 0.f; // the analog leveller, last ~5 s (33 / s)
+    int       lev_pos_ = 0, lev_n_ = 0;
+    bool      lev_present_ = false;
+    uint8_t   lev_lights_ = 0;
     int       lv_pos_ = 0;
     // visualizer: bars' peak caps, loudness history (one column per 50 ms, ~15 s), scope height
     static constexpr int kBars = 31;

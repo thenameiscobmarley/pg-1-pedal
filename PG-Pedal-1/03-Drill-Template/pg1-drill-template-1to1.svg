@@ -64,6 +64,14 @@
 <path d="M33.220000000000006,-3.03 h6.6 M36.52,-6.33 v6.6" stroke="#c00" stroke-width="0.15"/>
 <text x="36.52" y="-6.03" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">screen screw 4  Ø3.6</text>
 <text x="36.52" y="1.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(36.52, 3.03)</text>
+<circle cx="-48.0" cy="-37.0" r="3.05" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-52.55,-37.0 h9.1 M-48.0,-41.55 v9.1" stroke="#c00" stroke-width="0.15"/>
+<text x="-48.00" y="-41.25" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">in level light  Ø6.1</text>
+<text x="-48.00" y="-31.35" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-48, 37)</text>
+<circle cx="48.0" cy="-37.0" r="3.05" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M43.45,-37.0 h9.1 M48.0,-41.55 v9.1" stroke="#c00" stroke-width="0.15"/>
+<text x="48.00" y="-41.25" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">out level light  Ø6.1</text>
+<text x="48.00" y="-31.35" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(48, 37)</text>
 <circle cx="14.0" cy="-56.0" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
 <path d="M7.800000000000001,-56.0 h12.4 M14.0,-62.2 v12.4" stroke="#c00" stroke-width="0.15"/>
 <text x="14.00" y="-61.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">page selector  Ø9.4</text>

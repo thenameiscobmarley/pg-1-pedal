@@ -311,7 +311,7 @@ void Core::DrawGraph(uint32_t now)
         case T_SAT: GraphSat(now); break;
         case T_DEHARSH: GraphDeHarsh(now); break;
         case T_SAFETY: GraphSafety(now); break;
-        case T_INPUT: GraphInput(now); break;
+        case T_INPUT: page_ == 1 ? GraphLeveller(now) : GraphInput(now); break;
         case T_HEALTH: GraphHealth(now); break;
         case T_TAKEBACK: GraphTakeback(now); break;
         case T_WIDTH: GraphWidth(now); break;
@@ -1124,6 +1124,62 @@ void Core::GraphInput(uint32_t now)
     const bool hot = clips_ != 0 && now - clip_t_ < 2000;
     FillRect(rx, kGy + 98, bw, 18, hot ? kYellow : kBlue);
     TextFb(rx + 4, kGy + 103, hot ? "source too hot!" : "no clipping", Font_6x8, hot ? kBlue : kDimText);
+}
+
+void Core::ReportLeveller(bool present, float cut_db, float out_db, uint8_t lights)
+{
+    lev_present_ = present, lev_cut_ = cut_db, lev_lights_ = lights;
+    lev_cut_h_[lev_pos_] = cut_db, lev_out_h_[lev_pos_] = out_db;
+    lev_pos_             = (lev_pos_ + 1) % 160;
+    lev_n_               = lev_n_ < 160 ? lev_n_ + 1 : 160;
+}
+
+// input, page 2: the analog leveller live - the output level (dim), where it starts (-14), what it cuts (pearl,
+// hanging from the top), and the 4 lights on the face as they are now
+void Core::GraphLeveller(uint32_t now)
+{
+    FillRect(kGx, kGy, kGw, kGh, kBlueDeep);
+    const int hw = 160, hx = kGx + 8;
+    auto      y  = [&](float db) { return YDb(db, 0.f, -60.f); };
+    for(int db = -12; db >= -48; db -= 12)
+        HLineDots(hx, hx + hw - 1, y(float(db)), 4, kGrid);
+    FillRect(hx, y(-14.f), hw, 1, kLtBlue);
+    TextFb(hx + 2, y(-14.f) - 9, "starts here", Font_6x8, kLtBlue);
+    int po = -1;
+    for(int i = 0; i < hw; i++)
+    {
+        if(i < hw - lev_n_) // not filled yet
+            continue;
+        const int k = (lev_pos_ + i) % hw, yo = y(lev_out_h_[k]);
+        const int ch = int(lev_cut_h_[k] / 20.f * float(kGh - 24)); // 20 dB = the full height
+        if(ch > 0)
+            FillRect(hx + i, kGy + 2, 1, ch, Pearl(float(i) / 320.f));
+        if(po >= 0)
+            Line(hx + i - 1, po, hx + i, yo, kDimText);
+        po = yo;
+    }
+    TextFb(hx + 2, kGy + kGh - 10, "out (dim) - cut (pearl)", Font_6x8, kDimText);
+    const int rx = hx + hw + 14, bw = kGx + kGw - 10 - rx;
+    const bool on = LevellerOn();
+    TextFb(rx, kGy + 6, "analog leveller", Font_6x8, kDimText);
+    TextFb(rx, kGy + 18, !lev_present_ ? "not found" : (on ? "on" : "off"), Font_11x18, lev_present_ && on ? kWhite : kYellow);
+    char g[12];
+    F1(g, 12, on ? -lev_cut_ : 0.f, true);
+    TextFb(rx, kGy + 44, "cutting now", Font_6x8, kDimText);
+    TextFb(rx, kGy + 56, g, Font_11x18, kWhite);
+    TextFb(rx + TextW(g, Font_11x18) + 3, kGy + 65, "db", Font_6x8, kDimText);
+    // the face's 2 level lights, as they are now (off / green / red)
+    static const char* const side[2] = {"in", "out"};
+    const uint16_t green = Canvas::Rgb(60, 220, 110), red = Canvas::Rgb(255, 70, 70);
+    for(int s = 0; s < 2; s++)
+    {
+        const int ly = kGy + 86 + s * 16;
+        TextFb(rx, ly + 1, side[s], Font_6x8, kDimText);
+        const bool sig = lev_lights_ & (1u << (2 * s)), hot = lev_lights_ & (2u << (2 * s));
+        FillRect(rx + 26, ly, 10, 10, !LightsOn() ? kBlue : (hot ? red : (sig ? green : kBlue)));
+        TextFb(rx + 42, ly + 1, !LightsOn() ? "off" : (hot ? "hot" : (sig ? "ok" : "-")), Font_6x8, kDimText);
+    }
+    (void)now, (void)bw;
 }
 
 // takeback: what it's giving back right now, and the last few seconds of it

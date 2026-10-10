@@ -98,6 +98,8 @@ void Core::Init(float sample_rate, uint16_t* framebuffer)
         {"groups", "", "", F_INT, 3, 0, 63, 1, 1, 3},
         {"tilt", "db/oct", "hold pg-4 + turn: target balance. - = darker", F_STENTH, -20, -60, 20, 5, 1, -20},
         {"bands", "", "hold pg-3 + turn: how many bands clarity may use", F_INT, 6, 1, 10, 1, 1, 6},
+        {"leveller", "", "analog leveller: lights + sensors ride loud parts", F_ONOFF, 1, 0, 1, 1, 1, 1},
+        {"lights", "", "level lights by the gain knobs on / off", F_ONOFF, 1, 0, 1, 1, 1, 1},
     };
     for(int i = 0; i < P_COUNT - P_EQ_END; i++)
         params_[P_EQ_END + i] = rest[i];
@@ -178,7 +180,8 @@ static const int kPage2[kTabs][kKnobs] = {
     {-1, -1, -1, -1},             // comp
     {P_CL_MODE, P_CL_BANDS, -1, -1}, // clarity
     {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, // saturate, de-harsh, safety, visual
-    {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, // input, health, takeback, width
+    {P_LEV_ON, P_LIGHTS, -1, -1}, // input (page 2: the analog leveller + its live view)
+    {-1, -1, -1, -1}, {-1, -1, -1, -1}, {-1, -1, -1, -1}, // health, takeback, width
     {-1, -1, -1, -1},             // loudness
     {P_DPAD, P_SCR_FAST, -1, -1}, // config
     {-1, -1, -1, -1},             // multiband

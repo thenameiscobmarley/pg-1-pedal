@@ -54,6 +54,7 @@ public:
                 const float* si[2] = { seedIn[0], seedIn[1] };
                 float*       so[2] = { seedOut[0], seedOut[1] };
                 core.Process (si, so, (size_t) kBlock, nowMs);
+                analogLeveller (core, si, so);
                 for (int ch = 0; ch < 2; ++ch)
                     outHist[ch].insert (outHist[ch].end(), seedOut[ch], seedOut[ch] + kBlock);
                 seedN = 0;
@@ -74,6 +75,44 @@ public:
     }
 
 private:
+    // the carrier board's analog leveller + the face's level lights, as main.cpp runs them (every 30 ms): gentle 2:1
+    // above -14 dBFS rms, the LDRs' ~30 ms ride glided here; lights green above -45 dBFS peak, red near clipping
+    void analogLeveller (pg::Core& core, const float* const* si, float* const* so)
+    {
+        float ms = 0.f;
+        for (int i = 0; i < kBlock; ++i)
+        {
+            ms += 0.5f * (so[0][i] * so[0][i] + so[1][i] * so[1][i]);
+            for (int ch = 0; ch < 2; ++ch)
+            {
+                inPk  = std::max (inPk, std::abs (si[ch][i]));
+                outPk = std::max (outPk, std::abs (so[ch][i]));
+            }
+        }
+        outMs += (ms / (float) kBlock - outMs) * 0.05f;
+        const float g = std::pow (10.f, -levCut / 20.f);
+        for (int ch = 0; ch < 2; ++ch)
+            for (int i = 0; i < kBlock; ++i)
+            {
+                levG += (g - levG) * 0.0007f;   // ~30 ms
+                so[ch][i] *= levG;
+            }
+        if (++levBlocks < 30)
+            return;
+        levBlocks = 0, levT += 30;
+        const float db = 10.f * std::log10 (outMs + 1e-12f);
+        levCut = core.LevellerOn() && db > -14.f ? std::min (20.f, (db + 14.f) * 0.5f) : 0.f;
+        if (inPk > 0.708f)  inHot = levT;
+        if (outPk > 0.891f) outHot = levT;
+        uint8_t lights = (inPk > 0.0056f ? 1 : 0) | (inHot && levT - inHot < 300 ? 2 : 0)
+                       | (outPk > 0.0056f ? 4 : 0) | (outHot && levT - outHot < 300 ? 8 : 0);
+        inPk = outPk = 0.f;
+        core.ReportLeveller (true, levCut, db, lights);
+    }
+    float levCut = 0.f, levG = 1.f, outMs = 0.f, inPk = 0.f, outPk = 0.f;
+    int   levBlocks = 0;
+    juce::uint32 levT = 0, inHot = 0, outHot = 0;
+
     static constexpr int kPrefill = kBlock + 4;
     double step = 1.0, inPos = 1.0, outPos = 1.0;
     bool   same = true;

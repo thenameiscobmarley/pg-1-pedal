@@ -44,6 +44,7 @@ static const char* const kRestKeys[P_COUNT - P_EQ_END] = {
     "pid.p",       "pid.i",         "pid.d",         "pid.group",                    // pid gains + group cursor
     "pid.mask",    "pid.tilt",                                                      // pid: steered groups, target balance
     "clar.bands",                                                                    // clarity: how many bands
+    "lev.on",      "lev.lights",                                                     // analog leveller, face lights
 };
 static_assert(sizeof(kRestKeys) / sizeof(kRestKeys[0]) == P_COUNT - P_EQ_END, "every setting needs a permanent name");
 
@@ -136,7 +137,7 @@ static int Migrate(int p, uint8_t saved_version, int v)
 // these belong to the pedal, not to a sound, so loading a config leaves them alone
 static bool PrefParam(int p)
 {
-    return p == P_CF_SLOT || p == P_CF_SAVE || p == P_CF_THEME || p == P_CF_KNOBS || p == P_H_ROW || p == P_TOUR_DONE || p == P_DPAD || p == P_SCR_FAST;
+    return p == P_CF_SLOT || p == P_CF_SAVE || p == P_CF_THEME || p == P_CF_KNOBS || p == P_H_ROW || p == P_TOUR_DONE || p == P_DPAD || p == P_SCR_FAST || p == P_LEV_ON || p == P_LIGHTS;
 }
 
 void Core::TakeSnap(Snap& s) const

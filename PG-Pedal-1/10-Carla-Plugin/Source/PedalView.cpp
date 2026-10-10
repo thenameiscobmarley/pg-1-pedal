@@ -159,6 +159,8 @@ void PedalView::newOpenGLContextCreated()
     meshNutBig.upload (geo::sweptPolygon (6, 0.082f, { { 0.0f, 0.0f }, { 0.0f, 0.024f } }, true));
     meshThread.upload (geo::lathe (0.06f, { { 0.0f, 0.024f }, { 0.0f, 0.052f } }, 48, true));
     meshPlunger.upload (geo::lathe (0.0435f, { { 0.0f, 0.0f }, { 0.0f, 0.058f }, { -0.008f, 0.066f } }, 48, true));
+    meshBezel.upload (geo::lathe (0.034f, { { 0.0f, 0.0f }, { 0.0f, 0.012f }, { -0.012f, 0.03f }, { -0.017f, 0.03f } }, 48, false)); // A-661 chrome bezel
+    meshLed.upload (geo::lathe (0.015f, { { 0.0f, 0.0f }, { 0.0f, 0.03f }, { -0.006f, 0.042f }, { -0.015f, 0.046f } }, 32, true));   // its LED dome
     meshCap.upload (geo::lathe (0.115f, { { 0.0f, 0.012f }, { 0.0f, 0.102f }, { -0.012f, 0.112f } }, 64, true)); // KN2310 cap, 23 x 10 mm
     meshScrew.upload (geo::lathe (0.0275f, { { 0.0f, 0.0f }, { 0.0f, 0.028f }, { -0.004f, 0.032f } }, 32, true));
     meshJackNut.upload (geo::sweptPolygon (6, 0.07f, { { 0.0f, 0.0f }, { 0.0f, 0.022f } }, true));
@@ -258,7 +260,7 @@ void PedalView::openGLContextClosing()
     for (auto* p : { progFace.get(), progPowder.get(), progChrome.get(), progPlastic.get(), progRecess.get(), progWood.get(), progShadow.get(), progLcd.get() })
         if (p) p->release();
     for (auto* m : { &meshFace, &meshShell, &meshLid, &meshWell, &meshLcd, &meshDesk, &meshShadow, &meshNutSmall, &meshNutBig,
-                     &meshThread, &meshPlunger, &meshCap, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
+                     &meshThread, &meshPlunger, &meshCap, &meshBezel, &meshLed, &meshScrew, &meshJackNut, &meshJackHole, &meshDcNut,
                      &meshSeedWin, &meshSeedHdr, &meshSeedGlue, &meshSeedPcb, &meshSeedChips, &meshSeedUsb, &meshSeedBtn, &meshBayWin, &meshBayHdr, &meshChicken, &meshChickenLine })
         m->release();
     for (auto& k : knobParts)
@@ -412,6 +414,17 @@ void PedalView::renderOpenGL()
         draw (*progChrome, meshNutSmall, Mat4::translation ({ s[0], 0.0f, s[1] }), steel);
     draw (*progChrome, meshNutSmall, Mat4::translation ({ selX, 0.0f, selZ }), steel);
     draw (*progChrome, meshNutSmall, Mat4::translation ({ powX, 0.0f, powZ }), steel);
+    const auto lights = isOn() ? core.LevelLights() : 0;
+    for (int side = 0; side < 2; ++side)   // the level lights under the gain knobs: in (left), out (right)
+    {
+        const Mat4 at = Mat4::translation ({ side == 0 ? -0.48f : 0.48f, 0.0f, -0.37f });
+        draw (*progChrome, meshBezel, at, steel);
+        const bool sig = lights & (1u << (2 * side)), hot = lights & (2u << (2 * side));
+        const Vec3 led = hot ? Vec3 { 1.6f, 0.25f, 0.2f } : sig ? Vec3 { 0.3f, 1.5f, 0.45f } : Vec3 { 0.55f, 0.55f, 0.5f };
+        use (*progPlastic);
+        draw (*progPlastic, meshLed, at, led);
+        use (*progChrome);
+    }
 
     // the four knobs (white knurled aluminium), turned by their encoders
     use (*progPlastic);

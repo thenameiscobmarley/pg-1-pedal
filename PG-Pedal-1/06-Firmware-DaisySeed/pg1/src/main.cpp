@@ -42,6 +42,7 @@ constexpr Pin kSaiFs = seed::D27, kSaiSck = seed::D28, kSaiTx = seed::D26, kSaiR
 } // namespace pins
 
 constexpr bool kFlipScreen     = false; // set true if the picture is upside down
+constexpr bool kSwapLightColours = false; // set true if the level lights show red for signal and green when hot
 constexpr bool kReverseEncoder = false; // set true if turning right makes values go down
 // Touch calibration: raw 0-4095 readings at the screen edges. If taps land in the wrong place,
 // flip these (swap first, then the flips) until the bar follows your finger.
@@ -74,13 +75,29 @@ I2CHandle    i2c;
 pg::IsoCodec codec;
 pg::AnalogFx afx; // the board's analog level + filter (unity / open unless the DSP asks)
 
-// The page selector: an 8-way rotary switch on a PCF8574 I/O board on the expansion header (Seed3 I2C, pins 12/13).
-// Switch position k (1..8) -> PCF8574 pin P(k-1), the switch's common -> GND; the PCF8574's own pull-ups hold the
-// others high, so the selected position reads low. Any of its 16 addresses is found by itself.
+// The page selector + the face's 4 level lights, on a PCF8574 I/O board on the expansion header (Seed3 I2C, 12/13).
+// Switch position k (1..4) -> PCF8574 pin P(k-1), the switch's common -> GND; the PCF8574's own pull-ups hold the
+// others high, so the selected position reads low. P4..P7 drive the 2 level lights: each is a 2-leg red/green LED
+// between 2 pins (in: P4-P5, out: P6-P7), each pin pulled up to 3.3 V by 330 ohm. Pulling one pin low lights one
+// colour, the other pin the other colour; both high = off. Any of its 16 addresses is found by itself.
 struct PageSelectorIn
 {
-    uint8_t addr = 0, last = 0xFF;
+    uint8_t addr = 0, last = 0xFF, sent = 0xFF;
     int     pos  = 0;
+    // the lights (bits: 0 in signal, 1 in hot, 2 out signal, 3 out hot): off / green / red per side.
+    // P0..P3 are always written 1 so they stay inputs
+    void Lights(I2CHandle& bus, uint8_t on)
+    {
+        uint8_t b = 0xFF;
+        for(int side = 0; side < 2; side++)
+        {
+            const bool sig = on & (1u << (2 * side)), hot = on & (2u << (2 * side));
+            if(hot || sig) // pull one leg low: green on the first pin, red on the second (kSwapLightColours flips)
+                b &= uint8_t(~(1u << (4 + 2 * side + ((hot != kSwapLightColours) ? 1 : 0))));
+        }
+        if(addr && b != sent && bus.TransmitBlocking(addr, const_cast<uint8_t*>(&b), 1, 2) == I2CHandle::Result::OK)
+            sent = b;
+    }
     void    Find(I2CHandle& bus)
     {
         for(uint8_t a : {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F})
@@ -93,7 +110,7 @@ struct PageSelectorIn
             }
         }
     }
-    // the switch position 1..8, 0 while between positions / nothing fitted
+    // the switch position 1..4, 0 while between positions / nothing fitted
     int Read(I2CHandle& bus)
     {
         if(!addr)
@@ -101,7 +118,7 @@ struct PageSelectorIn
         uint8_t v = 0xFF;
         if(bus.ReceiveBlocking(addr, &v, 1, 2) != I2CHandle::Result::OK)
             return pos;
-        const uint8_t low = uint8_t(~v);
+        const uint8_t low = uint8_t(~v) & 0x0F; // (P4..P7 are the lights)
         if(v == last && low && !(low & (low - 1))) // exactly one pin low, the same twice in a row: settled
         {
             int k = 0;
@@ -115,7 +132,7 @@ struct PageSelectorIn
 };
 PageSelectorIn page_sel;
 pg::AnalogLeveller leveller;          // the analog leveller on the carrier board (U15 DAC -> LEDs -> LDRs)
-static volatile float out_ms = 0.f;   // the output's mean square (DAC units), for the leveller
+static volatile float out_ms = 0.f, out_peak = 0.f; // what's leaving (DAC units): mean square, for the leveller; peak
 // set by the main loop, used by the audio callback
 static volatile float g_in = kInGain, g_out = 0.f, in_peak = 0.f; // g_out stays 0 (silent) until the codec is up
 // the screen picture the core draws into: 150 KB, in the Seed3's 64 MB SDRAM (plain array, no
@@ -186,6 +203,12 @@ void AudioCallback(AudioHandle::InputBuffer in, AudioHandle::OutputBuffer out, s
     for(size_t i = 0; i < n; i++)
         ms += 0.5f * (out[0][i] * out[0][i] + out[1][i] * out[1][i]);
     out_ms = out_ms + (ms / float(n) - out_ms) * 0.05f;
+    float op = 0.f;
+    for(size_t c = 0; c < 2; c++)
+        for(size_t i = 0; i < n; i++)
+            op = fabsf(out[c][i]) > op ? fabsf(out[c][i]) : op;
+    if(op > out_peak)
+        out_peak = op;
     // health: how much of the block's time the work took (1.0 = none left)
     core.ReportLoad(float(System::GetUs() - t0) * hw.AudioSampleRate() / (1e6f * float(size)));
 }
@@ -364,11 +387,26 @@ int main(void)
             core.PageSelector(page_sel.Read(i2c), last_sel);
             // gentle 2:1 above -14 dBFS rms: the LDRs ride the level in the analog path. Dark for the first 10 s (its
             // 10 uF capacitors finish charging through the LDRs' 100k: a squeeze before that would thump)
-            if(leveller.Present() && last_sel > 10000)
-            {
-                const float db = 10.f * log10f(out_ms + 1e-12f);
-                leveller.SetCut(db > -14.f ? (db + 14.f) * 0.5f : 0.f);
-            }
+            const float db  = 10.f * log10f(out_ms + 1e-12f);
+            const float cut = core.LevellerOn() && last_sel > 10000 && db > -14.f ? (db + 14.f) * 0.5f : 0.f;
+            if(leveller.Present())
+                leveller.SetCut(cut > 20.f ? 20.f : cut);
+            // the face lights: green = signal (above -45 dBFS peak), red = within 3 dB (in) / 1 dB (out) of clipping,
+            // held 300 ms so a single hit is seen
+            static uint32_t in_hot_t = 0, out_hot_t = 0;
+            const float     ip = in_peak, opk = out_peak;
+            in_peak = 0.f, out_peak = 0.f;
+            if(ip > 0.708f)
+                in_hot_t = last_sel;
+            if(opk > 0.891f)
+                out_hot_t = last_sel;
+            uint8_t lights = 0;
+            lights |= ip > 0.0056f ? 1 : 0;
+            lights |= last_sel - in_hot_t < 300 && in_hot_t ? 2 : 0;
+            lights |= opk > 0.0056f ? 4 : 0;
+            lights |= last_sel - out_hot_t < 300 && out_hot_t ? 8 : 0;
+            page_sel.Lights(i2c, core.LightsOn() ? lights : 0);
+            core.ReportLeveller(leveller.Present(), cut > 20.f ? 20.f : cut, db, lights);
         }
         const uint32_t now = System::GetNow();
         // ---- display safety

@@ -229,3 +229,9 @@ Steps:
 - [x] 56. 2026-10-10: border pushed out (ART - 2 mm) so the gain dot rings clear it; check_corner_posts() audits every
       body behind the face against the 4 lid-screw posts (tightest: gain pots 0.8 mm, pins pointing down). Leveller light
       pairs made OPTIONAL (out of the cart: A-7629 / A-8041 / A-4918; pads stay). Comimark PCF8574 3-pack OK. Cart 19 lines.
+- [x] 57. 2026-10-10: leveller light pairs back in the cart. Level lights: one 2-leg red/green LED (A-1076) per side in a
+      chrome bezel (A-661, 5.7 mm hole, nut) at (+-48, 37) under the gain knobs (only spot with room: the right one is
+      1.7 mm from the Seed3 block), driven by PCF8574 P4/P5, P6/P7 with 330R pull-ups. Firmware: P_LEV_ON / P_LIGHTS on
+      the input tab's page 2 + GraphLeveller live view; plugin simulates both and lights its 3D LEDs. Full point-to-point
+      wiring drawing (_Tools/pg_wiring.py -> wiring-diagram.svg/png/pdf + WIRE-LIST.md, 92 wires). Fixed: ground chain
+      and J10 gnd both claimed socket 40 (chain now spliced onto that jumper); guide said JLC fits the jacks (it doesn't).

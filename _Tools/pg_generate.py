@@ -12,7 +12,7 @@ Font:  Nunito (SIL OFL) instanced to SemiBold/Bold, in ../_Tools/fonts
 All units are millimetres. Face origin = centre of the face, +x right, +y toward
 the top edge (the edge with the jacks), looking down at the pedal.
 """
-import math, os, subprocess, zlib, csv
+import math, os, subprocess, sys, zlib, csv
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import RecordingPen
 
@@ -50,6 +50,10 @@ SMALL_POTS = [  # label, x, y, bare hole, what it does
     (PG + "line", -SMALL_X, 52.0, 7.5, "input gain, analog: -33 .. 0 (centre click) .. +33 dB"),
 ]
 SMALL_KNOB_D = 14.0
+# a level light under each gain knob: a 2-leg red/green LED (Tayda A-1076) in a chrome bezel (A-661, 5.7 mm hole,
+# held by its own nut). Off = silence, green = signal, red = close to clipping. Lower than y 37 hits the gain labels'
+# room; higher hits the -33/+33 print; behind it the right one clears the screen module and the Seed3 block (1.7 mm).
+LIGHT_Y, LIGHT_HOLE = 37.0, 5.7
 SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
 # the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
@@ -328,6 +332,8 @@ def build_face_art():
             db = f"{20 * math.log10((re + 10e3 * f) / (re + 10e3 * (1 - f))):+.0f}"
             a = math.radians(240 - i * 30)
             A.fill(mono.outline(db, x + r * math.cos(a), y + r * math.sin(a) - 2.4, 1.5))
+        # its level light: a hairline ring just outside the bezel
+        A.stroke(circle_path(x, LIGHT_Y, 4.4), 0.25)
         # what it is, under the knob, kept between the screen screw and the border
         w1, w2 = SMALL_WORDS[name]
         lines = [(w1, 1.8, INK)] + [(w, 1.5, PINK) for w in w2.split("|")]
@@ -336,7 +342,7 @@ def build_face_art():
             w = mono.width(t, sz)
             lo, hi = (-55.0, sx - 3.8) if x < 0 else (sx + 3.8, 55.0)   # (screw head 2.75 + 1 mm)
             cx = min(max(x, lo + w / 2), hi - w / 2)
-            A.fill(mono.outline(t, cx, y - r - 5.6 - k * 2.3, sz), col)
+            A.fill(mono.outline(t, cx, y - r - 13.9 - k * 2.3, sz), col)   # (below the level light)
 
     # footswitches: a ring with a hairline ring inside it, and 4 small ticks at the quarters
     for name, x in FOOTSW:
@@ -381,7 +387,7 @@ def build_face_art():
             ly_ = 65.6
         A.fill(mono.outline(t, lx_, ly_ - 0.9, 2.4))
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
-    A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
+    A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y - 4.2))
 
     # the power switch: "0" at position 1, "1" at the other three (any of them is on); "power" beside it
     px_, py_, _ = POWER
@@ -407,7 +413,7 @@ def build_face_art():
     A.stroke(poly_path([R(3.9, 0), R(5.1, 0)]), 0.3)
     A.stroke(poly_path([R(4.5, -0.6), R(4.5, 0.6)]), 0.3)
     # logo + name, smaller and sideways left of the screen (tilt the pedal to read it), the logo's ends in pink diamonds
-    k, lx, ly = 0.29, -42.5, 24.6
+    k, lx, ly = 0.29, -42.5, 13.8
     pts = [((px) * k, (py - 51.0) * k) for px, py in logo_points(0, 51.0)]
     A.stroke(rot90([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(pts)], lx, ly), 0.6)
     A.fill(diamond(lx, ly - 26.4 * k, 0.6), PINK)
@@ -484,6 +490,8 @@ def check_corner_posts():
         bodies.append((name, x - w, KNOB_Y - w, x + w, KNOB_Y + w))
     for name, x in FOOTSW:
         bodies.append((name, x - 6.6, FS_Y - 6.6, x + 6.6, FS_Y + 6.6))
+    for x in (-SMALL_X, SMALL_X):
+        bodies.append(("level light", x - 2.85, LIGHT_Y - 2.85, x + 2.85, LIGHT_Y + 2.85))
     for name, (x, y, _) in (("power switch", POWER), ("page switch", SELECTOR)):
         bodies.append((name, x - 8.0, y - 8.0, x + 8.0, y + 8.0))
     for name, x, _, _ in SIDE_B:
@@ -618,6 +626,9 @@ def holes_table():
         rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k LINEAR dual pot Tayda A-8618 (Alpha RD902F, 7.5 mm hole): " + what))
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
+    for name, sx_ in (("in level light", -SMALL_X), ("out level light", SMALL_X)):
+        rows.append(("A", "hole", name, sx_, LIGHT_Y, round(LIGHT_HOLE + PC, 2), "", "",
+                     "3mm red/green LED Tayda A-1076 in chrome bezel A-661 (5.7 mm hole, own nut)"))
     rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",
                  "4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"))
     rows.append(("A", "hole", "power switch", POWER[0], POWER[1], round(POWER[2] + PC, 2), "", "",
@@ -733,6 +744,9 @@ def write_art(A):
         # the pink KN2310 aluminium cap (23 mm) on the plunger
         p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="11.5" fill="url(#pk)" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
         p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="9.6" fill="none" stroke="#ffd1e8" stroke-width="0.5" stroke-opacity="0.7"/>')
+    for x, col in ((-SMALL_X, "#3ddc6e"), (SMALL_X, "#ff4a4a")):   # level lights: chrome bezel, lit (in green, out red)
+        p.append(f'<circle cx="{x}" cy="{-LIGHT_Y}" r="3.4" fill="#d8d8d8" stroke="#9a9a9a" stroke-width="0.3" filter="url(#sh)"/>')
+        p.append(f'<circle cx="{x}" cy="{-LIGHT_Y}" r="1.6" fill="{col}" stroke="#fff" stroke-width="0.25" stroke-opacity="0.6"/>')
     for name, x, y, _, _ in SMALL_POTS: # 14 mm white ripple knobs
         p.append(f'<circle cx="{x}" cy="{-y}" r="{SMALL_KNOB_D/2}" fill="#f1f1ef" stroke="#c9c9c6" stroke-width="0.4" filter="url(#sh)"/>')
         for k in range(24):
@@ -1074,7 +1088,7 @@ def write_logo_header():
 if __name__ == "__main__":
     check_clearances()
     write_depth()
-    write_wiring_diagram()
+    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "pg_wiring.py")], check=True)  # (the old write_wiring_diagram predates the carrier board)
     write_socket_board()
     write_logo_header()
     rows = holes_table()

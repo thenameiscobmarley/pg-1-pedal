@@ -10,10 +10,10 @@ which were written before the carrier board existed. Pin numbers here come strai
 
 | Where | What |
 |---|---|
-| **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **2 Neutrik jacks and the B0505S** (in the files: no Mouser). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1, the band of D63, and that the jack noses point off the top edge. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads |
+| **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **B0505S** (no Mouser). The 2 jacks come from Amazon and **you** solder them (section 2). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1 and the band of D63. |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 26 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads, the leveller's LEDs + light sensors + heat shrink, the 2 level lights + chrome bezels + 330 ohm resistors |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
-| **Amazon** | a PCF8574 I/O board (page selector), any in stock: NOYITO B07D57NH9Q, DEVMO B09L4RLHX8, Comimark B07X3KWQZ7 (VCC / GND / SDA / SCL + P0-P7 pins); the 2 Neutrik NMJ6HFD2 jacks (B00FV23QH6) |
+| **Amazon** | a PCF8574 I/O board (page selector + level lights): Comimark 3-pack B07X3KWQZ7 (or any with VCC / GND / SDA / SCL + P0-P7 pins); the 2 Neutrik NMJ6HFD2 jacks (B00FV23QH6) |
 | **Seed3** | Daisy Seed3 **with headers** |
 | **Tools** | soldering iron kit, **0.8 mm rosin-core solder** (right size for all of this), flush **wire cutters**, wire strippers, multimeter, hot glue gun, a little heat-shrink |
 
@@ -21,7 +21,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 
 - **Carrier board**: every small part is already on it. Two pads in the input box are **empty on purpose** (C31, C41:
   leaving them off keeps the treble). The chips have their names printed next to them.
-- Count: 2 pots, 2 header strips, the carrier boards with the 2 jacks and the B0505S already on, 4 encoders + knobs, 3 footswitches + caps, screen, 9 V jack.
+- Count: 2 pots, 2 header strips, 2 Neutrik jacks, the carrier boards with the B0505S already on, 4 encoders + knobs, 3 footswitches + caps, screen, 9 V jack.
 
 ## 2. Solder the carrier board (big through-hole pins only)
 
@@ -33,8 +33,11 @@ Iron on the pad + pin together 2 s, feed solder, a small shiny cone. Snip the le
    - 10 = **seed3 + 9v**, 6 = **pg-line**, 6 = **pg-hp**, 4 = **expansion**, 2 x 4 straight = **fx loop**.
    - the right-angle pins point **off the board edge** (the printed pin names sit beside them). The holes grip the pins,
      so they stay straight while you solder: one end pin first, check it sits flat, then the rest.
-2. The **B0505S** and the **2 jacks** come already soldered by JLCPCB. Check the B0505S's pin-1 mark (a dot or "1"
-   on its case) sits at the square pad marked "PIN 1"; if not, stop and tell me (backwards it feeds power into its output).
+2. The **B0505S** comes already soldered by JLCPCB. Check its pin-1 mark (a dot or "1" on its case) sits at the
+   square pad marked "PIN 1"; if not, stop and tell me (backwards it feeds power into its output).
+3. The **2 Neutrik jacks** (Amazon): from the printed side into **J1 (in)** and **J2 (out)**, noses pointing off the top
+   edge. They only fit one way. Press them flat, solder every pin, and fill the big mounting tabs well: the jacks are
+   what hold the board up in the box.
 
 Check with the multimeter (beep mode): no beep between the header's **3v3** and **gnd** pins, and none between
 **vin** and **gnd** on the seed3 + 9v header.
@@ -102,7 +105,8 @@ pages just shows its last one. Without the selector fitted, swiping / pg-b still
   multimeter (beep mode): turn it fully **left** (position 1), the common beeps to exactly one outer lug: that's lug 1;
   one click right, lug 2 beeps; then 3, 4. (Pole B: leave it empty.)
 - **PCF8574 board** (Amazon, pins on): solder 5 wires to the switch: lug 1 -> **P0**, lug 2 -> **P1**, lug 3 -> **P2**,
-  lug 4 -> **P3**, common -> **GND** (female jumper ends on the PCF8574 side). Bend them flat.
+  lug 4 -> **P3** (female jumper ends on the PCF8574 side), common -> **GND**: the GND pin already has the carrier's
+  jumper on it, so solder the common's wire on the board's **underside**, on the GND pin's joint. Bend them flat.
 - PCF8574 input header -> the carrier's **expansion** header: VCC -> 3v3, GND -> gnd, SDA -> sda, SCL -> scl.
   (If it has a second, pass-through header, run the 4 wires to the left-wall expansion bay from there.)
 - Velcro the PCF8574 to the inside of the lid. The firmware finds it by itself (any address).
@@ -129,7 +133,7 @@ vin wire, no USB needed; USB-C is only for flashing, and plugging it in while on
 - Mount it like the page selector, with position 1 at the "0" dot and the chicken head pointing at "0".
 - Check before closing the box: at 0 -> no beep between the jack's + lug and dc +; at 1 -> beep.
 
-## 6c. The analog leveller (OPTIONAL: skip it and the sound passes untouched)
+## 6c. The analog leveller (its 2 light pairs)
 
 What it does: the DSP measures what's leaving and, above about -14 dBFS, lights two small LEDs a little (2:1); each
 LED shines on a light sensor (LDR) that gently pulls its channel's level down **in the analog path**, before pg-hp:
@@ -154,6 +158,29 @@ the "in" jack. Each outline has 4 holes: 2 at the LED end (the square one marked
 
 Check before soldering the next one: multimeter on ohms across the LDR's two pins: sealed in the dark it reads
 **hundreds of kOhm or more**. If it reads low, light gets in: add a second layer of heat shrink.
+
+## 6d. The 2 level lights (under the gain knobs)
+
+Each is a **2-leg red/green LED** (A-1076) in a **chrome bezel** (A-661): green = signal, red = close to clipping, off =
+silence. The in light is under Input Gain, the out light under Output Gain. They run from the PCF8574 board's spare
+pins (P4-P7), so they need no Seed3 pins.
+
+1. Push the plastic insert (A-7116) into the bezel, the LED into the insert from behind. Bezel through its 5.7 mm hole,
+   nut on from inside. **No glue**: the nut holds it.
+2. The **right (out) light has the Seed3 socket block 1.7 mm behind it**: bend its legs flat sideways straight away,
+   toward the top of the box, before you wire them.
+3. Solder a wire to each leg (heat shrink each joint), female jumper end on the other end:
+   in light -> **P4** and **P5**; out light -> **P6** and **P7** (either leg on either pin).
+4. **330 ohm pull-ups**: on the PCF8574 board's underside solder one 330 ohm from each of **P4, P5, P6, P7** to a
+   **VCC** pin's joint (join the 4 VCC ends together first).
+5. Power up: each light should be green with signal. Red with signal = swap that light's 2 wires (or set
+   `kSwapLightColours = true` in `main.cpp` for both).
+
+On the screen: open the **input** tab, page 2 (page selector to 2): **leveller** on / off, **lights** on / off, and the
+leveller's live view: what it cuts now, the last 5 seconds of it against the output level, and the 2 lights.
+
+The full drawing of every wire: `05-Wiring-and-Schematics/wiring-diagram.pdf` (zoom in) with `WIRE-LIST.md`
+(the numbers on the drawing).
 
 ## 7. The Seed3 socket (RIGHT wall window) and the controls
 
@@ -182,7 +209,9 @@ Wire list for the controls (other end of each socket jumper):
 Unused Seed3 pins: 16-21 (its own audio: not used, the carrier board does the audio).
 
 **Ground**: one chain of black wire, part to part: each encoder's middle pin C + its 2nd push pin -> each
-footswitch's other lug -> screen pin 2 (GND) -> socket place **40**. (The old "audio chain" to pin 20 is gone: the
+footswitch's other lug -> screen pin 2 (GND) -> **spliced onto the gnd jumper** (the one from the carrier's gnd pin to
+socket place 40), about 3 cm from the socket: strip 5 mm off that jumper's middle, wrap the chain's end round it,
+solder, cover with heat shrink. (A socket place only holds one jumper end, so the chain can't have its own.) (The old "audio chain" to pin 20 is gone: the
 jacks' sleeves are on the carrier board's isolated ground and must **not** be connected to anything else.)
 
 ## 8. First power-up
