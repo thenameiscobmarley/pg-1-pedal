@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **22 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **19 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -27,10 +27,7 @@ You should end up with **22 lines**, exact quantities. The Seed3 is a **cartridg
 | A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
 | A-6623 | 2 | $0.49 | $0.98 | Chicken head knob, PINK, 32 x 19.5 mm, set screw (1.5 mm key) | on the power switch and the page selector |
 | A-8233 | 2 | $1.09 | $2.18 | Mini rotary switch 2 pole 4 position RS16 (9 mm hole, 6 mm spline shaft, 16 V 0.3 A, 45 degree clicks) | the power switch (0 = off, 1 = on) and the page selector (pages 1-4) |
-| A-7629 | 4 | $0.25 | $1.00 | LDR 10-15k (5 mm, 560 nm, LXD5528A) | analog leveller: the light sensors, OC1 / OC2 on the board's lid side (2 spare) |
-| A-8041 | 4 | $0.04 | $0.16 | LED 3 mm red, flat top (3.85 mm head) | analog leveller: one pressed on each LDR (2 spare) |
-| A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a 15 mm light-tight sleeve over each LED + LDR pair |
-| | | | **$56.57** | **Tayda subtotal** | |
+| | | | **$55.27** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
@@ -75,3 +72,7 @@ Headers come from Tayda (A-199 + A-198). The fx loop stays open (the leveller dr
 | Qty | Part | For |
 |---|---|---|
 | 1 | **PCF8574 I/O expansion board** (I2C, 3.3 V ok; any brand: VCC / GND / SDA / SCL + P0-P7 pins, e.g. NOYITO B07D57NH9Q, DEVMO B09L4RLHX8, Comimark B07X3KWQZ7) | reads the 4-way page selector, plugs onto the expansion header |
+
+## Optional, later: the analog leveller's light pairs (not in the cart)
+2 x LDR (Tayda A-7629), 2 x 3 mm flat-top red LED (A-8041), 15 cm black 6 mm heat shrink (A-4918): solder them on the
+back of the board (OC1, OC2) any time to switch the analog leveller on. Without them the sound passes untouched.

@@ -11,7 +11,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 | Where | What |
 |---|---|
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **2 Neutrik jacks and the B0505S** (in the files: no Mouser). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1, the band of D63, and that the jack noses point off the top edge. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads, the leveller's LEDs + light sensors + black heat shrink |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
 | **Amazon** | a PCF8574 I/O board (page selector), any in stock: NOYITO B07D57NH9Q, DEVMO B09L4RLHX8, Comimark B07X3KWQZ7 (VCC / GND / SDA / SCL + P0-P7 pins); the 2 Neutrik NMJ6HFD2 jacks (B00FV23QH6) |
 | **Seed3** | Daisy Seed3 **with headers** |
@@ -81,6 +81,7 @@ Find the pot's pins 1 and 3 with the multimeter (ohms), knob turned fully LEFT:
 - of the two outer pins, the one with **~0 ohm to the middle pin** (when turned fully left) is **pin 1**; the other is **pin 3**.
   (Turn it right: pin 1 to middle goes up to ~10k. That's the check.)
 
+- Mount each gain pot with its **pins pointing down** (toward the screen): that way they clear the box's corner screw posts (0.8 mm).
 - **Input Gain** pot (under "in") -> the **pg-line** header (also under "in").
 - **Output Gain** pot (under "out") -> the **pg-hp** header (also under "out").
 
@@ -128,7 +129,7 @@ vin wire, no USB needed; USB-C is only for flashing, and plugging it in while on
 - Mount it like the page selector, with position 1 at the "0" dot and the chicken head pointing at "0".
 - Check before closing the box: at 0 -> no beep between the jack's + lug and dc +; at 1 -> beep.
 
-## 6c. The analog leveller (on the carrier board)
+## 6c. The analog leveller (OPTIONAL: skip it and the sound passes untouched)
 
 What it does: the DSP measures what's leaving and, above about -14 dBFS, lights two small LEDs a little (2:1); each
 LED shines on a light sensor (LDR) that gently pulls its channel's level down **in the analog path**, before pg-hp:

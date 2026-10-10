@@ -277,7 +277,7 @@ def build_face_art():
 
     # border: a bold line with the box's own 5 mm corners, a hairline just inside it (concentric), and a
     # small diamond tucked into each corner
-    bw, bh = ART_W - 5.0, ART_H - 5.0
+    bw, bh = ART_W - 2.0, ART_H - 2.0   # (pushed out: the gain knobs' dot rings sit close to the sides)
     A.stroke(rrect_path(0, 0, bw, bh, BOX_R), 0.9)
     for sx in (-1, 1):
         for sy in (-1, 1):
@@ -471,8 +471,41 @@ def check_knob_sweeps():
     return worst
 
 
+CORNER_POSTS = [(sx * 51.0, sy * 63.0, 5.5) for sx in (-1, 1) for sy in (-1, 1)]   # 1590XX lid-screw posts (inside)
+
+
+def check_corner_posts():
+    """every part behind the face against the 4 lid-screw posts in the corners: prints the closest gaps"""
+    bodies = []   # (name, x0, y0, x1, y1)
+    for name, x, y, d, _ in SMALL_POTS:   # A-8618: 9.5 mm square body, its legs ~4 mm further down (toward the screen)
+        bodies.append((name + " pot", x - 4.75, y - 4.75 - 4.0, x + 4.75, y + 4.75))
+    for name, x, kind, _ in KNOBS:
+        w = 6.0 if kind == "enc" else 8.5
+        bodies.append((name, x - w, KNOB_Y - w, x + w, KNOB_Y + w))
+    for name, x in FOOTSW:
+        bodies.append((name, x - 6.6, FS_Y - 6.6, x + 6.6, FS_Y + 6.6))
+    for name, (x, y, _) in (("power switch", POWER), ("page switch", SELECTOR)):
+        bodies.append((name, x - 8.0, y - 8.0, x + 8.0, y + 8.0))
+    for name, x, _, _ in SIDE_B:
+        bodies.append((name + " jack", x - 9.1, FACE_H / 2 - 2.3 - 23.5, x + 9.1, FACE_H / 2 - 2.3))
+    wl = -FACE_W / 2 + 2.3
+    bodies.append(("9v jack", wl, DC_Y - 6.0, wl + 16.0, DC_Y + 6.0))
+    lw, lh = LCD_PCB
+    bodies.append(("screen module", LCD_CX - lw / 2, LCD_CY - lh / 2, LCD_CX + lw / 2, LCD_CY + lh / 2))
+    worst = []
+    for name, x0, y0, x1, y1 in bodies:
+        g = min(math.hypot(max(x0 - px, 0, px - x1), max(y0 - py, 0, py - y1)) - r for px, py, r in CORNER_POSTS)
+        worst.append((g, name))
+    worst.sort()
+    for g, name in worst[:4]:
+        print(f"  corner posts: {name} {g:.1f} mm clear")
+    if worst[0][0] < 0.5:
+        raise SystemExit(f"{worst[0][1]} hits a corner post")
+
+
 def check_clearances():
     """Make sure no printed item sits on a hole (cheap sanity check)."""
+    check_corner_posts()
     print(f"chicken heads: {check_knob_sweeps():.1f} mm apart at the closest point of their travel")
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \

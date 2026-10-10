@@ -226,3 +226,6 @@ Steps:
 - [x] 55. 2026-10-10: knobs level (both y 56, x +-14; power "0" 205 deg, page 1 at 115 deg, 4.0 mm clear), thin arcs
       along each dial's travel on the print, labels kept under the border. LDR A-5800 out of stock -> A-7629 (LXD5528A,
       560 nm). XYG PCF8574 board out of stock -> any PCF8574 board (NOYITO / DEVMO / Comimark). Tayda re-uploaded.
+- [x] 56. 2026-10-10: border pushed out (ART - 2 mm) so the gain dot rings clear it; check_corner_posts() audits every
+      body behind the face against the 4 lid-screw posts (tightest: gain pots 0.8 mm, pins pointing down). Leveller light
+      pairs made OPTIONAL (out of the cart: A-7629 / A-8041 / A-4918; pads stay). Comimark PCF8574 3-pack OK. Cart 19 lines.
