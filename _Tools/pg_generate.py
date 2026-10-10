@@ -570,7 +570,7 @@ def holes_table():
     for name, x in FOOTSW:
         rows.append(("A", "hole", name, x, FS_Y, round(FS_HOLE + PC, 2), "", "", "soft-touch footswitch A-1091 PBS24B4 (M12)"))
     for name, x, y, d, what in SMALL_POTS:
-        rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k LINEAR centre-detent dual pot Alps RK09L1240015 (Mouser, M7 bushing): " + what))
+        rows.append(("A", "hole", name, x, y, round(d + PC, 2), "", "", "10k LINEAR dual pot Tayda A-8618 (Alpha RD902F, 7.5 mm hole): " + what))
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",

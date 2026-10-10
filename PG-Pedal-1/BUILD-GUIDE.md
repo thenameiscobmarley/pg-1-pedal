@@ -10,11 +10,10 @@ which were written before the carrier board existed. Pin numbers here come strai
 
 | Where | What |
 |---|---|
-| **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes, Global Standard Direct Line shipping. Dry-ice cleaning yes, bake no, function test no. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 21 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 black chicken heads, the leveller's LEDs + light sensors + black heat shrink |
+| **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **2 Neutrik jacks and the B0505S** (in the files: no Mouser). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1, the band of D63, and that the jack noses point off the top edge. |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 black chicken heads, the leveller's LEDs + light sensors + black heat shrink |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
-| **Mouser** (or as noted) | 2 x Alps **RK09L1240015** (dual 10k linear, centre click), 2 x Neutrik **NMJ6HFD2** jacks, 1 x **B0505S-1WR3** (also sold on Amazon, often 2-packs; any brand with the same 4 pins: GND, Vin, 0 V, +Vo) |
-| **Amazon** | PCF8574 I/O board (page selector), B0505S-1WR3 (if not from Mouser) |
+| **Amazon** | PCF8574 I/O board (page selector): https://www.amazon.com/dp/B00DUO17J6 |
 | **Seed3** | Daisy Seed3 **with headers** |
 | **Tools** | soldering iron kit, **0.8 mm rosin-core solder** (right size for all of this), flush **wire cutters**, wire strippers, multimeter, hot glue gun, a little heat-shrink |
 
@@ -22,7 +21,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 
 - **Carrier board**: every small part is already on it. Two pads in the input box are **empty on purpose** (C31, C41:
   leaving them off keeps the treble). The chips have their names printed next to them.
-- Count: 2 pots, 2 Neutrik jacks, 1 B0505S, 2 header strips, 4 encoders + knobs, 3 footswitches + caps, screen, 9 V jack.
+- Count: 2 pots, 2 header strips, the carrier boards with the 2 jacks and the B0505S already on, 4 encoders + knobs, 3 footswitches + caps, screen, 9 V jack.
 
 ## 2. Solder the carrier board (big through-hole pins only)
 
@@ -34,11 +33,8 @@ Iron on the pad + pin together 2 s, feed solder, a small shiny cone. Snip the le
    - 10 = **seed3 + 9v**, 6 = **pg-line**, 6 = **pg-hp**, 4 = **expansion**, 2 x 4 straight = **fx loop**.
    - the right-angle pins point **off the board edge** (the printed pin names sit beside them). The holes grip the pins,
      so they stay straight while you solder: one end pin first, check it sits flat, then the rest.
-2. **B0505S** (the small black block, 4 pins in a row). **Pin 1 goes in the square pad marked "PIN 1"**.
-   The module has its own pin-1 mark (a dot or "1" on the case): match them. Backwards would feed power into its output.
-3. **The 2 jacks** (in: left, out: right as you look at the printed side with the jacks at the top). They only fit one
-   way. Solder all pins, they also hold the board.
-4. **The leveller's 2 light pairs (OC1, OC2)**: section 6c. These are the only parts that go in from the **back**.
+2. The **B0505S** and the **2 jacks** come already soldered by JLCPCB. Check the B0505S's pin-1 mark (a dot or "1"
+   on its case) sits at the square pad marked "PIN 1"; if not, stop and tell me (backwards it feeds power into its output).
 
 Check with the multimeter (beep mode): no beep between the header's **3v3** and **gnd** pins, and none between
 **vin** and **gnd** on the seed3 + 9v header.
@@ -76,7 +72,8 @@ They sit **under the jacks** now: Input Gain under "in" (top left), Output Gain 
 them is the carrier board, only ~9 mm away, so **solder short wires to the pot pins** (not jumper plugs) and bend
 them flat; each wire ends in a female jumper that goes on the header right next to it.
 
-Each pot is a **dual** pot: 2 rows of 3 pins (front gang + back gang). The header pins are printed with the **pot pin
+Each pot (Tayda **A-8618**, Alpha dual 10k linear: no centre click, the middle of its turn is unity) is a **dual**
+pot: 2 rows of 3 pins (front gang + back gang). The header pins are printed with the **pot pin
 that goes there**: `3 l, 2 l, 1 l, 3 r, 2 r, 1 r` ("l" = the front gang, "r" = the back gang).
 
 Find the pot's pins 1 and 3 with the multimeter (ohms), knob turned fully LEFT:
@@ -196,7 +193,7 @@ jacks' sleeves are on the carrier board's isolated ground and must **not** be co
 2. Unplug, put the Seed3 in, flash the firmware (USB-C on the right side, `06-Firmware-DaisySeed/README.md`).
 3. Power up: the screen starts, the **health** tab should say "all ok".
 4. Before the expensive headphones: DC volts across the OUT jack (tip to sleeve) with a cable plugged in: about **0 V**
-   (the simulation says ~1 mV). Then plug in at low volume, pg-hp at the centre click.
+   (the simulation says ~1 mV). Then plug in at low volume, pg-hp at the middle of its turn (the dot).
 
 ## What the simulation checked (so you know what to expect)
 The whole routed board in the board simulator (10-Carla-Plugin/Source/sim, every part on its real copper), and the

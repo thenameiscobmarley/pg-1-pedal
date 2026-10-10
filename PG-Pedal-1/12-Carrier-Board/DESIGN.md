@@ -51,7 +51,7 @@ power: B0505S (isolated 5 V, across the barrier) ─ LP2985 3.3 V ─ codec / he
 - **In:** guitar (sees ~670 kΩ, like any pedal), a line output, a headphone output (up to ~2 V rms) or a mic (pg-line
   turned right). Mic quality is "works", not studio (the guitar-friendly input adds some hiss at full gain).
 - **Out:** headphones (16-600 Ω) or a line input.
-- **Pots:** dual 10k LINEAR with a centre detent, panel mount, e.g. Alps **RK09L1240015** (9 mm, Mouser) or Bourns
+- **Pots:** dual 10k LINEAR, panel mount: Tayda **A-8618** (Alpha RD902F, 9 mm, 7.5 mm hole; no centre click, the middle = unity). (Before: Alps RK09L1240015 with a click; dropped with Mouser.) Or Bourns
   PTM902-125S-103B2. Both gangs used (left / right). Each header pin is labelled with the pot pin that goes on it: pot pin 3 (the clockwise end) on header pin 1, so turning right = more.
 
 ## Headers (male, 2.54 mm, right-angle: they point off the board's edge so the jumpers lie flat)

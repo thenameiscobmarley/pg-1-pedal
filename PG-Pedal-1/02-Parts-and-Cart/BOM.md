@@ -4,7 +4,7 @@
 - **Cart page → Import → Add from file:** `tayda-cart-import.csv` → **Replace current cart**
 - (Quick Order page instead: `tayda-cart.csv`)
 
-You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
+You should end up with **22 lines**, exact quantities. The Seed3 is a **cartridge**: it plugs into a socket in the left wall (a glued block of jumper ends). The soldered socket board (way 2 in WIRING.md) is a later upgrade: its parts aren't in the cart.
 
 | SKU | Qty | Each | Line | Part | Used for |
 |---|---:|---:|---:|---|---|
@@ -13,7 +13,7 @@ You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridg
 | A-6331 | 4 | $1.59 | $6.36 | Rotary encoder 20 detents + push switch, D shaft (Alpha RE111F) | pg-1, pg-2, pg-3, pg-4 |
 | A-2850 | 4 | $1.29 | $5.16 | Knurled aluminium knob, white, 20 mm, 6 mm set screw | 4 knobs (your pick) |
 | A-1091 | 3 | $1.97 | $5.91 | Soft-touch momentary footswitch SPST-NO (PBS24B4) | pg-a, pg-b, pg-c (your pick) |
-| (Mouser) | 2 | ~$3 | ~$6 | Alps RK09L1240015: dual 10k LINEAR, centre click, 6 mm D shaft (not sold by Tayda) | pg-line (input gain) + pg-hp (output gain): analog, centre = unity |
+| A-8618 | 2 | $1.49 | $2.98 | 10K linear DUAL pot, 9 mm, 6 mm D shaft, 7.5 mm hole (Alpha RD902F) | pg-line (input gain) and pg-hp (output gain): no centre click, the middle of their turn = unity |
 | A-8567 | 2 | $0.69 | $1.38 | White ripple knob 14 mm | the two small knobs |
 | A-2599 | 3 | $1.20 | $3.60 | KN2310 pink aluminium footswitch cap 23 mm (for PBS-24) | pink caps on pg-a, pg-b, pg-c |
 | A-2237 | 1 | $0.13 | $0.13 | DC power jack 2.1mm enclosed (12mm) | 9V in |
@@ -30,7 +30,7 @@ You should end up with **21 lines**, exact quantities. The Seed3 is a **cartridg
 | A-5800 | 4 | $0.28 | $1.12 | LDR 10-15k (5 mm) | analog leveller: the light sensors, OC1 / OC2 on the board's lid side (2 spare) |
 | A-8041 | 4 | $0.04 | $0.16 | LED 3 mm red, flat top (3.85 mm head) | analog leveller: one pressed on each LDR (2 spare) |
 | A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a 15 mm light-tight sleeve over each LED + LDR pair |
-| | | | **$53.53** | **Tayda subtotal** | |
+| | | | **$56.51** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
@@ -66,17 +66,12 @@ Shopping list with Amazon search words: `AMAZON-LIST.md`.
 ## Tools
 Wire strippers, flush cutters, multimeter, a 3 mm drill bit + cheap hand drill or pin vise (4 board holes), wrenches 10-14 mm (or adjustable), 1.5 mm hex key (knobs), 2.5 mm hex key (M3 screws).
 
-## Carrier board: parts Tayda doesn't sell (buy with the pots at Mouser)
-| Qty | Part | For |
-|---|---|---|
-| 2 | Neutrik NMJ6HFD2 (1/4" stereo PCB jack, plastic nose) | in + out jacks (J1, J2) |
-| 1 | Mornsun B0505S-1WR3 (isolated 5 V, SIP-4). Same pins, if it's out of stock: Murata NME0505SC or Recom RB-0505S | isolated power (U3) |
-
-(Headers come from Tayda: A-199 + A-198. The fx loop is closed with 2 short female/female jumper wires from the
-A-3482 pack: "s l" to "r l" and "s r" to "r r". No sound without them.)
+## Carrier board: JLCPCB fits these too (no Mouser)
+The 2 Neutrik NMJ6HFD2 jacks (J1, J2, C368491) and the B0505S-1WR3 (U3, C512048) are in the JLCPCB files: JLCPCB
+solders them on (hand-soldering fee ~$3.50 + their parts ~$16.55 + 2 extended-part fees $6 for 2 boards).
+Headers come from Tayda (A-199 + A-198). The fx loop stays open (the leveller drives it).
 
 ## Amazon (Prime): small ready-made boards, pins already soldered
 | Qty | Part | For |
 |---|---|---|
-| 1 | **PCF8574 I/O expansion board** (I2C, 3.3 V ok; most have an input and a pass-through header) | reads the 8-way page selector, plugs onto the expansion header |
-| 1 | **B0505S-1WR3** (pins in order GND, Vin, 0 V, +Vo) | the carrier board's isolated power (or with the Mouser order) |
+| 1 | **PCF8574 I/O expansion board** (I2C, 3.3 V ok; most have an input and a pass-through header) | reads the 4-way page selector, plugs onto the expansion header |
