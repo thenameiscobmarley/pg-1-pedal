@@ -12,6 +12,7 @@ import os
 import subprocess
 import sys
 
+sys.dont_write_bytecode = True   # (no __pycache__: it would carry this machine's paths into the export)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pg_wiring import WIRES, PARTS, COL, UNUSED, OUT   # noqa: E402
 
