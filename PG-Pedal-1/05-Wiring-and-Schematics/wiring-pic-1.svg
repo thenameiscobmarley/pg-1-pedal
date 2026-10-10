@@ -1,237 +1,273 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="297.0mm" height="210.0mm" viewBox="0 0 297.0 210.0"><rect width="297.0" height="210.0" fill="#fbfaf7"/><circle cx="40.00" cy="70.00" r="18.00" fill="#2c2c2c" stroke="#111" stroke-width="0.35"/>
-<circle cx="40.00" cy="70.00" r="9.00" fill="#444" stroke="#111" stroke-width="0.35"/>
-<text x="40.00" y="93.00" font-family="DejaVu Sans, sans-serif" font-size="3.0" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.75" paint-order="stroke">9V DC jack (back)</text>
-<g transform="rotate(0 40.00 56.20)"><rect x="39.10" y="54.10" width="1.8" height="4.2" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="40.00" cy="55.57" r="0.40" fill="#777"/></g>
-<text x="40.00" y="50.20" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">centre</text>
-<g transform="rotate(90 53.80 74.83)"><rect x="52.90" y="72.73" width="1.8" height="4.2" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="53.80" cy="74.20" r="0.40" fill="#777"/></g>
-<text x="60.80" y="75.83" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">sleeve</text>
-<g transform="rotate(90 26.20 74.83)"><rect x="25.30" y="72.73" width="1.8" height="4.2" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="26.20" cy="74.20" r="0.40" fill="#777"/></g>
-<text x="19.20" y="75.83" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">switch (empty)</text>
-<circle cx="108.00" cy="72.00" r="26.60" fill="#f1f1ee" stroke="#555" stroke-width="0.5"/>
-<circle cx="108.00" cy="72.00" r="8.80" fill="#dcdcd6" stroke="#777" stroke-width="0.3"/>
-<text x="108.00" y="103.10" font-family="DejaVu Sans, sans-serif" font-size="3.0" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.75" paint-order="stroke">power switch</text>
-<text x="108.00" y="106.60" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.45" paint-order="stroke">back of the switch (its lugs toward you; numbers moulded on it)</text>
-<g transform="rotate(158 117.59 95.74)"><rect x="116.84" y="94.24" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="117.59" cy="95.29" r="0.33" fill="#777"/></g>
-<text x="119.09" y="100.44" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#aaa" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">1</text>
-<g transform="rotate(112 131.74 81.59)"><rect x="130.99" y="80.09" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="131.74" cy="81.14" r="0.33" fill="#777"/></g>
-<text x="135.44" y="84.09" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">2</text>
-<g transform="rotate(68 131.74 62.41)"><rect x="130.99" y="60.91" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="131.74" cy="61.96" r="0.33" fill="#777"/></g>
-<text x="135.44" y="61.91" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">3</text>
-<g transform="rotate(22 117.59 48.26)"><rect x="116.84" y="46.76" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="117.59" cy="47.81" r="0.33" fill="#777"/></g>
-<text x="119.09" y="45.56" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">4</text>
-<g transform="rotate(-22 98.41 48.26)"><rect x="97.66" y="46.76" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="98.41" cy="47.81" r="0.33" fill="#777"/></g>
-<text x="96.91" y="45.56" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#aaa" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">5</text>
-<g transform="rotate(-68 84.26 62.41)"><rect x="83.51" y="60.91" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="84.26" cy="61.96" r="0.33" fill="#777"/></g>
-<text x="80.56" y="61.91" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">6</text>
-<g transform="rotate(-112 84.26 81.59)"><rect x="83.51" y="80.09" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="84.26" cy="81.14" r="0.33" fill="#777"/></g>
-<text x="80.56" y="84.09" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">7</text>
-<g transform="rotate(-158 98.41 95.74)"><rect x="97.66" y="94.24" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="98.41" cy="95.29" r="0.33" fill="#777"/></g>
-<text x="96.91" y="100.44" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">8</text>
-<g transform="rotate(90 116.32 72.00)"><rect x="115.57" y="70.50" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="116.32" cy="71.55" r="0.33" fill="#777"/></g>
-<text x="119.72" y="73.00" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">A</text>
-<g transform="rotate(-90 99.68 72.00)"><rect x="98.93" y="70.50" width="1.5" height="3.0" rx="0.3" fill="#c9ccd1" stroke="#666" stroke-width="0.25"/><circle cx="99.68" cy="71.55" r="0.33" fill="#777"/></g>
-<text x="96.28" y="73.00" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">B</text>
-<rect x="27.00" y="119.00" width="61.88" height="9.00" rx="0.8" fill="#2e8b57" stroke="#1d5c39" stroke-width="0.35"/>
-<text x="57.94" y="122.50" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.36" paint-order="stroke">carrier board: seed3 + 9v</text>
-<rect x="32.29" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="32.79" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">dc +</text>
-<rect x="37.88" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="38.38" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">dc -</text>
-<rect x="43.47" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="43.97" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">vin</text>
-<rect x="49.06" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="49.56" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">gnd</text>
-<rect x="54.65" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="55.15" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">scl</text>
-<rect x="60.23" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="60.73" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">sda</text>
-<rect x="65.82" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="66.32" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">sck</text>
-<rect x="71.41" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="71.91" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">fs</text>
-<rect x="77.00" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="77.50" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">tx</text>
-<rect x="82.59" y="127.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
-<text x="83.09" y="126.60" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">rx</text>
-<rect x="89.00" y="160.00" width="94.90" height="22.89" rx="1.5" fill="#1d1d1d" stroke="#000" stroke-width="0.35"/>
-<text x="136.45" y="164.80" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.36" paint-order="stroke">Seed3 socket (jumper ends in the right wall), seen from INSIDE, USB-C end on your LEFT</text>
-<rect x="92.30" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="94.22" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">1</text>
-<rect x="92.30" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.5"/>
-<text x="94.22" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">40</text>
-<rect x="96.75" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="98.67" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">2</text>
-<rect x="96.75" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.5"/>
-<text x="98.67" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">39</text>
-<rect x="101.19" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="103.11" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">3</text>
-<rect x="101.19" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="103.11" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">38</text>
-<rect x="105.64" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="107.56" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">4</text>
-<rect x="105.64" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="107.56" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">37</text>
-<rect x="110.08" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="112.00" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">5</text>
-<rect x="110.08" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="112.00" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">36</text>
-<rect x="114.53" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="116.45" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">6</text>
-<rect x="114.53" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="116.45" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">35</text>
-<rect x="118.97" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="120.89" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">7</text>
-<rect x="118.97" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="120.89" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">34</text>
-<rect x="123.42" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="125.34" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">8</text>
-<rect x="123.42" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="125.34" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">33</text>
-<rect x="127.86" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="129.78" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">9</text>
-<rect x="127.86" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="129.78" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">32</text>
-<rect x="132.31" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="134.23" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">10</text>
-<rect x="132.31" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="134.23" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">31</text>
-<rect x="136.75" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="138.67" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">11</text>
-<rect x="136.75" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="138.67" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">30</text>
-<rect x="141.20" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="143.12" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">12</text>
-<rect x="141.20" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="143.12" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">29</text>
-<rect x="145.64" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="147.56" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">13</text>
-<rect x="145.64" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="147.56" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">28</text>
-<rect x="150.09" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="152.01" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">14</text>
-<rect x="150.09" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="152.01" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">27</text>
-<rect x="154.53" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="156.45" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">15</text>
-<rect x="154.53" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="156.45" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">26</text>
-<rect x="158.98" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="160.90" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">16</text>
-<rect x="158.98" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="160.90" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">25</text>
-<rect x="163.42" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="165.34" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">17</text>
-<rect x="163.42" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="165.34" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">24</text>
-<rect x="167.87" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="169.79" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">18</text>
-<rect x="167.87" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="169.79" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">23</text>
-<rect x="172.31" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="174.23" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">19</text>
-<rect x="172.31" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="174.23" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">22</text>
-<rect x="176.76" y="170.30" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="178.68" y="172.92" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">20</text>
-<rect x="176.76" y="174.75" width="3.85" height="3.85" rx="0.3" fill="#3a3a3a" stroke="#555" stroke-width="0.3"/>
-<text x="178.68" y="177.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#888" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.29" paint-order="stroke">21</text>
-<text x="88.00" y="174.44" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="end" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.47" paint-order="stroke">USB-C</text>
-<path d="M55.80,74.83 C73.98,74.83 134.50,72.00 116.32,72.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M55.80,74.83 C73.98,74.83 134.50,72.00 116.32,72.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="55.80" cy="74.83" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="116.32" cy="72.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="99.69" cy="73.41" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="99.69" y="74.21" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">1</text>
-<path d="M116.32,72.00 C122.32,72.00 93.68,72.00 99.68,72.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M116.32,72.00 C122.32,72.00 93.68,72.00 99.68,72.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="116.32" cy="72.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="99.68" cy="72.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="108.00" cy="72.00" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="108.00" y="72.80" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">2</text>
-<path d="M131.74,81.59 C162.88,94.17 32.79,167.59 32.79,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M131.74,81.59 C162.88,94.17 32.79,167.59 32.79,134.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="131.74" cy="81.59" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="32.79" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="93.94" cy="125.11" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="93.94" y="125.91" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">3</text>
-<path d="M131.74,81.59 C137.30,83.84 137.30,60.16 131.74,62.41" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M131.74,81.59 C137.30,83.84 137.30,60.16 131.74,62.41" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="131.74" cy="81.59" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="131.74" cy="62.41" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="135.91" cy="72.00" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="135.91" y="72.80" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">4</text>
-<path d="M131.74,62.41 C137.30,60.16 119.84,42.70 117.59,48.26" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M131.74,62.41 C137.30,60.16 119.84,42.70 117.59,48.26" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="131.74" cy="62.41" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="117.59" cy="48.26" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="127.59" cy="52.41" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="127.59" y="53.21" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">5</text>
-<path d="M117.59,48.26 C121.66,38.19 74.19,58.34 84.26,62.41" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M117.59,48.26 C121.66,38.19 74.19,58.34 84.26,62.41" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="117.59" cy="48.26" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="84.26" cy="62.41" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="98.68" cy="50.03" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="98.68" y="50.83" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">6</text>
-<path d="M84.26,62.41 C78.70,60.16 78.70,83.84 84.26,81.59" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M84.26,62.41 C78.70,60.16 78.70,83.84 84.26,81.59" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="84.26" cy="62.41" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="84.26" cy="81.59" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="80.09" cy="72.00" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="80.09" y="72.80" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">7</text>
-<path d="M84.26,81.59 C78.70,83.84 96.16,101.30 98.41,95.74" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M84.26,81.59 C78.70,83.84 96.16,101.30 98.41,95.74" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="84.26" cy="81.59" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="98.41" cy="95.74" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="88.41" cy="91.59" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="88.41" y="92.39" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">8</text>
-<path d="M40.00,54.20 C40.00,30.26 38.38,157.94 38.38,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M40.00,54.20 C40.00,30.26 38.38,157.94 38.38,134.00" fill="none" stroke="#111111" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="40.00" cy="54.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="38.38" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="39.19" cy="94.10" r="2.1" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="39.19" y="94.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#111111">9</text>
-<path d="M43.97,134.00 C43.97,154.81 98.67,155.86 98.67,176.67" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M43.97,134.00 C43.97,154.81 98.67,155.86 98.67,176.67" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="43.97" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="71.32" cy="155.33" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="71.32" y="156.13" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">10</text>
-<path d="M49.56,134.00 C49.56,152.53 94.22,158.14 94.22,176.67" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
-<path d="M49.56,134.00 C49.56,152.53 94.22,158.14 94.22,176.67" fill="none" stroke="#111111" stroke-width="1.2" stroke-linecap="round"/>
-<circle cx="49.56" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
-<circle cx="71.89" cy="155.33" r="2.1" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="71.89" y="156.13" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#111111">11</text>
-<rect x="96.67" y="175.17" width="4.0" height="3.0" rx="0.6" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="98.67" y="177.42" font-family="DejaVu Sans" font-size="2.1" text-anchor="middle" font-weight="bold" fill="#000">39</text>
-<rect x="92.22" y="175.17" width="4.0" height="3.0" rx="0.6" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="94.22" y="177.42" font-family="DejaVu Sans" font-size="2.1" text-anchor="middle" font-weight="bold" fill="#000">40</text>
-<text x="8.00" y="9.00" font-family="DejaVu Sans, sans-serif" font-size="4.4" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="1.10" paint-order="stroke">PG-1 wiring, page 1 of 10: Power: 9V jack -&gt; power switch -&gt; carrier board -&gt; Seed3</text>
-<text x="8.00" y="15.00" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">Black = -, red = +. The power switch: + goes into BOTH commons (A and B); lugs 2 3 4 and 6 7 8 are all ON, so join them with bare offcuts and take ONE </text>
-<text x="8.00" y="18.20" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">wire from them to &#x27;dc +&#x27;. Lugs 1 and 5 = OFF: leave them empty. </text>
-<text x="206.00" y="26.00" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.68" paint-order="stroke">Steps (the number is on the wire):</text>
-<circle cx="207.60" cy="29.20" r="1.6" fill="#d11f1f"/><text x="207.60" y="30.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">1</text>
-<text x="210.20" y="30.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">9V jack: the SLEEVE lug (+)  -&gt;  power switch: common A</text>
-<text x="210.20" y="32.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">(the inner lug marked A)  (9 V + into the switch (solder))</text>
-<circle cx="207.60" cy="35.10" r="1.6" fill="#d11f1f"/><text x="207.60" y="35.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">2</text>
-<text x="210.20" y="35.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: common A (the inner lug marked A)  -&gt; </text>
-<text x="210.20" y="38.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: common B (the inner lug marked B)  (join</text>
-<text x="210.20" y="40.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">both commons (short bare offcut))</text>
-<circle cx="207.60" cy="43.50" r="1.6" fill="#d11f1f"/><text x="207.60" y="44.30" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">3</text>
-<text x="210.20" y="44.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 2 (pole A, position 2)  -&gt;  board</text>
-<text x="210.20" y="46.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">&#x27;seed3 + 9v&#x27; header: pin &#x27;dc +&#x27; (1st from the left)  (ON</text>
-<text x="210.20" y="49.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">lugs -&gt; dc + (join A2-A4 and B2-B4 with bare offcuts</text>
-<text x="210.20" y="51.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">first))</text>
-<circle cx="207.60" cy="54.40" r="1.6" fill="#d11f1f"/><text x="207.60" y="55.20" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">4</text>
-<text x="210.20" y="55.20" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 2 (pole A, position 2)  -&gt;  power</text>
-<text x="210.20" y="57.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">switch: lug 3 (pole A, position 3)  (join (bare offcut))</text>
-<circle cx="207.60" cy="60.30" r="1.6" fill="#d11f1f"/><text x="207.60" y="61.10" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">5</text>
-<text x="210.20" y="61.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 3 (pole A, position 3)  -&gt;  power</text>
-<text x="210.20" y="63.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">switch: lug 4 (pole A, position 4)  (join (bare offcut))</text>
-<circle cx="207.60" cy="66.20" r="1.6" fill="#d11f1f"/><text x="207.60" y="67.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">6</text>
-<text x="210.20" y="67.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 4 (pole A, position 4)  -&gt;  power</text>
-<text x="210.20" y="69.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">switch: lug 6 (pole B, position 2)  (join (bare offcut))</text>
-<circle cx="207.60" cy="72.10" r="1.6" fill="#d11f1f"/><text x="207.60" y="72.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">7</text>
-<text x="210.20" y="72.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 6 (pole B, position 2)  -&gt;  power</text>
-<text x="210.20" y="75.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">switch: lug 7 (pole B, position 3)  (join (bare offcut))</text>
-<circle cx="207.60" cy="78.00" r="1.6" fill="#d11f1f"/><text x="207.60" y="78.80" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">8</text>
-<text x="210.20" y="78.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power switch: lug 7 (pole B, position 3)  -&gt;  power</text>
-<text x="210.20" y="81.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">switch: lug 8 (pole B, position 4)  (join (bare offcut))</text>
-<circle cx="207.60" cy="83.90" r="1.6" fill="#111111"/><text x="207.60" y="84.70" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">9</text>
-<text x="210.20" y="84.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">9V jack: the CENTRE-PIN lug (its - : centre negative)  -&gt;</text>
-<text x="210.20" y="87.20" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">board &#x27;seed3 + 9v&#x27; header: pin &#x27;dc -&#x27; (2nd from the left)</text>
-<text x="210.20" y="89.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">(9 V - straight to the board (female end on the header))</text>
-<circle cx="207.60" cy="92.30" r="1.6" fill="#d11f1f"/><text x="207.60" y="93.10" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">10</text>
-<text x="210.20" y="93.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">board &#x27;seed3 + 9v&#x27; header: pin &#x27;vin&#x27; (3rd from the left) </text>
-<text x="210.20" y="95.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">-&gt;  Seed3 socket place 39 (bottom row)  (jumper: Seed3</text>
-<text x="210.20" y="98.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">power (9 V, protected))</text>
-<circle cx="207.60" cy="100.70" r="1.6" fill="#111111"/><text x="207.60" y="101.50" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">11</text>
-<text x="210.20" y="101.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">board &#x27;seed3 + 9v&#x27; header: pin &#x27;gnd&#x27; (4th from the left) </text>
-<text x="210.20" y="104.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">-&gt;  Seed3 socket place 40 (bottom row)  (jumper: Seed3</text>
-<text x="210.20" y="106.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">ground (the ground chain is spliced onto this wire))</text>
-<path d="M202,24 V202.0" stroke="#ccc" stroke-width="0.3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="297.0mm" height="210.0mm" viewBox="0 0 297.0 210.0"><defs>
+<filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur in="SourceAlpha" stdDeviation="0.9"/>
+<feOffset dx="0.8" dy="1.1"/><feComponentTransfer><feFuncA type="linear" slope="0.35"/></feComponentTransfer>
+<feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef0f2"/><stop offset="0.45" stop-color="#b8bcc2"/><stop offset="1" stop-color="#8a8f96"/></linearGradient>
+<linearGradient id="dark" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a3d42"/><stop offset="1" stop-color="#1c1e21"/></linearGradient>
+<linearGradient id="ivory" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf8ee"/><stop offset="1" stop-color="#ddd6c2"/></linearGradient>
+<linearGradient id="pcbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f9a5e"/><stop offset="1" stop-color="#1f6e42"/></linearGradient>
+<linearGradient id="pcbb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d63c8"/><stop offset="1" stop-color="#1a3f8a"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3d27a"/><stop offset="1" stop-color="#b98a1c"/></linearGradient>
+<linearGradient id="potc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9d3df"/><stop offset="1" stop-color="#7f8ea2"/></linearGradient>
+<radialGradient id="chrome" cx="0.35" cy="0.35" r="0.7"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#c3c7cc"/><stop offset="1" stop-color="#7d838b"/></radialGradient>
+</defs><rect width="297.0" height="210.0" fill="#f6f4ef"/><text x="8.00" y="10.00" font-family="DejaVu Sans, sans-serif" font-size="4.6" text-anchor="start" fill="#111" font-weight="bold">PG-1 wiring  1/10:  Power: 9V jack -&gt; power switch -&gt; carrier board -&gt; Seed3</text>
+<text x="8.00" y="16.00" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal">+ (red) goes into BOTH commons, A and B. Lugs 2 3 4 and 6 7 8 are all ON: link them with bare offcuts (the short silver links, bent round </text>
+<text x="8.00" y="19.10" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal">the OUTSIDE so they never touch lug 1 or 5) and run ONE red wire from them to &#x27;dc +&#x27;. Lugs 1 and 5 = OFF: leave them empty. </text>
+<circle cx="42.00" cy="64.00" r="17.10" fill="url(#metal)" stroke="#555" stroke-width="0.35" filter="url(#sh)"/>
+<circle cx="42.00" cy="64.00" r="15.60" fill="url(#dark)" stroke="#111" stroke-width="0.3"/>
+<text x="42.00" y="85.60" font-family="DejaVu Sans, sans-serif" font-size="2.9" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-width="0.64" paint-order="stroke">9V DC jack (back)</text>
+<rect x="40.60" y="47.70" width="2.80" height="4.40" rx="0.5" fill="url(#metal)" stroke="#666" stroke-width="0.3"/>
+<circle cx="42.00" cy="49.90" r="0.60" fill="#555" stroke="none" stroke-width="0.3"/>
+<text x="42.00" y="59.45" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#fff" font-weight="bold">- centre pin</text>
+<rect x="53.90" y="62.60" width="4.40" height="2.80" rx="0.5" fill="url(#metal)" stroke="#666" stroke-width="0.3"/>
+<circle cx="56.10" cy="64.00" r="0.60" fill="#555" stroke="none" stroke-width="0.3"/>
+<text x="48.55" y="65.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#fff" font-weight="bold">+ sleeve</text>
+<rect x="25.70" y="62.60" width="4.40" height="2.80" rx="0.5" fill="url(#metal)" stroke="#666" stroke-width="0.3"/>
+<circle cx="27.90" cy="64.00" r="0.60" fill="#555" stroke="none" stroke-width="0.3"/>
+<text x="35.45" y="65.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#fff" font-weight="bold">switch (empty)</text>
+<circle cx="126.00" cy="66.00" r="25.40" fill="url(#ivory)" stroke="#8a8470" stroke-width="0.4" filter="url(#sh)"/>
+<path d="M150.02,63.05 L151.11,62.92" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M148.44,56.93 L149.46,56.52" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M145.33,51.44 L146.21,50.77" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M140.90,46.93 L141.58,46.06" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M135.46,43.72 L135.89,42.71" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M129.37,42.04 L129.52,40.95" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M123.05,41.98 L122.92,40.89" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M116.93,43.56 L116.52,42.54" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M111.44,46.67 L110.77,45.79" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M106.93,51.10 L106.06,50.42" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M103.72,56.54 L102.71,56.11" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M102.04,62.63 L100.95,62.48" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M101.98,68.95 L100.89,69.08" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M103.56,75.07 L102.54,75.48" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M106.67,80.56 L105.79,81.23" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M111.10,85.07 L110.42,85.94" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M116.54,88.28 L116.11,89.29" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M122.63,89.96 L122.48,91.05" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M128.95,90.02 L129.08,91.11" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M135.07,88.44 L135.48,89.46" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M140.56,85.33 L141.23,86.21" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M145.07,80.90 L145.94,81.58" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M148.28,75.46 L149.29,75.89" stroke="#b9b29c" stroke-width="0.35"/>
+<path d="M149.96,69.37 L151.05,69.52" stroke="#b9b29c" stroke-width="0.35"/>
+<circle cx="126.00" cy="66.00" r="8.70" fill="#efe9d8" stroke="#a49d86" stroke-width="0.3"/>
+<text x="126.00" y="96.00" font-family="DejaVu Sans, sans-serif" font-size="2.9" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-width="0.64" paint-order="stroke">power switch</text>
+<text x="126.00" y="99.20" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#555" font-weight="normal" stroke="#fff" stroke-width="0.37" paint-order="stroke">back of the switch: lug numbers 1-8, A and B are moulded on it</text>
+<path d="M134.02,85.84 L134.99,88.25" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M134.02,85.84 L134.99,88.25" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="133.12" y="84.62" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#b5ae98" font-weight="bold">1</text>
+<path d="M145.84,74.02 L148.25,74.99" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M145.84,74.02 L148.25,74.99" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="143.62" y="74.12" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">2</text>
+<path d="M145.84,57.98 L148.25,57.01" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M145.84,57.98 L148.25,57.01" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="143.62" y="59.88" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">3</text>
+<path d="M134.02,46.16 L134.99,43.75" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M134.02,46.16 L134.99,43.75" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="133.12" y="49.38" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">4</text>
+<path d="M117.98,46.16 L117.01,43.75" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M117.98,46.16 L117.01,43.75" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="118.88" y="49.38" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#b5ae98" font-weight="bold">5</text>
+<path d="M106.16,57.98 L103.75,57.01" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M106.16,57.98 L103.75,57.01" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="108.38" y="59.88" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">6</text>
+<path d="M106.16,74.02 L103.75,74.99" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M106.16,74.02 L103.75,74.99" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="108.38" y="74.12" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">7</text>
+<path d="M117.98,85.84 L117.01,88.25" stroke="#6d7177" stroke-width="1.85" stroke-linecap="round"/><path d="M117.98,85.84 L117.01,88.25" stroke="#d9dce0" stroke-width="1.5" stroke-linecap="round"/>
+<text x="118.88" y="84.62" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">8</text>
+<circle cx="133.20" cy="66.00" r="1.10" fill="#d9dce0" stroke="#6d7177" stroke-width="0.35"/>
+<text x="129.80" y="67.00" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">A</text>
+<circle cx="118.80" cy="66.00" r="1.10" fill="#d9dce0" stroke="#6d7177" stroke-width="0.35"/>
+<text x="122.20" y="67.00" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold">B</text>
+<rect x="14.00" y="162.00" width="63.88" height="10.00" rx="1.0" fill="url(#pcbg)" stroke="#14502f" stroke-width="0.3" filter="url(#sh)"/>
+<text x="45.94" y="170.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#fff" font-weight="bold">carrier board: seed3 + 9v</text>
+<rect x="16.50" y="156.80" width="58.88" height="5.40" rx="0.4" fill="#1a1a1a" stroke="#000" stroke-width="0.3"/>
+<rect x="20.24" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="20.79" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">dc +</text>
+<rect x="25.83" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="26.38" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">dc -</text>
+<rect x="31.42" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="31.97" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">vin</text>
+<rect x="37.01" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="37.56" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">gnd</text>
+<rect x="42.60" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="43.15" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">scl</text>
+<rect x="48.18" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="48.73" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">sda</text>
+<rect x="53.77" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="54.32" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">sck</text>
+<rect x="59.36" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="59.91" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">fs</text>
+<rect x="64.95" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="65.50" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">tx</text>
+<rect x="70.54" y="151.00" width="1.1" height="7.80" fill="url(#gold)" stroke="#7a5a10" stroke-width="0.15"/>
+<text x="71.09" y="166.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="middle" fill="#fff" font-weight="bold">rx</text>
+<rect x="96.00" y="167.00" width="99.44" height="20.14" rx="1.6" fill="#2a2a2a" stroke="#000" stroke-width="0.35" filter="url(#sh)"/>
+<text x="145.72" y="184.34" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#eee" font-weight="bold">Seed3 socket: the jumper-end block in the right wall, from INSIDE (USB-C end on your left)</text>
+<rect x="100.35" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="102.29" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">1</text>
+<rect x="100.35" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#000" stroke="#d4a017" stroke-width="0.45"/>
+<rect x="104.92" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="106.86" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">2</text>
+<rect x="104.92" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#000" stroke="#d4a017" stroke-width="0.45"/>
+<rect x="109.49" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="111.43" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">3</text>
+<rect x="109.49" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="111.43" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">38</text>
+<rect x="114.07" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="116.00" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">4</text>
+<rect x="114.07" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="116.00" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">37</text>
+<rect x="118.64" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="120.57" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">5</text>
+<rect x="118.64" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="120.57" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">36</text>
+<rect x="123.21" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="125.15" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">6</text>
+<rect x="123.21" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="125.15" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">35</text>
+<rect x="127.78" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="129.72" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">7</text>
+<rect x="127.78" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="129.72" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">34</text>
+<rect x="132.35" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="134.29" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">8</text>
+<rect x="132.35" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="134.29" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">33</text>
+<rect x="136.93" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="138.86" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">9</text>
+<rect x="136.93" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="138.86" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">32</text>
+<rect x="141.50" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="143.43" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">10</text>
+<rect x="141.50" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="143.43" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">31</text>
+<rect x="146.07" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="148.01" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">11</text>
+<rect x="146.07" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="148.01" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">30</text>
+<rect x="150.64" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="152.58" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">12</text>
+<rect x="150.64" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="152.58" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">29</text>
+<rect x="155.21" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="157.15" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">13</text>
+<rect x="155.21" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="157.15" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">28</text>
+<rect x="159.79" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="161.72" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">14</text>
+<rect x="159.79" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="161.72" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">27</text>
+<rect x="164.36" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="166.29" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">15</text>
+<rect x="164.36" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="166.29" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">26</text>
+<rect x="168.93" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="170.87" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">16</text>
+<rect x="168.93" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="170.87" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">25</text>
+<rect x="173.50" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="175.44" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">17</text>
+<rect x="173.50" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="175.44" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">24</text>
+<rect x="178.07" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="180.01" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">18</text>
+<rect x="178.07" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="180.01" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">23</text>
+<rect x="182.65" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="184.58" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">19</text>
+<rect x="182.65" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="184.58" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">22</text>
+<rect x="187.22" y="171.35" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="189.15" y="173.89" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">20</text>
+<rect x="187.22" y="175.92" width="3.87" height="3.87" rx="0.3" fill="#111" stroke="#555" stroke-width="0.25"/>
+<text x="189.15" y="178.46" font-family="DejaVu Sans, sans-serif" font-size="1.5" text-anchor="middle" fill="#8a8a8a" font-weight="normal">21</text>
+<text x="94.50" y="176.07" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#444" font-weight="normal" stroke="#fff" stroke-width="0.40" paint-order="stroke">USB-C</text>
+<path d="M58.30,64.00 L65.30,64.00 Q66.90,64.00 66.90,65.60 L66.90,125.20 Q66.90,126.80 68.50,126.80 L140.20,126.80 Q141.80,126.80 141.80,125.20 L141.80,67.60 Q141.80,66.00 140.20,66.00 L133.20,66.00" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.30,64.00 L65.30,64.00 Q66.90,64.00 66.90,65.60 L66.90,125.20 Q66.90,126.80 68.50,126.80 L140.20,126.80 Q141.80,126.80 141.80,125.20 L141.80,67.60 Q141.80,66.00 140.20,66.00 L133.20,66.00" fill="none" stroke="#d11f1f" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M58.30,64.00 L65.30,64.00 Q66.90,64.00 66.90,65.60 L66.90,125.20 Q66.90,126.80 68.50,126.80 L140.20,126.80 Q141.80,126.80 141.80,125.20 L141.80,67.60 Q141.80,66.00 140.20,66.00 L133.20,66.00" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.18,-0.18)"/>
+<path d="M133.20,66.00 L118.80,66.00" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M133.20,66.00 L118.80,66.00" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M148.25,74.99 L148.25,122.00 Q148.25,123.60 146.65,123.60 L22.39,123.60 Q20.79,123.60 20.79,125.20 L20.79,151.00" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M148.25,74.99 L148.25,122.00 Q148.25,123.60 146.65,123.60 L22.39,123.60 Q20.79,123.60 20.79,125.20 L20.79,151.00" fill="none" stroke="#d11f1f" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M148.25,74.99 L148.25,122.00 Q148.25,123.60 146.65,123.60 L22.39,123.60 Q20.79,123.60 20.79,125.20 L20.79,151.00" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.18,-0.18)"/>
+<path d="M148.25,74.99 L151.22,76.19 L151.82,74.56 L152.31,72.89 L152.70,71.19 L152.98,69.47 L153.14,67.74 L153.20,66.00 L153.14,64.26 L152.98,62.53 L152.70,60.81 L152.31,59.11 L151.82,57.44 L151.22,55.81 L148.25,57.01" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M148.25,74.99 L151.22,76.19 L151.82,74.56 L152.31,72.89 L152.70,71.19 L152.98,69.47 L153.14,67.74 L153.20,66.00 L153.14,64.26 L152.98,62.53 L152.70,60.81 L152.31,59.11 L151.82,57.44 L151.22,55.81 L148.25,57.01" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M148.25,57.01 L151.22,55.81 L150.48,54.15 L149.63,52.54 L148.68,50.99 L147.63,49.50 L146.48,48.10 L145.23,46.77 L143.90,45.52 L142.50,44.37 L141.01,43.32 L139.46,42.37 L137.85,41.52 L136.19,40.78 L134.99,43.75" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M148.25,57.01 L151.22,55.81 L150.48,54.15 L149.63,52.54 L148.68,50.99 L147.63,49.50 L146.48,48.10 L145.23,46.77 L143.90,45.52 L142.50,44.37 L141.01,43.32 L139.46,42.37 L137.85,41.52 L136.19,40.78 L134.99,43.75" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M134.99,43.75 L136.19,40.78 L132.81,39.67 L129.31,39.00 L125.76,38.80 L122.21,39.06 L118.73,39.79 L115.37,40.96 L112.19,42.56 L109.25,44.57 L106.60,46.94 L104.28,49.63 L102.33,52.61 L100.78,55.81 L103.75,57.01" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M134.99,43.75 L136.19,40.78 L132.81,39.67 L129.31,39.00 L125.76,38.80 L122.21,39.06 L118.73,39.79 L115.37,40.96 L112.19,42.56 L109.25,44.57 L106.60,46.94 L104.28,49.63 L102.33,52.61 L100.78,55.81 L103.75,57.01" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M103.75,57.01 L100.78,55.81 L100.18,57.44 L99.69,59.11 L99.30,60.81 L99.02,62.53 L98.86,64.26 L98.80,66.00 L98.86,67.74 L99.02,69.47 L99.30,71.19 L99.69,72.89 L100.18,74.56 L100.78,76.19 L103.75,74.99" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M103.75,57.01 L100.78,55.81 L100.18,57.44 L99.69,59.11 L99.30,60.81 L99.02,62.53 L98.86,64.26 L98.80,66.00 L98.86,67.74 L99.02,69.47 L99.30,71.19 L99.69,72.89 L100.18,74.56 L100.78,76.19 L103.75,74.99" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M103.75,74.99 L100.78,76.19 L101.52,77.85 L102.37,79.46 L103.32,81.01 L104.37,82.50 L105.52,83.90 L106.77,85.23 L108.10,86.48 L109.50,87.63 L110.99,88.68 L112.54,89.63 L114.15,90.48 L115.81,91.22 L117.01,88.25" fill="none" stroke="#6d7177" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/><path d="M103.75,74.99 L100.78,76.19 L101.52,77.85 L102.37,79.46 L103.32,81.01 L104.37,82.50 L105.52,83.90 L106.77,85.23 L108.10,86.48 L109.50,87.63 L110.99,88.68 L112.54,89.63 L114.15,90.48 L115.81,91.22 L117.01,88.25" fill="none" stroke="#e8eaed" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M42.00,47.70 L42.00,44.50 Q42.00,42.90 43.60,42.90 L61.50,42.90 Q63.10,42.90 63.10,44.50 L63.10,112.40 Q63.10,114.00 61.50,114.00 L27.98,114.00 Q26.38,114.00 26.38,115.60 L26.38,151.00" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M42.00,47.70 L42.00,44.50 Q42.00,42.90 43.60,42.90 L61.50,42.90 Q63.10,42.90 63.10,44.50 L63.10,112.40 Q63.10,114.00 61.50,114.00 L27.98,114.00 Q26.38,114.00 26.38,115.60 L26.38,151.00" fill="none" stroke="#111111" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M42.00,47.70 L42.00,44.50 Q42.00,42.90 43.60,42.90 L61.50,42.90 Q63.10,42.90 63.10,44.50 L63.10,112.40 Q63.10,114.00 61.50,114.00 L27.98,114.00 Q26.38,114.00 26.38,115.60 L26.38,151.00" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.18,-0.18)"/>
+<path d="M31.97,151.00 L31.97,118.80 Q31.97,117.20 33.57,117.20 L105.26,117.20 Q106.86,117.20 106.86,118.80 L106.86,177.86" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M31.97,151.00 L31.97,118.80 Q31.97,117.20 33.57,117.20 L105.26,117.20 Q106.86,117.20 106.86,118.80 L106.86,177.86" fill="none" stroke="#d11f1f" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M31.97,151.00 L31.97,118.80 Q31.97,117.20 33.57,117.20 L105.26,117.20 Q106.86,117.20 106.86,118.80 L106.86,177.86" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.18,-0.18)"/>
+<path d="M37.56,151.00 L37.56,122.00 Q37.56,120.40 39.16,120.40 L100.69,120.40 Q102.29,120.40 102.29,122.00 L102.29,177.86" fill="none" stroke="#000" stroke-opacity="0.55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M37.56,151.00 L37.56,122.00 Q37.56,120.40 39.16,120.40 L100.69,120.40 Q102.29,120.40 102.29,122.00 L102.29,177.86" fill="none" stroke="#111111" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/><path d="M37.56,151.00 L37.56,122.00 Q37.56,120.40 39.16,120.40 L100.69,120.40 Q102.29,120.40 102.29,122.00 L102.29,177.86" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="0.35" stroke-linecap="round" stroke-linejoin="round" transform="translate(-0.18,-0.18)"/>
+<circle cx="58.30" cy="64.00" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="133.20" cy="66.00" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="133.20" cy="66.00" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="118.80" cy="66.00" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="148.25" cy="74.99" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<rect x="19.49" y="144.50" width="2.6" height="6.5" rx="0.4" fill="#141414" stroke="#d11f1f" stroke-width="0.35"/>
+<circle cx="148.25" cy="74.99" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="148.25" cy="57.01" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="148.25" cy="57.01" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="134.99" cy="43.75" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="134.99" cy="43.75" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="103.75" cy="57.01" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="103.75" cy="57.01" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="103.75" cy="74.99" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="103.75" cy="74.99" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="117.01" cy="88.25" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<circle cx="42.00" cy="47.70" r="1.05" fill="#e4e6e9" stroke="#80858c" stroke-width="0.3"/>
+<rect x="25.08" y="144.50" width="2.6" height="6.5" rx="0.4" fill="#141414" stroke="#111111" stroke-width="0.35"/>
+<rect x="30.67" y="144.50" width="2.6" height="6.5" rx="0.4" fill="#141414" stroke="#d11f1f" stroke-width="0.35"/>
+<rect x="104.66" y="176.16" width="4.4" height="3.4" rx="0.7" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="106.86" y="178.66" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#000">39</text>
+<rect x="36.26" y="144.50" width="2.6" height="6.5" rx="0.4" fill="#141414" stroke="#111111" stroke-width="0.35"/>
+<rect x="100.09" y="176.16" width="4.4" height="3.4" rx="0.7" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="102.29" y="178.66" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#000">40</text>
+<circle cx="104.35" cy="126.80" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="104.35" y="127.65" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">1</text>
+<circle cx="126.00" cy="66.00" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="126.00" y="66.85" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">2</text>
+<circle cx="84.52" cy="123.60" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="84.52" y="124.45" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">3</text>
+<circle cx="156.20" cy="66.00" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="156.20" y="66.85" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">4</text>
+<circle cx="147.35" cy="44.65" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="147.35" y="45.50" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">5</text>
+<circle cx="114.20" cy="38.20" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="114.20" y="39.05" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">6</text>
+<circle cx="95.80" cy="66.00" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="95.80" y="66.85" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">7</text>
+<circle cx="104.65" cy="87.35" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="104.65" y="88.20" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">8</text>
+<circle cx="44.74" cy="114.00" r="2.2" fill="#fff" stroke="#111111" stroke-width="0.55"/><text x="44.74" y="114.85" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">9</text>
+<circle cx="69.41" cy="117.20" r="2.2" fill="#fff" stroke="#d11f1f" stroke-width="0.55"/><text x="69.41" y="118.05" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">10</text>
+<circle cx="69.92" cy="120.40" r="2.2" fill="#fff" stroke="#111111" stroke-width="0.55"/><text x="69.92" y="121.25" font-family="DejaVu Sans" font-size="2.3" text-anchor="middle" font-weight="bold" fill="#000">11</text>
+<rect x="201.00" y="22" width="91.00" height="182.00" rx="2" fill="#fff" stroke="#ddd" stroke-width="0.3"/>
+<text x="204.00" y="27.50" font-family="DejaVu Sans, sans-serif" font-size="2.8" text-anchor="start" fill="#111" font-weight="bold">Steps (the number is on the wire)</text>
+<circle cx="205.70" cy="30.25" r="1.7" fill="#d11f1f"/><text x="205.70" y="31.00" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">1</text>
+<text x="208.60" y="31.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">9V jack: the SLEEVE lug, on the side: +  -&gt;  power</text>
+<text x="208.60" y="33.55" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: common A (the inner lug by the moulded &#x27;A&#x27;)</text>
+<text x="208.60" y="36.10" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">9 V + into the switch (solder)</text>
+<circle cx="205.70" cy="38.90" r="1.7" fill="#d11f1f"/><text x="205.70" y="39.65" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">2</text>
+<text x="208.60" y="39.65" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: common A (the inner lug by the moulded</text>
+<text x="208.60" y="42.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">&#x27;A&#x27;)  -&gt;  power switch: common B (the inner lug by the</text>
+<text x="208.60" y="44.75" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">moulded &#x27;B&#x27;)</text>
+<text x="208.60" y="47.30" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join both commons (short bare offcut)</text>
+<circle cx="205.70" cy="50.10" r="1.7" fill="#d11f1f"/><text x="205.70" y="50.85" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">3</text>
+<text x="208.60" y="50.85" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 2 (pole A, position 2)  -&gt;  carrier</text>
+<text x="208.60" y="53.40" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">&#x27;seed3 + 9v&#x27; header: &#x27;dc +&#x27; (1st from the left)</text>
+<text x="208.60" y="55.95" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">ON lugs -&gt; dc + (join A2-A4 and B2-B4 with bare offcuts</text>
+<text x="208.60" y="58.50" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">first)</text>
+<circle cx="205.70" cy="61.30" r="1.7" fill="#d11f1f"/><text x="205.70" y="62.05" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">4</text>
+<text x="208.60" y="62.05" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 2 (pole A, position 2)  -&gt;  power</text>
+<text x="208.60" y="64.60" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: lug 3 (pole A, position 3)</text>
+<text x="208.60" y="67.15" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join (bare offcut)</text>
+<circle cx="205.70" cy="69.95" r="1.7" fill="#d11f1f"/><text x="205.70" y="70.70" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">5</text>
+<text x="208.60" y="70.70" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 3 (pole A, position 3)  -&gt;  power</text>
+<text x="208.60" y="73.25" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: lug 4 (pole A, position 4)</text>
+<text x="208.60" y="75.80" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join (bare offcut)</text>
+<circle cx="205.70" cy="78.60" r="1.7" fill="#d11f1f"/><text x="205.70" y="79.35" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">6</text>
+<text x="208.60" y="79.35" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 4 (pole A, position 4)  -&gt;  power</text>
+<text x="208.60" y="81.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: lug 6 (pole B, position 2)</text>
+<text x="208.60" y="84.45" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join (bare offcut)</text>
+<circle cx="205.70" cy="87.25" r="1.7" fill="#d11f1f"/><text x="205.70" y="88.00" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">7</text>
+<text x="208.60" y="88.00" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 6 (pole B, position 2)  -&gt;  power</text>
+<text x="208.60" y="90.55" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: lug 7 (pole B, position 3)</text>
+<text x="208.60" y="93.10" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join (bare offcut)</text>
+<circle cx="205.70" cy="95.90" r="1.7" fill="#d11f1f"/><text x="205.70" y="96.65" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">8</text>
+<text x="208.60" y="96.65" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">power switch: lug 7 (pole B, position 3)  -&gt;  power</text>
+<text x="208.60" y="99.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">switch: lug 8 (pole B, position 4)</text>
+<text x="208.60" y="101.75" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">join (bare offcut)</text>
+<circle cx="205.70" cy="104.55" r="1.7" fill="#111111"/><text x="205.70" y="105.30" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">9</text>
+<text x="208.60" y="105.30" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">9V jack: the CENTRE-PIN lug, the middle one: - (centre</text>
+<text x="208.60" y="107.85" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">negative)  -&gt;  carrier &#x27;seed3 + 9v&#x27; header: &#x27;dc -&#x27; (2nd</text>
+<text x="208.60" y="110.40" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">from the left)</text>
+<text x="208.60" y="112.95" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">9 V - straight to the board (female end on the header)</text>
+<circle cx="205.70" cy="115.75" r="1.7" fill="#d11f1f"/><text x="205.70" y="116.50" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">10</text>
+<text x="208.60" y="116.50" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">carrier &#x27;seed3 + 9v&#x27; header: &#x27;vin&#x27; (3rd from the left) </text>
+<text x="208.60" y="119.05" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">-&gt;  Seed3 socket place 39 (bottom row)</text>
+<text x="208.60" y="121.60" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">jumper: Seed3 power (9 V, protected)</text>
+<circle cx="205.70" cy="124.40" r="1.7" fill="#111111"/><text x="205.70" y="125.15" font-family="DejaVu Sans" font-size="2.0" text-anchor="middle" font-weight="bold" fill="#fff">11</text>
+<text x="208.60" y="125.15" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">carrier &#x27;seed3 + 9v&#x27; header: &#x27;gnd&#x27; (4th from the left) </text>
+<text x="208.60" y="127.70" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="start" fill="#111" font-weight="normal">-&gt;  Seed3 socket place 40 (bottom row)</text>
+<text x="208.60" y="130.25" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">jumper: Seed3 ground (the ground chain is spliced onto</text>
+<text x="208.60" y="132.80" font-family="DejaVu Sans, sans-serif" font-size="1.65" text-anchor="start" fill="#666" font-weight="normal">this wire)</text></svg>

@@ -245,3 +245,7 @@ Steps:
       "0", then a pink ON arc over clicks 2-4 ("1" on 2 and 3; all three wired on). Wiring pictures
       (_Tools/pg_wiring_pics.py -> wiring-pictures.pdf, 10 pages: each part drawn as seen when soldering, RS16 lug layout
       from its datasheet, every wire to its exact lug, steps in words) replace the 3D pages.
+- [x] 60. 2026-10-10: wiring pictures redone (user: still horrible): shaded parts (metal cans, ivory switch with moulded
+      numbers, PCB headers with spacer bars, dupont ends), wires routed in lanes with rounded corners and never over
+      parts, bare links on the power switch bent round the rim outside lugs 1 / 5. No order placed yet (47R is in the
+      JLC files they'll upload).
