@@ -8,7 +8,7 @@
 
 It creates two templates (it does NOT order or pay for anything):
   * drill template "pg-1"      - 18 holes + 2 rectangles (screen window, Seed3 window) (from tayda-drill-holes.csv)
-  * UV print template "pg-1 top" - side A, colour layer only (pg1-face-uv-print.pdf)
+  * UV print template "pg-1 top" - side A, CMYK colour + RDG_GLOSS varnish layers, no white (pg1-face-uv-print.pdf)
 Then you open the dashboard, check the previews, and create the job/order yourself.
 
 Login is remembered after the first successful run: the password goes into your desktop keyring
@@ -116,7 +116,7 @@ def uv_payload():
     pdf = base64.b64encode(open(UV_PDF, "rb").read()).decode()
     return {"name": "pg-1 top", "enclosure_type": "1590XX", "box_side": "A",
             "color_layer": "Yes", "white_layer": "No", "rdg_white_layer": "No",
-            "gloss_layer": "No", "rdg_gloss_layer": "No", "gloss_type": "",
+            "gloss_layer": "Yes", "rdg_gloss_layer": "Yes", "gloss_type": "Varnish",   # shiny: the RDG_GLOSS layer
             "upload_file": "data:application/pdf;base64," + pdf, "is_archived": 0}
 
 
@@ -177,6 +177,8 @@ def main():
         sys.exit(f"UV template not saved ({code}): {res.get('message') or res}\n"
                  "Upload 04-Top-Artwork/pg1-face-uv-print.pdf by hand (see UV-PRINT.md).")
     uid = res["box_uv_design"]["id"]
+    u = res["box_uv_design"]
+    print("UV layers as saved: " + ", ".join(f"{k}={u.get(k)}" for k in ("color_layer", "rdg_white_layer", "gloss_layer", "rdg_gloss_layer", "gloss_print_type")))
     print(f"UV print template saved: https://drill.taydakits.com/box-uv-designs/edit?id={uid}")
     print("\nNext: open https://drill.taydakits.com/dashboard, check both previews "
           "(the 'in' hole must be above the LEFT half of the face), then create the job/order.")

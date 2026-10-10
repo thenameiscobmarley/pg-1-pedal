@@ -235,3 +235,8 @@ Steps:
       the input tab's page 2 + GraphLeveller live view; plugin simulates both and lights its 3D LEDs. Full point-to-point
       wiring drawing (_Tools/pg_wiring.py -> wiring-diagram.svg/png/pdf + WIRE-LIST.md, 92 wires). Fixed: ground chain
       and J10 gnd both claimed socket 40 (chain now spliced onto that jumper); guide said JLC fits the jacks (it doesn't).
+- [x] 58. 2026-10-10: Minecraft-style pixel gems (deep metallic sea blue CMYK, white glints left unprinted) replace
+      every diamond; divider line full width both sides. UV PDF now has 2 layers: CMYK + RDG_GLOSS (copy of everything,
+      Separation /RDG_GLOSS) -> Tayda template saved with gloss Varnish, no white. Docs dated / de-staled (8-way,
+      exp jack, free pins). 3D wiring (_Tools/pg_wiring3d.py -> wiring-3d.pdf, 7 pages); flat drawing names the far end
+      in words. Headphones: 2.1 V rms ceiling -> 600 ohm gets 7.5 mW.

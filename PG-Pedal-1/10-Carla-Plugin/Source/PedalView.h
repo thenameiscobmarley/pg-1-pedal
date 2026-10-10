@@ -62,7 +62,7 @@ private:
     std::array<std::atomic<float>, 4> knobAngle {};
     std::array<std::atomic<float>, 3> fsTravel {};
     std::array<bool, 3> fsHeld {};
-    std::atomic<int> selPos { 1 };                       // the page selector, 1..8
+    std::atomic<int> selPos { 1 };                       // the page selector, 1..4
     void setSelector (int pos);
 public:
     std::array<std::atomic<float>, 2> smallKnob { { 0.5f, 0.5f } };   // pg-hp, pg-line: 0..1, 0.5 = the 0 dB click

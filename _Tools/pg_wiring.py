@@ -142,6 +142,18 @@ UNUSED = {"dc.switch": "not used", "pw.A1": "OFF position: empty", "pw.B1": "OFF
           "lcd.9 SDO": "empty", "lcd.14 TIRQ": "empty"}
 
 
+SHORT = {"dc": "9V jack", "pw": "power sw", "j10": "board seed3+9v", "j20": "board in-gain", "pl": "in-gain pot",
+         "j19": "board out-gain", "ph": "out-gain pot", "j21": "board expansion", "pcf": "PCF", "rr": "330R",
+         "li": "in light", "lo": "out light", "ps": "page sw", "bay": "bay", "lcd": "screen", "e1": "pg-1", "e2": "pg-2",
+         "e3": "pg-3", "e4": "pg-4", "fa": "pg-a", "fb": "pg-b", "fc": "pg-c"}
+
+
+def short(e):
+    """a wire end in words: 'Seed3 pin 3', 'pg-1 A', 'board seed3+9v vin'"""
+    pid, pin = e.split(".", 1)
+    return f"Seed3 pin {pin}" if pid == "seed" else f"{SHORT[pid]} {pin.strip()}"
+
+
 LOWER = {"lcd", "e1", "e2", "e3", "e4", "fa", "fb", "fc"}   # below the Seed3 strip; the rest sit above it
 
 
@@ -170,7 +182,7 @@ def main():
     up_w = [w for w in WIRES if not (is_low(w[0]) or is_low(w[1]))]
     lo_w = [w for w in WIRES if is_low(w[0]) or is_low(w[1])]
     lane_step = 2.0
-    TAGROOM = 14.0   # room under / over the pins for the stacked number tags
+    TAGROOM = 31.0   # room under / over the pins for the "to ..." words
     top_y = 24.0                                          # upper parts' box top
     up_pin_y = top_y + PH                                 # their pins on the bottom edge
     up_lane0 = up_pin_y + TAGROOM
@@ -192,8 +204,8 @@ def main():
         f'<text x="{x:.2f}" y="{y:.2f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
         f'fill="{c}" font-weight="{w}"' + (f' transform="rotate({rot} {x:.2f} {y:.2f})"' if rot else "") + f'>{t}</text>')
     T(width / 2, 9, "PG-1 COMPLETE WIRING: every part, every lug, every wire", 5.5, w="bold")
-    T(width / 2, 15.5, "Each wire has its own lane and its number at both ends (same number = same wire: WIRE-LIST.md says what "
-      "it is and how). Black = ground. Grey lugs = leave empty. Drawn from the wiring side of each part.", 2.7)
+    T(width / 2, 15.5, "Each wire has its own lane. At each end it says in words where its OTHER end goes. Black = ground. "
+      "Grey lugs = leave empty. wiring-3d.pdf shows the same wires inside the box; WIRE-LIST.md is the tick list.", 2.7)
     o.append(f'<rect x="{sx0-6}" y="{seed_y}" width="{sp*39+12}" height="16" rx="2" fill="#1d1d1d"/>')
     T(sx0 - 8, seed_y + 7, "Seed3 socket", 3.2, "end", w="bold")
     T(sx0 - 8, seed_y + 11, "(place = Seed3 pin number)", 2.2, "end", "#555")
@@ -203,7 +215,8 @@ def main():
         for yy in (seed_y, seed_y + 16):
             o.append(f'<circle cx="{seed_x[i]:.2f}" cy="{yy:.2f}" r="1.1" fill="{"#d4a017" if on else "#777"}"/>')
         T(seed_x[i], seed_y + 7, str(i), 2.3, c="#fff", w="bold")
-        T(seed_x[i], seed_y + 11.5, SEED_NAMES[i], 1.6, c="#bbb")
+        if not on:
+            T(seed_x[i], seed_y + 11.5, "empty", 1.4, c="#999")
     for pid, title, sub, pins in PARTS:
         x0, w = place[pid]
         low = pid in LOWER
@@ -237,16 +250,29 @@ def main():
             return pin_xy[e]
         (ax, ay), (bx, by_) = end(a), end(b)
         c = COL[col]
+        pa, pb = a.split(".", 1), b.split(".", 1)
+        pins_of = {p[0]: p[3] for p in PARTS}
+        if (what.startswith("join") and pa[0] == pb[0] and pa[0] != "seed"
+                and abs(pins_of[pa[0]].index(pa[1]) - pins_of[pb[0]].index(pb[1])) == 1):
+            # a bare offcut between NEIGHBOURING lugs: a short bridge just off them (on the lane side), no words
+            d = -1.4 if pa[0] in LOWER else 1.4
+            o.append(f'<path d="M{ax:.2f},{ay:.2f} v{d} H{bx:.2f} V{by_:.2f}" fill="none" stroke="{c}" stroke-width="0.8" stroke-linejoin="round"/>')
+            rows.append((n, a, b, col, what))
+            continue
         o.append(f'<path d="M{ax:.2f},{ay:.2f} V{ly:.2f} H{bx:.2f} V{by_:.2f}" fill="none" stroke="{c}" stroke-width="0.5" stroke-linejoin="round"/>')
-        for (px, py) in ((ax, ay), (bx, by_)):
+        for (px, py), other in (((ax, ay), b), ((bx, by_), a)):
             o.append(f'<circle cx="{px:.2f}" cy="{py:.2f}" r="0.65" fill="{c}"/>')
-            # tag on the lane side of the pin; neighbouring pins alternate 2 heights, more wires on one pin stack further
+            # at each end, in words, what the other end is ("Seed3 pin 3", "pg-1 enc A"), written along the wire;
+            # a 2nd / 3rd wire on the same pin writes beside the first
             seat = (round(px, 1), round(py, 1))
-            k = (0 if py in (seed_y, seed_y + 16) else int(round(px / P)) % 2) + 2 * tags.get(seat, 0)
-            tags[seat] = tags.get(seat, 0) + 1
-            ty = py + 3.6 + 3.0 * k if ly > py else py - 1.6 - 3.0 * k
-            o.append(f'<rect x="{px-2.0:.2f}" y="{ty-2.0:.2f}" width="4.0" height="2.6" rx="0.6" fill="#fff" stroke="{c}" stroke-width="0.25"/>')
-            T(px, ty, str(n), 1.8, c=c, w="bold")
+            used_len = tags.get(seat, 0.0)                 # a 2nd wire on the same lug writes further along
+            lab = short(other)
+            tags[seat] = used_len + 1.05 * len(lab) + 1.5
+            down = ly > py
+            tx, ty = px + 0.35, (py + 2.0 + used_len if down else py - 2.0 - used_len)   # (just right of its wire)
+            o.append(f'<text x="{tx:.2f}" y="{ty:.2f}" font-family="DejaVu Sans, sans-serif" font-size="1.75" '
+                     f'text-anchor="{"start" if down else "end"}" fill="{c}" font-weight="bold" stroke="#fff" '
+                     f'stroke-width="0.55" paint-order="stroke" transform="rotate(90 {tx:.2f} {ty:.2f})">{lab}</text>')
         rows.append((n, a, b, col, what))
     # legend
     lx, ly = 10.0, height - 26

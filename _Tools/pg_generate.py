@@ -55,7 +55,7 @@ SMALL_KNOB_D = 14.0
 # room; higher hits the -33/+33 print; behind it the right one clears the screen module and the Seed3 block (1.7 mm).
 LIGHT_Y, LIGHT_HOLE = 37.0, 5.7
 SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
-# the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
+# the page selector: a 4-position rotary switch (Tayda A-8233, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
 SELECTOR = (14.0, 56.0, 9.0)
 # the power switch: a mini rotary switch (Tayda A-8233, 2 pole 4 position, 16 V 0.3 A, the same 9 mm hole / 6 mm spline
@@ -141,10 +141,36 @@ def cmyk_hex(c):
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
+# the gems: a 16-pixel gem sprite in the Minecraft-diamond style, in a deep metallic sea blue (CMYK shades, light to
+# dark, then the outline). "W" pixels are left unprinted (the white box shows) but still get the gloss: the glints.
+GEM_SPRITE = [
+    "....OOOOOOOO....",
+    "...OLWWLLLMMO...",
+    "..OLWLLLMMMMDO..",
+    ".OLWLLLMMMMDDDO.",
+    "OLLLLMMMMMDDDDDO",
+    "OMMMMMMMMDDDDDDO",
+    ".OMMMMMMMDDDDDO.",
+    ".OLMMMMMMDDDDDO.",
+    "..OLMMMMDDDDDO..",
+    "..OLLMMMDDDDDO..",
+    "...OLMMMDDDDO...",
+    "....OLMMDDDO....",
+    ".....OLMDDO.....",
+    "......OMDO......",
+    ".......OO.......",
+]
+GEM_CMYK = {"L": (0.58, 0.04, 0.12, 0.0), "M": (0.92, 0.28, 0.22, 0.04), "D": (1.0, 0.58, 0.28, 0.22),
+            "O": (1.0, 0.78, 0.35, 0.50)}
+GLOSS = "gloss"   # Art item colour for gloss-only shapes (RDG_GLOSS layer, nothing in CMYK)
+
+
 class Art:
-    """Records vector items in mm (y up). Emits PDF and SVG."""
+    """Records vector items in mm (y up). Emits PDF and SVG. Every CMYK item is also coated with gloss
+    (Tayda's RDG_GLOSS spot layer): the whole print is shiny, and it's all thin lines / text / small shapes
+    (Tayda: avoid gloss on big areas)."""
     def __init__(self):
-        self.items = []     # (kind, subpaths, width, cmyk)  kind: fill | stroke
+        self.items = []     # (kind, subpaths, width, cmyk or GLOSS)  kind: fill | stroke
 
     def fill(self, subpaths, color=INK):
         self.items.append(("fill", subpaths, 0, color))
@@ -273,6 +299,26 @@ def diamond(cx, cy, r):
     return poly_path([(cx, cy + r), (cx + r, cy), (cx, cy - r), (cx - r, cy)], close=True)
 
 
+def gem(A, cx, cy, r):
+    """the pixel gem, about 2 r wide, centred on (cx, cy): each run of same-coloured pixels in a row is one rectangle"""
+    px = 2.0 * r / 16.0
+    rows = len(GEM_SPRITE)
+    for j, row in enumerate(GEM_SPRITE):
+        y1 = cy + (rows / 2 - j) * px
+        i = 0
+        while i < 16:
+            c = row[i]
+            k = i
+            while k < 16 and row[k] == c:
+                k += 1
+            if c != ".":
+                x0 = cx + (i - 8) * px
+                e = 0.02   # a hair of overlap into the next row: no white seams between the pixels
+                sq = poly_path([(x0, y1), (x0 + (k - i) * px + e, y1), (x0 + (k - i) * px + e, y1 - px - e), (x0, y1 - px - e)], close=True)
+                A.fill(sq, GLOSS if c == "W" else GEM_CMYK[c])
+            i = k
+
+
 def build_face_art():
     A = Art()
     lab = Font(FONT_LABEL)
@@ -285,7 +331,7 @@ def build_face_art():
     A.stroke(rrect_path(0, 0, bw, bh, BOX_R), 0.9)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            A.fill(diamond(sx * (bw / 2 - 4.4), sy * (bh / 2 - 4.4), 0.85), PINK)
+            gem(A, sx * (bw / 2 - 4.6), sy * (bh / 2 - 4.6), 1.7)
 
     # screen: same 5 mm corners, a fine second line 1 mm outside it
     ww, wh = LCD_WIN[0] + PC, LCD_WIN[1] + PC
@@ -293,11 +339,11 @@ def build_face_art():
 
     # divider between the screen and the knobs: hairlines out from a centre diamond
     dy = -2.6
-    A.stroke(poly_path([(-37.0, dy), (-3.2, dy)]), 0.22)   # (stops short of the power knob)
-    A.stroke(poly_path([(3.2, dy), (49.0, dy)]), 0.22)
-    A.fill(diamond(0, dy, 1.4), PINK)
-    A.fill(diamond(-38.6, dy, 0.6), PINK)
-    A.fill(diamond(50.6, dy, 0.6), PINK)
+    A.stroke(poly_path([(-48.4, dy), (-3.4, dy)]), 0.22)   # (the same length both sides now)
+    A.stroke(poly_path([(3.4, dy), (48.4, dy)]), 0.22)
+    gem(A, 0, dy, 2.4)
+    gem(A, -50.4, dy, 1.3)
+    gem(A, 50.4, dy, 1.3)
 
     # endless encoders: 20 detent dots, every 5th one a little larger
     for name, x, kind, _ in KNOBS:
@@ -416,8 +462,8 @@ def build_face_art():
     k, lx, ly = 0.29, -42.5, 13.8
     pts = [((px) * k, (py - 51.0) * k) for px, py in logo_points(0, 51.0)]
     A.stroke(rot90([("M",) + p if i == 0 else ("L",) + p for i, p in enumerate(pts)], lx, ly), 0.6)
-    A.fill(diamond(lx, ly - 26.4 * k, 0.6), PINK)
-    A.fill(diamond(lx, ly + 26.4 * k, 0.6), PINK)
+    gem(A, lx, ly - 26.4 * k - 0.4, 1.1)
+    gem(A, lx, ly + 26.4 * k + 0.4, 1.1)
     A.fill(rot90(mono.outline("pg audio \u00b7 pg-1", 0, 0, 1.75), -50.2, ly), PINK)
     return A
 
@@ -536,12 +582,16 @@ def check_clearances():
 MM2PT = 72 / 25.4
 
 
-def to_pdf_ops(A, ox, oy):
-    """ox, oy = mm offset to move the origin to the page's lower-left."""
+def to_pdf_ops(A, ox, oy, gloss=False):
+    """ox, oy = mm offset to move the origin to the page's lower-left. gloss: every item (and the gloss-only glints)
+    painted in the RDG_GLOSS spot colour (/CS0), for the gloss layer; else the CMYK items in CMYK."""
     f = lambda v: f"{v:.3f}"
-    out = ["1 J", "1 j"]
+    out = ["1 J", "1 j"] + (["/CS0 cs 1 scn /CS0 CS 1 SCN"] if gloss else [])
     for kind, sp, w, col in A.items:
-        out.append("%.3f %.3f %.3f %.3f k %.3f %.3f %.3f %.3f K" % (col + col))
+        if col == GLOSS and not gloss:
+            continue
+        if not gloss:
+            out.append("%.3f %.3f %.3f %.3f k %.3f %.3f %.3f %.3f K" % (col + col))
         for seg in sp:
             if seg[0] == "Z":
                 out.append("h"); continue
@@ -553,18 +603,24 @@ def to_pdf_ops(A, ox, oy):
 
 
 def write_pdf(path, A, w_mm, h_mm, title):
-    # Everything sits in ONE layer named "CMYK" (an optional-content group), as Tayda's UV guide asks.
-    ops = "/OC /L0 BDC\n" + to_pdf_ops(A, w_mm / 2, h_mm / 2) + "\nEMC"
+    # Two layers (optional-content groups), as Tayda's UV guide asks: "CMYK" (the colours, CMYK only) and "RDG_GLOSS"
+    # (a copy of everything painted in the RDG_GLOSS spot colour: printed last, as clear gloss). No RDG_WHITE: the box
+    # is white already.
+    ops = ("/OC /L0 BDC\n" + to_pdf_ops(A, w_mm / 2, h_mm / 2) + "\nEMC\n"
+           "/OC /L1 BDC\n" + to_pdf_ops(A, w_mm / 2, h_mm / 2, gloss=True) + "\nEMC")
     content = zlib.compress(ops.encode())
     W, H = w_mm * MM2PT, h_mm * MM2PT
     objs = [
-        b"<< /Type /Catalog /Pages 2 0 R /OCProperties << /OCGs [6 0 R] /D << /Order [6 0 R] /ON [6 0 R] >> >> >>",
+        b"<< /Type /Catalog /Pages 2 0 R /OCProperties << /OCGs [6 0 R 7 0 R] /D << /Order [6 0 R 7 0 R] /ON [6 0 R 7 0 R] >> >> >>",
         b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
         (f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 {W:.3f} {H:.3f}] /TrimBox [0 0 {W:.3f} {H:.3f}] "
-         f"/ArtBox [0 0 {W:.3f} {H:.3f}] /Contents 4 0 R /Resources << /Properties << /L0 6 0 R >> >> >>").encode(),
+         f"/ArtBox [0 0 {W:.3f} {H:.3f}] /Contents 4 0 R /Resources << /Properties << /L0 6 0 R /L1 7 0 R >> "
+         f"/ColorSpace << /CS0 8 0 R >> >> >>").encode(),
         f"<< /Length {len(content)} /Filter /FlateDecode >>\nstream\n".encode() + content + b"\nendstream",
         f"<< /Title ({title}) /Creator (pg_generate.py) >>".encode(),
         b"<< /Type /OCG /Name (CMYK) >>",
+        b"<< /Type /OCG /Name (RDG_GLOSS) >>",
+        b"[/Separation /RDG_GLOSS /DeviceCMYK << /FunctionType 2 /Domain [0 1] /C0 [0 0 0 0] /C1 [0.5 0.25 0.25 0] /N 1 >>]",
     ]
     buf = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
     offs = []
@@ -592,7 +648,7 @@ def svg_d(sp):
 def art_svg_group(A, color="#000"):
     g = []
     for kind, sp, w, col in A.items:
-        c = color if col == INK else cmyk_hex(col)
+        c = color if col == INK else ("#ffffff" if col == GLOSS else cmyk_hex(col))
         if kind == "fill":
             g.append(f'<path d="{svg_d(sp)}" fill="{c}"/>')
         else:
@@ -893,102 +949,6 @@ WIRING = [
 ]
 
 
-def write_wiring_diagram():
-    d = os.path.join(ROOT, "05-Wiring-and-Schematics")
-    P = 8.0                                   # pin pitch in the drawing
-    top = 40.0
-    sx0, sx1 = 175.0, 235.0                   # Seed3 body
-    ry = lambda pin: top + (20 - pin) * P     # right column, pin 20 at top
-    ly = lambda pin: top + (pin - 21) * P     # left column, pin 21 at top
-    o = []
-    T = lambda x, y, t, sz=3.2, a="middle", c="#111", w="normal": o.append(
-        f'<text x="{x:.1f}" y="{y:.1f}" font-family="DejaVu Sans, sans-serif" font-size="{sz}" text-anchor="{a}" '
-        f'fill="{c}" font-weight="{w}">{t}</text>')
-    T(205, 12, "PG-1 WIRING: every part goes to a Seed3 socket place (Seed3 pin numbers, seen from outside, USB-C at the bottom)", 5, w="bold")
-    T(205, 20, "Coloured line = one jumper wire, its female end in that socket place.   \u23da = that point goes on a ground chain (black wire, part to part): see the 2 chains at the bottom", 3.4)
-    # Seed3
-    o.append(f'<rect x="{sx0}" y="{top-8}" width="{sx1-sx0}" height="{20*P+12}" rx="3" fill="#1d1d1d"/>')
-    T(205, top + 70, "Daisy", 7, c="#fff", w="bold"); T(205, top + 80, "Seed3", 7, c="#fff", w="bold")
-    T(205, top + 92, "(parts side, as seen", 3.2, c="#bbb"); T(205, top + 97, "from outside the box)", 3.2, c="#bbb")
-    o.append(f'<rect x="{205-6}" y="{top+20*P-2}" width="12" height="7" rx="1.5" fill="#c9c9c9"/>')
-    T(205, top + 20 * P + 14, "USB-C end", 3.2)
-    for pin, name in SEED_RIGHT.items():
-        y = ry(pin)
-        o.append(f'<circle cx="{sx1-4}" cy="{y}" r="1.6" fill="#d4a017"/>')
-        T(sx1 - 7, y + 1.1, f"{pin}", 2.8, "end", "#fff")
-        T(sx1 + 2, y - 1.2, name, 2.4, "start", "#555")
-    for pin, name in SEED_LEFT.items():
-        y = ly(pin)
-        o.append(f'<circle cx="{sx0+4}" cy="{y}" r="1.6" fill="#d4a017"/>')
-        T(sx0 + 7, y + 1.1, f"{pin}", 2.8, "start", "#fff")
-        T(sx0 - 2, y - 1.2, name, 2.4, "end", "#555")
-    gnd = lambda x, y: o.append(f'<path d="M{x},{y} v2.2 M{x-2.4},{y+2.2} h4.8 M{x-1.6},{y+3.3} h3.2 M{x-0.8},{y+4.4} h1.6" stroke="#111" stroke-width="0.5" fill="none"/>')
-    # ground pins on the Seed3
-    AUD = "#0a7f86"
-    o.append(f'<path d="M{sx1-4},{ry(20)} H{sx1+30}" stroke="{AUD}" stroke-width="1.6"/>'); gnd(sx1 + 30, ry(20))
-    T(sx1 + 34, ry(20) + 1.2, "AUDIO ground chain", 2.9, "start", AUD, "bold")
-    o.append(f'<path d="M{sx0+4},{ly(40)} H{sx0-30}" stroke="#111" stroke-width="1.6"/>'); gnd(sx0 - 30, ly(40))
-    T(sx0 - 32, ly(40) + 9, "MAIN ground chain", 2.9, "middle", "#111", "bold")
-    for title, side, pins, gnds in WIRING:
-        ys = [ry(p) if side == "R" else ly(p) for _, p, _ in pins]
-        chain = "audio" if "jack (TRS)" in title else "main"
-        lines = [(title, True)] + [("\u23da " + g + " \u2192 " + chain, False) for g in gnds]
-        mid = (min(ys) + max(ys)) / 2
-        h = max(max(ys) - min(ys) + 6.4, 3.4 * len(lines) + 2.4)
-        y0 = mid - h / 2
-        bx, bw = (300.0, 74.0) if side == "R" else (52.0, 74.0)
-        o.append(f'<rect x="{bx}" y="{y0:.1f}" width="{bw}" height="{h:.1f}" rx="1.5" fill="#f4f4f4" stroke="#333" stroke-width="0.35"/>')
-        for k, (txt, bold) in enumerate(lines):
-            ty = y0 + 3.6 + 3.4 * k
-            if side == "R":
-                T(bx + bw - 2, ty, txt, 2.9 if bold else 2.6, "end", "#111" if bold else (AUD if chain == "audio" else "#444"), "bold" if bold else "normal")
-            else:
-                T(bx + 2, ty, txt, 2.9 if bold else 2.6, "start", "#111" if bold else "#444", "bold" if bold else "normal")
-        for (lab, pin, col), y in zip(pins, ys):
-            px = bx if side == "R" else bx + bw
-            seedx = sx1 - 4 if side == "R" else sx0 + 4
-            o.append(f'<path d="M{seedx},{y} H{px}" stroke="{WIRE[col]}" stroke-width="1.3"/>')
-            o.append(f'<circle cx="{px}" cy="{y}" r="1.1" fill="#333"/>')
-            T(px + (3 if side == "R" else -3), y + 1.1, lab, 2.9, "start" if side == "R" else "end")
-    # legend
-    ly0 = top + 20 * P + 24
-    items = [("audio_l", "left audio (tip)"), ("audio_r", "right audio (ring)"), ("enc", "encoders"),
-             ("lcd", "screen"), ("fs", "footswitches"), ("pwr", "power")]
-    for i, (k, lab) in enumerate(items):
-        x = 40 + i * 58
-        o.append(f'<path d="M{x},{ly0} h12" stroke="{WIRE[k]}" stroke-width="1.6"/>')
-        T(x + 15, ly0 + 1.1, lab, 3.2, "start")
-    T(205, ly0 + 10, "Encoders: 3 pins = A, C, B (C is the middle one). The 2 pins on the other side are the push switch. "
-      "Screen pin 9 (SDO) is not used. Free for later: pins 34, 36, 37 (35 = exp jack later).", 3.0)
-    T(205, ly0 + 15, "The Seed3 is never soldered: the jumpers' female ends, glued into a block in the wall window, are its socket (WIRING.md). "
-      "Seen from inside it's a mirror image of this view: use seed-socket-board.png.", 3.0)
-    # the two ground chains, step by step: solder a short black wire from each point to the next
-    def chain_row(y, title, colour, steps):
-        T(12, y + 1.2, title, 3.3, "start", colour, "bold")
-        x = 60.0
-        for k, st in enumerate(steps):
-            w = 6 + 1.75 * max(len(t) for t in st.split("|"))
-            last = k == len(steps) - 1
-            o.append(f'<rect x="{x}" y="{y-5}" width="{w}" height="{10 if "|" in st else 8}" rx="1.5" '
-                     f'fill="{"#1d1d1d" if last else "#f4f4f4"}" stroke="{colour}" stroke-width="0.6"/>')
-            for j, t in enumerate(st.split("|")):
-                T(x + w / 2, y - 0.4 + j * 3.6, t, 2.7, "middle", "#fff" if last else "#111")
-            if not last:
-                o.append(f'<path d="M{x+w+0.8},{y} h3.4 m-1.6,-1.4 l1.6,1.4 l-1.6,1.4" stroke="{colour}" stroke-width="0.7" fill="none"/>')
-            x += w + 5.2
-    cy = ly0 + 26
-    T(205, cy - 2, "GROUND CHAINS: one black wire from each point to the next, in this order. Don't join the two chains, and don't loop back.", 3.4, w="bold")
-    chain_row(cy + 9, "audio chain", AUD, ["IN jack|sleeve", "OUT jack|sleeve", "jumper in|socket 20"])
-    chain_row(cy + 23, "main chain", "#111", ["9V jack|- (center)", "screen|2 GND *", "pg-4|C + push 2", "pg-3|C + push 2", "pg-2|C + push 2",
-                                              "pg-1|C + push 2", "pg-c|other lug", "pg-b|other lug", "pg-a|other lug", "jumper in|socket 40"])
-    T(205, cy + 34, "* the screen GND is a plug-on jumper at the screen end: cut its other end off and solder that end into the chain. "
-      "(exp jack sleeve joins the audio chain only once the exp jack is used.)", 2.9)
-    W, H = 410, cy + 40
-    open(os.path.join(d, "wiring-diagram.svg"), "w").write(
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}mm" height="{H}mm" viewBox="0 0 {W} {H}">'
-        f'<rect width="{W}" height="{H}" fill="#fff"/>' + "\n".join(o) + "</svg>\n")
-
-
 def write_socket_board():
     """The socket board's BACK (the side you solder), seen from inside the box. Mirror image of the Seed3 view."""
     d = os.path.join(ROOT, "05-Wiring-and-Schematics")
@@ -1088,7 +1048,8 @@ def write_logo_header():
 if __name__ == "__main__":
     check_clearances()
     write_depth()
-    subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), "pg_wiring.py")], check=True)  # (the old write_wiring_diagram predates the carrier board)
+    for tool in ("pg_wiring.py", "pg_wiring3d.py"):   # the flat and the 3D wiring drawings, from one wire list
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), tool)], check=True)  # (the old write_wiring_diagram predates the carrier board)
     write_socket_board()
     write_logo_header()
     rows = holes_table()

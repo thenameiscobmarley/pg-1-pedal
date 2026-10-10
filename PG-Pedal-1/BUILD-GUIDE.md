@@ -1,4 +1,4 @@
-# PG-1 build guide (2026-10-09, carrier board v3)
+# PG-1 build guide (2026-10-10, carrier board v3)
 
 This is the one to follow. It replaces the jack / 9 V / pot / "free pins" parts of `05-Wiring-and-Schematics/WIRING.md`,
 which were written before the carrier board existed. Pin numbers here come straight from the firmware
@@ -12,7 +12,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 |---|---|
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **B0505S** (no Mouser). The 2 jacks come from Amazon and **you** solder them (section 2). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1 and the band of D63. |
 | **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 26 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads, the leveller's LEDs + light sensors + heat shrink, the 2 level lights + chrome bezels + 330 ohm resistors |
-| **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
+| **drill.taydakits.com** | the drill + UV print job (templates already uploaded). On the UV template tick **CMYK** and **RDG Gloss** (finish: **Varnish**), leave **RDG White** unticked |
 | **Amazon** | a PCF8574 I/O board (page selector + level lights): Comimark 3-pack B07X3KWQZ7 (or any with VCC / GND / SDA / SCL + P0-P7 pins); the 2 Neutrik NMJ6HFD2 jacks (B00FV23QH6) |
 | **Seed3** | Daisy Seed3 **with headers** |
 | **Tools** | soldering iron kit, **0.8 mm rosin-core solder** (right size for all of this), flush **wire cutters**, wire strippers, multimeter, hot glue gun, a little heat-shrink |
@@ -179,8 +179,11 @@ pins (P4-P7), so they need no Seed3 pins.
 On the screen: open the **input** tab, page 2 (page selector to 2): **leveller** on / off, **lights** on / off, and the
 leveller's live view: what it cuts now, the last 5 seconds of it against the output level, and the 2 lights.
 
-The full drawing of every wire: `05-Wiring-and-Schematics/wiring-diagram.pdf` (zoom in) with `WIRE-LIST.md`
-(the numbers on the drawing).
+Every wire, three ways (all from the same list, so they always agree):
+- `05-Wiring-and-Schematics/wiring-3d.pdf`: the open box in 3D, parts where they really sit, one page per job, the
+  pin names at both ends of each wire and a list in words.
+- `wiring-diagram.pdf`: flat, every lug of every part; each wire end says where its other end goes.
+- `WIRE-LIST.md`: the tick list.
 
 ## 7. The Seed3 socket (RIGHT wall window) and the controls
 

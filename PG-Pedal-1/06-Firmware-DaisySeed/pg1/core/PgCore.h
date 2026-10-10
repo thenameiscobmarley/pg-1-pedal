@@ -136,7 +136,7 @@ class Core
     void KnobTurn(int knob, int detents, uint32_t now_ms); // speed-sensitive; held knob = fine (eq pg-1: q)
     void KnobPress(int knob, bool down, uint32_t now_ms);  // click / double-click / long-press decided on release
     void Footswitch(int index, bool down, uint32_t now_ms); // 0 = fs-1, 1 = fs-2, 2 = fs-3
-    // the page selector (8-way chicken-head switch): 1..8 = the settings page every tab opens on and switches to
+    // the page selector (4-position chicken-head switch): 1..4 = the settings page every tab opens on and switches to
     // (the closest page it has); 0 = not fitted / unknown (pages are swiped / pg-b'd as before)
     void PageSelector(int position, uint32_t now_ms);
     // the analog leveller (main.cpp, every 30 ms): fitted?, how much it cuts now, the output level, the face lights
