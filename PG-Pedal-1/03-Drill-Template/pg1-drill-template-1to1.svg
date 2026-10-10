@@ -64,14 +64,18 @@
 <path d="M33.220000000000006,-3.03 h6.6 M36.52,-6.33 v6.6" stroke="#c00" stroke-width="0.15"/>
 <text x="36.52" y="-6.03" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">screen screw 4  Ø3.6</text>
 <text x="36.52" y="1.37" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(36.52, 3.03)</text>
-<circle cx="8.0" cy="-50.0" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M1.7999999999999998,-50.0 h12.4 M8.0,-56.2 v12.4" stroke="#c00" stroke-width="0.15"/>
-<text x="8.00" y="-55.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">page selector  Ø9.4</text>
-<text x="8.00" y="-42.70" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(8, 50)</text>
-<circle cx="-47.0" cy="-2.0" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-53.2,-2.0 h12.4 M-47.0,-8.2 v12.4" stroke="#c00" stroke-width="0.15"/>
-<text x="-47.00" y="-7.90" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">power switch  Ø9.4</text>
-<text x="-47.00" y="5.30" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-47, 2)</text>
+<circle cx="16.4" cy="-51.5" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M10.2,-51.5 h12.4 M16.4,-57.7 v12.4" stroke="#c00" stroke-width="0.15"/>
+<text x="16.40" y="-57.40" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">page selector  Ø9.4</text>
+<text x="16.40" y="-44.20" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(16.4, 51.5)</text>
+<circle cx="-16.0" cy="-51.5" r="4.7" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-22.2,-51.5 h12.4 M-16.0,-57.7 v12.4" stroke="#c00" stroke-width="0.15"/>
+<text x="-16.00" y="-57.40" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">power switch  Ø9.4</text>
+<text x="-16.00" y="-44.20" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-16, 51.5)</text>
+<circle cx="-78.6" cy="34.0" r="6.2" fill="none" stroke="#c00" stroke-width="0.3"/>
+<path d="M-86.3,34.0 h15.4 M-78.6,26.3 v15.4" stroke="#c00" stroke-width="0.15"/>
+<text x="-78.60" y="26.60" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">9v  Ø12.4</text>
+<text x="-78.60" y="42.80" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(0, -34)</text>
 <rect x="-23.9" y="-39.14" width="47.8" height="35.5" fill="none" stroke="#c00" stroke-width="0.3"/>
 <text x="0.00" y="-22.39" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#c00" font-weight="normal">screen window 47.8 x 35.5</text>
 <text x="0.00" y="-18.79" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal">centre (0, 21.39)</text>
@@ -79,10 +83,6 @@
 <path d="M-41.3,-90.8 h14.6 M-34.0,-98.1 v14.6" stroke="#c00" stroke-width="0.15"/>
 <text x="-34.00" y="-97.80" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">in  Ø11.6</text>
 <text x="-34.00" y="-82.40" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-34, 0)</text>
-<circle cx="-13.0" cy="-90.8" r="6.2" fill="none" stroke="#c00" stroke-width="0.3"/>
-<path d="M-20.7,-90.8 h15.4 M-13.0,-98.5 v15.4" stroke="#c00" stroke-width="0.15"/>
-<text x="-13.00" y="-98.20" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">9v  Ø12.4</text>
-<text x="-13.00" y="-82.00" font-family="DejaVu Sans, sans-serif" font-size="1.6" text-anchor="middle" fill="#555" font-weight="normal">(-13, 0)</text>
 <circle cx="34.0" cy="-90.8" r="5.8" fill="none" stroke="#c00" stroke-width="0.3"/>
 <path d="M26.7,-90.8 h14.6 M34.0,-98.1 v14.6" stroke="#c00" stroke-width="0.15"/>
 <text x="34.00" y="-97.80" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#c00" font-weight="normal">out  Ø11.6</text>

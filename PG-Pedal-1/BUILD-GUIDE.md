@@ -11,7 +11,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 | Where | What |
 |---|---|
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes, Global Standard Direct Line shipping. Dry-ice cleaning yes, bake no, function test no. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the page selector, the power switch, 2 pink chicken heads, the leveller's LEDs + light sensors + black heat shrink |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 21 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 black chicken heads, the leveller's LEDs + light sensors + black heat shrink |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
 | **Mouser** (or as noted) | 2 x Alps **RK09L1240015** (dual 10k linear, centre click), 2 x Neutrik **NMJ6HFD2** jacks, 1 x **B0505S-1WR3** (also sold on Amazon, often 2-packs; any brand with the same 4 pins: GND, Vin, 0 V, +Vo) |
 | **Amazon** | PCF8574 I/O board (page selector), B0505S-1WR3 (if not from Mouser) |
@@ -95,40 +95,41 @@ Find the pot's pins 1 and 3 with the multimeter (ohms), knob turned fully LEFT:
   female ends into the slot from inside until flush, hot glue them on the inside (warm the wall with a hair dryer
   first). Note which colour is which pin. Modules plug onto them from outside later.
 
-## 6b. The page selector (chicken head, 8 positions)
+## 6b. The page selector (black chicken head, top right of the two, 4 clicks)
 
 Whatever tab is open, the selector picks its **settings page**: position 1 = page 1, 2 = page 2... A tab with fewer
 pages just shows its last one. Without the selector fitted, swiping / pg-b still change pages.
 
-- **Switch (A-8626)**: 8 position lugs around the edge + a common lug. Find the common with the multimeter (beep mode):
-  it beeps to exactly one outer lug, and which one changes as you turn. Turn it fully **left** (= position 1, the pink
-  dot) and note the lug that beeps: that's lug 1; turning right goes 2, 3, ... 8.
-- Snap off the anti-rotation tab, mount it (9 mm hole) with its nut, push on the pink chicken head pointing at "1"
-  when turned fully left.
-- **PCF8574 board** (Amazon, pins on): solder 9 wires to the switch: lug 1 -> **P0**, lug 2 -> **P1**, ... lug 8 ->
-  **P7**, common -> **GND** (female jumper ends on the PCF8574 side). Bend them flat (the carrier board is ~6 mm behind
-  the switch).
+- **Switch (A-8233)**: 2 poles x 4 positions (45 degree clicks). Only pole A is used. Find pole A's **common** with the
+  multimeter (beep mode): turn it fully **left** (position 1), the common beeps to exactly one outer lug: that's lug 1;
+  one click right, lug 2 beeps; then 3, 4. (Pole B: leave it empty.)
+- **PCF8574 board** (Amazon, pins on): solder 5 wires to the switch: lug 1 -> **P0**, lug 2 -> **P1**, lug 3 -> **P2**,
+  lug 4 -> **P3**, common -> **GND** (female jumper ends on the PCF8574 side). Bend them flat.
 - PCF8574 input header -> the carrier's **expansion** header: VCC -> 3v3, GND -> gnd, SDA -> sda, SCL -> scl.
-- If the PCF8574 has a second (pass-through) header, run the 4 wires to the left-wall expansion bay from there instead.
+  (If it has a second, pass-through header, run the 4 wires to the left-wall expansion bay from there.)
 - Velcro the PCF8574 to the inside of the lid. The firmware finds it by itself (any address).
+- **Mounting** (both switches the same): snap off the little locating tab on the switch's front with pliers, through
+  the 9 mm hole, turn the body so position 1 lines up with the "1" dot, tighten the nut (2 mm nut + washer: up to 4 mm
+  of panel). Turn it fully left and push the **black chicken head** (A-6741) straight down onto the splined shaft,
+  pointing at "1". No screw: it's a push fit on the 18 teeth.
 
-## 6b2. The power switch (pink chicken head, left of the screen: 0 = off, 1 = on)
+## 6b2. The power switch (black chicken head, top left of the two: 0 = off, 1 = on)
 
-A mini rotary switch (A-8233, 2 poles x 4 positions) in the **+ wire** from the 9 V jack: position 1 = off, any other
-position = on. With it off the pedal draws nothing; nothing else changes (the Seed3 runs from the 9 V through the
-carrier board's vin wire, no USB needed; USB-C is only for flashing, and plugging it in while on is fine).
+The same switch (A-8233) in the **+ wire** from the 9 V jack: position 1 = off ("0"), any other position = on ("1": the
+other two clicks are on too). Off, the pedal draws nothing. The Seed3 runs from the 9 V through the carrier board's
+vin wire, no USB needed; USB-C is only for flashing, and plugging it in while on is fine.
 
-- **Find the lugs** (multimeter, beep mode): the switch has 2 **commons** (one per pole, nearer the middle) and
-  8 outer lugs. Turn it fully **left** (position 1). The outer lug that beeps to a common is that pole's position 1:
-  **leave both position-1 lugs empty**. Turn one click right: the next lug beeps (position 2), and so on.
-- **Wiring** (black wire from the cart, ~6 cm each, solder):
-  - both commons joined together -> the 9 V jack's **+ lug** (the sleeve lug: the jack is centre-negative);
-  - all six other outer lugs (positions 2, 3, 4 of both poles) joined with bare wire offcuts -> the wire to the
-    carrier board's **dc +** pin;
-  - the jack's **centre (-) lug** -> **dc -**, as before.
-- **Mounting**: snap off the little locating tab on the switch's front with pliers. Put it through the 9 mm hole, turn
-  the body so position 1 lines up with the "0" dot, tighten the nut, push on the pink chicken head pointing at "0".
-- Check before the box goes together: switch at 0 -> no beep between the jack's + lug and dc +; at 1 -> beep.
+- **The 9 V jack is in the LEFT side wall, low** (between the pg-1 knob and the pg-a footswitch, inside: 3 mm clear of
+  both). Plug faces left.
+- **Find the lugs** (beep mode): 2 **commons** (one per pole) and 8 outer lugs. Turn it fully **left** (position 1):
+  the outer lug that beeps to each common is that pole's position 1: **leave both position-1 lugs empty**.
+- **Wiring** (black wire from the cart, solder; ~15 cm from the jack up to the switch):
+  - the 9 V jack's **+ lug** (the sleeve lug: the jack is centre-negative) -> both commons, joined;
+  - all six other outer lugs (positions 2, 3, 4 of both poles) joined with bare offcuts -> a wire to the carrier
+    board's **dc +** pin;
+  - the jack's **centre (-) lug** -> **dc -**, straight.
+- Mount it like the page selector, with position 1 at the "0" dot and the chicken head pointing at "0".
+- Check before closing the box: at 0 -> no beep between the jack's + lug and dc +; at 1 -> beep.
 
 ## 6c. The analog leveller (on the carrier board)
 
@@ -150,7 +151,7 @@ the "in" jack. Each outline has 4 holes: 2 at the LED end (the square one marked
 3. Slide the LED and LDR together until the LED's flat top **touches** the LDR's face. Slip the 15 mm heat shrink over
    both (it covers the whole pair), shrink it with a hair dryer (or the side of the iron's barrel, not the tip).
 4. Turn the board over and solder the 4 pins on the printed side, then **snip the legs flush** (they sit under the
-   9 V jack, which is 2.3 mm above the board there).
+   9 V jack's old spot; it's in the left wall now, so nothing is above them, but flush is tidy).
 5. Same for the other pair.
 
 Check before soldering the next one: multimeter on ohms across the LDR's two pins: sealed in the dark it reads
@@ -198,31 +199,35 @@ jacks' sleeves are on the carrier board's isolated ground and must **not** be co
    (the simulation says ~1 mV). Then plug in at low volume, pg-hp at the centre click.
 
 ## What the simulation checked (so you know what to expect)
-The whole routed board, simulated (10-Carla-Plugin/Source/sim): every part on its real copper.
+The whole routed board in the board simulator (10-Carla-Plugin/Source/sim, every part on its real copper), and the
+isolated audio path again in ngspice (the standard circuit simulator) for the worst cases.
 
-- **Power**: from the 9 V jack alone (no USB-C needed: the Seed3 runs off the carrier's vin wire); 9 V 8.2, 5 V 5.00,
-  3.3 V 3.30, isolated 5 V 5.05, isolated 3.3 V 3.30; ~200 mA. Isolation intact.
-- **Power switch**: off = 0 mA. Off and straight back on with headphones in: the jack moves less than 1 mV (the amp
-  stays muted ~0.4 s, ~1 s from cold: D63 + R70 1M, both added because the simulation found a ~1 V thump there).
+- **Power**: from the 9 V jack alone (no USB-C needed: the Seed3 runs off the carrier's vin wire); ~200 mA; isolation
+  intact. **Power switch** off = 0 mA; off and straight back on with headphones in: the jack moves under 3 mV.
+- **Hard limits (physics, not software):**
+  - **Input clamp**: whatever comes in and wherever the in gain knob is, the codec's input pin stays inside its safe
+    window (ngspice: -0.02 .. +1.85 V for +-12 / +-24 V hits of 5-150 ms; its limit is -0.3 .. +2.1 V). The analog
+    stage clips before the converter does, so the Seed3 never receives anything past full scale.
+  - **Output ceiling**: the headphone amp runs on +-3.3 V: the jack can never pass 3.0 V peak (2.1 V rms) whatever the
+    firmware does: at most 86 mW into your 50 ohm headset, 132 mW into 32 ohm. The firmware also re-checks the codec's
+    own gains every second and puts them back.
+  - **The leveller only ever cuts** (it can't add gain); its LEDs top out at ~11 mA (rated 20 mA).
+- **Guitar**: the input is 1.46 Mohm, flat to 10 kHz: pickups keep their sparkle (595k before: ~2.4 dB duller).
 - **What you can plug in** (in gain knob position for a healthy level; "hiss" = how far below the music the noise is):
 
   | source | in gain knob | result |
   |---|---|---|
-  | dynamic mic straight in (2 mV) | full right | quiet (-37 dBFS), hiss 56 dB down: use a mic preamp, or let the input tab add gain |
-  | condenser / quiet source (10 mV) | full right | -23 dBFS, hiss 70 dB down |
-  | passive guitar | ~95% | clean, 7 dB headroom, hiss 83 dB down |
-  | phone / laptop headphone out | ~90% | clean, 8 dB headroom, hiss 82 dB down |
-  | consumer line (-10 dBV) | ~85% | clean, 8 dB headroom, hiss 82 dB down |
-  | pro line (+4 dBu) | centre click | clean, 8 dB headroom, hiss 82 dB down |
-  | pre-amped / hot (+10 dBu) | ~35% | clean, 3 dB headroom |
-  | cranked headphone amp (3 V rms) | ~30% | clean, 1 dB headroom |
-  | very hot (+20 dBu, 7.8 V rms) | any | clips (clean up to 3.4 V rms); nothing breaks |
+  | dynamic mic straight in (2 mV) | full right | quiet (-44 dBFS): use a mic preamp, or let the input tab add gain |
+  | condenser / quiet source (10 mV) | full right | -30 dBFS, hiss 63 dB down |
+  | passive guitar | ~95% | clean, hiss 81 dB down |
+  | phone / laptop headphone out | ~95% | clean, hiss 84 dB down |
+  | consumer line (-10 dBV) | ~95% | clean, hiss 82 dB down |
+  | pro line (+4 dBu) | ~75% | clean, hiss 81 dB down |
+  | pre-amped / hot (+10 dBu) | ~60% | clean, hiss 82 dB down |
+  | cranked headphone amp (3 V rms) | ~50% | clean |
+  | very hot (+20 dBu, 7.8 V rms) | any | clips (clean up to 4.8 V rms); nothing breaks |
 
-  Abuse: +-24 V peaks at the input are clamped (+13 / -7.5 V), the circuit behind sees nothing outside its rails.
-  **Never plug a power amp's speaker output in**: it would push amps into the clamp.
-- **What you can plug it into** (out gain knob at its click = unity): 16 ohm in-ears ~1.75 V rms / 190 mW, 32 ohm
-  headphones ~1.8 V rms / 104 mW, 80-600 ohm ~1.9 V rms, a mixer / interface line input ~1.9 V rms; DC at the jack
-  ~1 mV.
+  Never plug a power amp's **speaker** output in: it would push amps into the input clamp.
 - **The analog leveller**: dark = untouched (its 0.39 dB is made up in the firmware); -12 dB at 1.3 mA, -21 dB at
   7.8 mA (the firmware's limit); both channels the same; no click (under 5 mV). Dark for the first 10 s after power-up.
 - **Wrong wiring**: swapped data / clock / I2C wires or a missing Seed3 ground just mean no sound (nothing breaks);

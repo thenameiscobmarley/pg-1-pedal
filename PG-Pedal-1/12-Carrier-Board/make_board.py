@@ -76,9 +76,9 @@ FONT = "IBM Plex Mono"                 # the pedal's own small-word font (instal
 # the panel, panel hole 11.2 mm. KiCad's footprint has its origin on the T pin and the front toward +x: turned 90 deg.
 JACK_T = (-8.115, 17.05)               # T pin from (jack axis, inside of the wall)
 JACKS = {"J1": -34.0, "J2": 34.0}   # clear of the corner posts (see POST_X)
-# the panel DC jack (Tayda A-2237, ~12 mm threaded body, ~18 mm deep with its lugs) hangs over the board at x -13:
-# its body is only ~2.4 mm above the board, so under it only flat parts (0402 / 0603, <= 0.6 mm) may sit
-DC_ZONE = (-13.0 - 7.0, WALL_IN - 19.0, -13.0 + 7.0, TOP)
+# the panel DC jack used to hang over the board (top wall, x -13): since 2026-10-09 it's in the LEFT wall, low, so
+# nothing hangs over the board any more (an empty zone: no height limit anywhere)
+DC_ZONE = (0.0, 0.0, 0.0, 0.0)
 FLAT = ("R_0402", "C_0402", "R_0603", "C_0603")
 # headers: (first pin x, row y, side). Right-angle, pointing off the lower edge (the jumpers lie flat).
 HEADERS = {"J10": (3.5, 14.0, "F"),                                # pedal side, tongue edge

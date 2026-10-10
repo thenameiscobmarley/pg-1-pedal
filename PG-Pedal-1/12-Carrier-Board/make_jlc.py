@@ -58,7 +58,7 @@ LCSC.update({   # the analog effect + expansion header
 })
 LCSC.update({   # the analog leveller (2026-10-09)
     ("10uF", "C_0402_1005Metric"): "C15525", ("100", "R_0402_1005Metric"): "C25076", ("MMBT3904", "SOT-23"): "C20526",
-    ("MCP4725", "SOT-23-6"): "C144198", ("3.3k", "R_0402_1005Metric"): "C25890", ("470k", "R_0402_1005Metric"): "C25790", ("1N4148WS", "D_SOD-323"): "C2128", ("TLV9062", "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"): "C2058009",
+    ("MCP4725", "SOT-23-6"): "C144198", ("3.3k", "R_0402_1005Metric"): "C25890", ("470k", "R_0402_1005Metric"): "C25790", ("1N4148WS", "D_SOD-323"): "C2128", ("BAT54S", "SOT-23"): "C47546", ("BAS40W-04", "SOT-323_SC-70"): "C134371", ("12k", "R_0402_1005Metric"): "C25752", ("TLV9062", "Texas_DSG0008A_WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm"): "C2058009",
 })
 LCSC.update({("PSM712", "SOT-23"): "C32677"})   # basic part: no extended fee
 LCSC.update({("fx loop", "PinHeader_2x04_P2.54mm_Vertical"): "C32713277"})
@@ -68,7 +68,7 @@ LCSC.update({("TLV9062", "SOIC-8_3.9x4.9mm_P1.27mm"): "C398355", ("XC6206P332MR"
 SKIP = {"J1", "J2", "J10", "J19", "J20", "J21", "J22", "U3", "OC1", "OC2"}   # (OC = the LED + LDR pairs)
 # NOT FITTED at all (pads stay empty): C31 / C41, 100 pF on the input's 500 k bias divider, made a 3.2 kHz low-pass
 # (found by the board simulation, 10-Carla-Plugin/Source/sim). Radio is still kept out at the jack (1k + the clamp).
-DNP = {"C31", "C41"}
+DNP = {"C31", "C41", "R31", "R41"}
 SKIP |= DNP
 
 

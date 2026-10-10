@@ -53,7 +53,7 @@ for ref in refs:
 K.SaveBoard(A.PCB, b)
 shutil.copy(os.path.join(HERE, "pcbway", "pg1-carrier.kicad_pro"), pro)
 for ref in refs:
-    for pad in ("1", "2"):
+    for pad in sorted({p.GetNumber() for p in K.LoadBoard(A.PCB).FindFootprintByReference(ref).Pads()}):
         r = subprocess.run([sys.executable, os.path.join(HERE, "route_one.py"), ref, pad], capture_output=True, text=True, cwd=HERE)
         print("  ", (r.stdout.strip() or r.stderr.strip().splitlines()[-1]))
         shutil.copy(os.path.join(HERE, "pcbway", "pg1-carrier.kicad_pro"), pro)

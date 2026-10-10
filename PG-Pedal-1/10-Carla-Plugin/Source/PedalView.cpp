@@ -22,11 +22,12 @@ namespace dims
     constexpr float winCZ = -0.2139f, winHW = 0.239f, winHD = 0.1775f;      // the cut window (47.8 x 35.5 mm)
     constexpr float lcdHW = 0.2448f, lcdHD = 0.1836f, lcdY = -0.028f;       // the lit area under it
     constexpr float jackY = -0.1805f;
-    constexpr float sideB[3][2] = { { -0.34f, 0 }, { -0.13f, 1 }, { 0.34f, 0 } }; // in, 9v, out (1 = DC jack); v3 isolated board
+    constexpr float sideB[2][2] = { { -0.34f, 0 }, { 0.34f, 0 } }; // in, out (the Neutrik jacks on the carrier board)
+    constexpr float dcZ = 0.34f;   // the 9 V jack: in the LEFT wall, low (face y -34), between pg-1 and pg-a
     constexpr float smallKnobs[2][2] = { { 0.48f, -0.52f }, { -0.48f, -0.52f } };   // pg-hp (under "out"), pg-line (under "in") (x, z = -face y)
-    constexpr float selX = 0.08f, selZ = -0.50f;   // the page selector (8-way rotary switch, pink chicken head)
-    constexpr float powX = -0.47f, powZ = -0.02f;  // the power switch (pink chicken head: 0 = off, 1 = on)
-    inline float selAngle (int pos) { return (195.0f - 30.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..8
+    constexpr float selX = 0.164f, selZ = -0.515f;   // the page selector (A-8233, 4 clicks 45 degrees apart, black chicken head)
+    constexpr float powX = -0.16f, powZ = -0.515f;   // the power switch (the same: position 1 = 0 = off, 2 = 1 = on)
+    inline float selAngle (int pos) { return (112.5f - 45.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..4
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
@@ -389,6 +390,7 @@ void PedalView::renderOpenGL()
     draw (*progPlastic, meshBayHdr, bayAt, black);
     for (auto& j : sideB)
         draw (*progRecess, meshJackHole, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, { 0.02f, 0.02f, 0.02f });
+    draw (*progRecess, meshJackHole, Mat4::translation ({ -W * 0.5f, jackY, dcZ }) * sideCRot, { 0.02f, 0.02f, 0.02f });
 
     use (*progChrome);
     progChrome->set ("uParams", 0.65f, 0.0f, 0.0f, 0.0f);
@@ -399,9 +401,7 @@ void PedalView::renderOpenGL()
         draw (*progChrome, meshNutBig, Mat4::translation ({ fsX[i], 0.0f, fsZ }), steel);
         draw (*progChrome, meshThread, Mat4::translation ({ fsX[i], 0.0f, fsZ }), steel);
     }
-    for (auto& j : sideB)   // the DC jack's nut is metal; the Neutrik audio jacks' noses are black plastic
-        if (j[1] > 0.5f)
-            draw (*progChrome, meshDcNut, Mat4::translation ({ j[0], jackY, -H * 0.5f }) * sideBRot, steel);
+    draw (*progChrome, meshDcNut, Mat4::translation ({ -W * 0.5f, jackY, dcZ }) * sideCRot, steel);   // the DC jack's metal nut
     use (*progPlastic);
     for (auto& j : sideB)
         if (j[1] < 0.5f)
@@ -436,14 +436,14 @@ void PedalView::renderOpenGL()
         for (auto& k : knobParts)
             draw (*progPlastic, k->gpu, k->rotates ? turned : base, k->role == hwk::models::Role::pointer ? Vec3 { 0.12f, 0.12f, 0.13f } : Vec3 { 0.93f, 0.93f, 0.91f });
     }
-    {   // the page selector's pink chicken head, pointing at its position
+    {   // the black chicken heads (A-6741): the page selector at its position, power at 0 or 1
         const Mat4 at = Mat4::translation ({ selX, 0.02f, selZ }) * Mat4::rotationY (selAngle (selPos.load()));   // (rotationY (a) turns +x to face angle a: x, -z)
-        draw (*progPlastic, meshChicken, at, { 1.0f, 0.55f, 0.78f });
-        draw (*progPlastic, meshChickenLine, at, { 0.55f, 0.16f, 0.36f });
-        const float pa = (isOn() ? 75.0f : 105.0f) * geo::kPi / 180.0f;   // "0" at 105 degrees, "1" at 75
+        draw (*progPlastic, meshChicken, at, { 0.10f, 0.10f, 0.11f });
+        draw (*progPlastic, meshChickenLine, at, { 0.92f, 0.92f, 0.92f });
+        const float pa = (isOn() ? 112.5f : 157.5f) * geo::kPi / 180.0f;   // "0" (position 1) at 157.5 degrees, "1" at 112.5
         const Mat4 pw = Mat4::translation ({ powX, 0.02f, powZ }) * Mat4::rotationY (pa);
-        draw (*progPlastic, meshChicken, pw, { 1.0f, 0.55f, 0.78f });
-        draw (*progPlastic, meshChickenLine, pw, { 0.55f, 0.16f, 0.36f });
+        draw (*progPlastic, meshChicken, pw, { 0.10f, 0.10f, 0.11f });
+        draw (*progPlastic, meshChickenLine, pw, { 0.92f, 0.92f, 0.92f });
     }
 }
 
@@ -546,7 +546,7 @@ void PedalView::mouseDown (const juce::MouseEvent& e)
 
 void PedalView::setSelector (int pos)
 {
-    pos = juce::jlimit (1, 8, pos);
+    pos = juce::jlimit (1, 4, pos);
     if (pos == selPos.load())
         return;
     selPos = pos;
@@ -601,9 +601,9 @@ void PedalView::mouseDrag (const juce::MouseEvent& e)
             {
                 const float fx = (dm.x * ay.y - dm.y * ay.x) / det, fy = (ax.x * dm.y - ax.y * dm.x) / det;
                 float deg = std::atan2 (fy, fx) * 180.0f / geo::kPi;
-                if (deg < -90.0f)
-                    deg += 360.0f;   // position 1 is at 195 degrees, 8 at -15
-                setSelector ((int) std::lround ((195.0f - deg) / 30.0f) + 1);
+                if (deg < -112.5f)
+                    deg += 360.0f;   // position 1 is at 112.5 degrees, 4 at -22.5
+                setSelector ((int) std::lround ((112.5f - deg) / 45.0f) + 1);
             }
             break;
         }
@@ -639,8 +639,8 @@ void PedalView::mouseUp (const juce::MouseEvent& e)
             core.Touch (false, touchX, touchY, now);
             break;
         case Hit::selector:
-            if (! dragMoved)   // a click = one click round (8 wraps to 1)
-                setSelector (selPos.load() % 8 + 1);
+            if (! dragMoved)   // a click = one click round (4 back to 1: the real switch turns back)
+                setSelector (selPos.load() % 4 + 1);
             break;
         case Hit::power:   // a click flips it: 0 <-> 1
             if (power != nullptr)

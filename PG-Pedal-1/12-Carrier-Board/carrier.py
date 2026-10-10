@@ -80,7 +80,8 @@ P("C14", "4.7uF", C0805, "CL21A475KAQNNNE", {1: "ISO3V3", 2: "IGND"})
 P("C15", "1uF", C0603, "", {1: "ISO5V_RAW", 2: "IGND"})
 P("R5", "10", R0603, "", {1: "ISO5V_RAW", 2: "ISO5V"}, "filters the converter's ripple off the input buffer's supply")
 P("C16", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "ISO5V", 2: "IGND"})
-P("R6", "10k", R0603, "", {1: "ISO3V3", 2: "IBIAS"}, "1.65 V mid-point for the input buffer")
+P("R6", "3.3k", R0603, "", {1: "ISO3V3", 2: "IBIAS"},
+  "2.48 V: the middle of the op-amps' 5 V, so every stage swings the same both ways (was 10k = 1.65 V)")
 P("R7", "10k", R0603, "", {1: "IBIAS", 2: "IGND"})
 P("C17", "10uF 25V", C0805, "CL21A106KAYNNNE", {1: "IBIAS", 2: "IGND"})
 # the codec: TLV320AIC3204 (RHB, QFN-32). I2C 0x18, clocks from the bit clock (PLL), internal LDOs for AVDD / DVDD.
@@ -125,15 +126,17 @@ for k, ch in enumerate("LR"):
     n = lambda s: f"{s}_{ch}"
     b = 30 + 10 * k
     P(f"R{b}", "1k", R1206, "", {1: n("JIN"), 2: n("IN_A")}, "1206: takes the current when the TVS clamps a hot input")
-    P(f"R{b+1}", "1M", R0603, "", {1: n("IN_A"), 2: "IGND"}, "no pop when a cable goes in")
+    P(f"R{b+1}", "1M", R0603, "", {1: n("IN_A"), 2: "IGND"},
+      "NOT FITTED (DNP): without it the input is ~1.5 Mohm, so a guitar keeps its treble (with it: 595k, ~2.4 dB duller)")
     P(f"C{b}", "100nF", C0603, "", {1: n("IN_A"), 2: n("IN_B")}, "tiny signal across it at 1M load: no distortion")
     P(f"R{b+2}", "1M", R0603, "", {1: n("IN_B"), 2: n("IN_C")})
     P(f"R{b+3}", "470k", "Resistor_SMD:R_0402_1005Metric", "", {1: n("IN_C"), 2: "IBIAS"},
       "x0.32 into the buffer (was 1M = x0.5: it clipped at 2.1 V rms; now clean to ~3.3 V rms, found by the simulation)")
     P(f"C{b+1}", "100pF C0G", C0603, "", {1: n("IN_C"), 2: "IBIAS"},
       "NOT FITTED (DNP in make_jlc / make_bom): on the 500 k divider it was a 3.2 kHz low-pass (found by the simulation)")
-    P(f"R{b+4}", "4.7k", R0603, "", {1: n("IN_G"), 2: n("IN_E")},
-      "x0.68 to the codec (was 20k = x1/3: the ADC's top 8 dB went unused; now pg-line's stage clips just before full scale)")
+    P(f"R{b+4}", "20k", R0603, "", {1: n("IN_G"), 2: n("IN_E")},
+      "THE INPUT CLAMP: 20k / 10k (and the codec's 20k) keep the codec's pin inside its safe window (-0.3 .. AVDD + 0.3)"
+      " whatever the pg-line op-amp does, even slammed rail to rail after a long hit: ngspice -0.02 .. +1.85 V (12k: -0.42)")
     P(f"R{b+5}", "10k", R0603, "", {1: n("IN_E"), 2: "IGND"})
     P(f"C{b+2}", "1uF", C0603, "", {1: n("IN_E"), 2: n("CIN2")})
     # pg-line: inverting stage, the pot between 220-ohm ends: gain = (220 + R_bw) / (220 + R_aw): -33 dB .. 0 (centre) .. +33 dB

@@ -57,10 +57,10 @@ constexpr int  kTouchZMin   = 150; // pressure (Z1) above this = a finger is dow
 //        TPA6139A2 x-2: out jack = DAC * 2.82 V peak
 // So with both knobs on their centre clicks, what comes out is as loud as what went in, processed. The firmware's two
 // gains below are FIXED (no auto-ranging): measure once on the real board and correct them here if needed.
-// ADC -> pedal units (1.0 = 2 V peak at the jack); the minus undoes the inversion. 0.1883 = codec volts per jack volt
-// at pg-line's centre click, from the board simulation (10-Carla-Plugin/Source/sim AC analysis): input divider 1M / 470k
-// (x0.32: clean to ~3.4 V rms at the jack) and 4.7k / 10k to the codec (x0.68: the ADC's range used up to ~-4 dBFS).
-constexpr float kInGain  = -1.f / (2.0f * 0.1883f);
+// ADC -> pedal units (1.0 = 2 V peak at the jack); the minus undoes the inversion. 0.0807 = codec volts per jack volt
+// at pg-line's centre click, from the board simulation (10-Carla-Plugin/Source/sim): bias 2.48 V (R6 3.3k), input divider
+// 1M / 470k, 20k / 10k to the codec (the input clamp: the codec pin stays inside its safe window, ngspice-checked).
+constexpr float kInGain  = -1.f / (2.0f * 0.0807f);
 // pedal units -> DAC, for unity through pg-hp (x1) and the TPA (x2); x1.046 = +0.39 dB for the analog leveller's
 // 4.7k into the 100k across each LDR (simulated on the routed board)
 constexpr float kOutGain = 2.0f / (2.0f * 1.41f) * 1.046f;
@@ -414,6 +414,8 @@ int main(void)
             }
             else if(!codec_ok)
                 codec_ok = codec.Init(&i2c);
+            else if(codec.Guard() > 0) // a gain inside the codec had changed: put back (and say so on the health tab)
+                core.ReportCodecFault();
         }
         if(core.WantsSave(now)) // 4 s after the last change: write it to the flash (only if it differs)
         {

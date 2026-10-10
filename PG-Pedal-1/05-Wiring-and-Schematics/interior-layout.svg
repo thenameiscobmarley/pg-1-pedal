@@ -6,8 +6,6 @@
 <text x="0.00" y="-45.85" font-family="DejaVu Sans, sans-serif" font-size="1.9" text-anchor="middle" fill="#1f6d2a" font-weight="normal">carrier board (pcbway): amp, buffers, protection, pin headers</text>
 <rect x="-43.1" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
 <text x="-34.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">in</text>
-<rect x="-17.75" y="-70.25" width="9.5" height="16.0" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
-<text x="-13.00" y="-62.25" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">9v</text>
 <rect x="24.9" y="-70.25" width="18.2" height="23.5" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
 <text x="34.00" y="-58.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">out</text>
 <rect x="43.25" y="-56.75" width="9.5" height="9.5" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
@@ -49,6 +47,12 @@
 <text x="0.00" y="60.00" font-family="DejaVu Sans, sans-serif" font-size="2.4" text-anchor="middle" fill="#000" font-weight="normal">pg-b</text>
 <circle cx="36.0" cy="50.0" r="6.6" fill="#ddd" stroke="#555" stroke-width="0.3"/>
 <text x="36.00" y="60.00" font-family="DejaVu Sans, sans-serif" font-size="2.4" text-anchor="middle" fill="#000" font-weight="normal">pg-c</text>
+<rect x="-58.25" y="28.0" width="16" height="12" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>
+<text x="-50.25" y="42.50" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">9v jack</text>
+<circle cx="-16.0" cy="-51.5" r="8" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
+<text x="-16.00" y="-50.50" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#000" font-weight="normal">power</text>
+<circle cx="16.4" cy="-51.5" r="8" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>
+<text x="16.40" y="-50.50" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#000" font-weight="normal">page</text>
 <text x="0.00" y="77.75" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="normal">INTERIOR TOP VIEW (looking down through the face) - 1:1</text>
 <text x="0.00" y="81.75" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#000" font-weight="normal">screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window</text>
 <text x="0.00" y="85.75" font-family="DejaVu Sans, sans-serif" font-size="2.2" text-anchor="middle" fill="#a00" font-weight="normal">Seed3 pulls straight out of the right wall: keep the green dashed zones free for the wires</text>

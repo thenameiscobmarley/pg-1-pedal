@@ -37,7 +37,7 @@ std::vector<Wire> DefaultWiring()
 
 // parts on the board that are NOT fitted (found by the simulation: C31 / C41, 100 pF on the 500 k bias divider, made a
 // 3.2 kHz low-pass on the input). Must match make_jlc.py / make_bom.py DNP.
-static const char* const kNotFitted[] = {"C31", "C41"};
+static const char* const kNotFitted[] = {"C31", "C41", "R31", "R41"};
 
 // ======================================================================= the circuit
 enum Type
@@ -294,6 +294,7 @@ struct BoardSim::Impl
     double              gPseudo = 0;
     double              testIn[2] = {0, 0}, testDac[2] = {0, 0}; // test signals for the whole-board solver
     double              levelV = 0.0;                            // the leveller DAC's output (volts)
+    std::vector<double> nodeScale;                               // resting-state search: per-node pretend capacitor scale
     bool                noCaps = false;
     double              opGain = 200.0; // op-amp gain in the whole-board solver (the AC analysis uses the real 1e5)
     bool                acMode = false;
@@ -358,6 +359,11 @@ void BoardSim::Impl::build(const std::vector<Wire>& w)
             add(CAP, {P("1"), P("2")}, {ParseValue(val, 'F')}, ref);
         else if(val == "PTC 300mA")
             add(RES, {P("1"), P("2")}, {1.7, 1.0 /* = PTC */}, ref);
+        else if(val == "BAT54S" || val == "BAS40W-04") // Schottky pair: 1 -> 3 and 3 -> 2 (pin 3 = the middle)
+        {
+            add(DIODE, {P("1"), P("3")}, {0.22, 25.0}, ref);
+            add(DIODE, {P("3"), P("2")}, {0.22, 25.0}, ref);
+        }
         else if(val == "1N4148WS") // pin 2 anode, pin 1 cathode
             add(DIODE, {P("2"), P("1")}, {0.6, 5.0}, ref);
         else if(val == "B5819W") // pin 2 anode, pin 1 cathode
@@ -372,6 +378,11 @@ void BoardSim::Impl::build(const std::vector<Wire>& w)
         {
             add(OPAMP, {P("3"), P("2"), P("1"), P("8"), P("4")}, {1e5, 20.0}, ref, 0);
             add(OPAMP, {P("5"), P("6"), P("7"), P("8"), P("4")}, {1e5, 20.0}, ref, 1);
+            for(const char* in : {"3", "2", "5", "6"}) // its inputs' protection diodes to both supplies
+            {
+                add(DIODE, {P(in), P("8")}, {0.6, 100.0}, ref);
+                add(DIODE, {P("4"), P(in)}, {0.6, 100.0}, ref);
+            }
         }
         else if(val == "TPA6139A2") // 1 -IN L, 2 OUT L, 14 -IN R, 13 OUT R, 10 VDD, 3/11 GND, 4 HP_ON, 5 VSS
         {
@@ -1027,9 +1038,12 @@ void BoardSim::Impl::residual(const std::vector<double>& v, double h, std::vecto
                                 // Newton's steps small; it only slows the approach to rest, the resting voltages are unchanged)
     for(int k = 0; k < n; k++)
     {
-        F[(size_t) k] += 1e-9 * v[(size_t) k + 1] + gp * (v[(size_t) k + 1] - Vstart[(size_t) k + 1]);
+        // finding the resting state: each node's pretend capacitor scaled to how stiffly the circuit holds that node
+        // (a node behind megohms gets a tiny one), so every node settles at the same pace in pretend time
+        const double g = gPseudo > 0 && !nodeScale.empty() ? gp * nodeScale[(size_t) k + 1] : gp;
+        F[(size_t) k] += 1e-9 * v[(size_t) k + 1] + g * (v[(size_t) k + 1] - Vstart[(size_t) k + 1]);
         if(Jm)
-            (*Jm)[(size_t) k * n + k] += 1e-9 + gp;
+            (*Jm)[(size_t) k * n + k] += 1e-9 + g;
     }
     double vv[6], ii[6], i2[6], w[6];
     for(const auto& e : el)
@@ -1213,7 +1227,7 @@ bool BoardSim::Impl::solveStep(double h)
             return true;
         if(it % 8 == 7) // stalled close to balance (tens of uA at most): good enough, the next steps refine it
         {
-            if(f0 < 1e-11 && f0 > 0.99 * fCheck)
+            if(f0 < (h < 1e-4 ? 1e-8 : 1e-11) && f0 > 0.99 * fCheck) // (tiny steps inside a violent event: a looser stop, or it can wander off)
                 return true;
             fCheck = f0;
         }
@@ -1234,6 +1248,14 @@ bool BoardSim::Impl::solveStep(double h)
 // notches, each solved at rest from the last one
 void BoardSim::Impl::operatingPoint()
 {
+    // each node's stiffness: the resistors on it (1 / 1k = 1); megohm nodes get ~1e-3, never below 1e-4
+    nodeScale.assign((size_t) nodes, 0.0);
+    for(const auto& e : el)
+        if(e.t == RES && e.p[0] > 0)
+            for(int q = 0; q < 2; q++)
+                nodeScale[(size_t) e.n[q]] += 1e3 / e.p[0];
+    for(auto& x : nodeScale)
+        x = std::max(1e-4, std::min(1.0, x == 0.0 ? 1.0 : x));
     // pseudo-transient continuation (how circuit simulators find a resting state): straight to full voltage, with a
     // strong pretend capacitor on every node so nothing runs off; it's weakened pass by pass as things settle, and
     // the chips' enables follow each pass

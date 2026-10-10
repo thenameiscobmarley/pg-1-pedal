@@ -23,6 +23,10 @@ class IsoCodec
     bool SetMute(bool mute);                      // the DAC's own soft mute
     bool ReadOverflow(bool& any);                 // the ADC's sticky overflow flags (cleared by reading)
     bool Alive();                                 // answers on I2C
+    // the codec's analog gains back where they belong if anything (a glitch, a bad I2C write) changed them: line outs
+    // 0 dB, DAC volume 0 dB, the input PGA at what SetInput chose (never above kPgaMax). Returns how many it fixed.
+    int  Guard();
+    static constexpr float kPgaMax = 20.f;        // the most input gain the firmware will ever ask the codec for
     Path  path = kLine;
     float pga  = 0.f;
 

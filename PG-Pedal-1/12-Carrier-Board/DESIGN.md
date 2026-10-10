@@ -104,3 +104,18 @@ Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 mak
   headphone amp un-muted at once: a ~1 V thump. D63 empties C73 when the power goes; the jack now moves < 1 mV.
 - Header holes re-centred in their pads (the press-fit offset is gone: the headers are soldered).
 
+
+## Hard limits (2026-10-09, user: "if the DSP ever glitches it physically can't output that")
+- **Bias centred: R6 10k -> 3.3k** (IBIAS 2.48 V, the middle of the op-amps' 5 V). Every stage swings the same both
+  ways; the input buffer is clean to ~5.4 V rms at the jack.
+- **Input clamp = R34 / R44 20k** (with R35 / R45 10k and the codec's 20k): whatever the pg-line op-amp does, even
+  slammed rail to rail right after a long one-sided hit (the 1 uF in front of the pin remembers the hit), the codec's pin
+  stays inside -0.02 .. +1.85 V (safe window -0.3 .. AVDD + 0.3 = 2.1), checked in ngspice over hits of 5-150 ms,
+  +-12 / +-24 V, released or reversed, the isolated 5 V up to 5.3 V. (12k let it reach -0.42 / +2.26 V; Schottky
+  clamps at the pins didn't fit.) The analog clips at about -7 dBFS of the ADC, so the Seed3 never gets an over.
+- **Output ceiling**: the headphone amp runs on +-3.3 V (its own charge pump): the jack can never pass 3.0 V peak =
+  2.1 V rms, whatever the DSP or a codec register does (86 mW into 50 ohm). The firmware also checks the codec's line
+  out / DAC / PGA gains every second and puts them back (IsoCodec::Guard, PGA never above 20 dB).
+- **The leveller can only cut** (an LDR shunt), its LED current tops out at ~11 mA (LEDs rated 20 mA).
+- **Guitar**: R31 / R41 not fitted: the input is 1.46 Mohm, flat to 10 kHz (with them 595k, ~2.4 dB less sparkle).
+- The 9 V jack moved to the left wall: nothing hangs over the board now (DC_ZONE empty).

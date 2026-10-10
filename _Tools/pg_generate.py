@@ -53,12 +53,20 @@ SMALL_KNOB_D = 14.0
 SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
 # the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
-SELECTOR = (8.0, 50.0, 9.0)
+SELECTOR = (16.4, 51.5, 9.0)
 # the power switch: a mini rotary switch (Tayda A-8233, 2 pole 4 position, 16 V 0.3 A, the same 9 mm hole / 6 mm spline
 # shaft as the page selector) with a pink chicken head: position 1 = 0 (off), the rest = 1 (on). Left of the screen,
 # below the sideways logo; behind the face it clears the pg-1 encoder, the screen module and the expansion bay.
-POWER = (-47.0, 2.0, 9.0)
-SELECTOR_TABS = ["1", "2", "3", "4", "5", "6", "7", "8"]   # the settings PAGE of the open tab (the closest one it has)
+POWER = (-16.0, 51.5, 9.0)
+SELECTOR_TABS = ["1", "2", "3", "4"]   # the settings PAGE of the open tab (the closest one it has)
+# Both switches are Tayda A-8233 (RS16211-24: 2 pole x 4 positions, 45 degrees apart, 135 degrees end to end; body
+# 16 mm across, 10 mm deep + 4 mm pins) with BLACK chicken heads A-6741 (23.4 long, 16.5 wide skirt, 14.5 tall; the
+# pointer reaches 12.1 mm from the shaft, the tail nub 11.3). Pointer angles of position 1 (then -45 per click), chosen
+# so the two knobs never touch anywhere along their whole travel (check_knob_sweeps):
+POWER_POS1, SELECTOR_POS1 = 157.5, 112.5
+KNOB_SKIRT, KNOB_REACH, KNOB_HALFW, KNOB_TAIL, KNOB_TAILW = 8.25, 12.1, 3.4, 11.3, 1.6
+# the 9 V DC jack (A-2237, 12 mm hole) is in the LEFT wall (side C), low: between the pg-1 knob and the pg-a footswitch
+DC_SIDE, DC_Y, DC_HOLE = "C", -34.0, 12.0
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
 FS_HOLE = 12.2
 
@@ -77,7 +85,6 @@ SCREW_HOLE = 3.2
 # lid-screw posts centred 126 x 102 mm, i.e. at +-51 / +-63 from the centre, reaching in to about +-46).
 SIDE_B = [  # label, x, bare hole, part. The 2 audio jacks are PCB-mount and hold the carrier board up by their nuts.
     ("in", -34.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated input"),
-    ("9v", -13.0, 12.0, "DC jack A-2237 (12mm cut-out)"),
     ("out", 34.0, 11.2, "6.35mm TRS jack Neutrik NMJ6HFD2 (plastic nose, on the carrier board): isolated output"),
 ]
 
@@ -357,23 +364,36 @@ def build_face_art():
             A.stroke(poly_path([(px + 1.25, py), (px + 3.4, py)]), 0.3)         # lead from the sleeve
             A.stroke(poly_path([(px + 3.9, py), (px + 5.1, py)]), 0.3)          # plus
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
-    # the page selector: a dot per position (the first pink) and its page number; "page" under the knob
+    # the page selector: a dot per position (the first pink) just beyond the pointer, its page number outside it
     sx, sy, _ = SELECTOR
-    A.fill(mono.outline("page", sx + 20.5, sy - 4.6, 2.0), PINK)
+    A.fill(mono.outline("page", sx - 14.0, sy - 6.5, 2.0), PINK)
     for i, t in enumerate(SELECTOR_TABS):
-        a = math.radians(90 + 105 - i * 30)          # 8 positions, 30 degrees apart, centred on the top
-        A.fill(circle_path(sx + 11.0 * math.cos(a), sy + 11.0 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
-        A.fill(mono.outline(t, sx + 13.8 * math.cos(a), sy + 13.8 * math.sin(a) - 0.9, 2.4))
+        a = math.radians(SELECTOR_POS1 - 45 * i)
+        A.fill(circle_path(sx + 13.4 * math.cos(a), sy + 13.4 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
+        A.fill(mono.outline(t, sx + 16.2 * math.cos(a), sy + 16.2 * math.sin(a) - 0.9, 2.4))
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
-    # the power switch: "0" (off, fully left) and "1" (on), 30 degrees apart either side of straight up
+    # the power switch: "0" at position 1, "1" at the other three (any of them is on); "power" beside it
     px_, py_, _ = POWER
-    for i, t in enumerate(("0", "1")):
-        a = math.radians(105 - i * 30)
-        A.fill(circle_path(px_ + 10.2 * math.cos(a), py_ + 10.2 * math.sin(a), 0.5), PINK if i == 0 else INK)
-        A.fill(mono.outline(t, px_ + 13.0 * math.cos(a), py_ + 13.0 * math.sin(a) - 0.9, 2.6))
-    A.fill(mono.outline("power", px_ + 9.6, py_ - 0.8, 1.9), PINK)
+    for i in range(4):
+        a = math.radians(POWER_POS1 - 45 * i)
+        A.fill(circle_path(px_ + 13.4 * math.cos(a), py_ + 13.4 * math.sin(a), 0.5), PINK if i == 0 else INK)
+        if i < 2:
+            A.fill(mono.outline("0" if i == 0 else "1", px_ + 16.2 * math.cos(a), py_ + 16.2 * math.sin(a) - 0.9, 2.6))
+    A.fill(mono.outline("power", px_ - 14.0, py_ - 5.0, 1.9), PINK)
+    # the 9 V jack's label, sideways on the left edge level with the jack (tilt the pedal to read it, like usb-c)
+    A.fill(rot90(mono.outline("9v", 0, 0, 2.6), -51.4, DC_Y + 5.6))
+    # centre-negative mark, drawn along the edge (reads bottom to top like the text): minus - ( . ) - plus
+    ex, ey = -51.4 - 0.9, DC_Y - 1.6
+    R = lambda u, v: (ex - v, ey + u)   # (along, across) -> face, turned 90 degrees like the text
+    A.stroke(poly_path([R(-4.6, 0), R(-3.6, 0)]), 0.3)
+    A.stroke(poly_path([R(-3.0, 0), R(-0.25, 0)]), 0.3)
+    A.fill(circle_path(*R(0, 0), 0.45))
+    A.stroke(poly_path([R(1.25 * math.cos(math.radians(t)), 1.25 * math.sin(math.radians(t))) for t in range(40, 321, 10)]), 0.3)
+    A.stroke(poly_path([R(1.25, 0), R(3.4, 0)]), 0.3)
+    A.stroke(poly_path([R(3.9, 0), R(5.1, 0)]), 0.3)
+    A.stroke(poly_path([R(4.5, -0.6), R(4.5, 0.6)]), 0.3)
     # logo + name, smaller and sideways left of the screen (tilt the pedal to read it), the logo's ends in pink diamonds
     k, lx, ly = 0.29, -42.5, 24.6
     pts = [((px) * k, (py - 51.0) * k) for px, py in logo_points(0, 51.0)]
@@ -384,8 +404,64 @@ def build_face_art():
     return A
 
 
+def check_knob_sweeps():
+    """the two chicken heads along their whole travel (every 3 degrees): never touching each other, the gain knobs,
+    the screen screws' heads; pointers on the face. And their switch bodies behind the face clear of everything."""
+    def shape(cx, cy, ang):
+        a = math.radians(ang)
+        return [("c", cx, cy, KNOB_SKIRT), ("s", cx, cy, cx + KNOB_REACH * math.cos(a), cy + KNOB_REACH * math.sin(a), KNOB_HALFW),
+                ("s", cx, cy, cx - KNOB_TAIL * math.cos(a), cy - KNOB_TAIL * math.sin(a), KNOB_TAILW)]
+    def segd(px, py, x0, y0, x1, y1):
+        dx, dy = x1 - x0, y1 - y0
+        L = dx * dx + dy * dy
+        t = 0 if L == 0 else max(0, min(1, ((px - x0) * dx + (py - y0) * dy) / L))
+        return math.hypot(px - x0 - t * dx, py - y0 - t * dy)
+    def dist(p, q):
+        if p[0] == "c" and q[0] == "c":
+            return math.hypot(p[1] - q[1], p[2] - q[2]) - p[3] - q[3]
+        if p[0] == "c":
+            return segd(p[1], p[2], *q[1:5]) - p[3] - q[5]
+        if q[0] == "c":
+            return dist(q, p)
+        a, b = p[1:5], q[1:5]
+        return min(segd(a[0], a[1], *b), segd(a[2], a[3], *b), segd(b[0], b[1], *a), segd(b[2], b[3], *a)) - p[5] - q[5]
+    obst = [("c", x, y, SMALL_KNOB_D / 2) for _, x, y, _, _ in SMALL_POTS] + [("c", x, y, 2.75) for x, y in SCREWS]
+    sweeps = {name: [shape(k[0], k[1], t - a) for a in range(0, 136, 3)] for name, k, t in
+              (("power", POWER, POWER_POS1), ("page selector", SELECTOR, SELECTOR_POS1))}
+    worst = min(dist(p, q) for a in sweeps["power"] for b in sweeps["page selector"] for p in a for q in b)
+    if worst < 1.0:
+        raise SystemExit(f"the chicken heads come within {worst:.2f} mm of each other")
+    for name, sw in sweeps.items():
+        w = min(dist(p, o) for a in sw for p in a for o in obst)
+        if w < 1.0:
+            raise SystemExit(f"the {name} knob comes within {w:.2f} mm of a gain knob / screen screw")
+        tip = max(p[4] for a in sw for p in a if p[0] == "s")
+        if tip > FACE_H / 2 - 0.8:
+            raise SystemExit(f"the {name} knob's pointer reaches past the top edge ({tip:.1f})")
+    # behind the face: the RS16 bodies (16 mm, 10 mm deep + pins) against the jack bodies (top wall, from y 46.45, 3..26
+    # deep) and the screen module (to y 42.75)
+    for name, (x, y, _) in (("power", POWER), ("page selector", SELECTOR)):
+        for jx in (-34.0, 34.0):
+            if y + 8.0 > 46.45 and abs(x - jx) < 9.1 + 8.0 + 0.4:
+                raise SystemExit(f"the {name} switch body hits the jack body at x {jx}")
+        if y - 8.0 < LCD_CY + LCD_PCB[1] / 2 + 0.4:
+            raise SystemExit(f"the {name} switch body hits the screen module")
+    if abs(POWER[0] - SELECTOR[0]) < 16.5:
+        raise SystemExit("the two switch bodies touch")
+    # the 9 V jack in the left wall: body 16 deep x 12 across, clear of the pg-1 encoder (12 x 12) and pg-a's body (13.2)
+    wl = -FACE_W / 2 + 2.3
+    dc = (wl, DC_Y - 6.0, wl + 16.0, DC_Y + 6.0)
+    enc = [(x - 6, KNOB_Y - 6, x + 6, KNOB_Y + 6) for _, x, kind, _ in KNOBS if kind == "enc"]
+    fsw = [(x - 6.6, FS_Y - 6.6, x + 6.6, FS_Y + 6.6) for _, x in FOOTSW]
+    for r in enc + fsw:
+        if dc[0] < r[2] + 1.0 and r[0] < dc[2] + 1.0 and dc[1] < r[3] + 1.0 and r[1] < dc[3] + 1.0:
+            raise SystemExit(f"the 9 V jack hits a part inside: {r}")
+    return worst
+
+
 def check_clearances():
     """Make sure no printed item sits on a hole (cheap sanity check)."""
+    print(f"chicken heads: {check_knob_sweeps():.1f} mm apart at the closest point of their travel")
     holes = [(x, KNOB_Y, d / 2 + PC / 2) for _, x, _, d in KNOBS] + \
             [(x, FS_Y, FS_HOLE / 2) for _, x in FOOTSW] + [(x, y, 2.5) for x, y in SCREWS] + \
             [(x, y, d / 2 + PC / 2) for _, x, y, d, _ in SMALL_POTS] + [(SELECTOR[0], SELECTOR[1], SELECTOR[2] / 2 + PC / 2)] + [(POWER[0], POWER[1], POWER[2] / 2 + PC / 2)]
@@ -498,9 +574,10 @@ def holes_table():
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",
-                 "8-way mini rotary switch A-8626 (RS16, 9 mm bushing) + chicken-head knob"))
+                 "4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + black chicken head A-6741"))
     rows.append(("A", "hole", "power switch", POWER[0], POWER[1], round(POWER[2] + PC, 2), "", "",
-                 "power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + chicken-head knob"))
+                 "power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + black chicken head A-6741"))
+    rows.append((DC_SIDE, "hole", "9v", 0.0, DC_Y, round(DC_HOLE + PC, 2), "", "", "DC jack A-2237 (12mm cut-out), left wall"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
     for name, x, d, part in SIDE_B:
@@ -617,11 +694,13 @@ def write_art(A):
             a = math.radians(k * 15)
             p.append(f'<path d="M{x+5.6*math.cos(a):.2f},{-y+5.6*math.sin(a):.2f} L{x+7*math.cos(a):.2f},{-y+7*math.sin(a):.2f}" stroke="#c6c6c3" stroke-width="0.35"/>')
         p.append(f'<path d="M{x},{-y-5.4} v2.4" stroke="#222" stroke-width="0.6" stroke-linecap="round"/>')
-    for (sx, sy, _), tipdeg in ((POWER, 105), (SELECTOR, 195)):   # pink chicken heads: power at 0, the selector at 1
-        p.append(f'<circle cx="{sx}" cy="{-sy}" r="6.2" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
+    for (sx, sy, _), tipdeg in ((POWER, POWER_POS1), (SELECTOR, SELECTOR_POS1)):   # black chicken heads at position 1
+        p.append(f'<circle cx="{sx}" cy="{-sy}" r="{KNOB_SKIRT}" fill="#2a2a2a" stroke="#000" stroke-width="0.4" filter="url(#sh)"/>')
         tip = math.radians(tipdeg)
-        p.append(f'<path d="M{sx-2.2*math.sin(tip):.2f},{-sy-2.2*math.cos(tip):.2f} L{sx+10*math.cos(tip):.2f},{-sy-10*math.sin(tip):.2f} '
-                 f'L{sx+2.2*math.sin(tip):.2f},{-sy+2.2*math.cos(tip):.2f} Z" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4"/>')
+        cx_, cy_ = math.cos(tip), math.sin(tip)
+        p.append(f'<path d="M{sx-KNOB_HALFW*cy_:.2f},{-sy-KNOB_HALFW*cx_:.2f} L{sx+KNOB_REACH*cx_-1.2*cy_:.2f},{-sy-KNOB_REACH*cy_-1.2*cx_:.2f} '
+                 f'L{sx+KNOB_REACH*cx_+1.2*cy_:.2f},{-sy-KNOB_REACH*cy_+1.2*cx_:.2f} L{sx+KNOB_HALFW*cy_:.2f},{-sy+KNOB_HALFW*cx_:.2f} Z" fill="#2a2a2a" stroke="#000" stroke-width="0.4"/>')
+        p.append(f'<path d="M{sx},{-sy} L{sx+(KNOB_REACH-0.8)*cx_:.2f},{-sy-(KNOB_REACH-0.8)*cy_:.2f}" stroke="#eee" stroke-width="0.5"/>')
     open(os.path.join(d, "pg1-face-preview.svg"), "w").write(
         svg_doc(FACE_W + 10, FACE_H + 14, "\n".join(p), (-(FACE_W + 10) / 2, -(FACE_H + 14) / 2 - 1, FACE_W + 10, FACE_H + 14), "#e9e7e2"))
 
@@ -674,6 +753,13 @@ def write_interior():
     for name, x in FOOTSW:
         p.append(f'<circle cx="{x}" cy="{-FS_Y}" r="6.6" fill="#ddd" stroke="#555" stroke-width="0.3"/>')
         p.append(text(x, FS_Y - 10, name, 2.4))
+    # the 9 V jack in the left wall (16 mm deep, up to 12 mm across), and the two rotary switch bodies (16 mm)
+    wl = -FACE_W / 2 + 2.3
+    p.append(f'<rect x="{wl}" y="{-(DC_Y + 6)}" width="16" height="12" fill="#ffe2a8" stroke="#a66" stroke-width="0.3"/>')
+    p.append(text(wl + 8, DC_Y - 8.5, "9v jack", 2.2))
+    for name, (x, y, _) in (("power", POWER), ("page", SELECTOR)):
+        p.append(f'<circle cx="{x}" cy="{-y}" r="8" fill="#e5c7f0" stroke="#84a" stroke-width="0.3"/>')
+        p.append(text(x, y - 1, name, 2.0))
     p.append(text(0, -FACE_H / 2 - 5, "INTERIOR TOP VIEW (looking down through the face) - 1:1", 2.6))
     p.append(text(0, -FACE_H / 2 - 9, "screen: M3x12 screw | face | 5mm spacer | screen PCB | M3 nut.   Seed3 socket: jumper ends hot-glued in the window", 2.2))
     p.append(text(0, -FACE_H / 2 - 13, "Seed3 pulls straight out of the right wall: keep the green dashed zones free for the wires", 2.2, color="#a00"))

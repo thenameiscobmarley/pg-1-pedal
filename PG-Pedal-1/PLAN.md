@@ -204,3 +204,17 @@ Steps:
       D63 1N4148WS + R70 1M (quick off/on thump 1.1 V -> 2 mV). Sim: Newton stall tolerance 1e-8 -> 1e-11 (1e-8 let a
       0.25 V false DC through at 250 ohm; 1e-14 too slow). Tried R6 3.3k (bias 2.48 V): solver can't settle it -> kept 10k.
       make_jlc now checks every footprint against the routed board. Plugin: power knob (click = off: silence, dark).
+- [x] 52. 2026-10-09 night: hard limits. Bias centred (R6 3.3k; the sim's start-up search now scales its pretend
+      capacitors per node, which is what made this solvable), R34/R44 12k = the input clamp (codec pin +0.02..+1.98 V
+      for any input; analog clips at -4 dBFS), R31/R41 DNP (1.46 Mohm for guitars), output ceiling 3.0 V peak (TPA rails),
+      firmware IsoCodec::Guard (codec gains re-checked every second, PGA <= 20 dB), kInGain 0.1152.
+      Face: measured the RS16 (45 deg clicks, 16 mm body) and the chicken heads: pink 32 mm can't work on a 4-click
+      switch (sweeps over the screen) -> both switches A-8233 with black A-6741 (23.4 x 16.5) at (-16, 51.5) power and
+      (16.4, 51.5) page 1..4; check_knob_sweeps proves 5.4 mm clearance over the whole travel. 9 V jack -> LEFT wall
+      (side C, y -34) at the user's request. Tayda re-uploaded; cart 21 lines.
+- [x] 53. Input clamp settled: ngspice (scratchpad spice/chain.cir: the isolated path, behavioural op-amps with rails)
+      showed a long one-sided hit swings the codec pin past its window with R34 12k (-0.42 / +2.26 V: the 1 uF in front
+      of the pin remembers the hit). Schottky clamps at the pins (BAS40W-04) didn't fit even with a local re-route.
+      -> R34 / R44 20k: worst over 5-150 ms +-12/+-24 V hits, released or reversed, 5 V up to 5.3 V: -0.02 .. +1.85 V.
+      kInGain 0.0807. The board simulator mis-solves sustained +-12 V DC at the input (output side goes to nonsense);
+      ngspice shows the real output untouched (< 20 mV) - a known limit of our simulator, not the board.

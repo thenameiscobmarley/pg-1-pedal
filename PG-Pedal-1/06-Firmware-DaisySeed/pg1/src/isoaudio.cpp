@@ -70,12 +70,30 @@ bool IsoCodec::Init(I2CHandle* i2c)
 bool IsoCodec::SetInput(Path p, float pga_db)
 {
     path = p;
-    pga  = pga_db < 0.f ? 0.f : (pga_db > 47.5f ? 47.5f : pga_db);
+    pga  = pga_db < 0.f ? 0.f : (pga_db > kPgaMax ? kPgaMax : pga_db);
     const uint8_t g = uint8_t(pga * 2.f + 0.5f) & 0x7F; // 0.5 dB steps, D7 = 0: gain on
     // MICPGA routing: + input = IN1 (mic, 10k) or IN2 (line, 20k); - input = common mode (same resistance)
     const uint8_t lp = p == kMic ? 0x40 : 0x20, ln = p == kMic ? 0x40 : 0x80;
     return W(1, 0x34, lp) && W(1, 0x36, ln) && W(1, 0x37, p == kMic ? 0x40 : 0x20) && W(1, 0x39, ln)
            && W(1, 0x3B, g) && W(1, 0x3C, g);
+}
+
+int IsoCodec::Guard()
+{
+    const uint8_t g     = uint8_t(pga * 2.f + 0.5f) & 0x7F;
+    const struct { uint8_t page, reg, want; } k[] = {
+        {1, 0x12, 0x00}, {1, 0x13, 0x00}, // LOL / LOR gain 0 dB (they can go to +29 dB)
+        {0, 0x41, 0x00}, {0, 0x42, 0x00}, // DAC digital volume 0 dB (can go to +24 dB)
+        {1, 0x3B, g},    {1, 0x3C, g},    // input PGA
+    };
+    int fixed = 0;
+    for(const auto& x : k)
+    {
+        uint8_t v = 0;
+        if(R(x.page, x.reg, v) && v != x.want && W(x.page, x.reg, x.want))
+            fixed++;
+    }
+    return fixed;
 }
 
 // unmuted, the DAC still mutes itself (in the chip, no software needed) if the digital audio stops: 400 samples of DC
