@@ -440,12 +440,21 @@ def build_face_art():
     for i in range(4):
         a = math.radians(POWER_POS1 - 45 * i)
         A.fill(circle_path(px_ + 10.6 * math.cos(a), py_ + 10.6 * math.sin(a), 0.5), PINK if i == 0 else INK)
-        if i < 2:
-            A.fill(mono.outline("0" if i == 0 else "1", px_ + 12.6 * math.cos(a), py_ + 12.6 * math.sin(a) - 0.9, 2.6))
+        # "0" at the first click, "1" at the next two; the 4th click is on too (all three are wired as on) and sits
+        # on the pink ON arc below (its label would land beside the page dial's "1" at the top edge)
+        if i < 3:
+            lx_, ly_ = px_ + 12.6 * math.cos(a), py_ + 12.6 * math.sin(a)
+            if ly_ > 65.6:
+                lx_ += (ly_ - 65.6) * (-1.6 if math.cos(a) < 0 else 1.6)
+                ly_ = 65.6
+            A.fill(mono.outline("0" if i == 0 else "1", lx_, ly_ - 0.9, 2.6))
     A.fill(mono.outline("power", px_ - 11.5, py_ - 11.8, 2.0), PINK)
     # the dial's travel: a thin arc through its 4 clicks (so the print reads as a dial with no knob on)
     A.stroke(poly_path([(px_ + 10.6 * math.cos(math.radians(POWER_POS1 - d)), py_ + 10.6 * math.sin(math.radians(POWER_POS1 - d)))
                         for d in range(0, 136, 3)]), 0.22)
+    # the ON zone: clicks 2, 3 and 4 are all "1", a thick pink arc over them
+    A.stroke(poly_path([(px_ + 10.6 * math.cos(math.radians(POWER_POS1 - d)), py_ + 10.6 * math.sin(math.radians(POWER_POS1 - d)))
+                        for d in range(45, 136, 3)]), 0.9, PINK)
     # the 9 V jack's label, sideways on the left edge level with the jack (tilt the pedal to read it, like usb-c)
     A.fill(rot90(mono.outline("9v", 0, 0, 2.6), -51.4, DC_Y + 5.6))
     # centre-negative mark, drawn along the edge (reads bottom to top like the text): minus - ( . ) - plus
@@ -1048,7 +1057,7 @@ def write_logo_header():
 if __name__ == "__main__":
     check_clearances()
     write_depth()
-    for tool in ("pg_wiring.py", "pg_wiring3d.py"):   # the flat and the 3D wiring drawings, from one wire list
+    for tool in ("pg_wiring.py", "pg_wiring_pics.py"):   # the flat drawing and the picture pages, from one wire list
         subprocess.run([sys.executable, os.path.join(os.path.dirname(os.path.abspath(__file__)), tool)], check=True)  # (the old write_wiring_diagram predates the carrier board)
     write_socket_board()
     write_logo_header()

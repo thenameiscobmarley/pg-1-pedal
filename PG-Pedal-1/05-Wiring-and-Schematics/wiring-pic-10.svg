@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="297.0mm" height="210.0mm" viewBox="0 0 297.0 210.0"><rect width="297.0" height="210.0" fill="#fbfaf7"/><rect x="55.00" y="35.00" width="65.34" height="30.20" rx="1.5" fill="#1e4fb8" stroke="#0d2a66" stroke-width="0.35"/>
+<rect x="82.44" y="41.00" width="10.00" height="9.00" rx="0.5" fill="#111" stroke="#000" stroke-width="0.35"/>
+<text x="87.44" y="39.50" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.36" paint-order="stroke">PCF8574</text>
+<text x="87.67" y="33.00" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.50" paint-order="stroke">PCF8574 board (Amazon), parts side up</text>
+<rect x="49.00" y="40.53" width="7" height="1.0" fill="#d4a017"/>
+<text x="57.00" y="41.73" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">VCC</text>
+<rect x="119.34" y="40.23" width="5" height="1.6" fill="#111"/>
+<text x="118.34" y="41.73" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">VCC</text>
+<rect x="49.00" y="44.60" width="7" height="1.0" fill="#d4a017"/>
+<text x="57.00" y="45.80" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">GND</text>
+<rect x="119.34" y="44.30" width="5" height="1.6" fill="#111"/>
+<text x="118.34" y="45.80" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">GND</text>
+<rect x="49.00" y="48.66" width="7" height="1.0" fill="#d4a017"/>
+<text x="57.00" y="49.86" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SDA</text>
+<rect x="119.34" y="48.36" width="5" height="1.6" fill="#111"/>
+<text x="118.34" y="49.86" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SDA</text>
+<rect x="49.00" y="52.72" width="7" height="1.0" fill="#d4a017"/>
+<text x="57.00" y="53.92" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SCL</text>
+<rect x="119.34" y="52.42" width="5" height="1.6" fill="#111"/>
+<text x="118.34" y="53.92" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SCL</text>
+<rect x="66.26" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="66.76" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P0</text>
+<rect x="70.33" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="70.83" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P1</text>
+<rect x="74.39" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="74.89" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P2</text>
+<rect x="78.45" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="78.95" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P3</text>
+<rect x="82.52" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="83.02" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P4</text>
+<rect x="86.58" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="87.08" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P5</text>
+<rect x="90.65" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="91.15" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P6</text>
+<rect x="94.71" y="64.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="95.21" y="63.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P7</text>
+<text x="100.09" y="68.20" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="start" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.42" paint-order="stroke">(INT: empty)</text>
+<circle cx="35.00" cy="150.00" r="10.88" fill="#d8d8d8" stroke="#888" stroke-width="0.35"/>
+<circle cx="35.00" cy="150.00" r="5.12" fill="#e8f6ec" stroke="#9a9" stroke-width="0.3"/>
+<text x="35.00" y="164.88" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">in light (under Input Gain)</text>
+<text x="35.00" y="168.08" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.45" paint-order="stroke">back of the bezel: the LED&#x27;s 2 legs</text>
+<rect x="30.54" y="136.00" width="0.8" height="14" fill="#c9ccd1" stroke="#777" stroke-width="0.2"/>
+<rect x="38.66" y="133.00" width="0.8" height="17" fill="#c9ccd1" stroke="#777" stroke-width="0.2"/>
+<circle cx="95.00" cy="150.00" r="10.88" fill="#d8d8d8" stroke="#888" stroke-width="0.35"/>
+<circle cx="95.00" cy="150.00" r="5.12" fill="#e8f6ec" stroke="#9a9" stroke-width="0.3"/>
+<text x="95.00" y="164.88" font-family="DejaVu Sans, sans-serif" font-size="2.6" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.65" paint-order="stroke">out light (under Output Gain)</text>
+<text x="95.00" y="168.08" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="middle" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.45" paint-order="stroke">back of the bezel: the LED&#x27;s 2 legs</text>
+<rect x="90.54" y="136.00" width="0.8" height="14" fill="#c9ccd1" stroke="#777" stroke-width="0.2"/>
+<rect x="98.66" y="133.00" width="0.8" height="17" fill="#c9ccd1" stroke="#777" stroke-width="0.2"/>
+<path d="M145.00,111.00 V129.00" stroke="#c9ccd1" stroke-width="0.7"/>
+<rect x="143.40" y="115.50" width="3.20" height="9.00" rx="1.2" fill="#e9d7b4" stroke="#8a7350" stroke-width="0.3"/>
+<rect x="143.40" y="116.80" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="143.40" y="118.60" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="143.40" y="120.40" width="3.2" height="0.8" fill="#7a4a1a"/>
+<rect x="143.40" y="122.20" width="3.2" height="0.8" fill="#c9a227"/>
+<path d="M154.00,111.00 V129.00" stroke="#c9ccd1" stroke-width="0.7"/>
+<rect x="152.40" y="115.50" width="3.20" height="9.00" rx="1.2" fill="#e9d7b4" stroke="#8a7350" stroke-width="0.3"/>
+<rect x="152.40" y="116.80" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="152.40" y="118.60" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="152.40" y="120.40" width="3.2" height="0.8" fill="#7a4a1a"/>
+<rect x="152.40" y="122.20" width="3.2" height="0.8" fill="#c9a227"/>
+<path d="M163.00,111.00 V129.00" stroke="#c9ccd1" stroke-width="0.7"/>
+<rect x="161.40" y="115.50" width="3.20" height="9.00" rx="1.2" fill="#e9d7b4" stroke="#8a7350" stroke-width="0.3"/>
+<rect x="161.40" y="116.80" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="161.40" y="118.60" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="161.40" y="120.40" width="3.2" height="0.8" fill="#7a4a1a"/>
+<rect x="161.40" y="122.20" width="3.2" height="0.8" fill="#c9a227"/>
+<path d="M172.00,111.00 V129.00" stroke="#c9ccd1" stroke-width="0.7"/>
+<rect x="170.40" y="115.50" width="3.20" height="9.00" rx="1.2" fill="#e9d7b4" stroke="#8a7350" stroke-width="0.3"/>
+<rect x="170.40" y="116.80" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="170.40" y="118.60" width="3.2" height="0.8" fill="#f08c00"/>
+<rect x="170.40" y="120.40" width="3.2" height="0.8" fill="#7a4a1a"/>
+<rect x="170.40" y="122.20" width="3.2" height="0.8" fill="#c9a227"/>
+<path d="M30.94,136.00 C30.94,111.06 83.02,96.14 83.02,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M30.94,136.00 C30.94,111.06 83.02,96.14 83.02,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="30.94" cy="136.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="83.02" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="56.98" cy="103.60" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="56.98" y="104.40" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">1</text>
+<path d="M39.06,133.00 C39.06,109.52 87.08,94.68 87.08,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M39.06,133.00 C39.06,109.52 87.08,94.68 87.08,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="39.06" cy="133.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="87.08" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="63.07" cy="102.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="63.07" y="102.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">2</text>
+<path d="M90.94,136.00 C90.94,116.56 91.15,90.64 91.15,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M90.94,136.00 C90.94,116.56 91.15,90.64 91.15,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="90.94" cy="136.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="91.15" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="91.04" cy="103.60" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="91.04" y="104.40" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">3</text>
+<path d="M99.06,133.00 C99.06,114.42 95.21,89.78 95.21,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M99.06,133.00 C99.06,114.42 95.21,89.78 95.21,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="99.06" cy="133.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="95.21" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="97.14" cy="102.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="97.14" y="102.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">4</text>
+<path d="M145.00,111.00 C145.00,88.90 83.02,93.30 83.02,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M145.00,111.00 C145.00,88.90 83.02,93.30 83.02,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="145.00" cy="111.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="83.02" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="114.01" cy="91.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="114.01" y="91.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">5</text>
+<path d="M154.00,111.00 C154.00,87.64 87.08,94.56 87.08,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M154.00,111.00 C154.00,87.64 87.08,94.56 87.08,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="154.00" cy="111.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="87.08" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="120.54" cy="91.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="120.54" y="91.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">6</text>
+<path d="M163.00,111.00 C163.00,86.36 91.15,95.84 91.15,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M163.00,111.00 C163.00,86.36 91.15,95.84 91.15,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="163.00" cy="111.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="91.15" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="127.07" cy="91.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="127.07" y="91.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">7</text>
+<path d="M172.00,111.00 C172.00,85.05 95.21,97.15 95.21,71.20" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M172.00,111.00 C172.00,85.05 95.21,97.15 95.21,71.20" fill="none" stroke="#e0409a" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="172.00" cy="111.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="95.21" cy="71.20" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="133.60" cy="91.10" r="2.1" fill="#fff" stroke="#e0409a" stroke-width="0.5"/><text x="133.60" y="91.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#e0409a">8</text>
+<path d="M145.00,129.00 C145.00,156.11 151.45,41.03 124.34,41.03" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M145.00,129.00 C145.00,156.11 151.45,41.03 124.34,41.03" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="145.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="124.34" cy="41.03" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="144.84" cy="95.18" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="144.84" y="95.98" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">9</text>
+<path d="M145.00,129.00 C145.00,135.00 154.00,135.00 154.00,129.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M145.00,129.00 C145.00,135.00 154.00,135.00 154.00,129.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="145.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="154.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="149.50" cy="133.50" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="149.50" y="134.30" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">10</text>
+<path d="M154.00,129.00 C154.00,135.00 163.00,135.00 163.00,129.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M154.00,129.00 C154.00,135.00 163.00,135.00 163.00,129.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="154.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="163.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="158.50" cy="133.50" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="158.50" y="134.30" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">11</text>
+<path d="M163.00,129.00 C163.00,135.00 172.00,135.00 172.00,129.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M163.00,129.00 C163.00,135.00 172.00,135.00 172.00,129.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="163.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="172.00" cy="129.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="167.50" cy="133.50" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="167.50" y="134.30" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">12</text>
+<text x="8.00" y="9.00" font-family="DejaVu Sans, sans-serif" font-size="4.4" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="1.10" paint-order="stroke">PG-1 wiring, page 10 of 10: Level lights + 330 ohm resistors -&gt; PCF8574 board</text>
+<text x="8.00" y="15.00" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">Each light&#x27;s 2 legs go to 2 P pins (either way round: if a light shows red with signal, swap its 2 wires). Each P4-P7 also gets a 330 ohm to VCC, </text>
+<text x="8.00" y="18.20" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">soldered on the PCF board&#x27;s UNDERSIDE; the 4 resistors&#x27; other ends are joined and go to a VCC pin. </text>
+<text x="206.00" y="26.00" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.68" paint-order="stroke">Steps (the number is on the wire):</text>
+<circle cx="207.60" cy="29.20" r="1.6" fill="#e0409a"/><text x="207.60" y="30.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">1</text>
+<text x="210.20" y="30.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">in light (under Input Gain): the LEFT leg (either way</text>
+<text x="210.20" y="32.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">round)  -&gt;  PCF8574: &#x27;P4&#x27; on the row of 8  (in light</text>
+<text x="210.20" y="35.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">(swap its 2 legs, or set kSwapLightColours, if the</text>
+<text x="210.20" y="37.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">colours are backwards))</text>
+<circle cx="207.60" cy="40.10" r="1.6" fill="#e0409a"/><text x="207.60" y="40.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">2</text>
+<text x="210.20" y="40.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">in light (under Input Gain): the RIGHT leg (either way</text>
+<text x="210.20" y="43.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">round)  -&gt;  PCF8574: &#x27;P5&#x27; on the row of 8  (in light)</text>
+<circle cx="207.60" cy="46.00" r="1.6" fill="#e0409a"/><text x="207.60" y="46.80" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">3</text>
+<text x="210.20" y="46.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">out light (under Output Gain): the LEFT leg (either way</text>
+<text x="210.20" y="49.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">round)  -&gt;  PCF8574: &#x27;P6&#x27; on the row of 8  (out light)</text>
+<circle cx="207.60" cy="51.90" r="1.6" fill="#e0409a"/><text x="207.60" y="52.70" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">4</text>
+<text x="210.20" y="52.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">out light (under Output Gain): the RIGHT leg (either way</text>
+<text x="210.20" y="55.20" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">round)  -&gt;  PCF8574: &#x27;P7&#x27; on the row of 8  (out light)</text>
+<circle cx="207.60" cy="57.80" r="1.6" fill="#e0409a"/><text x="207.60" y="58.60" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">5</text>
+<text x="210.20" y="58.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 1: the TOP leg  -&gt;  PCF8574: &#x27;P4&#x27; on the</text>
+<text x="210.20" y="61.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">row of 8  (330 ohm pull-up: solder its leg on the PCF</text>
+<text x="210.20" y="63.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">board&#x27;s underside, on P4&#x27;s joint)</text>
+<circle cx="207.60" cy="66.20" r="1.6" fill="#e0409a"/><text x="207.60" y="67.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">6</text>
+<text x="210.20" y="67.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 2: the TOP leg  -&gt;  PCF8574: &#x27;P5&#x27; on the</text>
+<text x="210.20" y="69.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">row of 8  (330 ohm pull-up)</text>
+<circle cx="207.60" cy="72.10" r="1.6" fill="#e0409a"/><text x="207.60" y="72.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">7</text>
+<text x="210.20" y="72.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 3: the TOP leg  -&gt;  PCF8574: &#x27;P6&#x27; on the</text>
+<text x="210.20" y="75.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">row of 8  (330 ohm pull-up)</text>
+<circle cx="207.60" cy="78.00" r="1.6" fill="#e0409a"/><text x="207.60" y="78.80" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">8</text>
+<text x="210.20" y="78.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 4: the TOP leg  -&gt;  PCF8574: &#x27;P7&#x27; on the</text>
+<text x="210.20" y="81.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">row of 8  (330 ohm pull-up)</text>
+<circle cx="207.60" cy="83.90" r="1.6" fill="#d11f1f"/><text x="207.60" y="84.70" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">9</text>
+<text x="210.20" y="84.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 1: the BOTTOM leg  -&gt;  PCF8574: &#x27;VCC&#x27; on</text>
+<text x="210.20" y="87.20" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">the PASS-THROUGH pins (right end)  (the 4 resistors&#x27;</text>
+<text x="210.20" y="89.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">other ends joined -&gt; underside of a VCC pin&#x27;s joint)</text>
+<circle cx="207.60" cy="92.30" r="1.6" fill="#d11f1f"/><text x="207.60" y="93.10" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">10</text>
+<text x="210.20" y="93.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 1: the BOTTOM leg  -&gt;  330 ohm resistor</text>
+<text x="210.20" y="95.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">2: the BOTTOM leg  (join)</text>
+<circle cx="207.60" cy="98.20" r="1.6" fill="#d11f1f"/><text x="207.60" y="99.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">11</text>
+<text x="210.20" y="99.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 2: the BOTTOM leg  -&gt;  330 ohm resistor</text>
+<text x="210.20" y="101.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">3: the BOTTOM leg  (join)</text>
+<circle cx="207.60" cy="104.10" r="1.6" fill="#d11f1f"/><text x="207.60" y="104.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">12</text>
+<text x="210.20" y="104.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">330 ohm resistor 3: the BOTTOM leg  -&gt;  330 ohm resistor</text>
+<text x="210.20" y="107.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">4: the BOTTOM leg  (join)</text>
+<path d="M202,24 V202.0" stroke="#ccc" stroke-width="0.3"/></svg>

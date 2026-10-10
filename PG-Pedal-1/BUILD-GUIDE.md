@@ -180,8 +180,9 @@ On the screen: open the **input** tab, page 2 (page selector to 2): **leveller**
 leveller's live view: what it cuts now, the last 5 seconds of it against the output level, and the 2 lights.
 
 Every wire, three ways (all from the same list, so they always agree):
-- `05-Wiring-and-Schematics/wiring-3d.pdf`: the open box in 3D, parts where they really sit, one page per job, the
-  pin names at both ends of each wire and a list in words.
+- `05-Wiring-and-Schematics/wiring-pictures.pdf`: START HERE. One page per job; every part drawn the way it looks
+  from where you solder (the switches' moulded lug numbers 1-8 / A / B, the encoder's row of 3 and row of 2, the pot's
+  2 rows), each wire running to its exact lug, and numbered steps in words ("RIGHT pin of the row of 3").
 - `wiring-diagram.pdf`: flat, every lug of every part; each wire end says where its other end goes.
 - `WIRE-LIST.md`: the tick list.
 
@@ -216,6 +217,17 @@ footswitch's other lug -> screen pin 2 (GND) -> **spliced onto the gnd jumper** 
 socket place 40), about 3 cm from the socket: strip 5 mm off that jumper's middle, wrap the chain's end round it,
 solder, cover with heat shrink. (A socket place only holds one jumper end, so the chain can't have its own.) (The old "audio chain" to pin 20 is gone: the
 jacks' sleeves are on the carrier board's isolated ground and must **not** be connected to anything else.)
+
+## 7b. Headphones: safe with every knob full up
+
+- Hot source (a preamp, a cranked phone): turn **Input Gain** down until it's clean; if the headphones then need
+  more, turn **Output Gain** up (up to +21 dB). That's the intended way to use it.
+- The output can never go past **2.1 V rms** (the headphone chip's own supply), and the **47 ohm** in each output line
+  caps what any headphones can get at about **24 mW** (48 mW if you drive it into hard clipping), whatever their
+  impedance, even with both knobs full up and the DSP glitching. 600 ohm headphones still get 1.97 V (loud).
+- Use **stereo (TRS) plugs** in the out jack. A mono plug shorts the right side: cranked, its 47 ohm runs hot and
+  may burn open (the right channel goes quiet; nothing else is harmed).
+- Your ears are the weaker part: start with Output Gain low.
 
 ## 8. First power-up
 

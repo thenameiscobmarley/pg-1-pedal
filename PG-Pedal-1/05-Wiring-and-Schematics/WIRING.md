@@ -1,7 +1,7 @@
 # PG-1 wiring (Seed3 cartridge, no extra parts)
 
 > **2026-10-10: OUT OF DATE except the socket-block steps.** Wire from `wiring-diagram.pdf` (every part, lug and wire),
-> `wiring-3d.pdf` (the same wires drawn inside the box) and `WIRE-LIST.md`, with `../BUILD-GUIDE.md`. The pin lists
+> `wiring-pictures.pdf` (every part drawn as it looks, each wire to its exact lug) and `WIRE-LIST.md`, with `../BUILD-GUIDE.md`. The pin lists
 > below predate the carrier board: there is no exp jack any more, no Seed3 pin is free, and there is no audio chain.
 
 

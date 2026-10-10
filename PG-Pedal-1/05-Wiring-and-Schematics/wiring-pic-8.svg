@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="297.0mm" height="210.0mm" viewBox="0 0 297.0 210.0"><rect width="297.0" height="210.0" fill="#fbfaf7"/><rect x="70.00" y="40.00" width="65.34" height="30.20" rx="1.5" fill="#1e4fb8" stroke="#0d2a66" stroke-width="0.35"/>
+<rect x="97.44" y="46.00" width="10.00" height="9.00" rx="0.5" fill="#111" stroke="#000" stroke-width="0.35"/>
+<text x="102.44" y="44.50" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.36" paint-order="stroke">PCF8574</text>
+<text x="102.67" y="38.00" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.50" paint-order="stroke">PCF8574 board (Amazon), parts side up</text>
+<rect x="64.00" y="45.53" width="7" height="1.0" fill="#d4a017"/>
+<text x="72.00" y="46.73" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">VCC</text>
+<rect x="134.34" y="45.23" width="5" height="1.6" fill="#111"/>
+<text x="133.34" y="46.73" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">VCC</text>
+<rect x="64.00" y="49.60" width="7" height="1.0" fill="#d4a017"/>
+<text x="72.00" y="50.80" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">GND</text>
+<rect x="134.34" y="49.30" width="5" height="1.6" fill="#111"/>
+<text x="133.34" y="50.80" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">GND</text>
+<rect x="64.00" y="53.66" width="7" height="1.0" fill="#d4a017"/>
+<text x="72.00" y="54.86" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SDA</text>
+<rect x="134.34" y="53.36" width="5" height="1.6" fill="#111"/>
+<text x="133.34" y="54.86" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SDA</text>
+<rect x="64.00" y="57.72" width="7" height="1.0" fill="#d4a017"/>
+<text x="72.00" y="58.92" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="start" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SCL</text>
+<rect x="134.34" y="57.42" width="5" height="1.6" fill="#111"/>
+<text x="133.34" y="58.92" font-family="DejaVu Sans, sans-serif" font-size="1.8" text-anchor="end" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.32" paint-order="stroke">SCL</text>
+<rect x="81.26" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="81.76" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P0</text>
+<rect x="85.33" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="85.83" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P1</text>
+<rect x="89.39" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="89.89" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P2</text>
+<rect x="93.45" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="93.95" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P3</text>
+<rect x="97.52" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="98.02" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P4</text>
+<rect x="101.58" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="102.08" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P5</text>
+<rect x="105.65" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="106.15" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P6</text>
+<rect x="109.71" y="69.20" width="1.0" height="7" fill="#d4a017"/>
+<text x="110.21" y="68.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">P7</text>
+<text x="115.09" y="73.20" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="start" fill="#555" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.42" paint-order="stroke">(INT: empty)</text>
+<rect x="19.00" y="140.00" width="28.35" height="9.00" rx="0.8" fill="#2e8b57" stroke="#1d5c39" stroke-width="0.35"/>
+<text x="33.18" y="147.60" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.36" paint-order="stroke">carrier board: expansion</text>
+<rect x="24.29" y="134.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
+<text x="24.79" y="143.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">3v3</text>
+<rect x="29.88" y="134.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
+<text x="30.38" y="143.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">gnd</text>
+<rect x="35.47" y="134.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
+<text x="35.97" y="143.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">scl</text>
+<rect x="41.06" y="134.00" width="1.0" height="7" fill="#d4a017" stroke="#8a6a00" stroke-width="0.2"/>
+<text x="41.56" y="143.40" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">sda</text>
+<rect x="138.00" y="138.00" width="28.38" height="12.00" rx="1.0" fill="#2a2a2a" stroke="#000" stroke-width="0.35"/>
+<text x="152.19" y="154.00" font-family="DejaVu Sans, sans-serif" font-size="2.0" text-anchor="middle" fill="#000" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.50" paint-order="stroke">expansion bay (4 jumper ends glued in the left wall)</text>
+<rect x="141.05" y="141.00" width="4.00" height="7.00" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.3"/>
+<text x="143.05" y="145.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">3v3</text>
+<rect x="147.14" y="141.00" width="4.00" height="7.00" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.3"/>
+<text x="149.14" y="145.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">gnd</text>
+<rect x="153.24" y="141.00" width="4.00" height="7.00" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.3"/>
+<text x="155.24" y="145.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">scl</text>
+<rect x="159.34" y="141.00" width="4.00" height="7.00" rx="0.3" fill="#111" stroke="#d4a017" stroke-width="0.3"/>
+<text x="161.34" y="145.50" font-family="DejaVu Sans, sans-serif" font-size="1.7" text-anchor="middle" fill="#fff" font-weight="bold" stroke="#000" stroke-opacity="0.5" stroke-width="0.31" paint-order="stroke">sda</text>
+<path d="M64.00,46.03 C35.11,46.03 24.79,105.11 24.79,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M64.00,46.03 C35.11,46.03 24.79,105.11 24.79,134.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="64.00" cy="46.03" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="24.79" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="33.56" cy="79.18" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="33.56" y="79.98" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">1</text>
+<path d="M64.00,50.10 C36.88,50.10 30.38,106.88 30.38,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M64.00,50.10 C36.88,50.10 30.38,106.88 30.38,134.00" fill="none" stroke="#111111" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="64.00" cy="50.10" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="30.38" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="37.02" cy="81.88" r="2.1" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="37.02" y="82.68" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#111111">2</text>
+<path d="M64.00,54.16 C39.12,54.16 41.56,109.12 41.56,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M64.00,54.16 C39.12,54.16 41.56,109.12 41.56,134.00" fill="none" stroke="#1f5fd1" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="64.00" cy="54.16" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="41.56" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="43.45" cy="84.75" r="2.1" fill="#fff" stroke="#1f5fd1" stroke-width="0.5"/><text x="43.45" y="85.55" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#1f5fd1">3</text>
+<path d="M64.00,58.22 C39.76,58.22 35.97,109.76 35.97,134.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M64.00,58.22 C39.76,58.22 35.97,109.76 35.97,134.00" fill="none" stroke="#1f5fd1" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="64.00" cy="58.22" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="35.97" cy="134.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="40.90" cy="87.02" r="2.1" fill="#fff" stroke="#1f5fd1" stroke-width="0.5"/><text x="40.90" y="87.82" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#1f5fd1">4</text>
+<path d="M139.34,46.03 C166.95,46.03 143.05,110.39 143.05,138.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M139.34,46.03 C166.95,46.03 143.05,110.39 143.05,138.00" fill="none" stroke="#d11f1f" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="139.34" cy="46.03" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="143.05" cy="138.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="151.55" cy="81.66" r="2.1" fill="#fff" stroke="#d11f1f" stroke-width="0.5"/><text x="151.55" y="82.46" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#d11f1f">5</text>
+<path d="M139.34,50.10 C165.87,50.10 149.14,111.47 149.14,138.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M139.34,50.10 C165.87,50.10 149.14,111.47 149.14,138.00" fill="none" stroke="#111111" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="139.34" cy="50.10" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="149.14" cy="138.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="154.19" cy="84.10" r="2.1" fill="#fff" stroke="#111111" stroke-width="0.5"/><text x="154.19" y="84.90" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#111111">6</text>
+<path d="M139.34,54.16 C165.34,54.16 161.34,112.00 161.34,138.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M139.34,54.16 C165.34,54.16 161.34,112.00 161.34,138.00" fill="none" stroke="#1f5fd1" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="139.34" cy="54.16" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="161.34" cy="138.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="160.09" cy="86.33" r="2.1" fill="#fff" stroke="#1f5fd1" stroke-width="0.5"/><text x="160.09" y="87.13" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#1f5fd1">7</text>
+<path d="M139.34,58.22 C163.74,58.22 155.24,113.60 155.24,138.00" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="1.7" stroke-linecap="round"/>
+<path d="M139.34,58.22 C163.74,58.22 155.24,113.60 155.24,138.00" fill="none" stroke="#1f5fd1" stroke-width="1.2" stroke-linecap="round"/>
+<circle cx="139.34" cy="58.22" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="155.24" cy="138.00" r="0.9" fill="#c9ccd1" stroke="#555" stroke-width="0.2"/>
+<circle cx="156.44" cy="88.96" r="2.1" fill="#fff" stroke="#1f5fd1" stroke-width="0.5"/><text x="156.44" y="89.76" font-family="DejaVu Sans" font-size="2.2" text-anchor="middle" font-weight="bold" fill="#1f5fd1">8</text>
+<text x="8.00" y="9.00" font-family="DejaVu Sans, sans-serif" font-size="4.4" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="1.10" paint-order="stroke">PG-1 wiring, page 8 of 10: PCF8574 board -&gt; carrier board and the expansion bay</text>
+<text x="8.00" y="15.00" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">The 4 input pins go to the board&#x27;s &#x27;expansion&#x27; header; its 4 pass-through pins go to the bay in the left wall. The PCF8574 board is stuck to the </text>
+<text x="8.00" y="18.20" font-family="DejaVu Sans, sans-serif" font-size="2.3" text-anchor="start" fill="#333" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.57" paint-order="stroke">inside of the lid with velcro. </text>
+<text x="206.00" y="26.00" font-family="DejaVu Sans, sans-serif" font-size="2.7" text-anchor="start" fill="#111" font-weight="bold" stroke="#fff" stroke-opacity="1" stroke-width="0.68" paint-order="stroke">Steps (the number is on the wire):</text>
+<circle cx="207.60" cy="29.20" r="1.6" fill="#d11f1f"/><text x="207.60" y="30.00" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">1</text>
+<text x="210.20" y="30.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;VCC&#x27; on the INPUT pins (left end)  -&gt;  board</text>
+<text x="210.20" y="32.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">&#x27;expansion&#x27; header: pin &#x27;3v3&#x27; (1st from the left) </text>
+<text x="210.20" y="35.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">(jumper (3.3 V))</text>
+<circle cx="207.60" cy="37.60" r="1.6" fill="#111111"/><text x="207.60" y="38.40" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">2</text>
+<text x="210.20" y="38.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;GND&#x27; on the INPUT pins (left end)  -&gt;  board</text>
+<text x="210.20" y="40.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">&#x27;expansion&#x27; header: pin &#x27;gnd&#x27; (2nd from the left)</text>
+<circle cx="207.60" cy="43.50" r="1.6" fill="#1f5fd1"/><text x="207.60" y="44.30" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">3</text>
+<text x="210.20" y="44.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;SDA&#x27; on the INPUT pins (left end)  -&gt;  board</text>
+<text x="210.20" y="46.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">&#x27;expansion&#x27; header: pin &#x27;sda&#x27; (last on the right)</text>
+<circle cx="207.60" cy="49.40" r="1.6" fill="#1f5fd1"/><text x="207.60" y="50.20" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">4</text>
+<text x="210.20" y="50.20" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;SCL&#x27; on the INPUT pins (left end)  -&gt;  board</text>
+<text x="210.20" y="52.70" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">&#x27;expansion&#x27; header: pin &#x27;scl&#x27; (3rd from the left)</text>
+<circle cx="207.60" cy="55.30" r="1.6" fill="#d11f1f"/><text x="207.60" y="56.10" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">5</text>
+<text x="210.20" y="56.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;VCC&#x27; on the PASS-THROUGH pins (right end)  -&gt; </text>
+<text x="210.20" y="58.60" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">expansion bay: the &#x27;3v3&#x27; place  (jumper, its far end</text>
+<text x="210.20" y="61.10" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">glued in the bay)</text>
+<circle cx="207.60" cy="63.70" r="1.6" fill="#111111"/><text x="207.60" y="64.50" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">6</text>
+<text x="210.20" y="64.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;GND&#x27; on the PASS-THROUGH pins (right end)  -&gt; </text>
+<text x="210.20" y="67.00" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">expansion bay: the &#x27;gnd&#x27; place  (jumper, its far end</text>
+<text x="210.20" y="69.50" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">glued in the bay)</text>
+<circle cx="207.60" cy="72.10" r="1.6" fill="#1f5fd1"/><text x="207.60" y="72.90" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">7</text>
+<text x="210.20" y="72.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;SDA&#x27; on the PASS-THROUGH pins (right end)  -&gt; </text>
+<text x="210.20" y="75.40" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">expansion bay: the &#x27;sda&#x27; place  (jumper, its far end</text>
+<text x="210.20" y="77.90" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">glued in the bay)</text>
+<circle cx="207.60" cy="80.50" r="1.6" fill="#1f5fd1"/><text x="207.60" y="81.30" font-family="DejaVu Sans" font-size="1.9" text-anchor="middle" font-weight="bold" fill="#fff">8</text>
+<text x="210.20" y="81.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#111" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">PCF8574: &#x27;SCL&#x27; on the PASS-THROUGH pins (right end)  -&gt; </text>
+<text x="210.20" y="83.80" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">expansion bay: the &#x27;scl&#x27; place  (jumper, its far end</text>
+<text x="210.20" y="86.30" font-family="DejaVu Sans, sans-serif" font-size="1.75" text-anchor="start" fill="#444" font-weight="normal" stroke="#fff" stroke-opacity="1" stroke-width="0.44" paint-order="stroke">glued in the bay)</text>
+<path d="M202,24 V202.0" stroke="#ccc" stroke-width="0.3"/></svg>

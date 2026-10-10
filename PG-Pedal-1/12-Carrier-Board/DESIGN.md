@@ -119,3 +119,23 @@ Files in `jlcpcb/` (`python3 make_bom.py && python3 make_board.py && python3 mak
 - **The leveller can only cut** (an LDR shunt), its LED current tops out at ~11 mA (LEDs rated 20 mA).
 - **Guitar**: R31 / R41 not fitted: the input is 1.46 Mohm, flat to 10 kHz (with them 595k, ~2.4 dB less sparkle).
 - The 9 V jack moved to the left wall: nothing hangs over the board now (DC_ZONE empty).
+
+## Headphone power cap (2026-10-10, user: "even if the user cranks both gains it can't destroy the headset")
+
+R50 / R60 (the series resistors between the TPA6139A2 and the out jack) went from 1 ohm to **47 ohm** (C23182, 0603,
+value change only: no re-route). The TPA6139A2 swings at most 3.0 V peak (2.12 V rms, its +-3.3 V charge pump) and
+limits at 60 mA (TI datasheet). Worst case, both knobs full up, output clipping:
+
+| load | V rms at the phones | sine | hard-clipped square |
+|---|---|---|---|
+| 16 ohm | 0.54 V | 18 mW | 36 mW |
+| 32 ohm | 0.86 V | 23 mW | 46 mW |
+| 50 ohm | 1.09 V | 24 mW | 48 mW |
+| 300 ohm | 1.83 V | 11 mW | 22 mW |
+| 600 ohm | 1.97 V | 6.4 mW | 13 mW |
+| 10k (line in) | 2.11 V | - | - |
+
+The most any load can take is at 47 ohm: 2.12^2 / (4 x 47) = 24 mW. Before (1 ohm) a 50 ohm headset could get 90 mW
+(180 mW clipped). Cost: 47 ohm output impedance (IEC 61938 allows 120 ohm); 600 ohm phones lose 0.65 dB. A mono plug
+(shorted ring) with everything cranked puts up to 85 mW (sine) / 170 mW (square) in the 0.1 W resistor: it may burn open,
+the channel goes quiet, nothing else is harmed.

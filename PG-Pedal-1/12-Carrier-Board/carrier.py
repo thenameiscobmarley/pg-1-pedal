@@ -145,7 +145,10 @@ for k, ch in enumerate("LR"):
     P(f"C{b+3}", "100pF C0G", C0603, "", {1: n("GIN_W"), 2: n("IN_G")}, "keeps the stage calm with the pot on wires")
 # ---------------------------------------------------------------- the output, per channel
 # codec line out -> 4.7 uF -> pg-hp stage (inverting, the pot between 1k ends: -21 dB .. 0 (centre) .. +21 dB) ->
-# 1 uF -> TPA6139A2 (x-2, ground-centred: no output caps, short-proof, pop-free) -> 1 ohm -> jack
+# 1 uF -> TPA6139A2 (x-2, ground-centred: no output caps, short-proof, pop-free) -> 47 ohm -> jack
+# The 47 ohm is the headphone safety cap: with both gain knobs full up and the output clipping, the most ANY headphones
+# can get is (2.12 V rms)^2 / (4 x 47) = 24 mW (48 mW as a square wave), whatever their impedance; 600 ohm phones still
+# get 1.97 V rms (-0.65 dB), line inputs see no difference. (IEC 61938 allows 120 ohm for headphone outputs.)
 for k, ch in enumerate("LR"):
     n = lambda s: f"{s}_{ch}"
     b = 50 + 10 * k
@@ -154,7 +157,7 @@ for k, ch in enumerate("LR"):
     P(f"R{b+2}", "1k", R0603, "", {1: n("GOUT_B"), 2: n("OUT_G")})
     P(f"C{b+2}", "100pF C0G", C0603, "", {1: n("GOUT_W"), 2: n("OUT_G")}, "keeps the stage calm with the pot on wires")
     P(f"C{b+1}", "1uF", C0603, "", {1: n("OUT_G"), 2: n("HPIN")})
-    P(f"R{b}", "1", R0603, "", {1: n("HPO"), 2: n("JOUT")})
+    P(f"R{b}", "47", R0603, "", {1: n("HPO"), 2: n("JOUT")}, "headphone power cap (see above)")
 # ---------------------------------------------------------------- fx loop (for an add-on board later, no new order)
 # codec line out -> J22 -> back into the pg-hp stage. Since the analog leveller (below) went on the board, its followers
 # drive the returns: J22 stays OPEN (bridges would short a follower's output to the codec). Test points + iso I2C / 3.3 V.
@@ -213,7 +216,7 @@ P("D62", "PSM712", "Package_TO_SOT_SMD:SOT-23", "PSM712-LF-T7", {1: "JOUT_L", 2:
 # small resistors and capacitors in 0402 (JLCPCB basic parts; the board shrank to clear the box's corner posts),
 # except the two values JLCPCB only stocks as basic parts in 0603
 R0402, C0402 = "Resistor_SMD:R_0402_1005Metric", "Capacitor_SMD:C_0402_1005Metric"
-parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") and r != "R70" else C0402 if fp == C0603 else fp), m, pins, n)
+parts[:] = [(r, v, (R0402 if fp == R0603 and v not in ("470k", "1") and r not in ("R70", "R50", "R60") else C0402 if fp == C0603 else fp), m, pins, n)
             for r, v, fp, m, pins, n in parts]
 
 NET_ALIASES = {}

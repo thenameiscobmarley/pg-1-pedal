@@ -240,3 +240,8 @@ Steps:
       Separation /RDG_GLOSS) -> Tayda template saved with gloss Varnish, no white. Docs dated / de-staled (8-way,
       exp jack, free pins). 3D wiring (_Tools/pg_wiring3d.py -> wiring-3d.pdf, 7 pages); flat drawing names the far end
       in words. Headphones: 2.1 V rms ceiling -> 600 ohm gets 7.5 mW.
+- [x] 59. 2026-10-10: headphone power cap: R50/R60 1 -> 47 ohm (C23182, value only, JLC BOM regenerated, BoardData.h
+      re-exported): any load gets <= 24 mW (48 mW clipped) with both knobs full up; 600 ohm still 1.97 V rms. Power dial:
+      "0", then a pink ON arc over clicks 2-4 ("1" on 2 and 3; all three wired on). Wiring pictures
+      (_Tools/pg_wiring_pics.py -> wiring-pictures.pdf, 10 pages: each part drawn as seen when soldering, RS16 lug layout
+      from its datasheet, every wire to its exact lug, steps in words) replace the 3D pages.
