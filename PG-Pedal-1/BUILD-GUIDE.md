@@ -11,7 +11,7 @@ which were written before the carrier board existed. Pin numbers here come strai
 | Where | What |
 |---|---|
 | **JLCPCB** | the carrier board: upload `12-Carrier-Board/jlcpcb/` (gerbers zip, BOM csv, CPL csv). PCB qty 5, PCBA qty 2, Economic, Top side, Confirm Parts Placement yes. JLCPCB also solders on the **2 Neutrik jacks and the B0505S** (in the files: no Mouser). In their placement preview check pin 1 of U3 (B0505S), U15, U16, Q1, the band of D63, and that the jack noses point off the top edge. |
-| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 black chicken heads, the leveller's LEDs + light sensors + black heat shrink |
+| **Tayda** (`02-Parts-and-Cart/tayda-cart-import.csv`, 22 lines) | box, screen, encoders, knobs, footswitches + pink caps, 9 V jack, the **2 gain pots (A-8618)**, 2 packs female/female jumpers, screen screws / spacers / nuts, black wire, cable ties, the 2 header strips, the 2 rotary switches (power, page) + 2 pink chicken heads, the leveller's LEDs + light sensors + black heat shrink |
 | **drill.taydakits.com** | the drill + UV print job (templates already uploaded) |
 | **Amazon** | PCF8574 I/O board (page selector): https://www.amazon.com/dp/B00DUO17J6 |
 | **Seed3** | Daisy Seed3 **with headers** |
@@ -92,7 +92,7 @@ Find the pot's pins 1 and 3 with the multimeter (ohms), knob turned fully LEFT:
   female ends into the slot from inside until flush, hot glue them on the inside (warm the wall with a hair dryer
   first). Note which colour is which pin. Modules plug onto them from outside later.
 
-## 6b. The page selector (black chicken head, top right of the two, 4 clicks)
+## 6b. The page selector (pink chicken head, top right of the two, 4 clicks)
 
 Whatever tab is open, the selector picks its **settings page**: position 1 = page 1, 2 = page 2... A tab with fewer
 pages just shows its last one. Without the selector fitted, swiping / pg-b still change pages.
@@ -107,10 +107,10 @@ pages just shows its last one. Without the selector fitted, swiping / pg-b still
 - Velcro the PCF8574 to the inside of the lid. The firmware finds it by itself (any address).
 - **Mounting** (both switches the same): snap off the little locating tab on the switch's front with pliers, through
   the 9 mm hole, turn the body so position 1 lines up with the "1" dot, tighten the nut (2 mm nut + washer: up to 4 mm
-  of panel). Turn it fully left and push the **black chicken head** (A-6741) straight down onto the splined shaft,
-  pointing at "1". No screw: it's a push fit on the 18 teeth.
+  of panel). Turn it fully left, put the **pink chicken head** (A-6623) on pointing at "1" and tighten its set screw
+  (1.5 mm hex key) onto the shaft.
 
-## 6b2. The power switch (black chicken head, top left of the two: 0 = off, 1 = on)
+## 6b2. The power switch (pink chicken head, top left of the two: 0 = off, 1 = on)
 
 The same switch (A-8233) in the **+ wire** from the 9 V jack: position 1 = off ("0"), any other position = on ("1": the
 other two clicks are on too). Off, the pedal draws nothing. The Seed3 runs from the 9 V through the carrier board's

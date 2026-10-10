@@ -65,8 +65,9 @@ LCSC.update({("fx loop", "PinHeader_2x04_P2.54mm_Vertical"): "C32713277"})
 LCSC.update({("TLV9062", "SOIC-8_3.9x4.9mm_P1.27mm"): "C398355", ("XC6206P332MR", "SOT-23"): "C5446"})
 # through-hole parts you solder yourself (big pins, easy): left off the JLCPCB order to save their part-type fees and
 # the hand-soldering / manual-assembly charges. Buy them with the pots (see BOM.md).
-# JLCPCB also hand-solders the B0505S (U3) and the two Neutrik jacks (J1, J2): no Mouser order, no extra shipping
-SKIP = {"J10", "J19", "J20", "J21", "J22", "OC1", "OC2"}   # (you solder the headers and the 2 LED + LDR pairs)
+# JLCPCB also hand-solders the B0505S (U3, ~$8 for the 2 boards with its fees): no Mouser order, no extra shipping.
+# You solder the 2 Neutrik jacks (from Amazon), the headers and the 2 LED + LDR pairs.
+SKIP = {"J1", "J2", "J10", "J19", "J20", "J21", "J22", "OC1", "OC2"}
 # NOT FITTED at all (pads stay empty): C31 / C41, 100 pF on the input's 500 k bias divider, made a 3.2 kHz low-pass
 # (found by the board simulation, 10-Carla-Plugin/Source/sim). Radio is still kept out at the jack (1k + the clamp).
 DNP = {"C31", "C41", "R31", "R41"}

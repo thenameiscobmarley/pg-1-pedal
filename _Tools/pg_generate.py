@@ -53,18 +53,21 @@ SMALL_KNOB_D = 14.0
 SMALL_WORDS = {PG + "line": ("Input Gain dB", "any level,|not too hot"), PG + "hp": ("Output Gain dB", "phones or|line in")}
 # the page selector: an 8-way rotary switch (Tayda A-8626, RS16, 9 mm hole) with a chicken-head knob, between the gain
 # knobs. Left of centre is the 9 V jack's body behind the face (x -20 .. -6), so it sits at x +8.
-SELECTOR = (16.4, 51.5, 9.0)
+SELECTOR = (14.0, 54.0, 9.0)
 # the power switch: a mini rotary switch (Tayda A-8233, 2 pole 4 position, 16 V 0.3 A, the same 9 mm hole / 6 mm spline
 # shaft as the page selector) with a pink chicken head: position 1 = 0 (off), the rest = 1 (on). Left of the screen,
 # below the sideways logo; behind the face it clears the pg-1 encoder, the screen module and the expansion bay.
-POWER = (-16.0, 51.5, 9.0)
+POWER = (-14.0, 56.0, 9.0)
 SELECTOR_TABS = ["1", "2", "3", "4"]   # the settings PAGE of the open tab (the closest one it has)
 # Both switches are Tayda A-8233 (RS16211-24: 2 pole x 4 positions, 45 degrees apart, 135 degrees end to end; body
-# 16 mm across, 10 mm deep + 4 mm pins) with BLACK chicken heads A-6741 (23.4 long, 16.5 wide skirt, 14.5 tall; the
-# pointer reaches 12.1 mm from the shaft, the tail nub 11.3). Pointer angles of position 1 (then -45 per click), chosen
-# so the two knobs never touch anywhere along their whole travel (check_knob_sweeps):
-POWER_POS1, SELECTOR_POS1 = 157.5, 112.5
-KNOB_SKIRT, KNOB_REACH, KNOB_HALFW, KNOB_TAIL, KNOB_TAILW = 8.25, 12.1, 3.4, 11.3, 1.6
+# 16 mm across, 10 mm deep + 4 mm pins) with PINK chicken heads A-6623 (32 long, 19.5 skirt, 14 tall: the pointer
+# reaches 22.25 mm from the shaft). Pointer angle of position 1 (then -45 per click), chosen so the two knobs never
+# touch along their whole travel (check_knob_sweeps; 1.6 mm at the closest) and every label sits on the face. Pointing
+# up, a pointer hangs up to ~6 mm past the top edge
+# (above the face: the jack plugs in the top wall are below it).
+POWER_POS1, SELECTOR_POS1 = 205.0, 125.0
+KNOB_SKIRT, KNOB_REACH, KNOB_HALFW, KNOB_TAIL, KNOB_TAILW = 9.75, 22.25, 3.5, 0.1, 0.1
+KNOB_OVERHANG = 6.5   # how far past the top edge a pointer may reach
 # the 9 V DC jack (A-2237, 12 mm hole) is in the LEFT wall (side C), low: between the pg-1 knob and the pg-a footswitch
 DC_SIDE, DC_Y, DC_HOLE = "C", -34.0, 12.0
 CARRIER_H = 26.0                       # carrier board depth (mm, from the top wall in)
@@ -366,11 +369,11 @@ def build_face_art():
             A.stroke(poly_path([(px + 4.5, py - 0.6), (px + 4.5, py + 0.6)]), 0.3)
     # the page selector: a dot per position (the first pink) just beyond the pointer, its page number outside it
     sx, sy, _ = SELECTOR
-    A.fill(mono.outline("page", sx - 14.0, sy - 6.5, 2.0), PINK)
+    A.fill(mono.outline("page", sx + 10.5, sy - 11.0, 2.0), PINK)
     for i, t in enumerate(SELECTOR_TABS):
         a = math.radians(SELECTOR_POS1 - 45 * i)
-        A.fill(circle_path(sx + 13.4 * math.cos(a), sy + 13.4 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
-        A.fill(mono.outline(t, sx + 16.2 * math.cos(a), sy + 16.2 * math.sin(a) - 0.9, 2.4))
+        A.fill(circle_path(sx + 10.6 * math.cos(a), sy + 10.6 * math.sin(a), 0.55 if i == 0 else 0.4), PINK if i == 0 else INK)
+        A.fill(mono.outline(t, sx + 12.6 * math.cos(a), sy + 12.6 * math.sin(a) - 0.9, 2.4))
     # Seed3 cartridge: label written up the edge on its side, level with the window ("usb-c" at the USB end)
     A.fill(rot90(mono.outline("usb-c \u00b7 seed3", 0, 0, 2.6), SEED_X_SIGN * 51.4, SEED_Y))
 
@@ -378,10 +381,10 @@ def build_face_art():
     px_, py_, _ = POWER
     for i in range(4):
         a = math.radians(POWER_POS1 - 45 * i)
-        A.fill(circle_path(px_ + 13.4 * math.cos(a), py_ + 13.4 * math.sin(a), 0.5), PINK if i == 0 else INK)
+        A.fill(circle_path(px_ + 10.6 * math.cos(a), py_ + 10.6 * math.sin(a), 0.5), PINK if i == 0 else INK)
         if i < 2:
-            A.fill(mono.outline("0" if i == 0 else "1", px_ + 16.2 * math.cos(a), py_ + 16.2 * math.sin(a) - 0.9, 2.6))
-    A.fill(mono.outline("power", px_ - 14.0, py_ - 5.0, 1.9), PINK)
+            A.fill(mono.outline("0" if i == 0 else "1", px_ + 12.6 * math.cos(a), py_ + 12.6 * math.sin(a) - 0.9, 2.6))
+    A.fill(mono.outline("power", px_ + 2.0, py_ - 13.6, 1.9), PINK)
     # the 9 V jack's label, sideways on the left edge level with the jack (tilt the pedal to read it, like usb-c)
     A.fill(rot90(mono.outline("9v", 0, 0, 2.6), -51.4, DC_Y + 5.6))
     # centre-negative mark, drawn along the edge (reads bottom to top like the text): minus - ( . ) - plus
@@ -436,8 +439,8 @@ def check_knob_sweeps():
         if w < 1.0:
             raise SystemExit(f"the {name} knob comes within {w:.2f} mm of a gain knob / screen screw")
         tip = max(p[4] for a in sw for p in a if p[0] == "s")
-        if tip > FACE_H / 2 - 0.8:
-            raise SystemExit(f"the {name} knob's pointer reaches past the top edge ({tip:.1f})")
+        if tip > FACE_H / 2 + KNOB_OVERHANG:
+            raise SystemExit(f"the {name} knob's pointer reaches too far past the top edge ({tip:.1f})")
     # behind the face: the RS16 bodies (16 mm, 10 mm deep + pins) against the jack bodies (top wall, from y 46.45, 3..26
     # deep) and the screen module (to y 42.75)
     for name, (x, y, _) in (("power", POWER), ("page selector", SELECTOR)):
@@ -574,9 +577,9 @@ def holes_table():
     for i, (x, y) in enumerate(SCREWS, 1):
         rows.append(("A", "hole", f"screen screw {i}", x, y, round(SCREW_HOLE + PC, 2), "", "", "M3 screw for 2.4in screen + board"))
     rows.append(("A", "hole", "page selector", SELECTOR[0], SELECTOR[1], round(SELECTOR[2] + PC, 2), "", "",
-                 "4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + black chicken head A-6741"))
+                 "4-way mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"))
     rows.append(("A", "hole", "power switch", POWER[0], POWER[1], round(POWER[2] + PC, 2), "", "",
-                 "power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + black chicken head A-6741"))
+                 "power: mini rotary switch A-8233 (RS16 2P4T, 9 mm bushing) + pink chicken head A-6623"))
     rows.append((DC_SIDE, "hole", "9v", 0.0, DC_Y, round(DC_HOLE + PC, 2), "", "", "DC jack A-2237 (12mm cut-out), left wall"))
     rows.append(("A", "rectangle", "screen window", 0.0, LCD_CY, "", round(LCD_WIN[0] + PC, 2),
                  round(LCD_WIN[1] + PC, 2), "2.4in ILI9341 A-8180 visible area"))
@@ -694,12 +697,12 @@ def write_art(A):
             a = math.radians(k * 15)
             p.append(f'<path d="M{x+5.6*math.cos(a):.2f},{-y+5.6*math.sin(a):.2f} L{x+7*math.cos(a):.2f},{-y+7*math.sin(a):.2f}" stroke="#c6c6c3" stroke-width="0.35"/>')
         p.append(f'<path d="M{x},{-y-5.4} v2.4" stroke="#222" stroke-width="0.6" stroke-linecap="round"/>')
-    for (sx, sy, _), tipdeg in ((POWER, POWER_POS1), (SELECTOR, SELECTOR_POS1)):   # black chicken heads at position 1
-        p.append(f'<circle cx="{sx}" cy="{-sy}" r="{KNOB_SKIRT}" fill="#2a2a2a" stroke="#000" stroke-width="0.4" filter="url(#sh)"/>')
+    for (sx, sy, _), tipdeg in ((POWER, POWER_POS1), (SELECTOR, SELECTOR_POS1)):   # pink chicken heads at position 1
+        p.append(f'<circle cx="{sx}" cy="{-sy}" r="{KNOB_SKIRT}" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4" filter="url(#sh)"/>')
         tip = math.radians(tipdeg)
         cx_, cy_ = math.cos(tip), math.sin(tip)
         p.append(f'<path d="M{sx-KNOB_HALFW*cy_:.2f},{-sy-KNOB_HALFW*cx_:.2f} L{sx+KNOB_REACH*cx_-1.2*cy_:.2f},{-sy-KNOB_REACH*cy_-1.2*cx_:.2f} '
-                 f'L{sx+KNOB_REACH*cx_+1.2*cy_:.2f},{-sy-KNOB_REACH*cy_+1.2*cx_:.2f} L{sx+KNOB_HALFW*cy_:.2f},{-sy+KNOB_HALFW*cx_:.2f} Z" fill="#2a2a2a" stroke="#000" stroke-width="0.4"/>')
+                 f'L{sx+KNOB_REACH*cx_+1.2*cy_:.2f},{-sy-KNOB_REACH*cy_+1.2*cx_:.2f} L{sx+KNOB_HALFW*cy_:.2f},{-sy+KNOB_HALFW*cx_:.2f} Z" fill="#f2a6cc" stroke="#b9487f" stroke-width="0.4"/>')
         p.append(f'<path d="M{sx},{-sy} L{sx+(KNOB_REACH-0.8)*cx_:.2f},{-sy-(KNOB_REACH-0.8)*cy_:.2f}" stroke="#eee" stroke-width="0.5"/>')
     open(os.path.join(d, "pg1-face-preview.svg"), "w").write(
         svg_doc(FACE_W + 10, FACE_H + 14, "\n".join(p), (-(FACE_W + 10) / 2, -(FACE_H + 14) / 2 - 1, FACE_W + 10, FACE_H + 14), "#e9e7e2"))

@@ -25,9 +25,9 @@ namespace dims
     constexpr float sideB[2][2] = { { -0.34f, 0 }, { 0.34f, 0 } }; // in, out (the Neutrik jacks on the carrier board)
     constexpr float dcZ = 0.34f;   // the 9 V jack: in the LEFT wall, low (face y -34), between pg-1 and pg-a
     constexpr float smallKnobs[2][2] = { { 0.48f, -0.52f }, { -0.48f, -0.52f } };   // pg-hp (under "out"), pg-line (under "in") (x, z = -face y)
-    constexpr float selX = 0.164f, selZ = -0.515f;   // the page selector (A-8233, 4 clicks 45 degrees apart, black chicken head)
-    constexpr float powX = -0.16f, powZ = -0.515f;   // the power switch (the same: position 1 = 0 = off, 2 = 1 = on)
-    inline float selAngle (int pos) { return (112.5f - 45.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..4
+    constexpr float selX = 0.14f, selZ = -0.54f;    // the page selector (A-8233, 4 clicks 45 degrees apart, pink chicken head)
+    constexpr float powX = -0.14f, powZ = -0.56f;   // the power switch (the same: position 1 = 0 = off, 2 = 1 = on)
+    inline float selAngle (int pos) { return (125.0f - 45.0f * (float) (pos - 1)) * 3.14159265f / 180.0f; }   // face angle of position 1..4
     constexpr float seedSide = 1.f;   // the Seed3 cartridge is in the right wall (-1 = left)
     // the Seed3 cartridge: stands on its edge in a window in the left wall (face y 15.5 mm), parts side out,
     // USB-C toward the footswitches; 4 socket board screws, 29.21 mm beyond the window centre each way, 10.16 mm above and below
@@ -436,14 +436,14 @@ void PedalView::renderOpenGL()
         for (auto& k : knobParts)
             draw (*progPlastic, k->gpu, k->rotates ? turned : base, k->role == hwk::models::Role::pointer ? Vec3 { 0.12f, 0.12f, 0.13f } : Vec3 { 0.93f, 0.93f, 0.91f });
     }
-    {   // the black chicken heads (A-6741): the page selector at its position, power at 0 or 1
+    {   // the pink chicken heads (A-6623): the page selector at its position, power at 0 or 1
         const Mat4 at = Mat4::translation ({ selX, 0.02f, selZ }) * Mat4::rotationY (selAngle (selPos.load()));   // (rotationY (a) turns +x to face angle a: x, -z)
-        draw (*progPlastic, meshChicken, at, { 0.10f, 0.10f, 0.11f });
-        draw (*progPlastic, meshChickenLine, at, { 0.92f, 0.92f, 0.92f });
-        const float pa = (isOn() ? 112.5f : 157.5f) * geo::kPi / 180.0f;   // "0" (position 1) at 157.5 degrees, "1" at 112.5
+        draw (*progPlastic, meshChicken, at, { 1.0f, 0.55f, 0.78f });
+        draw (*progPlastic, meshChickenLine, at, { 0.95f, 0.95f, 0.95f });
+        const float pa = (isOn() ? 160.0f : 205.0f) * geo::kPi / 180.0f;   // "0" (position 1) at 205 degrees, "1" at 160
         const Mat4 pw = Mat4::translation ({ powX, 0.02f, powZ }) * Mat4::rotationY (pa);
-        draw (*progPlastic, meshChicken, pw, { 0.10f, 0.10f, 0.11f });
-        draw (*progPlastic, meshChickenLine, pw, { 0.92f, 0.92f, 0.92f });
+        draw (*progPlastic, meshChicken, pw, { 1.0f, 0.55f, 0.78f });
+        draw (*progPlastic, meshChickenLine, pw, { 0.95f, 0.95f, 0.95f });
     }
 }
 
@@ -601,9 +601,9 @@ void PedalView::mouseDrag (const juce::MouseEvent& e)
             {
                 const float fx = (dm.x * ay.y - dm.y * ay.x) / det, fy = (ax.x * dm.y - ax.y * dm.x) / det;
                 float deg = std::atan2 (fy, fx) * 180.0f / geo::kPi;
-                if (deg < -112.5f)
-                    deg += 360.0f;   // position 1 is at 112.5 degrees, 4 at -22.5
-                setSelector ((int) std::lround ((112.5f - deg) / 45.0f) + 1);
+                if (deg < -100.0f)
+                    deg += 360.0f;   // position 1 is at 125 degrees, 4 at -10
+                setSelector ((int) std::lround ((125.0f - deg) / 45.0f) + 1);
             }
             break;
         }

@@ -218,3 +218,8 @@ Steps:
       -> R34 / R44 20k: worst over 5-150 ms +-12/+-24 V hits, released or reversed, 5 V up to 5.3 V: -0.02 .. +1.85 V.
       kInGain 0.0807. The board simulator mis-solves sustained +-12 V DC at the input (output side goes to nonsense);
       ngspice shows the real output untouched (< 20 mV) - a known limit of our simulator, not the board.
+- [x] 54. 2026-10-10: no Mouser. JLCPCB fits only U3 (B0505S, ~$8 with fees for the 2 boards = JLC's minimum PCBA qty,
+      one design); the 2 Neutrik jacks from Amazon (B00FV23QH6), soldered by the user; gain pots Tayda A-8618.
+      PINK chicken heads back (A-6623, 32 x 19.5): power (-14, 56) "0" at 205 deg, page (14, 54) pages 1-4 from 125 deg;
+      1.8 mm apart at the closest along their whole travel, every label on the face, pointers up to 6 mm past the top
+      edge (above the face; the jack plugs are below it). Tayda re-uploaded; cart 22 lines $56.69.

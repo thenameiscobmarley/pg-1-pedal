@@ -25,12 +25,12 @@ You should end up with **22 lines**, exact quantities. The Seed3 is a **cartridg
 | A-7409 | 1 | $0.49 | $0.49 | Black cable ties 3x100mm (100pcs) | tidy the wire bundles |
 | A-199 | 1 | $0.17 | $0.17 | 40 pin 2.54mm right-angle single-row male pin header | carrier board: snap into 10 + 6 + 6 + 4 (J10, J20, J19, J21) |
 | A-198 | 1 | $0.21 | $0.21 | 2x40 pin 2.54mm double-row male pin header strip | carrier board: snap off a 2 x 4 (fx loop J22) |
-| A-6741 | 2 | $0.40 | $0.80 | Chicken head knob, black, 23.4 x 16.5 mm, push-on 6 mm 18-tooth spline | on the power switch and the page selector (the pink 32 mm one would sweep over the screen) |
+| A-6623 | 2 | $0.49 | $0.98 | Chicken head knob, PINK, 32 x 19.5 mm, set screw (1.5 mm key) | on the power switch and the page selector |
 | A-8233 | 2 | $1.09 | $2.18 | Mini rotary switch 2 pole 4 position RS16 (9 mm hole, 6 mm spline shaft, 16 V 0.3 A, 45 degree clicks) | the power switch (0 = off, 1 = on) and the page selector (pages 1-4) |
 | A-5800 | 4 | $0.28 | $1.12 | LDR 10-15k (5 mm) | analog leveller: the light sensors, OC1 / OC2 on the board's lid side (2 spare) |
 | A-8041 | 4 | $0.04 | $0.16 | LED 3 mm red, flat top (3.85 mm head) | analog leveller: one pressed on each LDR (2 spare) |
 | A-4918 | 1 | $0.14 | $0.14 | Black heat shrink 6 mm, 20 cm | analog leveller: a 15 mm light-tight sleeve over each LED + LDR pair |
-| | | | **$56.51** | **Tayda subtotal** | |
+| | | | **$56.69** | **Tayda subtotal** | |
 
 The drilled box + UV print are ordered on drill.taydakits.com, not in this cart: drill service $4.50 (up to 40 holes) + face UV print $3.50.
 
